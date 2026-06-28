@@ -4,20 +4,20 @@ import React from "react";
 
 const links = [
     {
-        title: 'Vercel',
-        href: 'https://vercel.com/',
+        title: 'About',
+        href: '#about',
     },
     {
-        title: 'v0',
-        href: 'https://v0.dev/',
+        title: 'Events',
+        href: '#events',
     },
     {
-        title: 'Meetup SDK',
-        href: 'https://meetup-sdk.vercel.com/',
+        title: 'Schedule',
+        href: '#agenda',
     },
     {
-        title: 'v0 IRL',
-        href: 'https://v0.app/irl',
+        title: 'Contact',
+        href: '#contact',
     },
 ]
 
@@ -42,11 +42,9 @@ export default function FooterSection() {
                         </Link>
                     ))}
                 </div>
-                <span className="text-muted-foreground block text-center text-sm font-mono">Built with v0, <Link
-                    href="https://tailark.com/"
-                    className="text-foreground underline">Tailark</Link> & <Link
-                    href="https://reactbits.dev/"
-                    className="text-foreground underline">React Bits</Link> • Powered by Vercel.</span>
+                <span className="text-muted-foreground block text-center text-sm font-mono">© 2026 Spectrum Festival. A student tech and culture celebration • <Link
+                    href="https://v0.dev"
+                    className="text-foreground underline">Built with v0</Link></span>
             </div>
         </footer>
     )

@@ -16,7 +16,7 @@ export default function Features() {
                         speedSegment={0.3}
                         as="h2"
                         className="text-balance text-4xl font-semibold lg:text-5xl">
-                        Join us for NYC's first official v0 IRL event
+                        Why Attend Spectrum 26?
                     </TextEffect>
                 </div>
                 <AnimatedGroup
@@ -44,12 +44,11 @@ export default function Features() {
                                     />
                                 </CardDecorator>
 
-                                <h3 className="mt-6 font-medium text-xl">Free v0 Credits</h3>
+                                <h3 className="mt-6 font-medium text-xl">₹500K Prize Pool</h3>
                             </CardHeader>
 
                             <CardContent>
-                                <p className="text-sm text-muted-foreground">Credits to use towards building with
-                                    v0.</p>
+                                <p className="text-sm text-muted-foreground">Compete across 20+ events and win big. Prizes for winners across tech, design, and cultural categories.</p>
                             </CardContent>
                         </div>
 
@@ -62,12 +61,11 @@ export default function Features() {
                                     />
                                 </CardDecorator>
 
-                                <h3 className="mt-6 font-medium text-xl">Global Gallery</h3>
+                                <h3 className="mt-6 font-medium text-xl">Network & Learn</h3>
                             </CardHeader>
 
                             <CardContent>
-                                <p className="mt-3 text-sm text-muted-foreground">Every project showcased in a worldwide
-                                    exhibition</p>
+                                <p className="mt-3 text-sm text-muted-foreground">Connect with 500+ students, industry professionals, and innovators from India and beyond.</p>
                             </CardContent>
                         </div>
 

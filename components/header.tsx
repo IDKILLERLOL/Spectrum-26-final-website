@@ -20,7 +20,7 @@ export const HeroHeader = () => {
                                 aria-label="home"
                                 className="flex items-center space-x-2">
                                 <V0Icon size={30} className='text-foreground'/>
-                                <span className='font-mono'>IRL - NYC</span>
+                                <span className='font-mono'>SPECTRUM 26</span>
                             </Link>
 
                             <button
@@ -39,8 +39,18 @@ export const HeroHeader = () => {
                                 <Button
                                     asChild
                                     size="sm">
-                                    <Link href="https://meetup-sdk.vercel.com/">
-                                        <span>Host an Event</span>
+                                    <Link href="#events">
+                                        <span>See Events</span>
+                                    </Link>
+                                </Button>
+                            </div>
+                            <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">
+                                <Button
+                                    asChild
+                                    size="sm"
+                                    variant="outline">
+                                    <Link href="/dashboard">
+                                        <span>My Dashboard</span>
                                     </Link>
                                 </Button>
                             </div>
