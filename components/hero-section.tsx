@@ -22,7 +22,7 @@ export default function HeroSection() {
                         <div className="mx-auto max-w-2xl text-center lg:ml-0 lg:text-left">
                             <div className='mt-8 lg:mt-16'>
                                 <DecryptedText
-                                    text="Thursday February 5th, 2026 - New York City"
+                                    text="Student Tech & Culture Fest"
                                     animateOn="view"
                                     revealDirection="start"
                                     sequential
@@ -36,14 +36,14 @@ export default function HeroSection() {
                                 speedSegment={0.3}
                                 as="h1"
                                 className="max-w-2xl text-balance text-6xl font-semibold md:text-7xl xl:text-8xl">
-                                Prompt to
+                                Spectrum 26
                             </TextEffect>
                             <TextEffect
                                 preset="fade-in-blur"
                                 speedSegment={0.3}
                                 as="h1"
                                 className="max-w-2xl text-balance text-6xl font-semibold md:text-7xl xl:text-8xl">
-                                Production
+                                2026
                             </TextEffect>
                             <TextEffect
                                 per="line"
@@ -52,8 +52,8 @@ export default function HeroSection() {
                                 delay={0.5}
                                 as="p"
                                 className="mt-8 max-w-2xl text-pretty text-lg text-muted-foreground bg-black p-1 rounded-md">
-                                v0 is getting ready to launch its biggest product update yet. We're celebrating with
-                                v0 IRLs around the world.
+                                A premier student technology and cultural festival. Join hundreds of students for competitions,
+                                workshops, and celebrations of tech innovation and culture.
                             </TextEffect>
                             <AnimatedGroup
                                 variants={{
@@ -73,8 +73,8 @@ export default function HeroSection() {
                                     asChild
                                     size="lg"
                                     className="px-5 text-base">
-                                    <Link href="#link">
-                                        <span className="text-nowrap">Register Now</span>
+                                    <Link href="#events">
+                                        <span className="text-nowrap">Explore Events</span>
                                     </Link>
                                 </Button>
                                 <Button
@@ -83,8 +83,8 @@ export default function HeroSection() {
                                     size="lg"
                                     variant="ghost"
                                     className="px-5 text-base bg-black/30 backdrop-blur-sm hover:bg-black/40">
-                                    <Link href="#link">
-                                        <span className="text-nowrap">Contact Host</span>
+                                    <Link href="/dashboard">
+                                        <span className="text-nowrap">View My Passes</span>
                                     </Link>
                                 </Button>
                             </AnimatedGroup>
