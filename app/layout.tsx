@@ -6,7 +6,6 @@ import './globals.css'
 import Dither from "@/components/Dither";
 import FooterSection from "@/components/footer";
 import {HeroHeader} from "@/components/header";
-import {ToastProvider} from "@/components/providers/ToastProvider";
 
 const _geist = Geist({subsets: ["latin"]});
 const _geistMono = Geist_Mono({subsets: ["latin"]});
@@ -42,7 +41,6 @@ export default function RootLayout({
     return (
         <html lang="en" className="dark">
         <body className="font-sans antialiased">
-        <ToastProvider/>
         <div className='absolute w-full h-dvh max-h-155 sm:max-h-115 md:max-h-125 lg:max-h-190 xl:max-h-195'>
             <Dither
                 waveColor={[0.30980392156862746, 0.30980392156862746, 0.30980392156862746]}
