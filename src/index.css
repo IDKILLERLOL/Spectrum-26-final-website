@@ -1,0 +1,321 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800;900&family=Oxanium:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+@import "tailwindcss";
+
+/* ─── Design System Tokens ────────────────────────────────────────────────── */
+/* Dark mode is the DEFAULT. Light mode only activates on explicit [data-theme="light"]. */
+/* Never use prefers-color-scheme to set the initial theme. */
+
+@theme {
+  /* Dark mode tokens (default) */
+  --color-bg-base: #000000;
+  --color-bg-elevated: #0a0a0a;
+  --color-bg-card: #111111;
+  --color-bg-card-hover: #1a1a1a;
+  --color-border-subtle: rgba(255, 255, 255, 0.06);
+  --color-border-default: rgba(255, 255, 255, 0.10);
+  --color-border-strong: rgba(255, 255, 255, 0.20);
+  --color-text-primary: #ffffff;
+  --color-text-secondary: rgba(255, 255, 255, 0.55);
+  --color-text-muted: rgba(255, 255, 255, 0.35);
+  --color-text-disabled: rgba(255, 255, 255, 0.20);
+  --color-primary: #ffffff;
+  --color-accent: #ffffff;
+  --color-accent-glow: rgba(255, 255, 255, 0.30);
+  --color-hero-glow: rgba(255, 255, 255, 0.06);
+
+  --font-hero: 'Orbitron', sans-serif;
+  --font-heading: 'Oxanium', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+/* ─── Light mode overrides — only on [data-theme="light"] ─────────────────── */
+[data-theme="light"] {
+  --color-bg-base: #f7f7f8;
+  --color-bg-elevated: #fafafc;
+  --color-bg-card: #ffffff;
+  --color-bg-card-hover: #ffffff;
+  --color-border-subtle: rgba(0, 0, 0, 0.18);
+  --color-border-default: rgba(0, 0, 0, 0.30);
+  --color-border-strong: rgba(0, 0, 0, 0.55);
+  --color-text-primary: #000000;
+  --color-text-secondary: rgba(0, 0, 0, 0.85);
+  --color-text-muted: rgba(0, 0, 0, 0.72);
+  --color-text-disabled: rgba(0, 0, 0, 0.45);
+  --color-primary: #000000;
+  --color-accent: #000000;
+  --color-accent-glow: rgba(0, 0, 0, 0.24);
+  --color-hero-glow: transparent;
+}
+
+/* ─── Base ────────────────────────────────────────────────────────────────── */
+html {
+  color-scheme: dark;
+}
+[data-theme="light"] {
+  color-scheme: light;
+}
+
+body {
+  background-color: var(--color-bg-base);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Light mode card shadow overrides - Rule 2 */
+[data-theme="light"] .card-shadow,
+[data-theme="light"] .bg-bg-card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  background-color: #ffffff !important;
+}
+
+[data-theme="light"] .bg-bg-card:hover {
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08), 0 6px 6px rgba(0, 0, 0, 0.04) !important;
+  background-color: #ffffff !important;
+}
+
+/* Buttons outline/ghost overrides - Rule 3 */
+[data-theme="light"] .font-button.border:not(.hover\:bg-primary),
+[data-theme="light"] .font-button.border-primary:not(.hover\:bg-primary),
+[data-theme="light"] button.border:not(.hover\:bg-primary),
+[data-theme="light"] a.border:not(.hover\:bg-primary) {
+  border: 1px solid rgba(0, 0, 0, 0.55) !important;
+  color: #000000 !important;
+  font-weight: 600 !important;
+  background-color: transparent !important;
+}
+[data-theme="light"] .font-button.border:not(.hover\:bg-primary):hover,
+[data-theme="light"] .font-button.border-primary:not(.hover\:bg-primary):hover,
+[data-theme="light"] button.border:not(.hover\:bg-primary):hover,
+[data-theme="light"] a.border:not(.hover\:bg-primary):hover {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+  color: #000000 !important;
+  border-color: rgba(0, 0, 0, 0.55) !important;
+}
+
+/* Register buttons explicit hover states */
+.hover\:bg-primary:hover {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border-color: #ffffff !important;
+}
+[data-theme="light"] .hover\:bg-primary:hover {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border-color: #000000 !important;
+}
+
+/* Default (dark mode) border overrides - convert dashed/dotted borders to solid very light grey */
+.border-dashed,
+.border-dotted {
+  border-style: solid !important;
+  border-color: rgba(255, 255, 255, 0.80) !important;
+}
+
+/* Light mode border overrides - convert dashed/dotted borders to solid dark grey/black */
+[data-theme="light"] .border-dashed,
+[data-theme="light"] .border-dotted {
+  border-style: solid !important;
+  border-color: rgba(0, 0, 0, 0.45) !important;
+}
+
+/* Hero Graphic Circles - Rule 5 */
+.hero-circle-back {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transform: translate(-12%, -12%);
+  transition: all 0.2s ease;
+}
+.hero-circle-front {
+  background: rgba(255, 255, 255, 0.04);
+  transform: translate(12%, 12%);
+  transition: all 0.2s ease;
+}
+[data-theme="light"] .hero-circle-back {
+  background: rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid rgba(0, 0, 0, 0.15) !important;
+}
+[data-theme="light"] .hero-circle-front {
+  background: #000000 !important;
+}
+
+/* ─── Typography utilities ────────────────────────────────────────────────── */
+@utility text-hero {
+  font-family: var(--font-hero);
+  font-size: clamp(48px, 9vw, 104px);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+@utility text-countdown {
+  font-family: var(--font-hero);
+  font-size: clamp(36px, 6vw, 64px);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+@utility text-section {
+  font-family: var(--font-hero);
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+@utility text-card-title {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+@utility text-heading {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+@utility text-button {
+  font-family: var(--font-heading);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: normal;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+@utility text-body {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+@utility text-small {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+@utility text-micro {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+@utility text-glow {
+  text-shadow: 0 0 30px var(--color-accent-glow);
+  color: var(--color-text-primary);
+}
+
+@utility border-glow {
+  box-shadow: 0 0 15px var(--color-accent-glow);
+}
+
+/* ─── Theme toggle View Transitions ──────────────────────────────────────── */
+/* Circular wipe effect when toggling dark↔light */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-new(root) {
+  z-index: 1;
+}
+::view-transition-old(root) {
+  z-index: 9999;
+}
+
+/* ─── Skeleton loading animation ─────────────────────────────────────────── */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+.skeleton {
+  background: var(--color-bg-card);
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+  border-radius: 4px;
+}
+
+/* ─── Inline form / confirm expand animation ─────────────────────────────── */
+@keyframes expand-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.expand-in {
+  animation: expand-in 0.18s ease-out forwards;
+}
+
+/* ─── Scroll reveal utility (used by character-reveal components) ─────────── */
+.char-hidden {
+  opacity: 0;
+  transform: translateY(20px);
+}
+.char-visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+/* Custom center-out spreading hover animation for action buttons */
+.btn-spread {
+  position: relative !important;
+  overflow: hidden !important;
+  z-index: 10 !important;
+  transition: color 0.16s cubic-bezier(0.19, 1, 0.22, 1), border-color 0.16s cubic-bezier(0.19, 1, 0.22, 1), transform 0.18s ease !important;
+}
+
+.btn-spread::before {
+  content: "" !important;
+  position: absolute !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  left: 50% !important;
+  width: 0px !important;
+  height: 100% !important;
+  background-color: var(--color-text-primary) !important;
+  transform: translateX(-50%) !important;
+  transition: width 0.16s cubic-bezier(0.19, 1, 0.22, 1) !important;
+  z-index: -1 !important;
+}
+
+.btn-spread:hover {
+  color: var(--color-bg-base) !important;
+  border-color: var(--color-text-primary) !important;
+  transition: color 0.24s cubic-bezier(0.19, 1, 0.22, 1), border-color 0.24s cubic-bezier(0.19, 1, 0.22, 1) !important;
+}
+
+.btn-spread:hover::before {
+  width: 100% !important;
+  transition: width 0.24s cubic-bezier(0.19, 1, 0.22, 1) !important;
+}
+
+/* ─── Light Mode Admin Theme: Grey to Black ─────────────────────────────── */
+[data-theme="light"] .admin-theme {
+  --color-border-subtle: #000000 !important;
+  --color-border-default: #000000 !important;
+  --color-border-strong: #000000 !important;
+  --color-text-primary: #000000 !important;
+  --color-text-secondary: #000000 !important;
+  --color-text-muted: #000000 !important;
+  --color-text-disabled: #000000 !important;
+  --color-primary: #000000 !important;
+  --color-accent: #000000 !important;
+}
+
+[data-theme="light"] .admin-theme .border-dashed,
+[data-theme="light"] .admin-theme .border-dotted {
+  border-color: #000000 !important;
+}
+
