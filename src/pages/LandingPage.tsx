@@ -165,8 +165,17 @@ function FlipDigits({ value }: { value: number }) {
 }
 
 function SingleDigit({ char }: { char: string }) {
+  const isOne = char === '1';
   return (
-    <div className="relative flex items-center justify-center" style={{ width: '1.2ch', height: '1.1em', overflow: 'visible' }}>
+    <div 
+      className="relative flex items-center justify-center font-bold" 
+      style={{ 
+        width: '1.2ch', 
+        height: '1.1em', 
+        overflow: 'visible',
+        fontFamily: isOne ? 'Oswald, sans-serif' : 'Bangers, cursive'
+      }}
+    >
       <AnimatePresence mode="popLayout">
         <motion.span
           key={char}
