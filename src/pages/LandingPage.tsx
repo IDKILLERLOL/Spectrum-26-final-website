@@ -128,7 +128,7 @@ function Countdown() {
                   color: invert ? 'var(--color-bg-base)' : 'var(--color-text-primary)',
                 }}
               >
-                <FlipDigits value={value} invert={invert} />
+                <FlipDigits value={value} />
               </div>
               <div
                 style={{
@@ -154,85 +154,31 @@ function Countdown() {
   );
 }
 
-// ─── 7-Segment Display Component ──────────────────────────────────────────────
-
-// Maps digit values 0-9 to [A, B, C, D, E, F, G] segment states
-const SEGMENTS_MAP: Record<string, boolean[]> = {
-  '0': [true, true, true, true, true, true, false],
-  '1': [false, true, true, false, false, false, false],
-  '2': [true, true, false, true, true, false, true],
-  '3': [true, true, true, true, false, false, true],
-  '4': [false, true, true, false, false, true, true],
-  '5': [true, false, true, true, false, true, true],
-  '6': [true, false, true, true, true, true, true],
-  '7': [true, true, true, false, false, false, false],
-  '8': [true, true, true, true, true, true, true],
-  '9': [true, true, true, true, false, true, true],
-};
-
-function SevenSegmentDigit({ char, invert }: { char: string; invert?: boolean }) {
-  const activeStates = SEGMENTS_MAP[char] || [false, false, false, false, false, false, false];
-  
-  // Style config for active vs inactive segments
-  const activeColor = invert ? 'var(--color-bg-base)' : 'var(--color-text-primary)';
-  const inactiveColor = invert ? 'rgba(0, 0, 0, 0.05)' : 'var(--color-accent-glow)';
-
-  // Renders 7 SVG polygon paths slanted for authentic digital look
+function FlipDigits({ value }: { value: number }) {
+  const display = String(value).padStart(2, '0');
   return (
-    <svg 
-      viewBox="0 0 38 72" 
-      className="w-7 h-12 md:w-9 md:h-16" 
-      style={{ 
-        transform: 'skewX(-6deg)', 
-        overflow: 'visible',
-        display: 'inline-block'
-      }}
-    >
-      {/* Segment A (Top) */}
-      <polygon 
-        points="6,5 32,5 28,9 10,9" 
-        fill={activeStates[0] ? activeColor : inactiveColor} 
-      />
-      {/* Segment F (Top-Left) */}
-      <polygon 
-        points="5,6 9,10 9,32 5,35 2,32 2,10" 
-        fill={activeStates[5] ? activeColor : inactiveColor} 
-      />
-      {/* Segment B (Top-Right) */}
-      <polygon 
-        points="33,6 36,10 36,32 33,35 30,32 30,10" 
-        fill={activeStates[1] ? activeColor : inactiveColor} 
-      />
-      {/* Segment G (Middle) */}
-      <polygon 
-        points="6,36 9,33 29,33 32,36 29,39 9,39" 
-        fill={activeStates[6] ? activeColor : inactiveColor} 
-      />
-      {/* Segment E (Bottom-Left) */}
-      <polygon 
-        points="5,37 9,40 9,62 5,66 2,62 2,40" 
-        fill={activeStates[4] ? activeColor : inactiveColor} 
-      />
-      {/* Segment C (Bottom-Right) */}
-      <polygon 
-        points="33,37 36,40 36,62 33,66 30,62 30,40" 
-        fill={activeStates[2] ? activeColor : inactiveColor} 
-      />
-      {/* Segment D (Bottom) */}
-      <polygon 
-        points="6,67 32,67 28,63 10,63" 
-        fill={activeStates[3] ? activeColor : inactiveColor} 
-      />
-    </svg>
+    <div className="flex items-center gap-1 leading-none font-bold" style={{ fontFamily: 'Graduate, serif' }}>
+      <SingleDigit char={display[0]} />
+      <SingleDigit char={display[1]} />
+    </div>
   );
 }
 
-function FlipDigits({ value, invert }: { value: number; invert?: boolean }) {
-  const display = String(value).padStart(2, '0');
+function SingleDigit({ char }: { char: string }) {
   return (
-    <div className="flex items-center gap-1 leading-none">
-      <SevenSegmentDigit char={display[0]} invert={invert} />
-      <SevenSegmentDigit char={display[1]} invert={invert} />
+    <div className="relative flex items-center justify-center" style={{ width: '1.2ch', height: '1.1em', overflow: 'visible' }}>
+      <AnimatePresence mode="popLayout">
+        <motion.span
+          key={char}
+          initial={{ y: '-80%', opacity: 0 }}
+          animate={{ y: '0%', opacity: 1 }}
+          exit={{ y: '80%', opacity: 0 }}
+          transition={{ duration: 0.18, ease: 'easeInOut' }}
+          className="absolute inline-block"
+        >
+          {char}
+        </motion.span>
+      </AnimatePresence>
     </div>
   );
 }
