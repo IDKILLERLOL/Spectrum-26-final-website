@@ -458,7 +458,7 @@ export async function updateUser(
   uid: string,
   patch: Partial<Pick<User, 'name' | 'phone' | 'email' | 'college'>>
 ): Promise<void> {
-  await updateDoc(doc(db, 'users', uid), patch);
+  await setDoc(doc(db, 'users', uid), patch, { merge: true });
 }
 
 export async function deleteUserDoc(uid: string, actorEmail: string = 'admin'): Promise<void> {
