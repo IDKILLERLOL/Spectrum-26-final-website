@@ -55,12 +55,14 @@ export function Navbar() {
         textTransform: 'uppercase',
         color: 'var(--color-text-primary)',
         textDecoration: isActive(to) ? 'underline' : 'none',
-        textDecorationStyle: isActive(to) ? 'wavy' : undefined,
+        textDecorationStyle: isActive(to) ? 'solid' : undefined,
+        textDecorationThickness: isActive(to) ? '3px' : undefined,
         textUnderlineOffset: '4px',
       }}
       onMouseEnter={(e) => {
         (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline';
-        (e.currentTarget as HTMLAnchorElement).style.textDecorationStyle = 'wavy';
+        (e.currentTarget as HTMLAnchorElement).style.textDecorationStyle = 'solid';
+        (e.currentTarget as HTMLAnchorElement).style.textDecorationThickness = '3px';
       }}
       onMouseLeave={(e) => {
         if (!isActive(to)) {
@@ -77,7 +79,7 @@ export function Navbar() {
       className="relative z-10 mx-auto max-w-7xl w-[92%] mt-6 p-4 comic-shadow flex flex-wrap justify-between items-center gap-4"
       style={{ background: 'var(--panel-bg)', borderColor: 'var(--border-color)' }}
     >
-      {/* Wordmark + badge */}
+      {/* Wordmark */}
       <div className="flex items-center gap-3">
         <Link
           to="/"
@@ -97,18 +99,6 @@ export function Navbar() {
         >
           SPECTRUM 26
         </Link>
-        <span
-          className="comic-badge px-3 py-1 font-comic"
-          style={{
-            fontSize: '13px',
-            color: 'var(--color-text-primary)',
-            background: 'var(--badge-bg)',
-            borderColor: 'var(--border-color)',
-            fontStyle: 'italic',
-          }}
-        >
-          CRISIS 001
-        </span>
       </div>
 
       {/* Right side: nav links + controls */}
@@ -262,7 +252,9 @@ export function Navbar() {
               textTransform: 'uppercase',
               color: 'var(--color-text-primary)',
               whiteSpace: 'nowrap',
-              textDecoration: isActive(to) ? 'underline wavy' : 'none',
+              textDecoration: isActive(to) ? 'underline' : 'none',
+              textDecorationStyle: isActive(to) ? 'solid' : undefined,
+              textDecorationThickness: isActive(to) ? '3px' : undefined,
               textUnderlineOffset: '3px',
             }}
           >
