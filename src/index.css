@@ -42,6 +42,7 @@
   --btn-shadow:           #ffffff;
   --shadow-color:         rgba(255,255,255,0.15);
   --halftone-color:       rgba(255,255,255,0.06);
+  --hatch-color:          #555555;
 
   /* Fonts */
   --font-hero:    'Bangers', cursive;
@@ -81,6 +82,7 @@
   --btn-shadow:           #000000;
   --shadow-color:         rgba(0,0,0,0.15);
   --halftone-color:       rgba(0,0,0,0.06);
+  --hatch-color:          #cccccc;
 }
 
 /* ─── Base ─────────────────────────────────────────────────── */
@@ -311,12 +313,12 @@ body {
 .hatch-pattern {
   background-image: repeating-linear-gradient(
     -45deg,
-    var(--border-color),
-    var(--border-color) 1px,
+    var(--hatch-color),
+    var(--hatch-color) 1px,
     transparent 1px,
     transparent 8px
   );
-  opacity: 0.02;
+  opacity: 0.4;
 }
 
 /* ─── SKELETON ───────────────────────────────────────────────── */
