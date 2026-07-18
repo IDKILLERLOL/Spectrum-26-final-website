@@ -50,7 +50,7 @@ function ScheduleCard({ slot }: { slot: ScheduleSlot }) {
               fontWeight: 700,
               letterSpacing: '0.10em',
               textTransform: 'uppercase',
-              color: 'var(--color-text-muted)',
+              color: 'var(--color-text-primary)',
               border: '2px solid var(--border-color)',
               padding: '2px 8px',
             }}
@@ -180,10 +180,9 @@ export function SchedulePage() {
             fontFamily: 'Space Grotesk, sans-serif',
             fontSize: '14px',
             fontWeight: 500,
-            color: 'var(--color-text-secondary)',
+            color: 'var(--color-text-primary)',
             maxWidth: '520px',
             margin: '0 auto',
-            opacity: 0.8,
           }}
         >
           The timeline for SPECTRUM 26. All times are IST. Events may be subject to slight modifications.
@@ -210,12 +209,12 @@ export function SchedulePage() {
               fontSize: '40px',
               padding: '8px 24px',
               transform: 'rotate(-2deg)',
-              color: 'var(--color-text-muted)',
+              color: 'var(--color-text-primary)',
             }}
           >
             COMING SOON
           </div>
-          <p style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '14px', color: 'var(--color-text-secondary)', maxWidth: '380px', opacity: 0.8 }}>
+          <p style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '14px', color: 'var(--color-text-primary)', maxWidth: '380px' }}>
             The detailed event schedule will be published closer to the event date.
           </p>
         </div>
@@ -246,8 +245,7 @@ export function SchedulePage() {
                     fontWeight: 700,
                     letterSpacing: '0.12em',
                     textTransform: 'uppercase',
-                    color: 'var(--color-text-muted)',
-                    opacity: 0.8,
+                    color: 'var(--color-text-primary)',
                   }}
                 >
                   {date}
