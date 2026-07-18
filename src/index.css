@@ -218,6 +218,22 @@ body {
   box-shadow: 4px 4px 0px var(--border-color);
 }
 
+.comic-shadow-sm {
+  border: 3px solid var(--border-color);
+  box-shadow: 3px 3px 0px var(--border-color);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.comic-shadow-sm:hover {
+  transform: translate(-1.5px, -1.5px);
+  box-shadow: 4.5px 4.5px 0px var(--border-color);
+}
+
+.comic-shadow-sm:active {
+  transform: translate(1.5px, 1.5px);
+  box-shadow: 1.5px 1.5px 0px var(--border-color);
+}
+
 /* ─── COMIC BUTTONS ──────────────────────────────────────────── */
 .comic-btn {
   background-color: var(--btn-bg);

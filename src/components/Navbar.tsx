@@ -150,7 +150,7 @@ export function Navbar() {
           {/* Theme toggle */}
           <button
             onClick={handleToggleTheme}
-            className="comic-shadow"
+            className="comic-shadow-sm"
             style={{
               background: 'var(--panel-bg)',
               color: 'var(--color-text-primary)',
@@ -233,7 +233,7 @@ export function Navbar() {
                 className="comic-btn"
                 style={{ fontSize: '16px', padding: '6px 16px' }}
               >
-                <LogIn size={14} className="mr-1 inline" /> LOGIN
+                <LogIn size={14} className="mr-1 inline" /> SIGN IN
               </Link>
             )
           )}

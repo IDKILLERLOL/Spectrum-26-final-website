@@ -166,7 +166,7 @@ function FlipDigits({ value }: { value: number }) {
 
 function SingleDigit({ char }: { char: string }) {
   return (
-    <div className="relative flex items-center justify-center overflow-hidden" style={{ width: '1.1ch', height: '1.1em' }}>
+    <div className="relative flex items-center justify-center" style={{ width: '1.4ch', height: '1.1em', overflow: 'visible' }}>
       <AnimatePresence mode="popLayout">
         <motion.span
           key={char}
