@@ -3,7 +3,8 @@
 // Sender address: VITE_SENDER_EMAIL (defaults to i.doshi30@gmail.com).
 // Change VITE_SENDER_EMAIL in .env to use a different sender.
 
-import { getAccessToken } from './auth';
+import { getAccessToken, setCachedGmailToken } from './auth';
+import { clearSystemGmailToken } from './firestore';
 import { SENDER_EMAIL, FEST_NAME } from '../config';
 
 /** Core send function — uses the Gmail API with the cached OAuth token. */
@@ -42,6 +43,10 @@ export async function sendEmail(to: string, subject: string, htmlBody: string): 
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       console.warn('[email] Gmail API send failed:', err);
+      if (res.status === 401) {
+        setCachedGmailToken(null);
+        await clearSystemGmailToken();
+      }
     }
   } catch (err) {
     console.warn('[email] Failed to fetch or send via Gmail API:', err);

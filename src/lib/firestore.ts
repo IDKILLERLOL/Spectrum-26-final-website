@@ -1639,6 +1639,14 @@ export async function getSystemGmailToken(): Promise<string | null> {
   }
 }
 
+export async function clearSystemGmailToken(): Promise<void> {
+  try {
+    await deleteDoc(doc(db, 'systemConfig', 'gmail'));
+  } catch (err) {
+    console.error('Error deleting system Gmail token:', err);
+  }
+}
+
 export async function updateTeamName(
   registrationId: string,
   teamName: string,
