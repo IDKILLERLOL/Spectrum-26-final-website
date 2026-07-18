@@ -22,6 +22,7 @@ import { AdminEditRegistrationPage } from './pages/AdminEditRegistrationPage';
 import { AdminCreateRegistrationPage } from './pages/AdminCreateRegistrationPage';
 import { WinnersPage } from './pages/WinnersPage';
 import { AdminAccountsPage } from './pages/AdminAccountsPage';
+import { ScrollToTop } from './components/ScrollToTop';
 
 
 function PublicLayout() {
@@ -58,6 +59,7 @@ function AdminLayout() {
 export default function App() {
   return (
     <Router>
+      <ScrollToTop />
       <Routes>
         {/* Public routes */}
         <Route path="/" element={<PublicLayout />}>

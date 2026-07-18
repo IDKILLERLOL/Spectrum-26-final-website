@@ -1,58 +1,96 @@
 import { useState, useEffect } from 'react';
 import { getScheduleSlots } from '../lib/firestore';
 import type { ScheduleSlot, ScheduleEventType } from '../types';
+import { playSynthSound } from '../lib/audio';
 
-// ─── Type badge config (solid vs dashed, text) ────────────────────────────────
-
-const TYPE_CONFIG: Record<ScheduleEventType, { label: string; solid: boolean; accent: boolean }> = {
-  TECH:    { label: 'TECH',     solid: true,  accent: true  },
-  NON_TECH:{ label: 'NON-TECH', solid: false, accent: false },
-  GENERAL: { label: 'GENERAL',  solid: true,  accent: false },
-  BREAK:   { label: 'BREAK',    solid: false, accent: false },
+const TYPE_CONFIG: Record<ScheduleEventType, { label: string; fill: boolean }> = {
+  TECH:     { label: 'TECH',     fill: true  },
+  NON_TECH: { label: 'NON-TECH', fill: false },
+  GENERAL:  { label: 'GENERAL',  fill: false },
+  BREAK:    { label: 'BREAK',    fill: false },
 };
 
 function ScheduleCard({ slot }: { slot: ScheduleSlot }) {
   const cfg = TYPE_CONFIG[slot.type];
-  const isTech = slot.type === 'TECH';
 
   return (
     <div
-      className={`bg-bg-card hover:bg-bg-card-hover border ${isTech ? '' : 'border-dashed'} border-border-default p-6 transition-all duration-180 hover:scale-[1.02] flex flex-col justify-between min-h-[200px] relative overflow-hidden`}
+      className="comic-border-thick comic-shadow overflow-hidden flex flex-col justify-between relative"
+      style={{
+        background: 'var(--panel-bg)',
+        minHeight: '200px',
+        padding: '20px',
+      }}
     >
-      {isTech && (
-        <div className="absolute top-0 right-0 w-16 h-16 bg-primary opacity-5 blur-xl rounded-full translate-x-1/2 -translate-y-1/2" />
-      )}
+      {/* Crosshatch overlay */}
+      <div className="absolute inset-0 hatch-pattern" style={{ opacity: 0.1, pointerEvents: 'none' }} />
 
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 relative">
+        {/* Time + Location */}
         <div className="flex justify-between items-start flex-wrap gap-2">
           <span
-            className="font-micro text-micro text-primary border border-border-subtle px-2 py-1 bg-bg-elevated"
+            className="comic-badge"
+            style={{
+              fontFamily: 'Space Grotesk, sans-serif',
+              fontSize: '12px',
+              fontWeight: 700,
+              letterSpacing: '0.08em',
+              padding: '2px 10px',
+              background: 'var(--badge-bg)',
+              color: 'var(--color-text-primary)',
+              transform: 'rotate(-1deg)',
+            }}
           >
             {slot.displayTime}
           </span>
           <span
-            className={`font-micro text-micro text-text-muted uppercase tracking-widest px-2 py-1 ${
-              isTech ? 'border border-border-default' : 'border border-dashed border-border-default'
-            }`}
+            style={{
+              fontFamily: 'Space Grotesk, sans-serif',
+              fontSize: '11px',
+              fontWeight: 700,
+              letterSpacing: '0.10em',
+              textTransform: 'uppercase',
+              color: 'var(--color-text-muted)',
+              border: '2px solid var(--border-color)',
+              padding: '2px 8px',
+            }}
           >
             {slot.location}
           </span>
         </div>
 
         {/* Type badge */}
-        <div className="flex items-center gap-2">
+        <div>
           <span
-            className={`font-micro text-micro uppercase tracking-widest px-2 py-0.5 ${
-              cfg.accent
-                ? 'bg-primary text-bg-base'
-                : `text-primary border ${cfg.solid ? 'border-primary' : 'border-dashed border-primary'}`
-            }`}
+            className="comic-badge"
+            style={{
+              fontFamily: 'Bangers, cursive',
+              fontSize: '14px',
+              letterSpacing: '0.08em',
+              padding: '2px 12px',
+              background: cfg.fill ? 'var(--color-text-primary)' : 'var(--badge-bg)',
+              color: cfg.fill ? 'var(--color-bg-base)' : 'var(--color-text-primary)',
+              border: '2px solid var(--border-color)',
+              transform: 'rotate(-1deg)',
+            }}
           >
             {cfg.label}
           </span>
         </div>
 
-        <h3 className="font-heading text-card-title text-primary">{slot.title}</h3>
+        {/* Title */}
+        <h3
+          style={{
+            fontFamily: 'Bangers, cursive',
+            fontSize: '26px',
+            letterSpacing: '0.04em',
+            textTransform: 'uppercase',
+            color: 'var(--color-text-primary)',
+            lineHeight: 1.1,
+          }}
+        >
+          {slot.title}
+        </h3>
       </div>
     </div>
   );
@@ -60,13 +98,21 @@ function ScheduleCard({ slot }: { slot: ScheduleSlot }) {
 
 function ScheduleCardSkeleton() {
   return (
-    <div className="bg-bg-card border border-border-default p-6 flex flex-col gap-4 min-h-[200px]">
-      <div className="flex justify-between">
-        <div className="skeleton h-6 w-20 rounded" />
-        <div className="skeleton h-6 w-24 rounded" />
+    <div
+      className="comic-border-thick flex flex-col gap-4"
+      style={{
+        background: 'var(--panel-bg)',
+        padding: '20px',
+        minHeight: '200px',
+        boxShadow: '8px 8px 0px var(--border-color)',
+      }}
+    >
+      <div className="flex justify-between gap-2">
+        <div className="skeleton h-6 w-24" />
+        <div className="skeleton h-6 w-20" />
       </div>
-      <div className="skeleton h-4 w-16 rounded" />
-      <div className="skeleton h-6 w-3/4 rounded" />
+      <div className="skeleton h-5 w-16" />
+      <div className="skeleton h-8 w-3/4" />
     </div>
   );
 }
@@ -82,7 +128,6 @@ export function SchedulePage() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Group by day (preserving order from Firestore query: sorted by day then sortTime)
   const days = Array.from(
     slots.reduce((map, slot) => {
       const key = `${slot.day}__${slot.date}`;
@@ -93,54 +138,123 @@ export function SchedulePage() {
   );
 
   return (
-    <main className="w-full max-w-7xl mx-auto px-4 md:px-6 py-14 md:py-24">
-      <header className="mb-16 md:mb-24 text-center">
-        <h1 className="font-hero text-[48px] md:text-[104px] uppercase mb-4 leading-none tracking-widest text-primary">
+    <main className="relative z-10 max-w-7xl mx-auto w-[92%] py-12 md:py-20">
+
+      {/* Page Header */}
+      <header className="mb-12 md:mb-16 text-center relative">
+        {/* Crosshatch decoration */}
+        <div
+          className="absolute inset-0 hatch-pattern pointer-events-none"
+          style={{ borderRadius: '50%', transform: 'scale(0.85)', opacity: 0.5 }}
+        />
+        <div
+          className="comic-badge inline-block mb-4"
+          style={{
+            padding: '4px 16px',
+            fontSize: '14px',
+            fontFamily: 'Bangers, cursive',
+            background: 'var(--color-text-primary)',
+            color: 'var(--color-bg-base)',
+            transform: 'rotate(-1.5deg)',
+          }}
+        >
+          TIMELINE — SPECTRUM 26
+        </div>
+        <h1
+          style={{
+            fontFamily: 'Bangers, cursive',
+            fontSize: 'clamp(56px, 10vw, 120px)',
+            lineHeight: 0.95,
+            letterSpacing: '0.04em',
+            textTransform: 'uppercase',
+            color: 'var(--color-text-primary)',
+            transform: 'skewX(-4deg)',
+            display: 'block',
+            marginBottom: '12px',
+          }}
+        >
           Schedule
         </h1>
-        <p className="font-body text-body text-text-secondary max-w-2xl mx-auto">
+        <p
+          style={{
+            fontFamily: 'Space Grotesk, sans-serif',
+            fontSize: '14px',
+            fontWeight: 500,
+            color: 'var(--color-text-secondary)',
+            maxWidth: '520px',
+            margin: '0 auto',
+            opacity: 0.8,
+          }}
+        >
           The timeline for SPECTRUM 26. All times are IST. Events may be subject to slight modifications.
         </p>
       </header>
 
       {loading ? (
-        <div className="space-y-14">
+        <div className="flex flex-col gap-14">
           {[1, 2].map((d) => (
             <section key={d}>
-              <div className="border-b border-border-default pb-4 mb-8">
-                <div className="skeleton h-10 w-48 rounded" />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div className="skeleton h-10 w-48 mb-8" />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {[1, 2, 3].map((i) => <ScheduleCardSkeleton key={i} />)}
               </div>
             </section>
           ))}
         </div>
       ) : days.length === 0 ? (
-        <div className="flex flex-col items-center gap-4 py-24 text-center">
-          <p className="font-heading text-card-title text-text-muted uppercase tracking-widest">
-            Schedule Coming Soon
-          </p>
-          <p className="font-body text-body text-text-secondary max-w-md">
+        <div className="flex flex-col items-center gap-6 py-24 text-center">
+          <div
+            className="comic-badge"
+            style={{
+              fontFamily: 'Bangers, cursive',
+              fontSize: '40px',
+              padding: '8px 24px',
+              transform: 'rotate(-2deg)',
+              color: 'var(--color-text-muted)',
+            }}
+          >
+            COMING SOON
+          </div>
+          <p style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '14px', color: 'var(--color-text-secondary)', maxWidth: '380px', opacity: 0.8 }}>
             The detailed event schedule will be published closer to the event date.
           </p>
         </div>
       ) : (
-        <div className="space-y-14 md:space-y-24">
+        <div className="flex flex-col gap-16">
           {days.map(([key, { day, date, slots: daySlots }]) => (
             <section key={key}>
-              <div className="border-b border-border-default pb-4 mb-8">
-                <h2 className="font-section text-section uppercase flex items-baseline gap-4 text-primary">
+              <div
+                className="flex items-baseline gap-4 mb-8 pb-4"
+                style={{ borderBottom: '4px solid var(--border-color)' }}
+              >
+                <h2
+                  style={{
+                    fontFamily: 'Bangers, cursive',
+                    fontSize: 'clamp(28px, 4vw, 44px)',
+                    letterSpacing: '0.05em',
+                    textTransform: 'uppercase',
+                    color: 'var(--color-text-primary)',
+                    lineHeight: 1,
+                  }}
+                >
                   {day}
-                  <span className="font-body text-small text-text-secondary tracking-widest uppercase">
-                    {date}
-                  </span>
                 </h2>
+                <span
+                  style={{
+                    fontFamily: 'Space Grotesk, sans-serif',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    letterSpacing: '0.12em',
+                    textTransform: 'uppercase',
+                    color: 'var(--color-text-muted)',
+                    opacity: 0.8,
+                  }}
+                >
+                  {date}
+                </span>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {daySlots.map((slot) => (
-                  <ScheduleCard key={slot.id} slot={slot} />
-                ))}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {daySlots.map((slot) => <ScheduleCard key={slot.id} slot={slot} />)}
               </div>
             </section>
           ))}

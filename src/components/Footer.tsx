@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { EVENT_DATE } from '../config';
+import { playSynthSound } from '../lib/audio';
 
 export function Footer() {
   const formattedDate = EVENT_DATE.toLocaleDateString('en-US', {
@@ -9,18 +10,78 @@ export function Footer() {
   });
 
   return (
-    <footer className="w-full bg-bg-elevated border-t border-border-default mt-auto z-10">
-      <div className="flex flex-col md:flex-row justify-between items-center px-6 py-12 max-w-7xl mx-auto gap-5">
-        <div className="flex flex-col gap-2 items-center md:items-start">
-          <span className="font-hero text-ui-label text-primary uppercase tracking-widest">SPECTRUM 26</span>
-          <span className="font-micro text-micro text-text-muted uppercase tracking-[0.08em]">{formattedDate}</span>
-        </div>
-        <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
-          <Link to="/" className="font-micro text-micro text-text-muted hover:text-primary transition-colors uppercase tracking-[0.08em]">Contact</Link>
-        </div>
-        <div className="font-micro text-micro text-text-muted uppercase tracking-[0.08em] text-center md:text-right">
-          © 2026 SPECTRUM TECH FESTIVAL.<br className="md:hidden" /> ALL SYSTEMS GO.
-        </div>
+    <footer
+      className="relative z-10 max-w-7xl mx-auto w-[92%] mt-12 mb-8 comic-shadow flex flex-wrap justify-between items-center gap-6 p-6"
+      style={{ background: 'var(--panel-bg)' }}
+    >
+      {/* Wordmark */}
+      <div className="flex items-center gap-3">
+        <span
+          style={{
+            fontFamily: 'Bangers, cursive',
+            fontSize: '24px',
+            letterSpacing: '0.06em',
+            textTransform: 'uppercase',
+            color: 'var(--color-text-primary)',
+            transform: 'skewX(-12deg)',
+            display: 'inline-block',
+          }}
+        >
+          SPECTRUM 26
+        </span>
+        <span
+          style={{
+            fontFamily: 'Space Grotesk, sans-serif',
+            fontSize: '11px',
+            fontWeight: 700,
+            letterSpacing: '0.08em',
+            opacity: 0.6,
+            fontVariantLigatures: 'none',
+          }}
+        >
+          // ALL SYSTEMS GO
+        </span>
+      </div>
+
+      {/* Links */}
+      <div className="flex gap-6" style={{ fontFamily: 'Bangers, cursive', fontSize: '20px', letterSpacing: '0.05em' }}>
+        {[
+          { to: '/', label: 'Contact' },
+          { to: '/schedule', label: 'Schedule' },
+          { to: '/winners', label: 'Winners' },
+        ].map(({ to, label }) => (
+          <Link
+            key={to}
+            to={to}
+            onClick={() => playSynthSound('click')}
+            style={{
+              color: 'var(--color-text-primary)',
+              textTransform: 'uppercase',
+              textDecoration: 'none',
+              transition: 'text-decoration 0.1s ease',
+            }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
+          >
+            {label}
+          </Link>
+        ))}
+      </div>
+
+      {/* Copyright */}
+      <div
+        style={{
+          fontFamily: 'Space Grotesk, monospace',
+          fontSize: '11px',
+          fontWeight: 600,
+          opacity: 0.7,
+          textAlign: 'right',
+          textTransform: 'uppercase',
+          letterSpacing: '0.04em',
+        }}
+      >
+        © 2026 SPECTRUM CO.<br />
+        DESIGNED IN RADIANT CRISIS FRAMEWORK.
       </div>
     </footer>
   );

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Clock, CheckCircle2, ChevronRight, ShieldAlert } from 'lucide-react';
+import { Clock, CheckCircle2, ChevronRight } from 'lucide-react';
 import { useAuth } from '../lib/useAuth';
-import { getMyRegistrations } from '../lib/firestore';
-import { getEvent } from '../lib/firestore';
+import { getMyRegistrations, getEvent } from '../lib/firestore';
 import type { Registration, Event } from '../types';
 import { categoryLabel } from '../types';
+import { playSynthSound } from '../lib/audio';
 
 type RegWithEvent = Registration & { event: Event | null };
 
@@ -14,8 +14,6 @@ export function RegistrationsPage() {
   const navigate = useNavigate();
   const [items, setItems] = useState<RegWithEvent[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedReg, setSelectedReg] = useState<RegWithEvent | null>(null);
-  const [showWarningModal, setShowWarningModal] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -32,13 +30,11 @@ export function RegistrationsPage() {
 
   if (loading) {
     return (
-      <main className="w-full min-h-screen flex flex-col py-8 px-6 max-w-7xl mx-auto gap-14">
-        <header className="flex flex-col gap-6 border-b-2 border-primary pb-8">
-          <div className="skeleton h-16 w-48 rounded" />
-          <div className="skeleton h-5 w-80 rounded" />
-        </header>
+      <main className="w-full min-h-screen flex flex-col py-8 px-6 max-w-7xl mx-auto gap-12">
+        <div className="skeleton h-16 w-48" />
+        <div className="skeleton h-5 w-80" />
         <div className="flex flex-col gap-6">
-          {[1, 2].map((i) => <div key={i} className="skeleton h-28 w-full rounded" />)}
+          {[1, 2].map((i) => <div key={i} className="skeleton h-32 w-full" />)}
         </div>
       </main>
     );
@@ -46,40 +42,97 @@ export function RegistrationsPage() {
 
   if (items.length === 0) {
     return (
-      <main className="w-full min-h-screen flex flex-col items-center justify-center py-8 px-6 max-w-7xl mx-auto gap-8">
-        <h1 className="font-hero text-[32px] md:text-[48px] uppercase tracking-widest text-primary text-center">
-          No Passes Yet
-        </h1>
-        <p className="font-body text-body text-text-secondary text-center max-w-md">
-          You haven't registered for anything yet.
+      <main className="w-full min-h-screen flex flex-col items-center justify-center py-8 px-6 max-w-7xl mx-auto gap-8 text-center">
+        <div
+          className="comic-badge"
+          style={{
+            fontFamily: 'Bangers, cursive',
+            fontSize: '44px',
+            padding: '8px 24px',
+            transform: 'rotate(-3deg)',
+          }}
+        >
+          NO PANELS YET!
+        </div>
+        <p
+          style={{
+            fontFamily: 'Space Grotesk, sans-serif',
+            fontSize: '14px',
+            fontWeight: 500,
+            color: 'var(--color-text-secondary)',
+            maxWidth: '380px',
+            opacity: 0.8,
+          }}
+        >
+          You haven't registered for any events yet. Step into the arena!
         </p>
         <Link
           to="/"
-          className="bg-primary text-bg-base font-button text-button px-8 py-4 hover:scale-[1.02] transition-transform duration-180 uppercase tracking-widest"
+          onClick={() => playSynthSound('laser')}
+          className="comic-btn"
+          style={{ fontSize: '20px', padding: '12px 28px' }}
         >
-          View Events
+          VIEW EVENTS
         </Link>
       </main>
     );
   }
 
   return (
-    <main className="w-full min-h-screen flex flex-col py-8 px-6 md:px-6 max-w-7xl mx-auto gap-14 md:gap-24">
-      <header className="flex flex-col gap-6 border-b-2 border-primary pb-8">
-        <h1 className="font-hero text-[48px] md:text-[64px] leading-none uppercase tracking-widest text-primary">
-          My Passes
+    <main className="relative z-10 w-full min-h-screen flex flex-col py-8 max-w-7xl mx-auto gap-10 px-4 md:px-6">
+      {/* Page header */}
+      <header
+        className="flex flex-col gap-4 pb-6"
+        style={{ borderBottom: '4px solid var(--border-color)' }}
+      >
+        <span
+          className="comic-badge inline-block"
+          style={{
+            fontFamily: 'Bangers, cursive',
+            fontSize: '13px',
+            padding: '3px 12px',
+            background: 'var(--color-text-primary)',
+            color: 'var(--color-bg-base)',
+            width: 'fit-content',
+            transform: 'rotate(-1.5deg)',
+          }}
+        >
+          YOUR CLEARANCES
+        </span>
+        <h1
+          style={{
+            fontFamily: 'Bangers, cursive',
+            fontSize: 'clamp(44px, 8vw, 72px)',
+            lineHeight: 0.95,
+            letterSpacing: '0.04em',
+            textTransform: 'uppercase',
+            color: 'var(--color-text-primary)',
+            transform: 'skewX(-4deg)',
+          }}
+        >
+          My Panels
         </h1>
-        <p className="font-body text-body text-text-secondary max-w-2xl">
+        <p
+          style={{
+            fontFamily: 'Space Grotesk, sans-serif',
+            fontSize: '13px',
+            fontWeight: 500,
+            color: 'var(--color-text-secondary)',
+            opacity: 0.8,
+          }}
+        >
           Your authorized event clearances and active registrations for SPECTRUM 26.
         </p>
       </header>
 
+      {/* Registration cards */}
       <div className="flex flex-col gap-6">
         {items.map((item) => (
           <RegistrationCard
             key={item.id}
             reg={item}
             onSelect={() => {
+              playSynthSound('laser');
               sessionStorage.setItem('spectrum26_active_registration_id', item.id);
               navigate('/events');
             }}
@@ -92,47 +145,140 @@ export function RegistrationsPage() {
 
 function RegistrationCard({ reg, onSelect }: { key?: React.Key; reg: RegWithEvent; onSelect: () => void }) {
   const isTech = reg.event?.category === 'TECH';
-  const borderClass = isTech ? 'border-solid' : 'border-dashed';
   const isPending = reg.feeStatus === 'PENDING';
 
   return (
     <div
       onClick={onSelect}
-      className="group cursor-pointer bg-bg-card hover:bg-bg-card-hover border border-solid border-border-default p-6 transition-all duration-180 hover:scale-[1.01] flex flex-col md:flex-row gap-6 justify-between items-start md:items-center relative overflow-hidden"
+      className="comic-shadow cursor-pointer flex flex-col md:flex-row gap-6 justify-between items-start md:items-center relative overflow-hidden"
+      style={{
+        background: 'var(--panel-bg)',
+        padding: '20px 24px',
+        transition: 'transform 0.12s ease, box-shadow 0.12s ease',
+      }}
     >
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+      {/* Crosshatch on hover texture */}
+      <div className="absolute inset-0 hatch-pattern pointer-events-none" style={{ opacity: 0.07 }} />
 
-      <div className="flex flex-col gap-4 relative z-10 w-full md:w-auto">
-        <div className="flex items-center gap-4">
-          <span className={`font-micro text-micro border ${isTech ? 'border-primary' : 'border-dashed border-border-default'} text-primary px-2 py-1 uppercase tracking-widest`}>
+      {/* Left: event info */}
+      <div className="flex flex-col gap-3 relative z-10 w-full md:w-auto">
+        <div className="flex items-center gap-3 flex-wrap">
+          <span
+            className="comic-badge"
+            style={{
+              fontFamily: 'Space Grotesk, sans-serif',
+              fontSize: '11px',
+              fontWeight: 700,
+              letterSpacing: '0.10em',
+              padding: '2px 8px',
+              background: isTech ? 'var(--color-text-primary)' : 'transparent',
+              color: isTech ? 'var(--color-bg-base)' : 'var(--color-text-primary)',
+            }}
+          >
             {reg.event ? categoryLabel(reg.event.category) : '—'}
+          </span>
+          <span
+            style={{
+              fontFamily: 'Space Grotesk, sans-serif',
+              fontSize: '10px',
+              fontWeight: 700,
+              letterSpacing: '0.10em',
+              color: 'var(--color-text-muted)',
+              textTransform: 'uppercase',
+            }}
+          >
+            #{reg.id.slice(0, 8).toUpperCase()}
           </span>
         </div>
 
-        <h3 className="font-heading text-card-title text-primary uppercase flex items-center flex-wrap gap-2">
+        <h3
+          style={{
+            fontFamily: 'Bangers, cursive',
+            fontSize: '28px',
+            letterSpacing: '0.04em',
+            textTransform: 'uppercase',
+            color: 'var(--color-text-primary)',
+            lineHeight: 1.1,
+            display: 'flex',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '8px',
+          }}
+        >
           {reg.event?.name ?? 'Unknown Event'}
           {reg.teamName && (
-            <span className="font-body text-small text-text-primary border border-primary px-2 py-0.5 uppercase ml-2 bg-primary/5">
-              Team: {reg.teamName}
+            <span
+              className="comic-badge"
+              style={{
+                fontFamily: 'Space Grotesk, sans-serif',
+                fontSize: '11px',
+                fontWeight: 700,
+                padding: '2px 8px',
+              }}
+            >
+              {reg.teamName}
             </span>
           )}
         </h3>
 
-        <div className="flex flex-wrap items-center gap-4 md:gap-8 font-micro text-micro text-text-secondary uppercase tracking-widest">
-          <span className="flex items-center gap-2">
-            <Clock size={14} /> Registered
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '16px',
+            fontFamily: 'Space Grotesk, sans-serif',
+            fontSize: '11px',
+            fontWeight: 700,
+            letterSpacing: '0.10em',
+            textTransform: 'uppercase',
+            color: 'var(--color-text-muted)',
+            opacity: 0.8,
+          }}
+        >
+          <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <Clock size={12} /> Registered
           </span>
-          <span>{reg.event?.isTeamEvent ? 'Team' : 'Solo'}</span>
+          <span>{reg.event?.isTeamEvent ? 'Squad' : 'Solo'}</span>
         </div>
       </div>
 
-      <div className="flex items-center justify-between w-full md:w-auto gap-6 mt-4 md:mt-0 relative z-10 pt-4 md:pt-0 border-t border-border-subtle md:border-t-0">
-        <div className={`font-micro text-micro uppercase tracking-widest flex items-center gap-2 border px-3 py-1 ${isPending ? 'border-primary text-primary' : 'border-primary text-bg-base bg-primary'}`}>
-          {isPending ? <Clock size={14} /> : <CheckCircle2 size={14} />}
-          {isPending ? 'Pending' : 'Paid'}
+      {/* Right: status + arrow */}
+      <div
+        className="flex items-center gap-4 w-full md:w-auto pt-4 md:pt-0 relative z-10"
+        style={{ borderTop: '2px solid var(--color-border-subtle)' }}
+      >
+        <div
+          className="comic-badge"
+          style={{
+            fontFamily: 'Space Grotesk, sans-serif',
+            fontSize: '11px',
+            fontWeight: 700,
+            letterSpacing: '0.10em',
+            padding: '5px 12px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            background: isPending ? 'transparent' : 'var(--color-text-primary)',
+            color: isPending ? 'var(--color-text-primary)' : 'var(--color-bg-base)',
+            transform: 'rotate(-1deg)',
+          }}
+        >
+          {isPending ? <Clock size={12} /> : <CheckCircle2 size={12} />}
+          {isPending ? 'PENDING' : 'PAID'}
         </div>
-        <div className="w-10 h-10 border border-primary flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-bg-base transition-colors">
-          <ChevronRight size={20} />
+        <div
+          style={{
+            width: '40px',
+            height: '40px',
+            border: '3px solid var(--border-color)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'var(--color-text-primary)',
+            flexShrink: 0,
+          }}
+        >
+          <ChevronRight size={18} />
         </div>
       </div>
     </div>

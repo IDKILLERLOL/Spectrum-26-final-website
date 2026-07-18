@@ -1,51 +1,78 @@
 import { Link } from "react-router-dom";
-import { useState, useEffect, useRef, Fragment } from "react";
-import { motion, AnimatePresence, useInView } from "motion/react";
+import { useState, useEffect, Fragment } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { EVENT_DATE } from "../config";
 import { getEvents, db } from "../lib/firestore";
 import { getDocs, collection, query, where } from "firebase/firestore";
 import type { Event } from "../types";
 import { canRegister, categoryLabel, isEventFull, FALLBACK_EVENTS } from "../types";
-import { ShaderBackground } from "../components/ShaderBackground";
+import { SpeedLines } from "../components/SpeedLines";
+import { playSynthSound } from "../lib/audio";
 
 export function LandingPage() {
   return (
-    <>
-      <ShaderBackground />
-      <div className="relative z-10">
-        <Hero />
-        <Events />
-      </div>
-    </>
+    <div className="relative z-10">
+      <SpeedLines />
+      <Hero />
+      <Events />
+    </div>
   );
 }
 
-// ─── Hero ──────────────────────────────────────────────────────────────────────
+// ─── Hero ─────────────────────────────────────────────────────────────────────
 
 function Hero() {
   return (
-    <section className="relative w-full min-h-[870px] flex flex-col justify-center items-center overflow-hidden border-b border-border-default px-6 bg-transparent">
-      <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-hero-glow via-bg-base to-bg-base opacity-40 pointer-events-none" />
+    <header className="relative z-10 max-w-5xl mx-auto w-[92%] mt-12 text-center">
+      {/* Crosshatch decoration behind hero */}
+      <div
+        className="absolute inset-0 hatch-pattern pointer-events-none"
+        style={{
+          borderRadius: '50%',
+          transform: 'scale(0.9) skewY(-3deg)',
+        }}
+      />
 
-      <div className="relative z-10 flex flex-col items-center text-center gap-12 max-w-7xl mx-auto w-full">
-        {/* Wordmark */}
-        <div className="flex flex-col items-center gap-4">
-          <h1 className="font-['Orbitron'] text-[48px] md:text-[104px] text-primary uppercase select-none tracking-widest leading-[1.1] whitespace-nowrap">
-            SPECTRUM 26
-          </h1>
-          <div className="font-heading text-card-title text-text-secondary tracking-widest uppercase">
-            All Systems Go
-          </div>
-        </div>
-
-        {/* Live Countdown */}
-        <Countdown />
+      {/* Main Title */}
+      <div className="relative inline-block mb-2">
+        <h1
+          style={{
+            fontFamily: 'Bangers, cursive',
+            fontSize: 'clamp(60px, 12vw, 130px)',
+            lineHeight: 0.95,
+            letterSpacing: '0.04em',
+            textTransform: 'uppercase',
+            color: 'var(--color-text-primary)',
+            transform: 'skewX(-6deg)',
+            display: 'block',
+            userSelect: 'none',
+          }}
+        >
+          SPECTRUM 26
+        </h1>
       </div>
-    </section>
+
+      {/* Subtitle */}
+      <p
+        style={{
+          fontFamily: 'Bangers, cursive',
+          fontSize: 'clamp(18px, 3vw, 28px)',
+          letterSpacing: '0.15em',
+          textTransform: 'uppercase',
+          color: 'var(--color-text-primary)',
+          marginTop: '16px',
+        }}
+      >
+        // CRISIS COMBAT ENGINE READY
+      </p>
+
+      {/* Countdown */}
+      <Countdown />
+    </header>
   );
 }
 
-// ─── Countdown with digit-flip animation ───────────────────────────────────────
+// ─── Countdown ────────────────────────────────────────────────────────────────
 
 interface TimeLeft { days: number; hours: number; minutes: number; seconds: number }
 
@@ -61,7 +88,6 @@ function getTimeLeft(): TimeLeft {
 
 function Countdown() {
   const [time, setTime] = useState<TimeLeft>(getTimeLeft);
-
   useEffect(() => {
     const id = setInterval(() => setTime(getTimeLeft()), 1000);
     return () => clearInterval(id);
@@ -69,34 +95,61 @@ function Countdown() {
 
   const units = [
     { value: time.days, label: 'Days' },
-    { value: time.hours, label: 'Hours' },
-    { value: time.minutes, label: 'Min' },
-    { value: time.seconds, label: 'Sec' },
+    { value: time.hours, label: 'Hrs' },
+    { value: time.minutes, label: 'Mins' },
+    { value: time.seconds, label: 'Secs', invert: true },
   ];
 
   return (
-    <div className="flex gap-4 md:gap-8 items-center justify-center bg-bg-card border border-border-default p-6 md:p-8 rounded-md card-shadow">
-      {units.map(({ value, label }, i) => (
-        <Fragment key={label}>
-          <div key={label} className="flex flex-col items-center gap-2 w-20 md:w-32">
-            <FlipDigits value={value} />
-            <span
-              className="text-micro font-body uppercase tracking-widest"
-              style={{ color: 'var(--color-text-muted)' }}
-            >
-              {label}
-            </span>
-          </div>
-          {i < units.length - 1 && (
-            <span
-              className="text-countdown font-hero opacity-50 mb-6"
-              style={{ color: 'var(--color-text-muted)' }}
-            >
-              :
-            </span>
-          )}
-        </Fragment>
-      ))}
+    <div
+      className="mt-8 inline-flex items-center justify-center gap-4 comic-border-thick comic-shadow max-w-full"
+      style={{
+        background: 'var(--panel-bg)',
+        padding: '24px 32px',
+        transform: 'rotate(1deg)',
+      }}
+    >
+      <div
+        className="flex items-center gap-2 md:gap-4"
+        style={{
+          fontFamily: 'Bangers, cursive',
+          fontSize: 'clamp(36px, 7vw, 60px)',
+          color: 'var(--color-text-primary)',
+        }}
+      >
+        {units.map(({ value, label, invert }, i) => (
+          <Fragment key={label}>
+            <div className="text-center" style={{ minWidth: '70px' }}>
+              <div
+                className="comic-border-medium leading-none"
+                style={{
+                  padding: '8px 12px',
+                  background: invert ? 'var(--color-text-primary)' : 'var(--badge-bg)',
+                  color: invert ? 'var(--color-bg-base)' : 'var(--color-text-primary)',
+                }}
+              >
+                <FlipDigits value={value} />
+              </div>
+              <div
+                style={{
+                  fontSize: '10px',
+                  textTransform: 'uppercase',
+                  fontFamily: 'Space Grotesk, sans-serif',
+                  fontWeight: 700,
+                  letterSpacing: '0.12em',
+                  marginTop: '8px',
+                  opacity: 0.7,
+                }}
+              >
+                {label}
+              </div>
+            </div>
+            {i < units.length - 1 && (
+              <span className="animate-pulse" style={{ opacity: 0.4 }}>:</span>
+            )}
+          </Fragment>
+        ))}
+      </div>
     </div>
   );
 }
@@ -104,7 +157,7 @@ function Countdown() {
 function FlipDigits({ value }: { value: number }) {
   const display = String(value).padStart(2, '0');
   return (
-    <div className="flex text-countdown font-countdown font-bold leading-none text-primary">
+    <div className="flex leading-none">
       <SingleDigit char={display[0]} />
       <SingleDigit char={display[1]} />
     </div>
@@ -113,15 +166,15 @@ function FlipDigits({ value }: { value: number }) {
 
 function SingleDigit({ char }: { char: string }) {
   return (
-    <div className="relative flex items-center justify-center w-[1.1ch] h-[1.1em] overflow-hidden">
+    <div className="relative flex items-center justify-center overflow-hidden" style={{ width: '1.1ch', height: '1.1em' }}>
       <AnimatePresence mode="popLayout">
         <motion.span
           key={char}
-          initial={{ y: "-80%", opacity: 0 }}
-          animate={{ y: "0%", opacity: 1 }}
-          exit={{ y: "80%", opacity: 0 }}
-          transition={{ duration: 0.25, ease: "easeInOut" }}
-          className="absolute text-primary inline-block"
+          initial={{ y: '-80%', opacity: 0 }}
+          animate={{ y: '0%', opacity: 1 }}
+          exit={{ y: '80%', opacity: 0 }}
+          transition={{ duration: 0.18, ease: 'easeInOut' }}
+          className="absolute inline-block"
         >
           {char}
         </motion.span>
@@ -130,41 +183,37 @@ function SingleDigit({ char }: { char: string }) {
   );
 }
 
-// ─── Section heading with character reveal (Skiper31 pattern) ─────────────────
-
-function SectionHeading({ text, className = "" }: { text: string; className?: string }) {
-  return (
-    <h2 className={`font-section text-section text-primary uppercase tracking-wide ${className}`}>
-      {text}
-    </h2>
-  );
-}
-
-// ─── Events section ────────────────────────────────────────────────────────────
-
-// Fallback placeholder images (used when no event image is stored in Firestore)
-const FALLBACK_IMAGES: Record<string, string> = {
-  "Reverse Engineering": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=800",
-  "Speed Typing": "https://images.unsplash.com/photo-1595225476474-87563907a212?auto=format&fit=crop&q=80&w=800",
-  "Code Prism": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80&w=800",
-  "BGMI": "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=800",
-  "Free Fire": "https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?auto=format&fit=crop&q=80&w=800",
-  "FC 26": "https://images.unsplash.com/photo-1518605368461-1ee711659208?auto=format&fit=crop&q=80&w=800",
+// Comic-style badge text per event name
+const EVENT_BADGE: Record<string, string> = {
+  'Code Prism': '010101',
+  'Reverse Engineering': 'DEBUGGER',
+  'Speed Typing': '160 WPM',
+  'BGMI': 'RED ZONE',
+  'Free Fire': 'SHOOT!',
+  'FC 26': 'GOAL!',
 };
-const DEFAULT_IMG = "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80&w=800";
+
+
+
+// ─── Events Section ───────────────────────────────────────────────────────────
 
 function EventCardSkeleton() {
   return (
-    <div className="bg-bg-card border border-border-default p-4 md:p-6 rounded-none flex flex-col gap-4">
-      <div className="skeleton h-40 w-full rounded" />
-      <div className="skeleton h-4 w-16 rounded" />
-      <div className="skeleton h-6 w-3/4 rounded" />
-      <div className="skeleton h-4 w-full rounded" />
-      <div className="skeleton h-12 w-full rounded mt-2" />
+    <div
+      className="comic-shadow flex flex-col gap-4 overflow-hidden"
+      style={{ background: 'var(--panel-bg)' }}
+    >
+      <div className="skeleton m-3" style={{ height: '176px' }} />
+      <div className="px-5 pb-5 flex flex-col gap-3">
+        <div className="skeleton h-4 w-20" />
+        <div className="skeleton h-8 w-3/4" />
+        <div className="skeleton h-4 w-full" />
+        <div className="skeleton h-4 w-4/5" />
+        <div className="skeleton h-12 w-full mt-2" />
+      </div>
     </div>
   );
 }
-
 
 function Events() {
   const [events, setEvents] = useState<Event[]>(FALLBACK_EVENTS);
@@ -174,140 +223,226 @@ function Events() {
   useEffect(() => {
     setLoading(true);
     getEvents()
-      .then((data) => {
-        if (data && data.length > 0) {
-          setEvents(data);
-        }
-      })
+      .then((data) => { if (data && data.length > 0) setEvents(data); })
       .catch(console.error)
       .finally(() => setLoading(false));
 
-    // Load active team members to count total people per event
     getDocs(query(collection(db, 'teamMembers'), where('status', '==', 'ACTIVE')))
       .then(async (memsSnap) => {
         const regsSnap = await getDocs(collection(db, 'registrations'));
         const regToEventMap = new Map<string, string>();
-        for (const doc of regsSnap.docs) {
-          regToEventMap.set(doc.id, doc.data().eventId);
-        }
+        for (const doc of regsSnap.docs) regToEventMap.set(doc.id, doc.data().eventId);
         const counts: Record<string, number> = {};
         for (const doc of memsSnap.docs) {
-          const regId = doc.data().registrationId;
-          const evId = regToEventMap.get(regId);
-          if (evId) {
-            counts[evId] = (counts[evId] || 0) + 1;
-          }
+          const evId = regToEventMap.get(doc.data().registrationId);
+          if (evId) counts[evId] = (counts[evId] || 0) + 1;
         }
         setParticipantCounts(counts);
       })
       .catch(console.error);
   }, []);
 
-  const techEvents = events.filter((e) => e.category === "TECH");
-  const nonTechEvents = events.filter((e) => e.category === "NON_TECH");
+  const techEvents = events.filter((e) => e.category === 'TECH');
+  const nonTechEvents = events.filter((e) => e.category === 'NON_TECH');
 
   return (
-    <section id="events" className="w-full py-14 md:py-24 px-6 max-w-7xl mx-auto flex flex-col gap-12 md:gap-24">
-      {/* TECH EVENTS */}
-      <div className="flex flex-col gap-8">
-        <div className="flex items-center gap-6 border-b border-border-default pb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg>
-          <SectionHeading text="Tech Events" />
+    <main id="events" className="relative z-10 max-w-7xl mx-auto w-[92%] mt-16 flex flex-col gap-16">
+
+      {/* ── TECH EVENTS ── */}
+      <section>
+        <div className="flex items-center gap-4 mb-8">
+          <div
+            className="comic-badge flex items-center gap-2"
+            style={{
+              fontSize: '20px',
+              padding: '6px 16px',
+              background: 'var(--color-text-primary)',
+              color: 'var(--color-bg-base)',
+              transform: 'rotate(-2deg)',
+            }}
+          >
+            TECH COMBATANTS
+          </div>
+          <div style={{ flex: 1, height: '4px', background: 'var(--border-color)' }} />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {loading
             ? Array.from({ length: 3 }).map((_, i) => <EventCardSkeleton key={i} />)
             : techEvents.length > 0
               ? techEvents.map((e) => <EventCard key={e.id} event={e} participantCount={participantCounts[e.id] ?? 0} />)
-              : <p className="font-body text-body text-text-muted col-span-3">Tech events coming soon.</p>
+              : <p style={{ fontFamily: 'Space Grotesk', color: 'var(--color-text-muted)', gridColumn: 'span 3' }}>Tech events coming soon.</p>
           }
         </div>
-      </div>
+      </section>
 
-      {/* NON-TECH EVENTS */}
-      <div className="flex flex-col gap-8 mt-8">
-        <div className="flex items-center gap-6 border-b border-border-default pb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M12 2a10 10 0 1 0 10 10H12V2z"/><path d="M12 12 2.1 7.1"/><path d="m12 12 7.1 7.1"/></svg>
-          <SectionHeading text="Non-Tech Events" />
+      {/* ── NON-TECH EVENTS ── */}
+      <section>
+        <div className="flex items-center gap-4 mb-8">
+          <div
+            className="comic-badge flex items-center gap-2"
+            style={{
+              fontSize: '20px',
+              padding: '6px 16px',
+              background: 'var(--color-text-primary)',
+              color: 'var(--color-bg-base)',
+              transform: 'rotate(-2deg)',
+            }}
+          >
+            TACTICAL GAMING
+          </div>
+          <div style={{ flex: 1, height: '4px', background: 'var(--border-color)' }} />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {loading
             ? Array.from({ length: 3 }).map((_, i) => <EventCardSkeleton key={i} />)
             : nonTechEvents.length > 0
               ? nonTechEvents.map((e) => <EventCard key={e.id} event={e} participantCount={participantCounts[e.id] ?? 0} />)
-              : <p className="font-body text-body text-text-muted col-span-3">Non-tech events coming soon.</p>
+              : <p style={{ fontFamily: 'Space Grotesk', color: 'var(--color-text-muted)', gridColumn: 'span 3' }}>Non-tech events coming soon.</p>
           }
         </div>
-      </div>
+      </section>
 
-      {/* View Schedule CTA */}
-      <div className="flex justify-center mt-6">
+      {/* ── Schedule CTA ── */}
+      <div className="text-center my-10">
         <Link
           to="/schedule"
-          className="font-button text-button border border-primary text-primary px-8 py-4 uppercase tracking-widest btn-spread transition-colors"
+          onClick={() => playSynthSound('zap')}
+          className="comic-btn mx-auto"
+          style={{
+            fontSize: 'clamp(20px, 3vw, 32px)',
+            padding: '16px 32px',
+            transform: 'skewX(-6deg)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '12px',
+          }}
         >
-          View Full Timeline & Schedule
+          VIEW FULL TIMELINE &amp; SCHEDULE
         </Link>
       </div>
-    </section>
+
+    </main>
   );
 }
 
 function EventCard({ event, participantCount }: { event: Event; participantCount: number }) {
-  const isTech = event.category === "TECH";
+  const isTech = event.category === 'TECH';
   const full = isEventFull(event);
   const open = canRegister(event);
-  const img = FALLBACK_IMAGES[event.name] ?? DEFAULT_IMG;
+  const badge = EVENT_BADGE[event.name] ?? categoryLabel(event.category);
 
   return (
-    <div className={`group bg-bg-card hover:bg-bg-card-hover border ${isTech ? "border-solid" : "border-dashed"} border-border-default p-4 md:p-6 rounded-none flex flex-col justify-between gap-6 transition-all duration-180 hover:scale-[1.02] relative overflow-hidden`}>
-      <div className="flex flex-col gap-4 relative z-10">
-        <div className={`h-40 w-full bg-bg-elevated border ${isTech ? "border-solid" : "border-dashed"} border-border-subtle rounded flex items-center justify-center overflow-hidden`}>
-          <img
-            src={img}
-            alt={event.name}
-            className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-          />
+    <article
+      className="comic-border-thick comic-shadow overflow-hidden flex flex-col justify-between group"
+      style={{ background: 'var(--panel-bg)' }}
+    >
+      <div>
+        {/* Card header with category info and enlisted count */}
+        <div className="flex justify-between items-center px-5 pt-5 pb-2">
+          <span
+            className="comic-badge px-2 py-0.5 text-xs"
+            style={{
+              background: 'var(--color-text-primary)',
+              color: 'var(--color-bg-base)',
+              fontSize: '10px',
+              transform: 'rotate(2deg)',
+            }}
+          >
+            {badge}
+          </span>
+          <span
+            className="comic-badge px-2 py-0.5 text-xs"
+            style={{
+              fontSize: '10px',
+              transform: 'rotate(-1deg)',
+            }}
+          >
+            {participantCount} enlisted
+          </span>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Category tag: exactly "TECH" or "NON-TECH", solid vs dashed border — never colored */}
-          <span className={`font-micro text-micro border ${isTech ? "border-solid border-primary" : "border-dashed border-border-default"} text-text-muted px-2 py-1 rounded-sm uppercase tracking-widest`}>
-            {categoryLabel(event.category)}
-          </span>
-          {/* Format tag: Solo / Team */}
-          <span className="font-micro text-micro border border-solid border-border-default text-text-muted px-2 py-1 rounded-sm uppercase tracking-widest">
-            {event.isTeamEvent ? "Team" : "Solo"}
-          </span>
-          {event.price != null && (
-            <span className="font-micro text-micro text-text-muted">₹{event.price}</span>
-          )}
-          <span className="font-micro text-micro text-primary uppercase tracking-widest ml-auto">
-            {participantCount} registered
-          </span>
+        {/* Card body */}
+        <div className="p-5">
+          <div className="flex flex-wrap gap-2 mb-3">
+            <span
+              className="comic-badge px-2 py-0.5"
+              style={{ fontSize: '11px', fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700 }}
+            >
+              {categoryLabel(event.category)}
+            </span>
+            <span
+              className="comic-badge px-2 py-0.5"
+              style={{
+                fontSize: '11px',
+                fontFamily: 'Space Grotesk, sans-serif',
+                fontWeight: 700,
+                background: 'var(--color-text-primary)',
+                color: 'var(--color-bg-base)',
+                border: '2px solid var(--border-color)',
+              }}
+            >
+              {event.isTeamEvent ? 'SQUAD' : 'SOLO'}
+            </span>
+            {event.price != null && (
+              <span
+                className="comic-badge px-2 py-0.5"
+                style={{ fontSize: '11px', fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700 }}
+              >
+                ₹{event.price}
+              </span>
+            )}
+          </div>
+
+          <h3
+            style={{
+              fontFamily: 'Bangers, cursive',
+              fontSize: '28px',
+              letterSpacing: '0.04em',
+              textTransform: 'uppercase',
+              color: 'var(--color-text-primary)',
+              lineHeight: 1.1,
+              marginBottom: '8px',
+            }}
+          >
+            {event.name}
+          </h3>
+
+          <p
+            className="line-clamp-2"
+            style={{
+              fontFamily: 'Space Grotesk, sans-serif',
+              fontSize: '13px',
+              fontWeight: 500,
+              color: 'var(--color-text-secondary)',
+              lineHeight: 1.55,
+              opacity: 0.85,
+            }}
+          >
+            {event.description || 'Details coming soon.'}
+          </p>
         </div>
-
-        <h3 className="font-heading text-card-title text-primary uppercase leading-tight">
-          {event.name}
-        </h3>
-
-        <p className="font-body text-body text-text-secondary line-clamp-2">
-          {event.description || "Details coming soon."}
-        </p>
       </div>
 
-      {open ? (
-        <Link
-          to={`/login?redirect=register&eventId=${event.id}`}
-          className="relative z-10 w-full font-button text-button px-6 py-4 text-center uppercase tracking-widest hover:scale-[1.02] transition-transform duration-180 border border-primary text-primary bg-transparent btn-spread"
-        >
-          Register
-        </Link>
-      ) : (
-        <div className="relative z-10 w-full font-button text-button px-6 py-4 text-center uppercase tracking-widest text-text-disabled border border-dashed border-border-subtle cursor-default">
-          {full ? "Event Full" : "Registration Closed"}
-        </div>
-      )}
-    </div>
+      {/* CTA button */}
+      <div className="p-5 pt-0">
+        {open ? (
+          <Link
+            to={`/login?redirect=register&eventId=${event.id}`}
+            onClick={() => playSynthSound('laser')}
+            className="comic-btn w-full"
+            style={{ fontSize: '20px', padding: '10px 20px' }}
+          >
+            REGISTER FOR COMBAT
+          </Link>
+        ) : (
+          <div
+            className="comic-btn-outline w-full"
+            style={{ fontSize: '18px', padding: '10px 20px', opacity: 0.5, cursor: 'not-allowed' }}
+          >
+            {full ? 'SECTOR FULL' : 'CLOSED'}
+          </div>
+        )}
+      </div>
+    </article>
   );
 }

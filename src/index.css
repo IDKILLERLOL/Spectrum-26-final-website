@@ -1,321 +1,411 @@
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800;900&family=Oxanium:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Space+Grotesk:wght@400;500;700&display=swap');
 
 @import "tailwindcss";
 
-/* ─── Design System Tokens ────────────────────────────────────────────────── */
-/* Dark mode is the DEFAULT. Light mode only activates on explicit [data-theme="light"]. */
-/* Never use prefers-color-scheme to set the initial theme. */
+/* ═══════════════════════════════════════════════════════════════
+   RADIANT CRISIS 001 DESIGN SYSTEM
+   Pure B&W comic ink — Bangers + Space Grotesk
+   Reference: Valorant "Radiant Crisis 001" aesthetic
+   Dark  = white ink on black paper
+   Light = black ink on white paper
+═══════════════════════════════════════════════════════════════ */
 
 @theme {
-  /* Dark mode tokens (default) */
-  --color-bg-base: #000000;
-  --color-bg-elevated: #0a0a0a;
-  --color-bg-card: #111111;
-  --color-bg-card-hover: #1a1a1a;
-  --color-border-subtle: rgba(255, 255, 255, 0.06);
-  --color-border-default: rgba(255, 255, 255, 0.10);
-  --color-border-strong: rgba(255, 255, 255, 0.20);
-  --color-text-primary: #ffffff;
-  --color-text-secondary: rgba(255, 255, 255, 0.55);
-  --color-text-muted: rgba(255, 255, 255, 0.35);
-  --color-text-disabled: rgba(255, 255, 255, 0.20);
-  --color-primary: #ffffff;
-  --color-accent: #ffffff;
-  --color-accent-glow: rgba(255, 255, 255, 0.30);
-  --color-hero-glow: rgba(255, 255, 255, 0.06);
+  /* --- DARK MODE TOKENS (default) --- */
+  --color-bg-base:        #000000;
+  --color-bg-elevated:    #111111;
+  --color-bg-card:        #111111;
+  --color-bg-card-hover:  #1a1a1a;
 
-  --font-hero: 'Orbitron', sans-serif;
-  --font-heading: 'Oxanium', sans-serif;
-  --font-body: 'Inter', sans-serif;
+  --color-border-subtle:  rgba(255,255,255,0.20);
+  --color-border-default: rgba(255,255,255,0.55);
+  --color-border-strong:  #ffffff;
+
+  --color-text-primary:   #ffffff;
+  --color-text-secondary: rgba(255,255,255,0.72);
+  --color-text-muted:     rgba(255,255,255,0.50);
+  --color-text-disabled:  rgba(255,255,255,0.25);
+
+  --color-primary:        #ffffff;
+  --color-accent:         #ffffff;
+  --color-accent-glow:    rgba(255,255,255,0.15);
+  --color-hero-glow:      transparent;
+
+  /* Comic-specific tokens */
+  --panel-bg:             #111111;
+  --border-color:         #ffffff;
+  --ink-color:            #ffffff;
+  --badge-bg:             #1a1a1a;
+  --btn-bg:               #ffffff;
+  --btn-text:             #000000;
+  --btn-border:           #000000;
+  --btn-shadow:           #ffffff;
+  --shadow-color:         rgba(255,255,255,0.15);
+  --halftone-color:       rgba(255,255,255,0.06);
+
+  /* Fonts */
+  --font-hero:    'Bangers', cursive;
+  --font-heading: 'Bangers', cursive;
+  --font-body:    'Space Grotesk', sans-serif;
+  --font-micro:   'Space Grotesk', sans-serif;
 }
 
-/* ─── Light mode overrides — only on [data-theme="light"] ─────────────────── */
+/* --- LIGHT MODE OVERRIDES --- */
 [data-theme="light"] {
-  --color-bg-base: #f7f7f8;
-  --color-bg-elevated: #fafafc;
-  --color-bg-card: #ffffff;
-  --color-bg-card-hover: #ffffff;
-  --color-border-subtle: rgba(0, 0, 0, 0.18);
-  --color-border-default: rgba(0, 0, 0, 0.30);
-  --color-border-strong: rgba(0, 0, 0, 0.55);
-  --color-text-primary: #000000;
-  --color-text-secondary: rgba(0, 0, 0, 0.85);
-  --color-text-muted: rgba(0, 0, 0, 0.72);
-  --color-text-disabled: rgba(0, 0, 0, 0.45);
-  --color-primary: #000000;
-  --color-accent: #000000;
-  --color-accent-glow: rgba(0, 0, 0, 0.24);
-  --color-hero-glow: transparent;
+  --color-bg-base:        #ffffff;
+  --color-bg-elevated:    #ffffff;
+  --color-bg-card:        #ffffff;
+  --color-bg-card-hover:  #f3f4f6;
+
+  --color-border-subtle:  rgba(0,0,0,0.20);
+  --color-border-default: rgba(0,0,0,0.55);
+  --color-border-strong:  #000000;
+
+  --color-text-primary:   #000000;
+  --color-text-secondary: rgba(0,0,0,0.72);
+  --color-text-muted:     rgba(0,0,0,0.50);
+  --color-text-disabled:  rgba(0,0,0,0.25);
+
+  --color-primary:        #000000;
+  --color-accent:         #000000;
+  --color-accent-glow:    rgba(0,0,0,0.12);
+  --color-hero-glow:      transparent;
+
+  --panel-bg:             #ffffff;
+  --border-color:         #000000;
+  --ink-color:            #000000;
+  --badge-bg:             #f3f4f6;
+  --btn-bg:               #000000;
+  --btn-text:             #ffffff;
+  --btn-border:           #ffffff;
+  --btn-shadow:           #000000;
+  --shadow-color:         rgba(0,0,0,0.15);
+  --halftone-color:       rgba(0,0,0,0.06);
 }
 
-/* ─── Base ────────────────────────────────────────────────────────────────── */
-html {
-  color-scheme: dark;
-}
-[data-theme="light"] {
-  color-scheme: light;
-}
+/* ─── Base ─────────────────────────────────────────────────── */
+html { color-scheme: dark; }
+[data-theme="light"] { color-scheme: light; }
+
+*, *::before, *::after { box-sizing: border-box; }
 
 body {
   background-color: var(--color-bg-base);
   color: var(--color-text-primary);
-  font-family: var(--font-body);
+  font-family: 'Space Grotesk', sans-serif;
   overflow-x: hidden;
+  position: relative;
+  /* Ben-Day halftone dot background */
+  background-image: radial-gradient(var(--halftone-color) 15%, transparent 16%);
+  background-size: 16px 16px;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* Light mode card shadow overrides - Rule 2 */
-[data-theme="light"] .card-shadow,
-[data-theme="light"] .bg-bg-card {
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04) !important;
-  background-color: #ffffff !important;
-}
+/* ─── Typography class utilities ─────────────────────────────── */
+@utility font-hero    { font-family: 'Bangers', cursive; }
+@utility font-heading { font-family: 'Bangers', cursive; }
+@utility font-body    { font-family: 'Space Grotesk', sans-serif; }
+@utility font-micro   { font-family: 'Space Grotesk', sans-serif; }
+@utility font-button  { font-family: 'Bangers', cursive; }
+@utility font-section { font-family: 'Bangers', cursive; }
+@utility font-action  { font-family: 'Bangers', cursive; }
+@utility font-countdown { font-family: 'Bangers', cursive; }
 
-[data-theme="light"] .bg-bg-card:hover {
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08), 0 6px 6px rgba(0, 0, 0, 0.04) !important;
-  background-color: #ffffff !important;
-}
-
-/* Buttons outline/ghost overrides - Rule 3 */
-[data-theme="light"] .font-button.border:not(.hover\:bg-primary),
-[data-theme="light"] .font-button.border-primary:not(.hover\:bg-primary),
-[data-theme="light"] button.border:not(.hover\:bg-primary),
-[data-theme="light"] a.border:not(.hover\:bg-primary) {
-  border: 1px solid rgba(0, 0, 0, 0.55) !important;
-  color: #000000 !important;
-  font-weight: 600 !important;
-  background-color: transparent !important;
-}
-[data-theme="light"] .font-button.border:not(.hover\:bg-primary):hover,
-[data-theme="light"] .font-button.border-primary:not(.hover\:bg-primary):hover,
-[data-theme="light"] button.border:not(.hover\:bg-primary):hover,
-[data-theme="light"] a.border:not(.hover\:bg-primary):hover {
-  background-color: rgba(0, 0, 0, 0.05) !important;
-  color: #000000 !important;
-  border-color: rgba(0, 0, 0, 0.55) !important;
-}
-
-/* Register buttons explicit hover states */
-.hover\:bg-primary:hover {
-  background-color: #ffffff !important;
-  color: #000000 !important;
-  border-color: #ffffff !important;
-}
-[data-theme="light"] .hover\:bg-primary:hover {
-  background-color: #000000 !important;
-  color: #ffffff !important;
-  border-color: #000000 !important;
-}
-
-/* Default (dark mode) border overrides - convert dashed/dotted borders to solid very light grey */
-.border-dashed,
-.border-dotted {
-  border-style: solid !important;
-  border-color: rgba(255, 255, 255, 0.80) !important;
-}
-
-/* Light mode border overrides - convert dashed/dotted borders to solid dark grey/black */
-[data-theme="light"] .border-dashed,
-[data-theme="light"] .border-dotted {
-  border-style: solid !important;
-  border-color: rgba(0, 0, 0, 0.45) !important;
-}
-
-/* Hero Graphic Circles - Rule 5 */
-.hero-circle-back {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  transform: translate(-12%, -12%);
-  transition: all 0.2s ease;
-}
-.hero-circle-front {
-  background: rgba(255, 255, 255, 0.04);
-  transform: translate(12%, 12%);
-  transition: all 0.2s ease;
-}
-[data-theme="light"] .hero-circle-back {
-  background: rgba(0, 0, 0, 0.08) !important;
-  border: 1px solid rgba(0, 0, 0, 0.15) !important;
-}
-[data-theme="light"] .hero-circle-front {
-  background: #000000 !important;
-}
-
-/* ─── Typography utilities ────────────────────────────────────────────────── */
 @utility text-hero {
-  font-family: var(--font-hero);
-  font-size: clamp(48px, 9vw, 104px);
-  font-weight: 900;
-  line-height: 1.1;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-@utility text-countdown {
-  font-family: var(--font-hero);
-  font-size: clamp(36px, 6vw, 64px);
-  font-weight: 800;
-  line-height: 1.2;
-}
-
-@utility text-section {
-  font-family: var(--font-hero);
-  font-size: clamp(28px, 4vw, 44px);
-  font-weight: 800;
-  line-height: 1.2;
-}
-
-@utility text-card-title {
-  font-family: var(--font-heading);
-  font-size: 20px;
-  font-weight: 700;
-  line-height: 1.4;
-}
-
-@utility text-heading {
-  font-family: var(--font-heading);
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 1.2;
-}
-
-@utility text-button {
-  font-family: var(--font-heading);
-  font-size: 14px;
-  font-weight: 600;
-  line-height: normal;
+  font-family: 'Bangers', cursive;
+  font-size: clamp(52px, 10vw, 120px);
+  line-height: 0.95;
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
-@utility text-body {
-  font-family: var(--font-body);
+@utility text-section {
+  font-family: 'Bangers', cursive;
+  font-size: clamp(28px, 4vw, 44px);
+  line-height: 1.1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+@utility text-card-title {
+  font-family: 'Bangers', cursive;
+  font-size: 28px;
+  line-height: 1.1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+@utility text-countdown {
+  font-family: 'Bangers', cursive;
+  font-size: clamp(36px, 6vw, 64px);
+  line-height: 1;
+  letter-spacing: 0.04em;
+}
+
+@utility text-heading {
+  font-family: 'Space Grotesk', sans-serif;
   font-size: 15px;
-  font-weight: 400;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+@utility text-button {
+  font-family: 'Bangers', cursive;
+  font-size: 20px;
+  line-height: 1;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+@utility text-body {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
   line-height: 1.6;
 }
 
 @utility text-small {
-  font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 400;
-  line-height: 1.4;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 @utility text-micro {
-  font-family: var(--font-body);
+  font-family: 'Space Grotesk', sans-serif;
   font-size: 11px;
-  font-weight: 500;
-  line-height: 1;
-  letter-spacing: 0.08em;
+  font-weight: 700;
+  letter-spacing: 0.10em;
   text-transform: uppercase;
 }
 
 @utility text-glow {
-  text-shadow: 0 0 30px var(--color-accent-glow);
+  text-shadow: 2px 2px 0 var(--border-color);
   color: var(--color-text-primary);
 }
 
 @utility border-glow {
-  box-shadow: 0 0 15px var(--color-accent-glow);
+  box-shadow: 8px 8px 0px var(--border-color);
 }
 
-/* ─── Theme toggle View Transitions ──────────────────────────────────────── */
-/* Circular wipe effect when toggling dark↔light */
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation: none;
-  mix-blend-mode: normal;
+/* ─── COMIC BORDER STYLES ────────────────────────────────────── */
+/* Thick hand-drawn irregular border */
+.comic-border-thick {
+  border: 4px solid var(--border-color);
+  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
 }
 
-::view-transition-new(root) {
-  z-index: 1;
-}
-::view-transition-old(root) {
-  z-index: 9999;
+/* Medium hand-drawn irregular border */
+.comic-border-medium {
+  border: 3px solid var(--border-color);
+  border-radius: 120px 10px 105px 10px/10px 105px 10px 120px;
 }
 
-/* ─── Skeleton loading animation ─────────────────────────────────────────── */
+/* Cel-shaded hard shadow (the main 3D comic effect) */
+.comic-shadow {
+  border: 4px solid var(--border-color);
+  box-shadow: 8px 8px 0px var(--border-color);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.comic-shadow:hover {
+  transform: translate(-4px, -4px);
+  box-shadow: 12px 12px 0px var(--border-color);
+}
+
+.comic-shadow:active {
+  transform: translate(4px, 4px);
+  box-shadow: 4px 4px 0px var(--border-color);
+}
+
+/* ─── COMIC BUTTONS ──────────────────────────────────────────── */
+.comic-btn {
+  background-color: var(--btn-bg);
+  color: var(--btn-text);
+  border: 3px solid var(--btn-border);
+  box-shadow: 4px 4px 0px var(--btn-shadow);
+  transition: transform 0.10s ease, box-shadow 0.10s ease;
+  cursor: pointer;
+  font-family: 'Bangers', cursive;
+  font-size: 20px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-radius: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+}
+
+.comic-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px var(--btn-shadow);
+}
+
+.comic-btn:active {
+  transform: translate(4px, 4px);
+  box-shadow: 0px 0px 0px var(--btn-shadow);
+}
+
+/* Outline comic button (outline only, not filled) */
+.comic-btn-outline {
+  background-color: transparent;
+  color: var(--color-text-primary);
+  border: 3px solid var(--border-color);
+  box-shadow: 4px 4px 0px var(--border-color);
+  transition: transform 0.10s ease, box-shadow 0.10s ease, background-color 0.10s ease;
+  cursor: pointer;
+  font-family: 'Bangers', cursive;
+  font-size: 20px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-radius: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+}
+
+.comic-btn-outline:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px var(--border-color);
+  background-color: var(--btn-bg);
+  color: var(--btn-text);
+  border-color: var(--btn-border);
+}
+
+.comic-btn-outline:active {
+  transform: translate(4px, 4px);
+  box-shadow: 0px 0px 0px var(--border-color);
+}
+
+/* ─── COMIC BADGES ───────────────────────────────────────────── */
+.comic-badge {
+  font-family: 'Bangers', cursive;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 2px solid var(--border-color);
+  transform: rotate(-2deg);
+  background: var(--badge-bg);
+  box-shadow: 2px 2px 0px var(--border-color);
+  display: inline-block;
+}
+
+/* ─── CROSSHATCH SHADING ─────────────────────────────────────── */
+.hatch-pattern {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--border-color),
+    var(--border-color) 1px,
+    transparent 1px,
+    transparent 8px
+  );
+  opacity: 0.12;
+}
+
+/* ─── SKELETON ───────────────────────────────────────────────── */
 @keyframes skeleton-pulse {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.8; }
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
 }
-
 .skeleton {
-  background: var(--color-bg-card);
-  animation: skeleton-pulse 1.5s ease-in-out infinite;
-  border-radius: 4px;
+  background: var(--badge-bg);
+  border: 2px solid var(--color-border-subtle);
+  animation: skeleton-pulse 1.4s ease-in-out infinite;
+  border-radius: 0;
 }
 
-/* ─── Inline form / confirm expand animation ─────────────────────────────── */
+/* ─── POP IN ANIMATION ───────────────────────────────────────── */
+@keyframes popIn {
+  0%   { transform: scale(0) rotate(-20deg); opacity: 0; }
+  70%  { transform: scale(1.2) rotate(10deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+.comic-pop {
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* ─── EXPAND IN ──────────────────────────────────────────────── */
 @keyframes expand-in {
-  from { opacity: 0; transform: translateY(-8px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
+.expand-in { animation: expand-in 0.18s ease-out forwards; }
 
-.expand-in {
-  animation: expand-in 0.18s ease-out forwards;
-}
-
-/* ─── Scroll reveal utility (used by character-reveal components) ─────────── */
-.char-hidden {
-  opacity: 0;
-  transform: translateY(20px);
-}
+/* ─── CHAR REVEAL ────────────────────────────────────────────── */
+.char-hidden  { opacity: 0; transform: translateY(16px); }
 .char-visible {
   opacity: 1;
   transform: translateY(0);
-  transition: opacity 0.4s ease, transform 0.4s ease;
+  transition: opacity 0.35s ease, transform 0.35s ease;
 }
 
-/* Custom center-out spreading hover animation for action buttons */
+/* ─── SCROLLBAR ──────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 12px; }
+::-webkit-scrollbar-track {
+  background: var(--color-bg-base);
+  border-left: 3px solid var(--border-color);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-text-primary);
+  border: 3px solid var(--border-color);
+  border-radius: 4px;
+}
+
+/* ─── VIEW TRANSITIONS ───────────────────────────────────────── */
+::view-transition-old(root),
+::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+::view-transition-new(root) { z-index: 1; }
+::view-transition-old(root) { z-index: 9999; }
+
+/* ─── LIGHT MODE border overrides for dashed/dotted ─────────── */
+.border-dashed, .border-dotted {
+  border-style: solid !important;
+  border-color: var(--border-color) !important;
+  border-width: 2px !important;
+}
+
+/* ─── btn-spread → use comic style instead ───────────────────── */
 .btn-spread {
-  position: relative !important;
-  overflow: hidden !important;
-  z-index: 10 !important;
-  transition: color 0.16s cubic-bezier(0.19, 1, 0.22, 1), border-color 0.16s cubic-bezier(0.19, 1, 0.22, 1), transform 0.18s ease !important;
+  background-color: var(--btn-bg) !important;
+  color: var(--btn-text) !important;
+  border: 3px solid var(--btn-border) !important;
+  box-shadow: 4px 4px 0px var(--btn-shadow) !important;
+  transition: transform 0.10s ease, box-shadow 0.10s ease !important;
+  border-radius: 0 !important;
+  font-family: 'Bangers', cursive !important;
+  font-size: 20px !important;
 }
-
-.btn-spread::before {
-  content: "" !important;
-  position: absolute !important;
-  top: 0 !important;
-  bottom: 0 !important;
-  left: 50% !important;
-  width: 0px !important;
-  height: 100% !important;
-  background-color: var(--color-text-primary) !important;
-  transform: translateX(-50%) !important;
-  transition: width 0.16s cubic-bezier(0.19, 1, 0.22, 1) !important;
-  z-index: -1 !important;
-}
-
 .btn-spread:hover {
-  color: var(--color-bg-base) !important;
-  border-color: var(--color-text-primary) !important;
-  transition: color 0.24s cubic-bezier(0.19, 1, 0.22, 1), border-color 0.24s cubic-bezier(0.19, 1, 0.22, 1) !important;
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 6px 6px 0px var(--btn-shadow) !important;
+  background-color: var(--btn-bg) !important;
+  color: var(--btn-text) !important;
+}
+.btn-spread::before { display: none !important; }
+
+/* ─── hover:bg-primary overrides ────────────────────────────── */
+.hover\:bg-primary:hover {
+  background-color: var(--btn-bg) !important;
+  color: var(--btn-text) !important;
+  border-color: var(--btn-border) !important;
 }
 
-.btn-spread:hover::before {
-  width: 100% !important;
-  transition: width 0.24s cubic-bezier(0.19, 1, 0.22, 1) !important;
-}
-
-/* ─── Light Mode Admin Theme: Grey to Black ─────────────────────────────── */
+/* ─── Admin theme in light mode ──────────────────────────────── */
 [data-theme="light"] .admin-theme {
-  --color-border-subtle: #000000 !important;
-  --color-border-default: #000000 !important;
-  --color-border-strong: #000000 !important;
-  --color-text-primary: #000000 !important;
-  --color-text-secondary: #000000 !important;
-  --color-text-muted: #000000 !important;
-  --color-text-disabled: #000000 !important;
-  --color-primary: #000000 !important;
-  --color-accent: #000000 !important;
+  --color-border-default: #000000;
+  --color-border-strong:  #000000;
+  --color-text-primary:   #000000;
+  --color-text-secondary: #000000;
+  --color-text-muted:     rgba(0,0,0,0.60);
+  --color-primary:        #000000;
+  --border-color:         #000000;
 }
 
-[data-theme="light"] .admin-theme .border-dashed,
-[data-theme="light"] .admin-theme .border-dotted {
-  border-color: #000000 !important;
-}
+/* ─── bg-bg-card: no rounded corners ────────────────────────── */
+.bg-bg-card { border-radius: 0 !important; }
 
+/* Card hover in light */
+[data-theme="light"] .bg-bg-card {
+  background-color: #ffffff !important;
+}
