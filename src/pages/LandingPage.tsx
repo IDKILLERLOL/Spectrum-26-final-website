@@ -157,7 +157,7 @@ function Countdown() {
 function FlipDigits({ value }: { value: number }) {
   const display = String(value).padStart(2, '0');
   return (
-    <div className="flex items-center gap-1 leading-none font-bold" style={{ fontFamily: '"Comic Sans MS", "Comic Neue", cursive, sans-serif' }}>
+    <div className="flex items-center gap-1 leading-none font-bold" style={{ fontFamily: '"Black Ops One", display' }}>
       <SingleDigit char={display[0]} />
       <SingleDigit char={display[1]} />
     </div>
