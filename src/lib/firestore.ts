@@ -470,6 +470,39 @@ export async function deleteUserDoc(uid: string, actorEmail: string = 'admin'): 
     )
   );
 
+  const regMemsMap: Record<string, any[]> = {};
+  const regDocsMap: Record<string, any> = {};
+  const winnersToDelete: any[] = [];
+
+  for (const memDoc of userMemsSnap.docs) {
+    const memData = memDoc.data();
+    const registrationId = memData.registrationId;
+
+    const regMemsSnap = await getDocs(
+      query(
+        collection(db, 'teamMembers'),
+        where('registrationId', '==', registrationId),
+        where('status', '==', 'ACTIVE')
+      )
+    );
+    regMemsMap[registrationId] = regMemsSnap.docs;
+
+    if (regMemsSnap.docs.length <= 1) {
+      const regSnap = await getDoc(doc(db, 'registrations', registrationId));
+      if (regSnap.exists()) {
+        regDocsMap[registrationId] = regSnap;
+      }
+      
+      const wSnap = await getDocs(
+        query(
+          collection(db, 'winners'),
+          where('registrationId', '==', registrationId)
+        )
+      );
+      winnersToDelete.push(...wSnap.docs);
+    }
+  }
+
   await runTransaction(db, async (tx) => {
     tx.delete(doc(db, 'users', uid));
 
@@ -477,22 +510,12 @@ export async function deleteUserDoc(uid: string, actorEmail: string = 'admin'): 
     for (const memDoc of userMemsSnap.docs) {
       const memData = memDoc.data();
       const registrationId = memData.registrationId;
-
-      const regMemsSnap = await getDocs(
-        query(
-          collection(db, 'teamMembers'),
-          where('registrationId', '==', registrationId),
-          where('status', '==', 'ACTIVE')
-        )
-      );
-
-      const activeMembers = regMemsSnap.docs;
+      const activeMembers = regMemsMap[registrationId] || [];
 
       if (activeMembers.length <= 1) {
         // ONLY member -> delete entire registration
-        const regRef = doc(db, 'registrations', registrationId);
-        const regSnap = await tx.get(regRef);
-        if (regSnap.exists()) {
+        const regSnap = regDocsMap[registrationId];
+        if (regSnap && regSnap.exists()) {
           const regData = regSnap.data();
           const eventRef = doc(db, 'events', regData.eventId);
 
@@ -500,7 +523,7 @@ export async function deleteUserDoc(uid: string, actorEmail: string = 'admin'): 
             tx.delete(mDoc.ref);
           }
 
-          tx.delete(regRef);
+          tx.delete(regSnap.ref);
           tx.update(eventRef, { currentTeamCount: increment(-1) });
         }
       } else {
@@ -518,6 +541,11 @@ export async function deleteUserDoc(uid: string, actorEmail: string = 'admin'): 
         }
       }
     }
+
+    // Delete associated winners
+    winnersToDelete.forEach((wDoc) => {
+      tx.delete(wDoc.ref);
+    });
   });
 
   await appendAuditLog({
@@ -1545,6 +1573,14 @@ export async function deleteRegistration(
     }
   }
 
+  // Find associated winners
+  const winnersSnap = await getDocs(
+    query(
+      collection(db, 'winners'),
+      where('registrationId', '==', registrationId)
+    )
+  );
+
   await runTransaction(db, async (tx) => {
     const regSnap = await tx.get(regRef);
     if (!regSnap.exists()) return;
@@ -1565,6 +1601,11 @@ export async function deleteRegistration(
     // Clear OTP store
     emailsToClearOtp.forEach((email) => {
       tx.delete(doc(db, 'otpStore', btoa(email)));
+    });
+
+    // Delete associated winners
+    winnersSnap.docs.forEach((wDoc) => {
+      tx.delete(wDoc.ref);
     });
   });
 
