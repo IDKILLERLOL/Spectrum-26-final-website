@@ -29,19 +29,22 @@ export async function sendEmail(to: string, subject: string, htmlBody: string): 
     .replace(/\//g, '_')
     .replace(/=+$/, '');
 
-  const res = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ raw: encoded }),
-  });
+  try {
+    const res = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ raw: encoded }),
+    });
 
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    console.error('[email] Gmail API error:', err);
-    throw new Error('Failed to send email');
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      console.warn('[email] Gmail API send failed:', err);
+    }
+  } catch (err) {
+    console.warn('[email] Failed to fetch or send via Gmail API:', err);
   }
 }
 
