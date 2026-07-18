@@ -105,25 +105,25 @@ function Countdown() {
       className="mt-8 inline-flex items-center justify-center gap-4 comic-border-thick comic-shadow max-w-full"
       style={{
         background: 'var(--panel-bg)',
-        padding: '24px 32px',
+        padding: '16px 24px',
         transform: 'rotate(1deg)',
       }}
     >
       <div
-        className="flex items-center gap-2 md:gap-4"
+        className="flex items-center gap-2 md:gap-3"
         style={{
           fontFamily: 'Bangers, cursive',
-          fontSize: 'clamp(36px, 7vw, 60px)',
+          fontSize: 'clamp(32px, 6vw, 52px)',
           color: 'var(--color-text-primary)',
         }}
       >
         {units.map(({ value, label, invert }, i) => (
           <Fragment key={label}>
-            <div className="text-center" style={{ minWidth: '70px' }}>
+            <div className="text-center" style={{ minWidth: '60px' }}>
               <div
                 className="comic-border-medium leading-none"
                 style={{
-                  padding: '8px 12px',
+                  padding: '6px 8px',
                   background: invert ? 'var(--color-text-primary)' : 'var(--badge-bg)',
                   color: invert ? 'var(--color-bg-base)' : 'var(--color-text-primary)',
                 }}
@@ -132,12 +132,12 @@ function Countdown() {
               </div>
               <div
                 style={{
-                  fontSize: '10px',
+                  fontSize: '9px',
                   textTransform: 'uppercase',
                   fontFamily: 'Space Grotesk, sans-serif',
                   fontWeight: 700,
-                  letterSpacing: '0.12em',
-                  marginTop: '8px',
+                  letterSpacing: '0.10em',
+                  marginTop: '6px',
                   opacity: 0.7,
                 }}
               >
@@ -166,7 +166,7 @@ function FlipDigits({ value }: { value: number }) {
 
 function SingleDigit({ char }: { char: string }) {
   return (
-    <div className="relative flex items-center justify-center" style={{ width: '1.4ch', height: '1.1em', overflow: 'visible' }}>
+    <div className="relative flex items-center justify-center" style={{ width: '1.15ch', height: '1.1em', overflow: 'visible' }}>
       <AnimatePresence mode="popLayout">
         <motion.span
           key={char}
