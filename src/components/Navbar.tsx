@@ -53,7 +53,7 @@ export function Navbar() {
         fontSize: '20px',
         letterSpacing: '0.05em',
         textTransform: 'uppercase',
-        color: '#ffffff',
+        color: 'var(--color-text-primary)',
         textDecoration: isActive(to) ? 'underline' : 'none',
         textDecorationStyle: isActive(to) ? 'wavy' : undefined,
         textUnderlineOffset: '4px',
@@ -75,7 +75,7 @@ export function Navbar() {
   return (
     <nav
       className="relative z-10 mx-auto max-w-7xl w-[92%] mt-6 p-4 comic-shadow flex flex-wrap justify-between items-center gap-4"
-      style={{ background: '#000000', borderColor: '#ffffff' }}
+      style={{ background: 'var(--panel-bg)', borderColor: 'var(--border-color)' }}
     >
       {/* Wordmark + badge */}
       <div className="flex items-center gap-3">
@@ -87,7 +87,7 @@ export function Navbar() {
             fontSize: 'clamp(24px, 4vw, 36px)',
             letterSpacing: '0.06em',
             textTransform: 'uppercase',
-            color: '#ffffff',
+            color: 'var(--color-text-primary)',
             transform: 'skewX(-12deg)',
             display: 'inline-block',
             fontStyle: 'italic',
@@ -101,9 +101,9 @@ export function Navbar() {
           className="comic-badge px-3 py-1 font-comic"
           style={{
             fontSize: '13px',
-            color: '#ffffff',
-            background: '#1a1a1a',
-            borderColor: '#ffffff',
+            color: 'var(--color-text-primary)',
+            background: 'var(--badge-bg)',
+            borderColor: 'var(--border-color)',
             fontStyle: 'italic',
           }}
         >
@@ -127,11 +127,11 @@ export function Navbar() {
           <button
             onClick={toggleSfx}
             style={{
-              border: '2px solid #ffffff',
+              border: '2px solid var(--border-color)',
               borderRadius: '4px',
               padding: '4px 10px',
-              background: '#1a1a1a',
-              color: '#ffffff',
+              background: 'var(--badge-bg)',
+              color: 'var(--color-text-primary)',
               fontSize: '11px',
               fontWeight: 700,
               fontFamily: 'Space Grotesk, sans-serif',
@@ -139,7 +139,7 @@ export function Navbar() {
               alignItems: 'center',
               gap: '6px',
               cursor: 'pointer',
-              boxShadow: '1.5px 1.5px 0px #ffffff',
+              boxShadow: '1.5px 1.5px 0px var(--border-color)',
               letterSpacing: '0.04em',
             }}
           >
@@ -150,11 +150,10 @@ export function Navbar() {
           {/* Theme toggle */}
           <button
             onClick={handleToggleTheme}
+            className="comic-shadow"
             style={{
-              background: '#000000',
-              color: '#ffffff',
-              border: '3px solid #ffffff',
-              boxShadow: '4px 4px 0px rgba(255, 255, 255, 0.15)',
+              background: 'var(--panel-bg)',
+              color: 'var(--color-text-primary)',
               fontFamily: 'Bangers, cursive',
               fontSize: '18px',
               padding: '6px 20px',
@@ -163,15 +162,6 @@ export function Navbar() {
               gap: '8px',
               letterSpacing: '0.04em',
               cursor: 'pointer',
-              transition: 'transform 0.1s, box-shadow 0.1s',
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.transform = 'translate(-2px, -2px)';
-              (e.currentTarget as HTMLButtonElement).style.boxShadow = '6px 6px 0px rgba(255, 255, 255, 0.15)';
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.transform = 'translate(0, 0)';
-              (e.currentTarget as HTMLButtonElement).style.boxShadow = '4px 4px 0px rgba(255, 255, 255, 0.15)';
             }}
           >
             {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
@@ -185,7 +175,7 @@ export function Navbar() {
                 <button
                   onClick={() => { playSynthSound('click'); setShowUserCard(!showUserCard); }}
                   className="comic-btn-outline"
-                  style={{ fontSize: '14px', padding: '6px 14px', borderColor: '#ffffff', color: '#ffffff' }}
+                  style={{ fontSize: '14px', padding: '6px 14px' }}
                 >
                   <User size={13} className="mr-1 inline" />
                   {dbUser?.name || user.displayName || user.email?.split('@')[0] || 'AGENT'}
@@ -196,7 +186,7 @@ export function Navbar() {
                     <div className="fixed inset-0 z-40" onClick={() => setShowUserCard(false)} />
                     <div
                       className="absolute right-0 top-full mt-3 z-50 flex flex-col gap-3 min-w-[260px] p-5 comic-shadow comic-pop"
-                      style={{ background: '#000000', borderColor: '#ffffff', boxShadow: '8px 8px 0px #ffffff' }}
+                      style={{ background: 'var(--panel-bg)' }}
                     >
                       <h4
                         style={{
@@ -204,15 +194,15 @@ export function Navbar() {
                           fontSize: '20px',
                           letterSpacing: '0.06em',
                           textTransform: 'uppercase',
-                          color: '#ffffff',
-                          borderBottom: '2px solid #ffffff',
+                          color: 'var(--color-text-primary)',
+                          borderBottom: '2px solid var(--border-color)',
                           paddingBottom: '8px',
                           marginBottom: '4px',
                         }}
                       >
                         YOUR ACCOUNT
                       </h4>
-                      <div className="flex flex-col gap-2" style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '13px', fontWeight: 500, color: '#ffffff' }}>
+                      <div className="flex flex-col gap-2" style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '13px', fontWeight: 500 }}>
                         {[
                           { label: 'NAME', value: dbUser?.name || user.displayName || 'Unknown' },
                           { label: 'EMAIL', value: dbUser?.email || user.email || 'N/A' },
@@ -220,15 +210,15 @@ export function Navbar() {
                           ...(dbUser?.college ? [{ label: 'COLLEGE', value: dbUser.college }] : []),
                         ].map(({ label, value }) => (
                           <div key={label}>
-                            <div style={{ fontSize: '9px', letterSpacing: '0.12em', color: 'rgba(255, 255, 255, 0.5)', fontWeight: 700, textTransform: 'uppercase', marginBottom: '2px' }}>{label}</div>
-                            <div>{value}</div>
+                            <div style={{ fontSize: '9px', letterSpacing: '0.12em', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', marginBottom: '2px' }}>{label}</div>
+                            <div style={{ color: 'var(--color-text-primary)' }}>{value}</div>
                           </div>
                         ))}
                       </div>
                       <button
                         onClick={() => { setShowUserCard(false); playSynthSound('laser'); logout(); }}
                         className="comic-btn w-full"
-                        style={{ fontSize: '16px', padding: '8px 16px', marginTop: '4px', background: '#ffffff', color: '#000000', borderColor: '#ffffff' }}
+                        style={{ fontSize: '16px', padding: '8px 16px', marginTop: '4px' }}
                       >
                         <LogOut size={13} className="mr-1 inline" /> LOG OUT //
                       </button>
@@ -241,7 +231,7 @@ export function Navbar() {
                 to="/login"
                 onClick={() => playSynthSound('laser')}
                 className="comic-btn"
-                style={{ fontSize: '16px', padding: '6px 16px', background: '#ffffff', color: '#000000', borderColor: '#ffffff', boxShadow: '4px 4px 0px #ffffff' }}
+                style={{ fontSize: '16px', padding: '6px 16px' }}
               >
                 <LogIn size={14} className="mr-1 inline" /> LOGIN
               </Link>
@@ -253,7 +243,7 @@ export function Navbar() {
       {/* Mobile nav row */}
       <div
         className="flex md:hidden gap-4 w-full overflow-x-auto pt-3"
-        style={{ borderTop: '2px solid #ffffff' }}
+        style={{ borderTop: '2px solid var(--border-color)' }}
       >
         {[
           { to: '/', label: 'Events' },
@@ -270,7 +260,7 @@ export function Navbar() {
               fontSize: '18px',
               letterSpacing: '0.06em',
               textTransform: 'uppercase',
-              color: '#ffffff',
+              color: 'var(--color-text-primary)',
               whiteSpace: 'nowrap',
               textDecoration: isActive(to) ? 'underline wavy' : 'none',
               textUnderlineOffset: '3px',
