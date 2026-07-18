@@ -138,7 +138,7 @@ function Countdown() {
                   fontWeight: 700,
                   letterSpacing: '0.10em',
                   marginTop: '6px',
-                  opacity: 0.7,
+                  color: 'var(--color-text-primary)',
                 }}
               >
                 {label}
