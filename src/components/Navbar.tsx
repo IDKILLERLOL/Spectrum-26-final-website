@@ -194,9 +194,9 @@ export function Navbar() {
                       </h4>
                       <div className="flex flex-col gap-2" style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '13px', fontWeight: 500 }}>
                         {[
-                          { label: 'NAME', value: dbUser?.name || user.displayName || 'Unknown' },
-                          { label: 'EMAIL', value: dbUser?.email || user.email || 'N/A' },
-                          ...(dbUser?.phone ? [{ label: 'PHONE', value: dbUser.phone }] : []),
+                          { label: 'NAME', value: dbUser?.name || user.displayName || 'User' },
+                          ...((dbUser?.email || user.email) ? [{ label: 'EMAIL', value: dbUser?.email || user.email }] : []),
+                          ...((dbUser?.phone || user.phoneNumber) ? [{ label: 'PHONE', value: dbUser?.phone || user.phoneNumber }] : []),
                           ...(dbUser?.college ? [{ label: 'COLLEGE', value: dbUser.college }] : []),
                         ].map(({ label, value }) => (
                           <div key={label}>

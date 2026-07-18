@@ -34,7 +34,7 @@ function Hero() {
       />
 
       {/* Main Title */}
-      <div className="relative inline-block mb-2">
+      <div className="relative inline-block mb-2" style={{ zIndex: 20 }}>
         <h1
           style={{
             fontFamily: 'Bangers, cursive',
@@ -55,6 +55,8 @@ function Hero() {
       {/* Subtitle */}
       <p
         style={{
+          position: 'relative',
+          zIndex: 20,
           fontFamily: 'Bangers, cursive',
           fontSize: 'clamp(18px, 3vw, 28px)',
           letterSpacing: '0.15em',
