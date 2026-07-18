@@ -51,7 +51,7 @@ export function Navbar() {
       style={{
         fontFamily: 'Bangers, cursive',
         fontSize: '20px',
-        letterSpacing: '0.3em',
+        letterSpacing: '0.05em',
         textTransform: 'uppercase',
         color: 'var(--color-text-primary)',
         textDecoration: isActive(to) ? 'underline' : 'none',
@@ -87,7 +87,7 @@ export function Navbar() {
           style={{
             fontFamily: 'Bangers, cursive',
             fontSize: 'clamp(24px, 4vw, 36px)',
-            letterSpacing: '0.3em',
+            letterSpacing: '0.06em',
             textTransform: 'uppercase',
             color: 'var(--color-text-primary)',
             transform: 'skewX(-12deg)',
@@ -248,7 +248,7 @@ export function Navbar() {
             style={{
               fontFamily: 'Bangers, cursive',
               fontSize: '18px',
-              letterSpacing: '0.3em',
+              letterSpacing: '0.06em',
               textTransform: 'uppercase',
               color: 'var(--color-text-primary)',
               whiteSpace: 'nowrap',
