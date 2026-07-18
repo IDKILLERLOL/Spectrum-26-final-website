@@ -157,7 +157,7 @@ function Countdown() {
 function FlipDigits({ value }: { value: number }) {
   const display = String(value).padStart(2, '0');
   return (
-    <div className="flex items-center gap-1 leading-none font-bold" style={{ fontFamily: 'Bangers, cursive' }}>
+    <div className="flex items-center gap-1 leading-none" style={{ fontFamily: 'Bangers, cursive' }}>
       <SingleDigit char={display[0]} />
       <SingleDigit char={display[1]} />
     </div>
@@ -165,15 +165,14 @@ function FlipDigits({ value }: { value: number }) {
 }
 
 function SingleDigit({ char }: { char: string }) {
-  const isOne = char === '1';
   return (
     <div 
-      className="relative flex items-center justify-center font-bold" 
+      className="relative flex items-center justify-center" 
       style={{ 
         width: '1.2ch', 
         height: '1.1em', 
         overflow: 'visible',
-        fontFamily: isOne ? 'Oswald, sans-serif' : 'Bangers, cursive'
+        fontFamily: 'Bangers, cursive'
       }}
     >
       <AnimatePresence mode="popLayout">
