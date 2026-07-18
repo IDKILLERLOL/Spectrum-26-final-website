@@ -146,7 +146,7 @@ export function WinnersPage() {
 
               {/* Podium Column */}
               <div className="lg:col-span-4 flex flex-col gap-6">
-                <h3 className="font-heading text-heading text-primary uppercase tracking-wider flex items-center gap-2 border-b border-border-subtle pb-2">
+                <h3 className="font-heading text-heading text-primary uppercase flex items-center gap-2 border-b border-border-subtle pb-2" style={{ letterSpacing: '0.3em' }}>
                   <Trophy size={16} /> Winners
                 </h3>
 
@@ -188,7 +188,7 @@ export function WinnersPage() {
 
               {/* Competing Teams Column */}
               <div className="lg:col-span-4 flex flex-col gap-4">
-                <h3 className="font-heading text-heading text-primary uppercase tracking-wider flex items-center gap-2 border-b border-border-subtle pb-2">
+                <h3 className="font-heading text-heading text-primary uppercase flex items-center gap-2 border-b border-border-subtle pb-2" style={{ letterSpacing: '0.3em' }}>
                   <Users size={16} /> Competing Roster ({contenders.length})
                 </h3>
 
