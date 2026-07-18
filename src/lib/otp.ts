@@ -180,8 +180,6 @@ export async function verifyOtp(email: string, code: string): Promise<OtpVerifyR
  * TODO(production): replace with a backend endpoint that can send without OAuth.
  */
 async function deliverOtpEmail(toEmail: string, code: string): Promise<void> {
-  // Always log to console for development ease
-  console.log(`[OTP Dev Log] Code for ${toEmail}: ${code}`);
   try {
     await sendEmail(
 
