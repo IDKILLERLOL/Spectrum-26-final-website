@@ -53,7 +53,7 @@ export function Navbar() {
         fontSize: '20px',
         letterSpacing: '0.05em',
         textTransform: 'uppercase',
-        color: 'var(--color-text-primary)',
+        color: '#ffffff',
         textDecoration: isActive(to) ? 'underline' : 'none',
         textDecorationStyle: isActive(to) ? 'wavy' : undefined,
         textUnderlineOffset: '4px',
@@ -75,7 +75,7 @@ export function Navbar() {
   return (
     <nav
       className="relative z-10 mx-auto max-w-7xl w-[92%] mt-6 p-4 comic-shadow flex flex-wrap justify-between items-center gap-4"
-      style={{ background: '#000000', borderColor: 'var(--border-color)' }}
+      style={{ background: '#000000', borderColor: '#ffffff' }}
     >
       {/* Wordmark + badge */}
       <div className="flex items-center gap-3">
@@ -101,7 +101,9 @@ export function Navbar() {
           className="comic-badge px-3 py-1 font-comic"
           style={{
             fontSize: '13px',
-            color: 'var(--color-text-primary)',
+            color: '#ffffff',
+            background: '#1a1a1a',
+            borderColor: '#ffffff',
             fontStyle: 'italic',
           }}
         >
@@ -194,7 +196,7 @@ export function Navbar() {
                     <div className="fixed inset-0 z-40" onClick={() => setShowUserCard(false)} />
                     <div
                       className="absolute right-0 top-full mt-3 z-50 flex flex-col gap-3 min-w-[260px] p-5 comic-shadow comic-pop"
-                      style={{ background: '#000000', borderColor: '#ffffff' }}
+                      style={{ background: '#000000', borderColor: '#ffffff', boxShadow: '8px 8px 0px #ffffff' }}
                     >
                       <h4
                         style={{
@@ -226,7 +228,7 @@ export function Navbar() {
                       <button
                         onClick={() => { setShowUserCard(false); playSynthSound('laser'); logout(); }}
                         className="comic-btn w-full"
-                        style={{ fontSize: '16px', padding: '8px 16px', marginTop: '4px', background: '#ffffff', color: '#000000' }}
+                        style={{ fontSize: '16px', padding: '8px 16px', marginTop: '4px', background: '#ffffff', color: '#000000', borderColor: '#ffffff' }}
                       >
                         <LogOut size={13} className="mr-1 inline" /> LOG OUT //
                       </button>
@@ -239,7 +241,7 @@ export function Navbar() {
                 to="/login"
                 onClick={() => playSynthSound('laser')}
                 className="comic-btn"
-                style={{ fontSize: '16px', padding: '6px 16px', background: '#ffffff', color: '#000000', borderColor: '#000000' }}
+                style={{ fontSize: '16px', padding: '6px 16px', background: '#ffffff', color: '#000000', borderColor: '#ffffff', boxShadow: '4px 4px 0px #ffffff' }}
               >
                 <LogIn size={14} className="mr-1 inline" /> LOGIN
               </Link>
@@ -251,7 +253,7 @@ export function Navbar() {
       {/* Mobile nav row */}
       <div
         className="flex md:hidden gap-4 w-full overflow-x-auto pt-3"
-        style={{ borderTop: '2px solid var(--border-color)' }}
+        style={{ borderTop: '2px solid #ffffff' }}
       >
         {[
           { to: '/', label: 'Events' },
@@ -268,7 +270,7 @@ export function Navbar() {
               fontSize: '18px',
               letterSpacing: '0.06em',
               textTransform: 'uppercase',
-              color: 'var(--color-text-primary)',
+              color: '#ffffff',
               whiteSpace: 'nowrap',
               textDecoration: isActive(to) ? 'underline wavy' : 'none',
               textUnderlineOffset: '3px',
