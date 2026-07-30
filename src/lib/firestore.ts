@@ -567,20 +567,9 @@ export async function getEvents(): Promise<Event[]> {
   const snap = await getDocs(collection(db, 'events'));
   const dbEvents = snap.docs.map(snapToEvent);
 
-  // Sort events list by category then name in memory to avoid index requirements
-  dbEvents.sort((a, b) => {
-    if (a.category !== b.category) {
-      return a.category.localeCompare(b.category);
-    }
-    return a.name.localeCompare(b.name);
-  });
-
-  // Check if any FALLBACK_EVENTS are missing from the Firestore database
-  const dbEventIds = new Set(dbEvents.map((e) => e.id));
-  const missingFallbacks = FALLBACK_EVENTS.filter((fe) => !dbEventIds.has(fe.id));
-
-  if (missingFallbacks.length > 0) {
-    for (const fe of missingFallbacks) {
+  if (dbEvents.length === 0) {
+    // Database is empty: seed default events once
+    for (const fe of FALLBACK_EVENTS) {
       try {
         const ref = doc(db, 'events', fe.id);
         const data = {
@@ -593,6 +582,8 @@ export async function getEvents(): Promise<Event[]> {
           price: fe.price,
           description: fe.description,
           rulesUrl: fe.rulesUrl,
+          minMembers: fe.minMembers,
+          maxMembers: fe.maxMembers,
         };
         await setDoc(ref, data);
         dbEvents.push({ id: fe.id, ...data });
@@ -600,15 +591,15 @@ export async function getEvents(): Promise<Event[]> {
         console.error('Error seeding fallback event to Firestore:', fe.id, err);
       }
     }
-
-    // Re-sort the combined events list to match order by category then name
-    dbEvents.sort((a, b) => {
-      if (a.category !== b.category) {
-        return a.category.localeCompare(b.category);
-      }
-      return a.name.localeCompare(b.name);
-    });
   }
+
+  // Sort events list by category then name in memory
+  dbEvents.sort((a, b) => {
+    if (a.category !== b.category) {
+      return a.category.localeCompare(b.category);
+    }
+    return a.name.localeCompare(b.name);
+  });
 
   return dbEvents;
 }
@@ -618,8 +609,7 @@ export async function getEvent(eventId: string): Promise<Event | null> {
     const snap = await getDoc(doc(db, 'events', eventId));
     if (snap.exists()) return snapToEvent(snap);
   } catch {}
-  // Fallback to static events if Firestore doesn't have it
-  return FALLBACK_EVENTS.find((e) => e.id === eventId) ?? null;
+  return null;
 }
 
 export async function createEvent(
@@ -670,7 +660,7 @@ export async function deleteEvent(eventId: string, actorEmail: string): Promise<
   if (!event) throw new Error('Event not found');
   if (event.currentTeamCount > 0) throw new Error('Cannot delete event with registered teams');
   await deleteDoc(doc(db, 'events', eventId));
-  await appendAuditLog({
+  appendAuditLog({
     actorEmail,
     actorType: 'ADMIN',
     actionType: 'EVENT_DELETED',
@@ -680,7 +670,7 @@ export async function deleteEvent(eventId: string, actorEmail: string): Promise<
     diffNew: null,
     timestamp: new Date(),
     ipAddress: null,
-  });
+  }).catch(console.error);
 }
 
 // ─── Registrations ────────────────────────────────────────────────────────────
@@ -859,6 +849,7 @@ export async function createRegistration(
     ipAddress: null,
   });
   const snap = await getDoc(doc(db, 'registrations', regId));
+  autoSyncToSheets().catch(console.error);
   return snapToRegistration(snap);
 }
 
@@ -983,6 +974,7 @@ export async function adminCreateRegistration(
   });
 
   const snap = await getDoc(doc(db, 'registrations', regId));
+  autoSyncToSheets().catch(console.error);
   return snapToRegistration(snap);
 }
 
@@ -1042,6 +1034,7 @@ export async function addTeamMember(
     ipAddress: null,
   });
   const snap = await getDoc(ref);
+  autoSyncToSheets().catch(console.error);
   return snapToTeamMember(snap);
 }
 
@@ -1065,6 +1058,7 @@ export async function updateTeamMember(
     timestamp: new Date(),
     ipAddress: null,
   });
+  autoSyncToSheets().catch(console.error);
 }
 
 /** Soft-deletes a team member (status → REMOVED, never hard-delete). */
@@ -1090,6 +1084,7 @@ export async function removeTeamMember(
     timestamp: new Date(),
     ipAddress: null,
   });
+  autoSyncToSheets().catch(console.error);
 }
 
 /**
@@ -1124,6 +1119,7 @@ export async function transferLeadership(
     timestamp: new Date(),
     ipAddress: null,
   });
+  autoSyncToSheets().catch(console.error);
 }
 
 // ─── Fee Status & Check-In ────────────────────────────────────────────────────
@@ -1152,6 +1148,7 @@ export async function updateFeeStatus(
     timestamp: new Date(),
     ipAddress: null,
   });
+  autoSyncToSheets().catch(console.error);
 }
 
 export async function submitUpiRef(
@@ -1164,6 +1161,7 @@ export async function submitUpiRef(
     lastEditedBy: actorEmail,
     lastEditedAt: serverTimestamp(),
   });
+  autoSyncToSheets().catch(console.error);
 }
 
 export async function toggleCheckedIn(
@@ -1187,6 +1185,7 @@ export async function toggleCheckedIn(
     timestamp: new Date(),
     ipAddress: null,
   });
+  autoSyncToSheets().catch(console.error);
 }
 
 // ─── Winners ──────────────────────────────────────────────────────────────────
@@ -1620,6 +1619,7 @@ export async function deleteRegistration(
     timestamp: new Date(),
     ipAddress: null,
   });
+  autoSyncToSheets().catch(console.error);
 }
 
 export async function saveSystemGmailToken(token: string): Promise<void> {
@@ -1670,4 +1670,43 @@ export async function updateTeamName(
     timestamp: new Date(),
     ipAddress: null,
   });
+}
+
+export async function getSystemSpreadsheetId(): Promise<string | null> {
+  try {
+    const snap = await getDoc(doc(db, 'systemConfig', 'googleSheets'));
+    return snap.exists() ? snap.data().spreadsheetId : null;
+  } catch (err) {
+    console.error('Error getting system spreadsheet ID:', err);
+    return null;
+  }
+}
+
+export async function saveSystemSpreadsheetId(spreadsheetId: string): Promise<void> {
+  try {
+    await setDoc(doc(db, 'systemConfig', 'googleSheets'), {
+      spreadsheetId,
+      updatedAt: serverTimestamp(),
+    });
+  } catch (err) {
+    console.error('Error saving system spreadsheet ID:', err);
+  }
+}
+
+export async function autoSyncToSheets(): Promise<void> {
+  try {
+    const sheetId = await getSystemSpreadsheetId();
+    if (!sheetId) return;
+
+    const { syncRegistrationsToGoogleSheets } = await import('./workspace');
+
+    const events = await getEvents();
+    const regs = await getAllRegistrations();
+    const snap = await getDocs(collection(db, 'teamMembers'));
+    const members = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
+
+    await syncRegistrationsToGoogleSheets(sheetId, events, regs, members);
+  } catch (err) {
+    console.warn('[sheets-autosync] Failed auto sync:', err);
+  }
 }

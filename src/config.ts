@@ -3,7 +3,7 @@
 // Never import from here AND hardcode the same value elsewhere.
 
 /** Target event date. Change this when the exact date is confirmed. */
-export const EVENT_DATE = new Date('2026-09-28T09:00:00+05:30');
+export const EVENT_DATE = new Date('2026-09-22T09:00:00+05:30');
 
 /** UPI handle for payment instructions shown to participants. */
 export const UPI_ID: string = import.meta.env.VITE_UPI_ID ?? 'spectrum26@upi';

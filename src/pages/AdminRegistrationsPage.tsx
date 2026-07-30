@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Download, Search, ChevronDown, ChevronUp, Loader2, CheckCircle2, Clock, QrCode, Plus, Eye, EyeOff, Lock } from 'lucide-react';
+import { Download, Search, ChevronDown, ChevronUp, Loader2, CheckCircle2, Clock, QrCode, Plus, Eye, EyeOff, Lock, RefreshCw } from 'lucide-react';
 import { useAuth } from '../lib/useAuth';
 import {
   getAllRegistrations, getEvent, getActiveTeamMembers,
-  updateFeeStatus, toggleCheckedIn, deleteRegistration,
+  updateFeeStatus, toggleCheckedIn, deleteRegistration, getEvents,
 } from '../lib/firestore';
 import { notifyFeeStatusPaid } from '../lib/email';
+import { getOrCreateRegistrationSheet, syncRegistrationsToGoogleSheets } from '../lib/workspace';
 import type { Registration, Event, TeamMember } from '../types';
 import { categoryLabel } from '../types';
 
@@ -23,6 +24,8 @@ export function AdminRegistrationsPage() {
   const [filter, setFilter] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [saving, setSaving] = useState<string | null>(null);
+  const [syncing, setSyncing] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<string | null>(null);
   const [revealedCredentials, setRevealedCredentials] = useState<Record<string, boolean>>({});
   const [revealedMembers, setRevealedMembers] = useState<Record<string, boolean>>({});
   const [idPopupContent, setIdPopupContent] = useState<string | null>(null);
@@ -168,6 +171,26 @@ export function AdminRegistrationsPage() {
     URL.revokeObjectURL(url);
   };
 
+  const handleSyncSheets = async () => {
+    setSyncing(true);
+    setSyncStatus(null);
+    try {
+      const sheetId = await getOrCreateRegistrationSheet();
+      const allEvents = await getEvents();
+      // Extract all registrations and teamMembers from state rows
+      const registrations = rows.map(r => r.reg);
+      const teamMembers = rows.flatMap(r => r.members);
+
+      await syncRegistrationsToGoogleSheets(sheetId, allEvents, registrations, teamMembers);
+      setSyncStatus('Sync to Google Sheets successful! Data updated.');
+    } catch (err: any) {
+      console.error(err);
+      setSyncStatus(`Sync failed: ${err.message || err.toString()}`);
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   const qrUrl = (id: string, leaderId?: string) => {
     const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
     const data = isLocal
@@ -197,8 +220,21 @@ export function AdminRegistrationsPage() {
             >
               <Download size={14} /> Export CSV
             </button>
+            <button
+              onClick={handleSyncSheets}
+              disabled={syncing}
+              className="flex items-center gap-2 font-button text-button uppercase border border-border-default text-text-secondary px-5 py-3 hover:border-primary hover:text-primary disabled:opacity-50 transition-colors"
+            >
+              {syncing ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
+              Sync to Google Sheets
+            </button>
           </div>
         </div>
+        {syncStatus && (
+          <div className={`p-4 font-body text-small border rounded ${syncStatus.startsWith('Sync failed') ? 'border-red-500/30 bg-red-500/5 text-red-400' : 'border-primary/30 bg-primary/5 text-primary'}`}>
+            {syncStatus}
+          </div>
+        )}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
           <div className="flex flex-col gap-1.5">
             <label className="font-micro text-micro text-text-muted uppercase">Search</label>

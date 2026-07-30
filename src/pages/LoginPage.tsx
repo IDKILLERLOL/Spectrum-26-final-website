@@ -1,13 +1,11 @@
 import { signInAnonymously } from 'firebase/auth';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import React, { useState, useEffect, useRef } from 'react';
-import { Mail, ArrowRight, RefreshCw, CheckCircle2, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { AlertCircle } from 'lucide-react';
 import { useAuth } from '../lib/useAuth';
-import { requestOtp, verifyOtp } from '../lib/otp';
-import { upsertUser, getMyRegistrations, getUser, linkMemberToUser } from '../lib/firestore';
-import { auth } from '../lib/auth';
+import { upsertUser, getMyRegistrations, getUser, linkMemberToUser, db } from '../lib/firestore';
 import { sendWelcomeEmail } from '../lib/email';
-import { db } from '../lib/firestore';
+import { auth } from '../lib/auth';
 import { collection, query, where, getDocs, doc, setDoc, getDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 
 function hashPassword(password: string, email: string): string {
@@ -30,41 +28,14 @@ export function LoginPage() {
   const redirectIntent = searchParams.get('redirect');
   const targetEventId = searchParams.get('eventId');
 
-  // --- Form, OTP, and Password States ---
+  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [email, setEmail] = useState('');
-  const [code, setCode] = useState('');
-  const [password, setPassword] = useState('');
   const [name, setName] = useState('');
-  const [dbUserRecord, setDbUserRecord] = useState<any | null>(null);
+  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [cooldown, setCooldown] = useState(0);
-  const [devCode, setDevCode] = useState<string | null>(null);
-  const [otpStep, setOtpStep] = useState<'email' | 'code' | 'password' | 'create_password'>('email');
 
-  const cooldownRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  const startCooldown = () => {
-    setCooldown(60);
-    if (cooldownRef.current) clearInterval(cooldownRef.current);
-    cooldownRef.current = setInterval(() => {
-      setCooldown((c) => {
-        if (c <= 1) {
-          clearInterval(cooldownRef.current!);
-          return 0;
-        }
-        return c - 1;
-      });
-    }, 1000);
-  };
-
-  useEffect(() => {
-    return () => {
-      if (cooldownRef.current) clearInterval(cooldownRef.current);
-    };
-  }, []);
-
-  // --- Step 6 Routing Logic ---
+  // --- Routing Logic ---
   const handleStep6Routing = async (uid: string, userEmail?: string) => {
     if (redirectIntent === 'register' && targetEventId) {
       navigate(`/register/${targetEventId}`, { replace: true });
@@ -84,14 +55,14 @@ export function LoginPage() {
     }
   };
 
-  // Run Step 6 check immediately if user is already logged in when landing on /login
+  // Run routing check immediately if user is already logged in when landing on /login
   useEffect(() => {
     if (user) {
       handleStep6Routing(user.uid, user.email ?? undefined);
     }
   }, [user, redirectIntent, targetEventId]);
 
-  // --- Step 4A: Google Sign-in Flow ---
+  // --- Google Sign-in Flow ---
   const handleGoogleLogin = async () => {
     setLoading(true);
     setError(null);
@@ -127,182 +98,109 @@ export function LoginPage() {
     }
   };
 
-  // --- Step 4B: Check Email (OTP or Password redirection) ---
-  const handleCheckEmail = async (e: React.FormEvent) => {
+  // --- Custom Email Sign In Flow ---
+  const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email.trim())) {
-      setError('Please enter a valid email address.');
-      return;
-    }
-
+    if (!email || !password) return;
     setError(null);
     setLoading(true);
+
     try {
-      const q = query(collection(db, 'users'), where('email', '==', email.trim()));
+      // 1. Query Firestore for the user by email
+      const q = query(collection(db, 'users'), where('email', '==', email.trim().toLowerCase()));
       const snap = await getDocs(q);
-      
+
+      if (snap.empty) {
+        setError('Account not found. Please Sign Up first.');
+        setLoading(false);
+        return;
+      }
+
+      const dbUserRecord = { id: snap.docs[0].id, ...snap.docs[0].data() } as any;
+
+      // 2. Validate Password
+      const inputHash = hashPassword(password, email.trim().toLowerCase());
+      if (inputHash !== dbUserRecord.passwordHash) {
+        setError('Incorrect password. Please try again.');
+        setLoading(false);
+        return;
+      }
+
+      // 3. Authenticate current session anonymously
+      const { user: anonUser } = await signInAnonymously(auth);
+
+      // 4. Move user record to new anonymous session UID in Firestore
+      const oldUserRef = doc(db, 'users', dbUserRecord.id);
+      const newUserRef = doc(db, 'users', anonUser.uid);
+      const oldSnap = await getDoc(oldUserRef);
+      if (oldSnap.exists()) {
+        const oldData = oldSnap.data();
+        await setDoc(newUserRef, {
+          ...oldData,
+          lastLoginAt: serverTimestamp(),
+        });
+        await deleteDoc(oldUserRef);
+      }
+
+      // 5. Link teammate records & set local auth state
+      await linkMemberToUser(email.trim().toLowerCase(), anonUser.uid);
+      setOtpUser(anonUser);
+      await handleStep6Routing(anonUser.uid, email.trim().toLowerCase());
+    } catch (err) {
+      console.error('[login] Email login error:', err);
+      setError('Login failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // --- Custom Email Sign Up Flow ---
+  const handleEmailSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password || !name) return;
+    setError(null);
+    setLoading(true);
+
+    try {
+      // 1. Check if email already exists
+      const q = query(collection(db, 'users'), where('email', '==', email.trim().toLowerCase()));
+      const snap = await getDocs(q);
+
       if (!snap.empty) {
-        const foundUser = snap.docs[0].data();
-        const foundUserId = snap.docs[0].id;
-        const foundUserObj = { id: foundUserId, ...foundUser };
-        
-        if (foundUser.passwordHash) {
-          setDbUserRecord(foundUserObj);
-          setOtpStep('password');
-          setLoading(false);
-          return;
-        }
+        setError('An account with this email already exists. Please Sign In.');
+        setLoading(false);
+        return;
       }
 
-      // First login - Send OTP
-      const result = await requestOtp(email.trim());
-      if (result.ok === true) {
-        startCooldown();
-        if (result.devCode) setDevCode(result.devCode);
-        setOtpStep('code');
-      } else {
-        const errResult = result as { ok: false; error: string; retryAfter: number };
-        if (errResult.error === 'cooldown') {
-          setError(`Please wait before requesting another code.`);
-        } else if (errResult.error === 'rate_limited') {
-          setError(`Too many requests. Try again in ${Math.ceil(errResult.retryAfter / 60)} min.`);
-        }
-      }
-    } catch (err) {
-      console.error('[login] Check email error:', err);
-      setError('Failed to request code. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+      // 2. Authenticate current session anonymously
+      const { user: anonUser } = await signInAnonymously(auth);
 
-  // --- Step 5: Verify Code (New User OTP) ---
-  const handleVerifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!code || code.length !== 6) return;
-    setError(null);
-    setLoading(true);
-    try {
-      const result = await verifyOtp(email.trim(), code);
-      if (result.ok) {
-        setOtpStep('create_password');
-      } else {
-        setError('Incorrect code.');
-      }
-    } catch (err) {
-      console.error('[login] Verify OTP error:', err);
-      setError('Verification failed. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // --- Step 5B: Create Password (1st login verification submission) ---
-  const handleCreatePassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!password || password.length < 6) {
-      setError('Password must be at least 6 characters.');
-      return;
-    }
-    setError(null);
-    setLoading(true);
-    try {
-      let activeUser = auth.currentUser;
-      if (!activeUser) {
-        const { user: anonUser } = await signInAnonymously(auth);
-        activeUser = anonUser;
-      }
-
-      const passHash = hashPassword(password, email.trim());
-      const userRef = doc(db, 'users', activeUser.uid);
+      // 3. Create user record in Firestore
+      const passHash = hashPassword(password, email.trim().toLowerCase());
+      const userRef = doc(db, 'users', anonUser.uid);
       const data = {
-        email: email.trim(),
-        name: name.trim() || email.trim().split('@')[0],
+        email: email.trim().toLowerCase(),
+        name: name.trim(),
         phone: '',
-        authMethod: 'otp' as const,
+        authMethod: 'otp' as const, // keep 'otp' type identifier for schema compatibility
         createdAt: serverTimestamp(),
         college: '',
         passwordHash: passHash,
       };
       await setDoc(userRef, data);
 
-      sendWelcomeEmail(email.trim(), data.name).catch(console.error);
-      await linkMemberToUser(email.trim(), activeUser.uid);
-
-      setOtpUser(activeUser);
-      await handleStep6Routing(activeUser.uid, email.trim());
+      // 4. Send welcome email & link teammate records & set local state
+      sendWelcomeEmail(email.trim().toLowerCase(), data.name).catch(console.error);
+      await linkMemberToUser(email.trim().toLowerCase(), anonUser.uid);
+      setOtpUser(anonUser);
+      await handleStep6Routing(anonUser.uid, email.trim().toLowerCase());
     } catch (err) {
-      console.error('[login] Create password error:', err);
-      setError('Failed to create password. Please try again.');
+      console.error('[login] Email signup error:', err);
+      setError('Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
-
-  // --- Step 5C: Password Login (Returning Users) ---
-  const handlePasswordLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!password) return;
-    setError(null);
-    setLoading(true);
-    try {
-      if (!dbUserRecord) throw new Error('No user record found');
-
-      const inputHash = hashPassword(password, email.trim());
-      if (inputHash === dbUserRecord.passwordHash) {
-        const { user: anonUser } = await signInAnonymously(auth);
-        
-        const oldUserRef = doc(db, 'users', dbUserRecord.id);
-        const newUserRef = doc(db, 'users', anonUser.uid);
-        
-        const oldSnap = await getDoc(oldUserRef);
-        if (oldSnap.exists()) {
-          const oldData = oldSnap.data();
-          await setDoc(newUserRef, {
-            ...oldData,
-            lastLoginAt: serverTimestamp(),
-          });
-          await deleteDoc(oldUserRef);
-        }
-
-        await linkMemberToUser(email.trim(), anonUser.uid);
-
-        setOtpUser(anonUser);
-        await handleStep6Routing(anonUser.uid, email.trim());
-      } else {
-        setError('Incorrect password. Please try again.');
-      }
-    } catch (err) {
-      console.error('[login] Password sign-in error:', err);
-      setError('Sign-in failed. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleResend = async () => {
-    if (cooldown > 0) return;
-    setCode('');
-    setError(null);
-    setLoading(true);
-    try {
-      const result = await requestOtp(email.trim());
-      if (result.ok) {
-        startCooldown();
-        if (result.devCode) setDevCode(result.devCode);
-      } else {
-        setError('Could not resend. Please try again later.');
-      }
-    } catch {
-      setError('Failed to resend. Try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
 
   return (
     <main
@@ -335,19 +233,30 @@ export function LoginPage() {
             borderRadius: '8px',
           }}
         >
-          <h1
-            className="text-card-title font-heading uppercase tracking-wide border-b border-border-default pb-3"
-            style={{ color: 'var(--color-text-primary)' }}
-          >
-            {redirectIntent === 'register' ? 'Register' : 'Sign In'}
-          </h1>
+          <div className="flex justify-between items-center border-b border-border-default pb-3">
+            <button
+              onClick={() => { setMode('signin'); setError(null); }}
+              className={`font-heading text-card-title uppercase tracking-wide pb-1 transition-all ${
+                mode === 'signin' ? 'border-b-2 border-primary text-primary' : 'text-text-muted hover:text-text-primary'
+              }`}
+            >
+              Sign In
+            </button>
+            <button
+              onClick={() => { setMode('signup'); setError(null); }}
+              className={`font-heading text-card-title uppercase tracking-wide pb-1 transition-all ${
+                mode === 'signup' ? 'border-b-2 border-primary text-primary' : 'text-text-muted hover:text-text-primary'
+              }`}
+            >
+              Sign Up
+            </button>
+          </div>
 
-          {/* BOTH Options Google and Email live on this same page and are always visible */}
           <div className="flex flex-col gap-8">
-            {/* Option A: Google Sign In */}
+            {/* Google Sign In */}
             <div className="flex flex-col gap-2">
               <span className="text-micro font-body uppercase tracking-widest" style={{ color: 'var(--color-text-muted)' }}>
-                {redirectIntent === 'register' ? 'Option A: Quick Register with Google' : 'Option A: Continue with Google'}
+                Quick Authentication
               </span>
               <button
                 onClick={handleGoogleLogin}
@@ -377,194 +286,104 @@ export function LoginPage() {
               <div className="flex-1 h-px" style={{ background: 'var(--color-border-default)' }} />
             </div>
 
-            {/* Option B: Email/Password login */}
-            <div className="flex flex-col gap-2">
-              <span className="text-micro font-body uppercase tracking-widest" style={{ color: 'var(--color-text-muted)' }}>
-                {redirectIntent === 'register' ? 'Option B: Register with Email' : 'Option B: Email Login'}
-              </span>
-
-              {otpStep === 'email' && (
-                <form onSubmit={handleCheckEmail} className="flex flex-col gap-4">
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@example.com"
-                    required
-                    className="bg-transparent border-b py-2 focus:outline-none transition-all text-body font-body w-full"
-                    style={{
-                      borderColor: 'var(--color-border-strong)',
-                      color: 'var(--color-text-primary)',
-                    }}
-                  />
-                  <button
-                    type="submit"
-                    disabled={loading || !email}
-                    className="w-full py-4 font-button text-button uppercase tracking-wide flex items-center justify-center gap-2 transition-all hover:scale-[1.01] disabled:opacity-50"
-                    style={{
-                      background: 'var(--color-text-primary)',
-                      color: 'var(--color-bg-base)',
-                      borderRadius: '6px',
-                    }}
-                  >
-                    {loading ? 'Processing...' : 'Continue'}
-                  </button>
-                </form>
-              )}
-
-              {otpStep === 'code' && (
-                <form onSubmit={handleVerifyOtp} className="flex flex-col gap-4">
-                  <div className="flex flex-col gap-1">
-                    <span className="text-small font-body" style={{ color: 'var(--color-text-secondary)' }}>
-                      Code sent to {email}.
-                    </span>
-                  </div>
-
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    pattern="[0-9]{6}"
-                    maxLength={6}
-                    value={code}
-                    onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                    placeholder="000000"
-                    required
-                    autoFocus
-                    className="bg-transparent border-b py-2 focus:outline-none transition-all font-mono tracking-[0.5em] text-xl w-full text-center"
-                    style={{
-                      borderColor: 'var(--color-border-strong)',
-                      color: 'var(--color-text-primary)',
-                    }}
-                  />
-
-                  <button
-                    type="submit"
-                    disabled={loading || code.length !== 6}
-                    className="w-full py-4 font-button text-button uppercase tracking-wide flex items-center justify-center gap-2 transition-all hover:scale-[1.01] disabled:opacity-50"
-                    style={{
-                      background: 'var(--color-text-primary)',
-                      color: 'var(--color-bg-base)',
-                      borderRadius: '6px',
-                    }}
-                  >
-                    {loading ? 'Verifying...' : 'Verify'}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleResend}
-                    disabled={cooldown > 0 || loading}
-                    className="flex items-center justify-center gap-2 text-small font-body transition-opacity hover:opacity-70 disabled:opacity-40 animate-pulse"
-                    style={{ color: 'var(--color-text-muted)' }}
-                  >
-                    <RefreshCw size={13} />
-                    {cooldown > 0 ? `Resend in ${cooldown}s` : 'Resend Code'}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => { setOtpStep('email'); setCode(''); setError(null); }}
-                    className="text-small font-body text-text-muted hover:text-primary transition-colors text-left self-start mt-2"
-                  >
-                    ← Change Email
-                  </button>
-                </form>
-              )}
-
-              {otpStep === 'password' && (
-                <form onSubmit={handlePasswordLogin} className="flex flex-col gap-4">
-                  <div className="flex flex-col gap-1">
-                    <span className="text-small font-body" style={{ color: 'var(--color-text-secondary)' }}>
-                      Enter your password for {email}.
-                    </span>
-                  </div>
-
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    required
-                    autoFocus
-                    className="bg-transparent border-b py-2 focus:outline-none transition-all text-body font-body w-full"
-                    style={{
-                      borderColor: 'var(--color-border-strong)',
-                      color: 'var(--color-text-primary)',
-                    }}
-                  />
-
-                  <button
-                    type="submit"
-                    disabled={loading || !password}
-                    className="w-full py-4 font-button text-button uppercase tracking-wide flex items-center justify-center gap-2 transition-all hover:scale-[1.01] disabled:opacity-50"
-                    style={{
-                      background: 'var(--color-text-primary)',
-                      color: 'var(--color-bg-base)',
-                      borderRadius: '6px',
-                    }}
-                  >
-                    {loading ? 'Logging In...' : 'Log In'}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => { setOtpStep('email'); setPassword(''); setError(null); }}
-                    className="text-small font-body text-text-muted hover:text-primary transition-colors text-left self-start mt-2"
-                  >
-                    ← Change Email
-                  </button>
-                </form>
-              )}
-
-              {otpStep === 'create_password' && (
-                <form onSubmit={handleCreatePassword} className="flex flex-col gap-4">
-                  <div className="flex flex-col gap-1">
-                    <span className="text-small font-body" style={{ color: 'var(--color-text-secondary)' }}>
-                      Create a password for your account. You will use this password for all future sign-ins.
-                    </span>
-                  </div>
-
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Your Name (Optional)"
-                    className="bg-transparent border-b py-2 focus:outline-none transition-all text-body font-body w-full mb-2"
-                    style={{
-                      borderColor: 'var(--color-border-strong)',
-                      color: 'var(--color-text-primary)',
-                    }}
-                  />
-
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Choose Password (Min 6 chars)"
-                    required
-                    autoFocus
-                    className="bg-transparent border-b py-2 focus:outline-none transition-all text-body font-body w-full"
-                    style={{
-                      borderColor: 'var(--color-border-strong)',
-                      color: 'var(--color-text-primary)',
-                    }}
-                  />
-
-                  <button
-                    type="submit"
-                    disabled={loading || password.length < 6}
-                    className="w-full py-4 font-button text-button uppercase tracking-wide flex items-center justify-center gap-2 transition-all hover:scale-[1.01] disabled:opacity-50"
-                    style={{
-                      background: 'var(--color-text-primary)',
-                      color: 'var(--color-bg-base)',
-                      borderRadius: '6px',
-                    }}
-                  >
-                    {loading ? 'Creating...' : 'Create Password & Log In'}
-                  </button>
-                </form>
-              )}
-            </div>
+            {/* Custom Email Form */}
+            {mode === 'signin' ? (
+              <form onSubmit={handleEmailSignIn} className="flex flex-col gap-4">
+                <span className="text-micro font-body uppercase tracking-widest text-left" style={{ color: 'var(--color-text-muted)' }}>
+                  Email Sign In
+                </span>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Email (you@example.com)"
+                  required
+                  className="bg-transparent border-b py-2 focus:outline-none transition-all text-body font-body w-full"
+                  style={{
+                    borderColor: 'var(--color-border-strong)',
+                    color: 'var(--color-text-primary)',
+                  }}
+                />
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Password"
+                  required
+                  className="bg-transparent border-b py-2 focus:outline-none transition-all text-body font-body w-full"
+                  style={{
+                    borderColor: 'var(--color-border-strong)',
+                    color: 'var(--color-text-primary)',
+                  }}
+                />
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-4 font-button text-button uppercase tracking-wide flex items-center justify-center gap-2 transition-all hover:scale-[1.01] disabled:opacity-50"
+                  style={{
+                    background: 'var(--color-text-primary)',
+                    color: 'var(--color-bg-base)',
+                    borderRadius: '6px',
+                  }}
+                >
+                  {loading ? 'Signing In...' : 'Sign In'}
+                </button>
+              </form>
+            ) : (
+              <form onSubmit={handleEmailSignUp} className="flex flex-col gap-4">
+                <span className="text-micro font-body uppercase tracking-widest text-left" style={{ color: 'var(--color-text-muted)' }}>
+                  Create Account
+                </span>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Full Name"
+                  required
+                  className="bg-transparent border-b py-2 focus:outline-none transition-all text-body font-body w-full"
+                  style={{
+                    borderColor: 'var(--color-border-strong)',
+                    color: 'var(--color-text-primary)',
+                  }}
+                />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Email (you@example.com)"
+                  required
+                  className="bg-transparent border-b py-2 focus:outline-none transition-all text-body font-body w-full"
+                  style={{
+                    borderColor: 'var(--color-border-strong)',
+                    color: 'var(--color-text-primary)',
+                  }}
+                />
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Choose Password (Min 6 chars)"
+                  required
+                  className="bg-transparent border-b py-2 focus:outline-none transition-all text-body font-body w-full"
+                  style={{
+                    borderColor: 'var(--color-border-strong)',
+                    color: 'var(--color-text-primary)',
+                  }}
+                />
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-4 font-button text-button uppercase tracking-wide flex items-center justify-center gap-2 transition-all hover:scale-[1.01] disabled:opacity-50"
+                  style={{
+                    background: 'var(--color-text-primary)',
+                    color: 'var(--color-bg-base)',
+                    borderRadius: '6px',
+                  }}
+                >
+                  {loading ? 'Creating Account...' : 'Sign Up'}
+                </button>
+              </form>
+            )}
           </div>
 
           {error && <ErrorMsg msg={error} />}

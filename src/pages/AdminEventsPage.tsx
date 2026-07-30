@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, FormEvent } from 'react';
 import { Plus, Pencil, Trash2, ChevronDown, ChevronUp, Loader2, Lock } from 'lucide-react';
 import { useAuth } from '../lib/useAuth';
 import {
@@ -82,12 +82,21 @@ export function AdminEventsPage() {
 
   // ─── Create ────────────────────────────────────────────────────────────────
 
-  const handleCreate = async (e: React.FormEvent) => {
+  const handleCreate = async (e: FormEvent) => {
     e.preventDefault();
     if (!form.name.trim()) return;
     setSaving(true);
     try {
-      await createEvent(form, adminEmail ?? '');
+      const data = { ...form };
+      if (data.isTeamEvent) {
+        const minVal = typeof data.minMembers === 'string' ? parseInt(data.minMembers) : data.minMembers;
+        if (!minVal || isNaN(minVal)) {
+          data.minMembers = data.maxMembers;
+        } else {
+          data.minMembers = minVal;
+        }
+      }
+      await createEvent(data, adminEmail ?? '');
       await reload();
       closeState();
     } catch (err: unknown) {
@@ -97,7 +106,7 @@ export function AdminEventsPage() {
 
   // ─── Update ────────────────────────────────────────────────────────────────
 
-  const handleUpdate = async (e: React.FormEvent, eventId: string, event: Event) => {
+  const handleUpdate = async (e: FormEvent, eventId: string, event: Event) => {
     e.preventDefault();
     if (!form.name.trim()) return;
     setSaving(true);
@@ -109,6 +118,14 @@ export function AdminEventsPage() {
           setError('Cannot change category or event type after teams have registered.');
           setSaving(false);
           return;
+        }
+      }
+      if (patch.isTeamEvent) {
+        const minVal = typeof patch.minMembers === 'string' ? parseInt(patch.minMembers) : patch.minMembers;
+        if (!minVal || isNaN(minVal)) {
+          patch.minMembers = patch.maxMembers;
+        } else {
+          patch.minMembers = minVal;
         }
       }
       await updateEvent(eventId, patch, adminEmail ?? '');
@@ -352,13 +369,12 @@ function EventFormFields({
       {/* Min members */}
       {form.isTeamEvent && (
         <div className="flex flex-col gap-2">
-          <label className="font-micro text-micro text-text-muted uppercase tracking-widest">Min Team Members *</label>
+          <label className="font-micro text-micro text-text-muted uppercase tracking-widest">Min Team Members (optional)</label>
           <input
             type="number"
             min={2}
-            value={form.minMembers}
-            onChange={(e) => setField('minMembers', parseInt(e.target.value) || 2)}
-            required
+            value={form.minMembers || ''}
+            onChange={(e) => setField('minMembers', e.target.value === '' ? '' : parseInt(e.target.value))}
             className="bg-transparent border-b-2 border-border-strong text-primary font-heading text-heading py-2 focus:outline-none focus:border-primary transition-all"
           />
         </div>
@@ -370,9 +386,9 @@ function EventFormFields({
           <label className="font-micro text-micro text-text-muted uppercase tracking-widest">Max Team Members *</label>
           <input
             type="number"
-            min={form.minMembers}
-            value={form.maxMembers}
-            onChange={(e) => setField('maxMembers', parseInt(e.target.value) || form.minMembers)}
+            min={2}
+            value={form.maxMembers || ''}
+            onChange={(e) => setField('maxMembers', e.target.value === '' ? '' : parseInt(e.target.value))}
             required
             className="bg-transparent border-b-2 border-border-strong text-primary font-heading text-heading py-2 focus:outline-none focus:border-primary transition-all"
           />

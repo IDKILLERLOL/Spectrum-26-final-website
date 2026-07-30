@@ -16,7 +16,7 @@ import {
   auth,
 } from './auth';
 
-import { upsertUser } from './firestore';
+import { upsertUser, getUser } from './firestore';
 import { isAdminWhitelisted, logUnauthorizedAdminAttempt, bootstrapFirstAdmin } from './firestore';
 import { ADMIN_GATE_PASSWORD, BOOTSTRAP_ADMIN_EMAIL } from '../config';
 
@@ -57,6 +57,10 @@ function constantTimeEquals(a: string, b: string): boolean {
   return result === 0;
 }
 
+// ─── Module state for session tracking ───────────────────────────────────────
+// Resets to false on page refresh/reload or when opened in a new tab.
+let verifiedThisSession = false;
+
 // ─── Hook ─────────────────────────────────────────────────────────────────────
 
 export function useAuth() {
@@ -66,16 +70,54 @@ export function useAuth() {
 
   // ─── Firebase Auth state (always resolves, persists across refreshes) ───────
   useEffect(() => {
-    const unsubscribe = initAuth((firebaseUser) => {
-      setUser(firebaseUser);
-      setLoading(false);
+    const checkSession = async () => {
+      if (!verifiedThisSession) {
+        verifiedThisSession = true;
+        try {
+          await firebaseLogout();
+        } catch (e) {
+          console.error('[auth] Init logout error:', e);
+        }
+        clearAdminSession();
+        setAdminSession(null);
+        setUser(null);
+      }
+
+      const unsubscribe = initAuth(async (firebaseUser) => {
+        if (firebaseUser) {
+          try {
+            const isAdmin = firebaseUser.email ? await isAdminWhitelisted(firebaseUser.email) : false;
+            if (!isAdmin) {
+              const profile = await getUser(firebaseUser.uid);
+              if (!profile) {
+                console.warn('[auth] User profile does not exist in Firestore. Logging out...');
+                await firebaseLogout();
+                setUser(null);
+                setLoading(false);
+                return;
+              }
+            }
+          } catch (err) {
+            console.error('[auth] Firestore profile check error:', err);
+          }
+        }
+        setUser(firebaseUser);
+        setLoading(false);
+      });
+      return unsubscribe;
+    };
+
+    let unsub: () => void = () => {};
+    checkSession().then((u) => {
+      if (u) unsub = u;
     });
-    return () => unsubscribe();
+    return () => unsub();
   }, []);
 
   // ─── Participant: Google login ──────────────────────────────────────────────
 
   const loginWithGoogle = useCallback(async () => {
+    verifiedThisSession = true;
     const firebaseUser = await googleSignIn();
     // upsertUser creates/updates the Firestore user record.
     // onAuthStateChanged fires automatically and updates the user state.
@@ -88,20 +130,20 @@ export function useAuth() {
     return firebaseUser;
   }, []);
 
-  // ─── Participant: OTP login ────────────────────────────────────────────────
-  // After OTP is verified, the caller signs in anonymously (if Firebase Anonymous
-  // Auth is enabled) or we just track the email without a Firebase session.
-  // setOtpUser is called to set the user state after OTP verification.
-
   const setOtpUser = useCallback((u: User) => {
+    verifiedThisSession = true;
     setUser(u);
   }, []);
 
   // ─── Logout ────────────────────────────────────────────────────────────────
 
   const logout = useCallback(async () => {
-    await firebaseLogout();
-    // setUser(null) will be called by onAuthStateChanged automatically
+    try {
+      await firebaseLogout();
+    } catch (e) {
+      console.error('[auth] Logout error:', e);
+    }
+    setUser(null);
     clearAdminSession();
     setAdminSession(null);
   }, []);
@@ -118,6 +160,7 @@ export function useAuth() {
     { ok: true; email: string } | { ok: false; error: string }
   > => {
     try {
+      verifiedThisSession = true;
       const result = await adminGoogleSignIn();
       const email = result.user.email ?? '';
 
@@ -150,14 +193,19 @@ export function useAuth() {
   }, []);
 
   const adminBypassGoogle = useCallback((email: string) => {
+    verifiedThisSession = true;
     const session: AdminSession = { email };
     storeAdminSession(session);
     setAdminSession(session);
   }, []);
 
   const adminLogout = useCallback(async () => {
-
-    await firebaseLogout();
+    try {
+      await firebaseLogout();
+    } catch (e) {
+      console.error('[auth] Admin logout error:', e);
+    }
+    setUser(null);
     clearAdminSession();
     setAdminSession(null);
   }, []);

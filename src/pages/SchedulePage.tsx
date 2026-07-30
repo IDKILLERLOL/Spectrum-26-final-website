@@ -120,6 +120,7 @@ function ScheduleCardSkeleton() {
 export function SchedulePage() {
   const [slots, setSlots] = useState<ScheduleSlot[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeDayIndex, setActiveDayIndex] = useState(0);
 
   useEffect(() => {
     getScheduleSlots()
@@ -136,6 +137,14 @@ export function SchedulePage() {
       return map;
     }, new Map<string, { day: string; date: string; slots: ScheduleSlot[] }>())
   );
+
+  useEffect(() => {
+    if (activeDayIndex >= days.length && days.length > 0) {
+      setActiveDayIndex(days.length - 1);
+    }
+  }, [days.length, activeDayIndex]);
+
+  const currentDay = days[activeDayIndex];
 
   return (
     <main className="relative z-10 max-w-7xl mx-auto w-[92%] py-12 md:py-20">
@@ -219,43 +228,80 @@ export function SchedulePage() {
           </p>
         </div>
       ) : (
-        <div className="flex flex-col gap-16">
-          {days.map(([key, { day, date, slots: daySlots }]) => (
-            <section key={key}>
-              <div
-                className="flex items-baseline gap-4 mb-8 pb-4"
-                style={{ borderBottom: '4px solid var(--border-color)' }}
-              >
-                <h2
-                  style={{
-                    fontFamily: 'Bangers, cursive',
-                    fontSize: 'clamp(28px, 4vw, 44px)',
-                    letterSpacing: '0.05em',
-                    textTransform: 'uppercase',
-                    color: 'var(--color-text-primary)',
-                    lineHeight: 1,
-                  }}
+        <div className="flex flex-col gap-10 animate-fade-in">
+          {/* Day selection pagination tabs */}
+          {days.length > 1 && (
+            <div className="flex flex-wrap justify-center gap-6 mb-8 border-b-2 border-primary/20 pb-8">
+              {days.map(([key, { day, date }], idx) => {
+                const isActive = idx === activeDayIndex;
+                return (
+                  <button
+                    key={key}
+                    onClick={() => {
+                      playSynthSound('click');
+                      setActiveDayIndex(idx);
+                    }}
+                    className={`comic-border-thick px-6 py-2 font-heading text-heading transition-all duration-100 ${
+                      isActive
+                        ? 'bg-primary text-bg-base -translate-y-1'
+                        : 'bg-transparent text-text-primary hover:bg-primary/10'
+                    }`}
+                    style={{
+                      fontFamily: 'Bangers, cursive',
+                      fontSize: '22px',
+                      letterSpacing: '0.06em',
+                      textTransform: 'uppercase',
+                      boxShadow: isActive ? '6px 6px 0px var(--border-color)' : '4px 4px 0px var(--border-color)',
+                      transform: isActive ? 'rotate(-1deg) translateY(-4px)' : 'none',
+                    }}
+                  >
+                    {day}
+                    <span className="font-sans text-[12px] font-bold block normal-case tracking-normal opacity-90">{date}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {currentDay && (() => {
+            const [key, { day, date, slots: daySlots }] = currentDay as [string, { day: string; date: string; slots: ScheduleSlot[] }];
+            return (
+              <section key={key}>
+                <div
+                  className="flex items-baseline gap-4 mb-8 pb-4"
+                  style={{ borderBottom: '4px solid var(--border-color)' }}
                 >
-                  {day}
-                </h2>
-                <span
-                  style={{
-                    fontFamily: 'Space Grotesk, sans-serif',
-                    fontSize: '13px',
-                    fontWeight: 700,
-                    letterSpacing: '0.12em',
-                    textTransform: 'uppercase',
-                    color: 'var(--color-text-primary)',
-                  }}
-                >
-                  {date}
-                </span>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {daySlots.map((slot) => <ScheduleCard key={slot.id} slot={slot} />)}
-              </div>
-            </section>
-          ))}
+                  <h2
+                    style={{
+                      fontFamily: 'Bangers, cursive',
+                      fontSize: 'clamp(28px, 4vw, 44px)',
+                      letterSpacing: '0.05em',
+                      textTransform: 'uppercase',
+                      color: 'var(--color-text-primary)',
+                      lineHeight: 1,
+                    }}
+                  >
+                    {day}
+                  </h2>
+                  <span
+                    style={{
+                      fontFamily: 'Space Grotesk, sans-serif',
+                      fontSize: '13px',
+                      fontWeight: 700,
+                      letterSpacing: '0.12em',
+                      textTransform: 'uppercase',
+                      color: 'var(--color-text-primary)',
+                    }}
+                  >
+                    {date}
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {daySlots.map((slot) => <ScheduleCard key={slot.id} slot={slot} />)}
+                </div>
+              </section>
+            );
+          })()}
         </div>
       )}
     </main>
