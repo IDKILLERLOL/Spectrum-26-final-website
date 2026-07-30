@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getScheduleSlots } from '../lib/firestore';
+import { getScheduleSlots, getEventDetails, type EventDetails } from '../lib/firestore';
 import type { ScheduleSlot, ScheduleEventType } from '../types';
 import { playSynthSound } from '../lib/audio';
 
@@ -121,10 +121,22 @@ export function SchedulePage() {
   const [slots, setSlots] = useState<ScheduleSlot[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeDayIndex, setActiveDayIndex] = useState(0);
+  const [eventDetails, setEventDetails] = useState<EventDetails>({
+    name: 'SPECTRUM 26',
+    location: 'College Campus',
+    date: 'September 22, 2026',
+    countdownTarget: '2026-09-22T09:00:00',
+  });
 
   useEffect(() => {
-    getScheduleSlots()
-      .then(setSlots)
+    Promise.all([
+      getScheduleSlots(),
+      getEventDetails()
+    ])
+      .then(([slotsData, detailsData]) => {
+        setSlots(slotsData);
+        setEventDetails(detailsData);
+      })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
@@ -167,7 +179,7 @@ export function SchedulePage() {
             transform: 'rotate(-1.5deg)',
           }}
         >
-          TIMELINE — SPECTRUM 26
+          TIMELINE — {eventDetails.name}
         </div>
         <h1
           style={{
@@ -194,7 +206,7 @@ export function SchedulePage() {
             margin: '0 auto',
           }}
         >
-          The timeline for SPECTRUM 26. All times are IST. Events may be subject to slight modifications.
+          The timeline for {eventDetails.name}. All times are IST. Events may be subject to slight modifications.
         </p>
       </header>
 
@@ -232,7 +244,7 @@ export function SchedulePage() {
           {/* Day selection pagination tabs */}
           {days.length > 1 && (
             <div className="flex flex-wrap justify-center gap-6 mb-8 border-b-2 border-primary/20 pb-8">
-              {days.map(([key, { day, date }], idx) => {
+              {days.map(([key, { day }], idx) => {
                 const isActive = idx === activeDayIndex;
                 return (
                   <button
@@ -256,7 +268,6 @@ export function SchedulePage() {
                     }}
                   >
                     {day}
-                    <span className="font-sans text-[12px] font-bold block normal-case tracking-normal opacity-90">{date}</span>
                   </button>
                 );
               })}
@@ -264,7 +275,7 @@ export function SchedulePage() {
           )}
 
           {currentDay && (() => {
-            const [key, { day, date, slots: daySlots }] = currentDay as [string, { day: string; date: string; slots: ScheduleSlot[] }];
+            const [key, { day, slots: daySlots }] = currentDay as [string, { day: string; date: string; slots: ScheduleSlot[] }];
             return (
               <section key={key}>
                 <div
@@ -283,18 +294,6 @@ export function SchedulePage() {
                   >
                     {day}
                   </h2>
-                  <span
-                    style={{
-                      fontFamily: 'Space Grotesk, sans-serif',
-                      fontSize: '13px',
-                      fontWeight: 700,
-                      letterSpacing: '0.12em',
-                      textTransform: 'uppercase',
-                      color: 'var(--color-text-primary)',
-                    }}
-                  >
-                    {date}
-                  </span>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {daySlots.map((slot) => <ScheduleCard key={slot.id} slot={slot} />)}

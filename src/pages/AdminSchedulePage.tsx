@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
 import { useAuth } from '../lib/useAuth';
 import {
-  getScheduleSlots, createScheduleSlot, updateScheduleSlot, deleteScheduleSlot
+  getScheduleSlots, createScheduleSlot, updateScheduleSlot, deleteScheduleSlot,
+  getEventDetails, updateEventDetails, type EventDetails
 } from '../lib/firestore';
 import type { ScheduleSlot, ScheduleEventType } from '../types';
 
@@ -34,9 +35,21 @@ export function AdminSchedulePage() {
   const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState<SlotFormData>(EMPTY_FORM);
 
+  const [eventDetails, setEventDetails] = useState<EventDetails>({
+    name: 'SPECTRUM 26',
+    location: 'College Campus',
+    date: 'September 22, 2026',
+    countdownTarget: '2026-09-22T09:00:00',
+  });
+  const [savingDetails, setSavingDetails] = useState(false);
+
   const reload = useCallback(async () => {
-    const data = await getScheduleSlots();
+    const [data, details] = await Promise.all([
+      getScheduleSlots(),
+      getEventDetails()
+    ]);
     setSlots(data);
+    setEventDetails(details);
   }, []);
 
   useEffect(() => {
@@ -49,8 +62,25 @@ export function AdminSchedulePage() {
     return () => window.removeEventListener('spectrum26_reload_data', handleGlobalReload);
   }, [reload]);
 
+  const handleSaveEventDetails = async () => {
+    setSavingDetails(true);
+    try {
+      await updateEventDetails(eventDetails, adminEmail ?? '');
+      await reload();
+      // Dispatch custom event to trigger updates in other components
+      window.dispatchEvent(new Event('spectrum26_reload_data'));
+    } catch (err) {
+      console.error('Failed to save event details:', err);
+    } finally {
+      setSavingDetails(false);
+    }
+  };
+
   const openCreate = () => {
-    setForm(EMPTY_FORM);
+    setForm({
+      ...EMPTY_FORM,
+      date: eventDetails.date, // default to global date
+    });
     setError(null);
     setInlineState({ type: 'create' });
   };
@@ -83,7 +113,10 @@ export function AdminSchedulePage() {
     }
     setSaving(true);
     try {
-      await createScheduleSlot(form, adminEmail ?? '');
+      await createScheduleSlot({
+        ...form,
+        date: eventDetails.date, // enforce global event details date
+      }, adminEmail ?? '');
       await reload();
       closeState();
     } catch (err: unknown) {
@@ -99,7 +132,10 @@ export function AdminSchedulePage() {
     }
     setSaving(true);
     try {
-      await updateScheduleSlot(slotId, form, adminEmail ?? '');
+      await updateScheduleSlot(slotId, {
+        ...form,
+        date: eventDetails.date, // enforce global event details date
+      }, adminEmail ?? '');
       await reload();
       closeState();
     } catch (err: unknown) {
@@ -132,7 +168,7 @@ export function AdminSchedulePage() {
       <div className="flex justify-between items-center border-b border-border-default pb-4">
         <div>
           <h1 className="font-hero text-2xl uppercase tracking-widest text-primary">Schedule Slots</h1>
-          <p className="font-body text-small text-text-secondary">Create and manage timeslots for Spectrum 26.</p>
+          <p className="font-body text-small text-text-secondary">Create and manage timeslots for {eventDetails.name}.</p>
         </div>
         {inlineState.type === 'none' && (
           <button
@@ -143,6 +179,59 @@ export function AdminSchedulePage() {
           </button>
         )}
       </div>
+
+      {/* Global Event Details Card */}
+      {inlineState.type === 'none' && (
+        <div className="border border-border-default p-6 bg-bg-card flex flex-col gap-4">
+          <h2 className="font-heading text-heading uppercase tracking-widest text-primary">Global Event Details</h2>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="flex flex-col gap-2">
+              <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">Event Name</label>
+              <input
+                type="text"
+                value={eventDetails.name}
+                onChange={(e) => setEventDetails(prev => ({ ...prev, name: e.target.value }))}
+                className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">Location</label>
+              <input
+                type="text"
+                value={eventDetails.location}
+                onChange={(e) => setEventDetails(prev => ({ ...prev, location: e.target.value }))}
+                className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">Date Description</label>
+              <input
+                type="text"
+                value={eventDetails.date}
+                onChange={(e) => setEventDetails(prev => ({ ...prev, date: e.target.value }))}
+                className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">Countdown Target</label>
+              <input
+                type="text"
+                value={eventDetails.countdownTarget}
+                onChange={(e) => setEventDetails(prev => ({ ...prev, countdownTarget: e.target.value }))}
+                placeholder="YYYY-MM-DDTHH:MM:SS"
+                className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
+              />
+            </div>
+          </div>
+          <button
+            onClick={handleSaveEventDetails}
+            disabled={savingDetails}
+            className="self-start font-button text-button px-6 py-2 border border-primary bg-primary text-bg-base hover:bg-transparent hover:text-primary transition-colors disabled:opacity-50 mt-2"
+          >
+            {savingDetails ? 'Saving...' : 'Save Global Details'}
+          </button>
+        </div>
+      )}
 
       {/* Form Area */}
       {inlineState.type !== 'none' && inlineState.type !== 'confirm-delete' && (
@@ -176,16 +265,6 @@ export function AdminSchedulePage() {
               />
             </div>
 
-            <div className="flex flex-col gap-2">
-              <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">Date</label>
-              <input
-                type="text"
-                value={form.date}
-                onChange={(e) => setField('date', e.target.value)}
-                className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
-                placeholder="e.g. September 15, 2026"
-              />
-            </div>
 
             <div className="flex flex-col gap-2">
               <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">Title</label>
@@ -309,7 +388,7 @@ export function AdminSchedulePage() {
             <table className="w-full text-left font-body">
               <thead className="bg-bg-elevated border-b border-border-default font-micro text-micro uppercase tracking-widest text-text-muted">
                 <tr>
-                  <th className="p-4">Day / Date</th>
+                  <th className="p-4">Day</th>
                   <th className="p-4">Time</th>
                   <th className="p-4">Title</th>
                   <th className="p-4">Location</th>
@@ -322,7 +401,6 @@ export function AdminSchedulePage() {
                   <tr key={slot.id} className="hover:bg-bg-elevated/40 transition-colors">
                     <td className="p-4">
                       <div>{slot.day}</div>
-                      <div className="text-small text-text-secondary">{slot.date}</div>
                     </td>
                     <td className="p-4 font-mono">{slot.displayTime}</td>
                     <td className="p-4 font-semibold">{slot.title}</td>

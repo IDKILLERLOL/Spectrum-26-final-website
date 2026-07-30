@@ -1,7 +1,7 @@
 import { signInAnonymously } from 'firebase/auth';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Loader2 } from 'lucide-react';
 import { useAuth } from '../lib/useAuth';
 import { upsertUser, getMyRegistrations, getUser, linkMemberToUser, db } from '../lib/firestore';
 import { sendWelcomeEmail } from '../lib/email';
@@ -28,9 +28,7 @@ export function LoginPage() {
   const redirectIntent = searchParams.get('redirect');
   const targetEventId = searchParams.get('eventId');
 
-  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -111,7 +109,8 @@ export function LoginPage() {
       const snap = await getDocs(q);
 
       if (snap.empty) {
-        setError('Account not found. Please Sign Up first.');
+        alert('Account not found. Please register for an event on the landing page first to create your account!');
+        navigate('/', { replace: true });
         setLoading(false);
         return;
       }
@@ -129,21 +128,22 @@ export function LoginPage() {
       // 3. Authenticate current session anonymously
       const { user: anonUser } = await signInAnonymously(auth);
 
-      // 4. Move user record to new anonymous session UID in Firestore
-      const oldUserRef = doc(db, 'users', dbUserRecord.id);
-      const newUserRef = doc(db, 'users', anonUser.uid);
-      const oldSnap = await getDoc(oldUserRef);
-      if (oldSnap.exists()) {
-        const oldData = oldSnap.data();
-        await setDoc(newUserRef, {
-          ...oldData,
-          lastLoginAt: serverTimestamp(),
-        });
-        await deleteDoc(oldUserRef);
+      // 4. Move user record & link teammate records in parallel
+      if (anonUser.uid !== dbUserRecord.id) {
+        const oldUserRef = doc(db, 'users', dbUserRecord.id);
+        const newUserRef = doc(db, 'users', anonUser.uid);
+        const { id, ...userData } = dbUserRecord;
+
+        await Promise.all([
+          setDoc(newUserRef, {
+            ...userData,
+            lastLoginAt: serverTimestamp(),
+          }),
+          deleteDoc(oldUserRef),
+          linkMemberToUser(email.trim().toLowerCase(), anonUser.uid)
+        ]);
       }
 
-      // 5. Link teammate records & set local auth state
-      await linkMemberToUser(email.trim().toLowerCase(), anonUser.uid);
       setOtpUser(anonUser);
       await handleStep6Routing(anonUser.uid, email.trim().toLowerCase());
     } catch (err) {
@@ -154,53 +154,7 @@ export function LoginPage() {
     }
   };
 
-  // --- Custom Email Sign Up Flow ---
-  const handleEmailSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email || !password || !name) return;
-    setError(null);
-    setLoading(true);
 
-    try {
-      // 1. Check if email already exists
-      const q = query(collection(db, 'users'), where('email', '==', email.trim().toLowerCase()));
-      const snap = await getDocs(q);
-
-      if (!snap.empty) {
-        setError('An account with this email already exists. Please Sign In.');
-        setLoading(false);
-        return;
-      }
-
-      // 2. Authenticate current session anonymously
-      const { user: anonUser } = await signInAnonymously(auth);
-
-      // 3. Create user record in Firestore
-      const passHash = hashPassword(password, email.trim().toLowerCase());
-      const userRef = doc(db, 'users', anonUser.uid);
-      const data = {
-        email: email.trim().toLowerCase(),
-        name: name.trim(),
-        phone: '',
-        authMethod: 'otp' as const, // keep 'otp' type identifier for schema compatibility
-        createdAt: serverTimestamp(),
-        college: '',
-        passwordHash: passHash,
-      };
-      await setDoc(userRef, data);
-
-      // 4. Send welcome email & link teammate records & set local state
-      sendWelcomeEmail(email.trim().toLowerCase(), data.name).catch(console.error);
-      await linkMemberToUser(email.trim().toLowerCase(), anonUser.uid);
-      setOtpUser(anonUser);
-      await handleStep6Routing(anonUser.uid, email.trim().toLowerCase());
-    } catch (err) {
-      console.error('[login] Email signup error:', err);
-      setError('Registration failed. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <main
@@ -233,23 +187,10 @@ export function LoginPage() {
             borderRadius: '8px',
           }}
         >
-          <div className="flex justify-between items-center border-b border-border-default pb-3">
-            <button
-              onClick={() => { setMode('signin'); setError(null); }}
-              className={`font-heading text-card-title uppercase tracking-wide pb-1 transition-all ${
-                mode === 'signin' ? 'border-b-2 border-primary text-primary' : 'text-text-muted hover:text-text-primary'
-              }`}
-            >
-              Sign In
-            </button>
-            <button
-              onClick={() => { setMode('signup'); setError(null); }}
-              className={`font-heading text-card-title uppercase tracking-wide pb-1 transition-all ${
-                mode === 'signup' ? 'border-b-2 border-primary text-primary' : 'text-text-muted hover:text-text-primary'
-              }`}
-            >
-              Sign Up
-            </button>
+          <div className="border-b border-border-default pb-3 text-center">
+            <h2 className="font-heading text-card-title uppercase tracking-wide text-primary">
+              Authenticate Account
+            </h2>
           </div>
 
           <div className="flex flex-col gap-8">
@@ -287,108 +228,54 @@ export function LoginPage() {
             </div>
 
             {/* Custom Email Form */}
-            {mode === 'signin' ? (
-              <form onSubmit={handleEmailSignIn} className="flex flex-col gap-4">
-                <span className="text-micro font-body uppercase tracking-widest text-left" style={{ color: 'var(--color-text-muted)' }}>
-                  Email Sign In
-                </span>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Email (you@example.com)"
-                  required
-                  className="bg-transparent border-b py-2 focus:outline-none transition-all text-body font-body w-full"
-                  style={{
-                    borderColor: 'var(--color-border-strong)',
-                    color: 'var(--color-text-primary)',
-                  }}
-                />
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Password"
-                  required
-                  className="bg-transparent border-b py-2 focus:outline-none transition-all text-body font-body w-full"
-                  style={{
-                    borderColor: 'var(--color-border-strong)',
-                    color: 'var(--color-text-primary)',
-                  }}
-                />
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full py-4 font-button text-button uppercase tracking-wide flex items-center justify-center gap-2 transition-all hover:scale-[1.01] disabled:opacity-50"
-                  style={{
-                    background: 'var(--color-text-primary)',
-                    color: 'var(--color-bg-base)',
-                    borderRadius: '6px',
-                  }}
-                >
-                  {loading ? 'Signing In...' : 'Sign In'}
-                </button>
-              </form>
-            ) : (
-              <form onSubmit={handleEmailSignUp} className="flex flex-col gap-4">
-                <span className="text-micro font-body uppercase tracking-widest text-left" style={{ color: 'var(--color-text-muted)' }}>
-                  Create Account
-                </span>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Full Name"
-                  required
-                  className="bg-transparent border-b py-2 focus:outline-none transition-all text-body font-body w-full"
-                  style={{
-                    borderColor: 'var(--color-border-strong)',
-                    color: 'var(--color-text-primary)',
-                  }}
-                />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Email (you@example.com)"
-                  required
-                  className="bg-transparent border-b py-2 focus:outline-none transition-all text-body font-body w-full"
-                  style={{
-                    borderColor: 'var(--color-border-strong)',
-                    color: 'var(--color-text-primary)',
-                  }}
-                />
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Choose Password (Min 6 chars)"
-                  required
-                  className="bg-transparent border-b py-2 focus:outline-none transition-all text-body font-body w-full"
-                  style={{
-                    borderColor: 'var(--color-border-strong)',
-                    color: 'var(--color-text-primary)',
-                  }}
-                />
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full py-4 font-button text-button uppercase tracking-wide flex items-center justify-center gap-2 transition-all hover:scale-[1.01] disabled:opacity-50"
-                  style={{
-                    background: 'var(--color-text-primary)',
-                    color: 'var(--color-bg-base)',
-                    borderRadius: '6px',
-                  }}
-                >
-                  {loading ? 'Creating Account...' : 'Sign Up'}
-                </button>
-              </form>
-            )}
+            <form onSubmit={handleEmailSignIn} className="flex flex-col gap-4">
+              <span className="text-micro font-body uppercase tracking-widest text-left" style={{ color: 'var(--color-text-muted)' }}>
+                Email Sign In
+              </span>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Email (you@example.com)"
+                required
+                className="bg-transparent border-b py-2 focus:outline-none transition-all text-body font-body w-full"
+                style={{
+                  borderColor: 'var(--color-border-strong)',
+                  color: 'var(--color-text-primary)',
+                }}
+              />
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Password"
+                required
+                className="bg-transparent border-b py-2 focus:outline-none transition-all text-body font-body w-full"
+                style={{
+                  borderColor: 'var(--color-border-strong)',
+                  color: 'var(--color-text-primary)',
+                }}
+              />
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-4 font-button text-button uppercase tracking-wide flex items-center justify-center gap-2 transition-all hover:scale-[1.01] disabled:opacity-50"
+                style={{
+                  background: 'var(--color-text-primary)',
+                  color: 'var(--color-bg-base)',
+                  borderRadius: '6px',
+                }}
+              >
+                {loading ? 'Signing In...' : 'Sign In'}
+              </button>
+            </form>
           </div>
 
           {error && <ErrorMsg msg={error} />}
         </div>
       </div>
+
+
     </main>
   );
 }

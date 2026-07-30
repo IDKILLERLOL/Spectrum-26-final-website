@@ -1710,3 +1710,40 @@ export async function autoSyncToSheets(): Promise<void> {
     console.warn('[sheets-autosync] Failed auto sync:', err);
   }
 }
+
+export interface EventDetails {
+  name: string;
+  location: string;
+  date: string;
+  countdownTarget: string; // e.g. "2026-09-22T09:00:00"
+}
+
+export async function getEventDetails(): Promise<EventDetails> {
+  const ref = doc(db, 'systemConfig', 'eventDetails');
+  const snap = await getDoc(ref);
+  if (snap.exists()) {
+    return snap.data() as EventDetails;
+  }
+  return {
+    name: 'SPECTRUM 26',
+    location: 'College Campus',
+    date: 'September 22, 2026',
+    countdownTarget: '2026-09-22T09:00:00',
+  };
+}
+
+export async function updateEventDetails(details: EventDetails, actorEmail: string): Promise<void> {
+  const ref = doc(db, 'systemConfig', 'eventDetails');
+  await setDoc(ref, details);
+  await appendAuditLog({
+    timestamp: new Date(),
+    actorEmail,
+    actorType: 'ADMIN',
+    actionType: 'UPDATE_EVENT_DETAILS',
+    targetRegistrationId: null,
+    targetEventId: null,
+    ipAddress: null,
+    diffOld: null,
+    diffNew: null,
+  });
+}
