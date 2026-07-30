@@ -567,20 +567,9 @@ export async function getEvents(): Promise<Event[]> {
   const snap = await getDocs(collection(db, 'events'));
   const dbEvents = snap.docs.map(snapToEvent);
 
-  // Sort events list by category then name in memory to avoid index requirements
-  dbEvents.sort((a, b) => {
-    if (a.category !== b.category) {
-      return a.category.localeCompare(b.category);
-    }
-    return a.name.localeCompare(b.name);
-  });
-
-  // Check if any FALLBACK_EVENTS are missing from the Firestore database
-  const dbEventIds = new Set(dbEvents.map((e) => e.id));
-  const missingFallbacks = FALLBACK_EVENTS.filter((fe) => !dbEventIds.has(fe.id));
-
-  if (missingFallbacks.length > 0) {
-    for (const fe of missingFallbacks) {
+  if (dbEvents.length === 0) {
+    // Database is empty: seed default events once
+    for (const fe of FALLBACK_EVENTS) {
       try {
         const ref = doc(db, 'events', fe.id);
         const data = {
@@ -593,6 +582,8 @@ export async function getEvents(): Promise<Event[]> {
           price: fe.price,
           description: fe.description,
           rulesUrl: fe.rulesUrl,
+          minMembers: fe.minMembers,
+          maxMembers: fe.maxMembers,
         };
         await setDoc(ref, data);
         dbEvents.push({ id: fe.id, ...data });
@@ -600,15 +591,15 @@ export async function getEvents(): Promise<Event[]> {
         console.error('Error seeding fallback event to Firestore:', fe.id, err);
       }
     }
-
-    // Re-sort the combined events list to match order by category then name
-    dbEvents.sort((a, b) => {
-      if (a.category !== b.category) {
-        return a.category.localeCompare(b.category);
-      }
-      return a.name.localeCompare(b.name);
-    });
   }
+
+  // Sort events list by category then name in memory
+  dbEvents.sort((a, b) => {
+    if (a.category !== b.category) {
+      return a.category.localeCompare(b.category);
+    }
+    return a.name.localeCompare(b.name);
+  });
 
   return dbEvents;
 }
@@ -618,8 +609,7 @@ export async function getEvent(eventId: string): Promise<Event | null> {
     const snap = await getDoc(doc(db, 'events', eventId));
     if (snap.exists()) return snapToEvent(snap);
   } catch {}
-  // Fallback to static events if Firestore doesn't have it
-  return FALLBACK_EVENTS.find((e) => e.id === eventId) ?? null;
+  return null;
 }
 
 export async function createEvent(
@@ -670,7 +660,7 @@ export async function deleteEvent(eventId: string, actorEmail: string): Promise<
   if (!event) throw new Error('Event not found');
   if (event.currentTeamCount > 0) throw new Error('Cannot delete event with registered teams');
   await deleteDoc(doc(db, 'events', eventId));
-  await appendAuditLog({
+  appendAuditLog({
     actorEmail,
     actorType: 'ADMIN',
     actionType: 'EVENT_DELETED',
@@ -680,7 +670,7 @@ export async function deleteEvent(eventId: string, actorEmail: string): Promise<
     diffNew: null,
     timestamp: new Date(),
     ipAddress: null,
-  });
+  }).catch(console.error);
 }
 
 // ─── Registrations ────────────────────────────────────────────────────────────

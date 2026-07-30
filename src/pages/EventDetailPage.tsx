@@ -18,7 +18,6 @@ import {
 import type { Registration, Event, TeamMember } from '../types';
 import { categoryLabel } from '../types';
 import { UPI_ID, HELP_EMAIL } from '../config';
-import { requestOtp, verifyOtp } from '../lib/otp';
 
 // ─── Inline state machine ─────────────────────────────────────────────────────
 // Only one panel open at a time. Opening any panel closes all others.
@@ -62,15 +61,7 @@ export function EventDetailPage() {
   const [idPopupContent, setIdPopupContent] = useState<string | null>(null);
   const [idPopupTitle, setIdPopupTitle] = useState<string>('');
 
-  // OTP Verification flow state
-  const [otpVerification, setOtpVerification] = useState<{
-    type: 'add-member' | 'edit-member';
-    email: string;
-    memberId?: string; // only for edit-member
-  } | null>(null);
-  const [otpCode, setOtpCode] = useState('');
-  const [otpVerifying, setOtpVerifying] = useState(false);
-  const [otpError, setOtpError] = useState<string | null>(null);
+
 
   // Sync upiRef with registration.upiTransactionRef once loaded
   useEffect(() => {
@@ -285,31 +276,6 @@ export function EventDetailPage() {
       }
     }
 
-    const isEmailChanged = editEmail.trim() !== targetMember.email;
-    if (isEmailChanged && !isAdmin) {
-      setSaving(true);
-      setError(null);
-      setOtpError(null);
-      setOtpCode('');
-      try {
-        const res = await requestOtp(editEmail.trim());
-        if (res.ok) {
-          setOtpVerification({
-            type: 'edit-member',
-            email: editEmail.trim(),
-            memberId: targetMember.id
-          });
-        } else {
-          setError('Failed to send verification code. Try again in a minute.');
-        }
-      } catch {
-        setError('Failed to send verification code.');
-      } finally {
-        setSaving(false);
-      }
-      return;
-    }
-
     await executeSaveEdit(targetMember.id);
   };
 
@@ -417,29 +383,7 @@ export function EventDetailPage() {
       }
     }
 
-    if (isAdmin) {
-      await executeAddMember();
-      return;
-    }
-    setSaving(true);
-    setError(null);
-    setOtpError(null);
-    setOtpCode('');
-    try {
-      const res = await requestOtp(addEmail.trim());
-      if (res.ok) {
-        setOtpVerification({
-          type: 'add-member',
-          email: addEmail.trim()
-        });
-      } else {
-        setError('Failed to send verification code. Try again in a minute.');
-      }
-    } catch {
-      setError('Failed to send verification code.');
-    } finally {
-      setSaving(false);
-    }
+    await executeAddMember();
   };
 
   const executeAddMember = async () => {
@@ -459,28 +403,7 @@ export function EventDetailPage() {
     finally { setSaving(false); }
   };
 
-  const handleConfirmOtp = async () => {
-    if (!otpVerification) return;
-    setOtpVerifying(true);
-    setOtpError(null);
-    try {
-      const res = await verifyOtp(otpVerification.email, otpCode);
-      if (res.ok) {
-        setOtpVerification(null);
-        if (otpVerification.type === 'add-member') {
-          await executeAddMember();
-        } else if (otpVerification.type === 'edit-member' && otpVerification.memberId) {
-          await executeSaveEdit(otpVerification.memberId);
-        }
-      } else {
-        setOtpError('Invalid or expired verification code.');
-      }
-    } catch {
-      setOtpError('Failed to verify code. Try again.');
-    } finally {
-      setOtpVerifying(false);
-    }
-  };
+
 
   // ─── Admin: toggle fee status ────────────────────────────────────────────────
   const handleToggleFee = async () => {
@@ -854,7 +777,7 @@ export function EventDetailPage() {
 
             <div className="font-countdown text-[48px] leading-none font-bold text-primary tracking-tight">
               {event.price != null ? `₹${event.price}` : 'TBA'}
-              <span className="text-text-muted text-[24px]">/{event.isTeamEvent ? 'team' : 'entry'}</span>
+              <span className="font-body text-text-muted text-[20px] font-medium ml-1">/{event.isTeamEvent ? 'team' : 'entry'}</span>
             </div>
 
             {!paid && (
@@ -975,53 +898,7 @@ export function EventDetailPage() {
                 </>
               )}
             </div>
-            {/* OTP Verification Modal */}
-            {otpVerification && (
-              <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-6">
-                <div className="bg-bg-card border-2 border-primary max-w-md w-full p-8 flex flex-col gap-6 shadow-2xl text-left">
-                  <div className="flex flex-col gap-2">
-                    <h3 className="font-heading text-card-title text-primary uppercase">Verify Email Address</h3>
-                    <p className="font-body text-body text-text-secondary text-left">
-                      We have sent a verification code to <strong>{otpVerification.email}</strong>.
-                    </p>
-                  </div>
 
-                  <div className="flex flex-col gap-2">
-                    <label className="font-micro text-micro text-text-muted uppercase">Verification Code</label>
-                    <input
-                      type="text"
-                      maxLength={6}
-                      pattern="[0-9]{6}"
-                      placeholder="000000"
-                      value={otpCode}
-                      onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                      className="bg-transparent border-b-2 border-border-strong text-primary text-center font-mono tracking-widest text-2xl py-2 focus:outline-none focus:border-primary w-full"
-                    />
-                  </div>
-
-                  {otpError && <p className="font-body text-small text-red-500">{otpError}</p>}
-
-                  <div className="flex gap-4">
-                    <button
-                      type="button"
-                      onClick={() => setOtpVerification(null)}
-                      className="flex-1 py-3 border border-border-default font-button text-button uppercase hover:opacity-75"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleConfirmOtp}
-                      disabled={otpCode.length !== 6 || otpVerifying}
-                      className="flex-1 py-3 bg-primary text-bg-base font-button text-button uppercase hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
-                    >
-                      {otpVerifying && <Loader2 size={14} className="animate-spin" />}
-                      Verify Code
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>

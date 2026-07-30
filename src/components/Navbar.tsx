@@ -76,7 +76,7 @@ export function Navbar() {
 
   return (
     <nav
-      className="relative z-10 mx-auto max-w-7xl w-[92%] mt-6 p-4 comic-shadow flex flex-wrap justify-between items-center gap-4"
+      className="relative z-50 mx-auto max-w-7xl w-[92%] mt-6 p-4 comic-shadow flex flex-wrap justify-between items-center gap-4"
       style={{ background: 'var(--panel-bg)', borderColor: 'var(--border-color)' }}
     >
       {/* Wordmark */}
@@ -108,7 +108,7 @@ export function Navbar() {
           {navLink('/', 'Events')}
           {navLink('/schedule', 'Schedule')}
           {navLink('/winners', 'Winners')}
-          {user && hasRegistrations && navLink('/my-registrations', 'My Panels')}
+          {user && hasRegistrations && navLink('/my-registrations', 'My Passes')}
         </div>
 
         {/* Controls row */}
@@ -239,7 +239,7 @@ export function Navbar() {
           { to: '/', label: 'Events' },
           { to: '/schedule', label: 'Schedule' },
           { to: '/winners', label: 'Winners' },
-          ...(user ? [{ to: '/my-registrations', label: 'My Panels' }] : []),
+          ...(user ? [{ to: '/my-registrations', label: 'My Passes' }] : []),
         ].map(({ to, label }) => (
           <Link
             key={to}

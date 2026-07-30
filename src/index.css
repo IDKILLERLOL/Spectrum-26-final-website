@@ -97,6 +97,9 @@ body {
   font-family: 'Space Grotesk', sans-serif;
   overflow-x: hidden;
   position: relative;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
   /* Ben-Day halftone dot background */
   background-image: radial-gradient(var(--halftone-color) 15%, transparent 16%);
   background-size: 16px 16px;

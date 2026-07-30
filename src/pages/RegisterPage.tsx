@@ -3,13 +3,12 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Loader2, ArrowRight, Plus, Trash2 } from 'lucide-react';
 import { useAuth } from '../lib/useAuth';
 import { getEvent, createRegistration, getUser, updateUser, hasExistingRegistration } from '../lib/firestore';
-import { requestOtp, verifyOtp } from '../lib/otp';
 import type { Event } from '../types';
 
 export function RegisterPage() {
   const { eventId } = useParams<{ eventId: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
 
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
@@ -27,25 +26,19 @@ export function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  // OTP Verification flow state
-  const [otpVerification, setOtpVerification] = useState<{
-    type: 'leader' | 'member';
-    email: string;
-    nextIndex: number;
-    devCode?: string;
-  } | null>(null);
-  const [otpCode, setOtpCode] = useState('');
-  const [otpVerifying, setOtpVerifying] = useState(false);
-  const [otpError, setOtpError] = useState<string | null>(null);
-
   // Load event details & pre-fill user profile if available
   useEffect(() => {
-    if (!eventId) return;
+    if (!eventId || authLoading) return;
 
     const loadData = async () => {
       try {
         const ev = await getEvent(eventId);
         setEvent(ev);
+
+        if (!user) {
+          navigate(`/login?redirect=register&eventId=${eventId}`, { replace: true });
+          return;
+        }
 
         if (user) {
           const profile = await getUser(user.uid);
@@ -159,117 +152,7 @@ export function RegisterPage() {
     }
 
     setError(null);
-    setOtpError(null);
-    setOtpCode('');
-
-    // Trigger verification sequence
-    const isLeaderAlreadyVerified = user && user.email && user.email.toLowerCase() === email.trim().toLowerCase();
-
-    if (isLeaderAlreadyVerified) {
-      if (event.isTeamEvent && members.length > 0) {
-        setOtpVerifying(true);
-        const nextMemberEmail = members[0].email.trim();
-        try {
-          const reqRes = await requestOtp(nextMemberEmail);
-          const reqResCasted = reqRes as { ok: boolean; devCode?: string };
-          if (reqResCasted.ok) {
-            setOtpCode('');
-            setOtpVerification({
-              type: 'member',
-              email: nextMemberEmail,
-              nextIndex: 1,
-              devCode: reqResCasted.devCode,
-            });
-          } else {
-            setOtpVerification({
-              type: 'member',
-              email: nextMemberEmail,
-              nextIndex: 1,
-            });
-            setOtpError(`Failed to send OTP. Cooldown active.`);
-          }
-        } catch {
-          setOtpVerification({
-            type: 'member',
-            email: nextMemberEmail,
-            nextIndex: 1,
-          });
-          setOtpError('Failed to send OTP code to member.');
-        } finally {
-          setOtpVerifying(false);
-        }
-      } else {
-        await completeRegistration();
-      }
-    } else {
-      setOtpVerifying(true);
-      try {
-        const res = await requestOtp(email.trim());
-        const resCasted = res as { ok: boolean; devCode?: string };
-        if (resCasted.ok) {
-          setOtpVerification({
-            type: 'leader',
-            email: email.trim(),
-            nextIndex: 0,
-            devCode: resCasted.devCode,
-          });
-        } else {
-          setOtpVerification({
-            type: 'leader',
-            email: email.trim(),
-            nextIndex: 0,
-          });
-          setOtpError('Failed to send OTP code. Please check your email or try again in a minute.');
-        }
-      } catch {
-        setOtpVerification({
-          type: 'leader',
-          email: email.trim(),
-          nextIndex: 0,
-        });
-        setOtpError('Failed to send OTP code.');
-      } finally {
-        setOtpVerifying(false);
-      }
-    }
-  };
-
-  const handleConfirmOtp = async () => {
-    if (!otpVerification || !eventId || !event) return;
-    setOtpVerifying(true);
-    setOtpError(null);
-    try {
-      const res = await verifyOtp(otpVerification.email, otpCode);
-      if (res.ok) {
-        const nextIndex = otpVerification.nextIndex;
-        if (event.isTeamEvent && nextIndex < members.length) {
-          const nextMemberEmail = members[nextIndex].email.trim();
-          const reqRes = await requestOtp(nextMemberEmail);
-          const reqResCasted = reqRes as { ok: boolean; devCode?: string };
-          if (reqResCasted.ok) {
-            setOtpCode('');
-            setOtpVerification({
-              type: 'member',
-              email: nextMemberEmail,
-              nextIndex: nextIndex + 1,
-              devCode: reqResCasted.devCode,
-            });
-          } else {
-            setOtpError(`Failed to send OTP to member: ${nextMemberEmail}.`);
-          }
-        } else {
-          // All verifications completed! Proceed to database write
-          setOtpVerification(null);
-          await completeRegistration();
-        }
-      } else {
-        setOtpError('Invalid or expired verification code.');
-      }
-    } catch {
-      setOtpError('Failed to verify code. Try again.');
-    } finally {
-      setOtpVerifying(false);
-    }
+    await completeRegistration();
   };
 
   const completeRegistration = async () => {
@@ -586,55 +469,6 @@ export function RegisterPage() {
           </form>
         </div>
       </div>
-
-      {/* OTP Verification Modal */}
-      {otpVerification && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-6">
-          <div className="bg-bg-card border-2 border-primary max-w-md w-full p-8 flex flex-col gap-6 shadow-2xl">
-            <div className="flex flex-col gap-2">
-              <h3 className="font-heading text-card-title text-primary uppercase">Verify Email Address</h3>
-              <p className="font-body text-body text-text-secondary">
-                We have sent a verification code to <strong>{otpVerification.email}</strong> to verify the{' '}
-                {otpVerification.type === 'leader' ? 'Leader' : 'Teammate'} email.
-              </p>
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <label className="font-micro text-micro text-text-muted uppercase">Verification Code</label>
-              <input
-                type="text"
-                maxLength={6}
-                pattern="[0-9]{6}"
-                placeholder="000000"
-                value={otpCode}
-                onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                className="bg-transparent border-b-2 border-border-strong text-primary text-center font-mono tracking-widest text-2xl py-2 focus:outline-none focus:border-primary"
-              />
-            </div>
-
-            {otpError && <p className="font-body text-small text-red-500">{otpError}</p>}
-
-            <div className="flex gap-4">
-              <button
-                type="button"
-                onClick={() => setOtpVerification(null)}
-                className="flex-1 py-3 border border-border-default font-button text-button uppercase hover:opacity-75"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleConfirmOtp}
-                disabled={otpCode.length !== 6 || otpVerifying}
-                className="flex-1 py-3 bg-primary text-bg-base font-button text-button uppercase hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                {otpVerifying && <Loader2 size={14} className="animate-spin" />}
-                Verify Code
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </main>
   );
 }

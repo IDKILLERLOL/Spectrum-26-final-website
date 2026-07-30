@@ -46,6 +46,7 @@ participantProvider.setCustomParameters({ prompt: 'select_account' });
 
 const adminProvider = new GoogleAuthProvider();
 adminProvider.addScope('https://www.googleapis.com/auth/gmail.send');
+adminProvider.addScope('https://www.googleapis.com/auth/spreadsheets');
 adminProvider.setCustomParameters({ prompt: 'select_account' });
 
 // ─── Gmail token cache (set only when admin/user explicitly re-authenticates) ───

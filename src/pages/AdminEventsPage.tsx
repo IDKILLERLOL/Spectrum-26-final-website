@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, FormEvent } from 'react';
 import { Plus, Pencil, Trash2, ChevronDown, ChevronUp, Loader2, Lock } from 'lucide-react';
 import { useAuth } from '../lib/useAuth';
 import {
@@ -82,7 +82,7 @@ export function AdminEventsPage() {
 
   // ─── Create ────────────────────────────────────────────────────────────────
 
-  const handleCreate = async (e: React.FormEvent) => {
+  const handleCreate = async (e: FormEvent) => {
     e.preventDefault();
     if (!form.name.trim()) return;
     setSaving(true);
@@ -106,7 +106,7 @@ export function AdminEventsPage() {
 
   // ─── Update ────────────────────────────────────────────────────────────────
 
-  const handleUpdate = async (e: React.FormEvent, eventId: string, event: Event) => {
+  const handleUpdate = async (e: FormEvent, eventId: string, event: Event) => {
     e.preventDefault();
     if (!form.name.trim()) return;
     setSaving(true);
