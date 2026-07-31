@@ -124,8 +124,8 @@ export function SchedulePage() {
   const [eventDetails, setEventDetails] = useState<EventDetails>({
     name: 'SPECTRUM 26',
     location: 'College Campus',
-    date: 'September 22, 2026',
-    countdownTarget: '2026-09-22T09:00:00',
+    date: 'September 30, 2026',
+    countdownTarget: '2026-09-30T09:00:00',
   });
 
   useEffect(() => {
