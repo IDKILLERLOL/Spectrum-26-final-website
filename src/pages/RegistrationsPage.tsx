@@ -134,7 +134,7 @@ export function RegistrationsPage() {
             onSelect={() => {
               playSynthSound('laser');
               sessionStorage.setItem('spectrum26_active_registration_id', item.id);
-              navigate('/events');
+              navigate('/event-dashboard');
             }}
           />
         ))}

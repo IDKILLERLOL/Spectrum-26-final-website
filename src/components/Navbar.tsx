@@ -1,10 +1,10 @@
+import React, { useCallback, useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../lib/useAuth';
-import { useCallback, useState, useEffect } from 'react';
 import { getTheme, toggleTheme as triggerToggleTheme } from '../lib/theme';
 import { getMyRegistrations, getUser } from '../lib/firestore';
 import { playSynthSound, setSoundEnabled } from '../lib/audio';
-import { Volume2, VolumeX, Sun, Moon, LogIn, LogOut, User } from 'lucide-react';
+import { Volume2, VolumeX, Sun, Moon, LogIn, LogOut, User, Menu, X } from 'lucide-react';
 
 export function Navbar() {
   const location = useLocation();
@@ -14,6 +14,9 @@ export function Navbar() {
   const [showUserCard, setShowUserCard] = useState(false);
   const [dbUser, setDbUser] = useState<any | null>(null);
   const [sfxOn, setSfxOn] = useState(true);
+  
+  // Mobile Sidebar State
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (!user) { setDbUser(null); return; }
@@ -43,11 +46,14 @@ export function Navbar() {
 
   const isActive = (to: string) => location.pathname === to;
 
-  const navLink = (to: string, label: string) => (
+  const navLink = (to: string, label: string, onClickExtra?: () => void) => (
     <Link
       key={to}
       to={to}
-      onClick={() => playSynthSound('click')}
+      onClick={() => {
+        playSynthSound('click');
+        if (onClickExtra) onClickExtra();
+      }}
       style={{
         fontFamily: 'Bangers, cursive',
         fontSize: '20px',
@@ -75,185 +81,231 @@ export function Navbar() {
   );
 
   return (
-    <nav
-      className="relative z-50 mx-auto max-w-7xl w-[92%] mt-6 p-4 comic-shadow flex flex-wrap justify-between items-center gap-4"
-      style={{ background: 'var(--panel-bg)', borderColor: 'var(--border-color)' }}
-    >
-      {/* Wordmark */}
-        <Link
-          to="/"
-          onClick={() => playSynthSound('click')}
-          style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }}
-        >
-          <img
-            src="/favicon.jpg"
-            alt="SPECTRUM 26"
-            className="h-10 md:h-12 object-contain"
-            style={{ border: '2px solid var(--border-color)', borderRadius: '4px' }}
-          />
-        </Link>
-
-      {/* Right side: nav links + controls */}
-      <div className="flex items-center gap-6 flex-wrap">
-        {/* Desktop nav */}
-        <div className="hidden md:flex gap-6 items-center">
-          {navLink('/', 'Events')}
-          {navLink('/schedule', 'Schedule')}
-          {navLink('/winners', 'Winners')}
-          {user && hasRegistrations && navLink('/my-registrations', 'My Passes')}
-        </div>
-
-        {/* Controls row */}
-        <div className="flex items-center gap-3">
-          {/* SFX Toggle */}
-          <button
-            onClick={toggleSfx}
-            style={{
-              border: '2px solid var(--border-color)',
-              borderRadius: '4px',
-              padding: '4px 10px',
-              background: 'var(--badge-bg)',
-              color: 'var(--color-text-primary)',
-              fontSize: '11px',
-              fontWeight: 700,
-              fontFamily: 'Space Grotesk, sans-serif',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              cursor: 'pointer',
-              boxShadow: '1.5px 1.5px 0px var(--border-color)',
-              letterSpacing: '0.04em',
-            }}
-          >
-            {sfxOn ? <Volume2 size={13} /> : <VolumeX size={13} />}
-            SFX: {sfxOn ? 'ON' : 'OFF'}
-          </button>
-
-          {/* Theme toggle */}
-          <button
-            onClick={handleToggleTheme}
-            className="comic-shadow-sm"
-            style={{
-              background: 'var(--panel-bg)',
-              color: 'var(--color-text-primary)',
-              fontFamily: 'Bangers, cursive',
-              fontSize: '18px',
-              padding: '6px 20px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              letterSpacing: '0.04em',
-              cursor: 'pointer',
-            }}
-          >
-            {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
-            SWAP
-          </button>
-
-          {/* Auth */}
-          {!loading && (
-            user ? (
-              <div className="relative">
-                <button
-                  onClick={() => { playSynthSound('click'); setShowUserCard(!showUserCard); }}
-                  className="comic-btn-outline"
-                  style={{ fontSize: '14px', padding: '6px 14px' }}
-                >
-                  <User size={13} className="mr-1 inline" />
-                  {dbUser?.name || user.displayName || user.email?.split('@')[0] || 'AGENT'}
-                </button>
-
-                {showUserCard && (
-                  <>
-                    <div className="fixed inset-0 z-40" onClick={() => setShowUserCard(false)} />
-                    <div
-                      className="absolute right-0 top-full mt-3 z-50 flex flex-col gap-3 min-w-[260px] p-5 comic-shadow comic-pop"
-                      style={{ background: 'var(--panel-bg)' }}
-                    >
-                      <h4
-                        style={{
-                          fontFamily: 'Bangers, cursive',
-                          fontSize: '20px',
-                          letterSpacing: '0.06em',
-                          textTransform: 'uppercase',
-                          color: 'var(--color-text-primary)',
-                          borderBottom: '2px solid var(--border-color)',
-                          paddingBottom: '8px',
-                          marginBottom: '4px',
-                        }}
-                      >
-                        YOUR ACCOUNT
-                      </h4>
-                      <div className="flex flex-col gap-2" style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '13px', fontWeight: 500 }}>
-                        {[
-                          { label: 'NAME', value: dbUser?.name || user.displayName || 'User' },
-                          ...((dbUser?.email || user.email) ? [{ label: 'EMAIL', value: dbUser?.email || user.email }] : []),
-                          ...((dbUser?.phone || user.phoneNumber) ? [{ label: 'PHONE', value: dbUser?.phone || user.phoneNumber }] : []),
-                          ...(dbUser?.college ? [{ label: 'COLLEGE', value: dbUser.college }] : []),
-                        ].map(({ label, value }) => (
-                          <div key={label}>
-                            <div style={{ fontSize: '9px', letterSpacing: '0.12em', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', marginBottom: '2px' }}>{label}</div>
-                            <div style={{ color: 'var(--color-text-primary)' }}>{value}</div>
-                          </div>
-                        ))}
-                      </div>
-                      <button
-                        onClick={() => { setShowUserCard(false); playSynthSound('laser'); logout(); }}
-                        className="comic-btn w-full"
-                        style={{ fontSize: '16px', padding: '8px 16px', marginTop: '4px' }}
-                      >
-                        <LogOut size={13} className="mr-1 inline" /> LOG OUT //
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            ) : (
-              <Link
-                to="/login"
-                onClick={() => playSynthSound('laser')}
-                className="comic-btn"
-                style={{ fontSize: '16px', padding: '6px 16px' }}
-              >
-                <LogIn size={14} className="mr-1 inline" /> SIGN IN
-              </Link>
-            )
-          )}
-        </div>
-      </div>
-
-      {/* Mobile nav row */}
-      <div
-        className="flex md:hidden gap-4 w-full overflow-x-auto pt-3"
-        style={{ borderTop: '2px solid var(--border-color)' }}
+    <>
+      <nav
+        className="relative z-50 mx-auto max-w-7xl w-[92%] mt-6 p-4 comic-shadow flex justify-between items-center gap-4"
+        style={{ background: 'var(--panel-bg)', borderColor: 'var(--border-color)' }}
       >
-        {[
-          { to: '/', label: 'Events' },
-          { to: '/schedule', label: 'Schedule' },
-          { to: '/winners', label: 'Winners' },
-          ...(user ? [{ to: '/my-registrations', label: 'My Passes' }] : []),
-        ].map(({ to, label }) => (
-          <Link
-            key={to}
-            to={to}
-            onClick={() => playSynthSound('click')}
-            style={{
-              fontFamily: 'Bangers, cursive',
-              fontSize: '18px',
-              letterSpacing: '0.06em',
-              textTransform: 'uppercase',
-              color: 'var(--color-text-primary)',
-              whiteSpace: 'nowrap',
-              textDecoration: isActive(to) ? 'underline' : 'none',
-              textDecorationStyle: isActive(to) ? 'solid' : undefined,
-              textDecorationThickness: isActive(to) ? '3px' : undefined,
-              textUnderlineOffset: '3px',
+        {/* Left side: Mobile Menu Button & Brand Logo */}
+        <div className="flex items-center gap-4">
+          {/* Hamburger Menu Toggle (top left) */}
+          <button
+            onClick={() => {
+              playSynthSound('click');
+              setIsSidebarOpen(!isSidebarOpen);
             }}
+            className="flex flex-col justify-center items-center w-8 h-8 gap-1.5 focus:outline-none md:hidden relative z-[60]"
+            aria-label="Toggle Navigation Menu"
           >
-            {label}
+            {/* Morphing Hamburger lines */}
+            <span
+              className="w-6 h-[3px] bg-primary transition-all duration-300 transform origin-left"
+              style={{
+                transform: isSidebarOpen ? 'rotate(45deg) translate(2px, -2px)' : 'none',
+                backgroundColor: 'var(--color-text-primary)'
+              }}
+            />
+            <span
+              className="w-6 h-[3px] bg-primary transition-all duration-300"
+              style={{
+                opacity: isSidebarOpen ? 0 : 1,
+                transform: isSidebarOpen ? 'scale(0)' : 'none',
+                backgroundColor: 'var(--color-text-primary)'
+              }}
+            />
+            <span
+              className="w-6 h-[3px] bg-primary transition-all duration-300 transform origin-left"
+              style={{
+                transform: isSidebarOpen ? 'rotate(-45deg) translate(2px, 2px)' : 'none',
+                backgroundColor: 'var(--color-text-primary)'
+              }}
+            />
+          </button>
+
+          {/* Wordmark Logo */}
+          <Link
+            to="/"
+            onClick={() => playSynthSound('click')}
+            style={{ display: 'inline-flex', items: 'center', textDecoration: 'none' }}
+          >
+            <img
+              src="/favicon.jpg"
+              alt="SPECTRUM 26"
+              className="h-10 md:h-12 object-contain"
+              style={{ border: '2px solid var(--border-color)', borderRadius: '4px' }}
+            />
           </Link>
-        ))}
-      </div>
-    </nav>
+        </div>
+
+        {/* Right side: desktop links + controls */}
+        <div className="flex items-center gap-6">
+          {/* Desktop nav menu */}
+          <div className="hidden md:flex gap-6 items-center">
+            {navLink('/', 'Home')}
+            {navLink('/events', 'Events')}
+            {navLink('/schedule', 'Schedule')}
+            {navLink('/winners', 'Winners')}
+            {navLink('/events', 'Register')}
+            {user && hasRegistrations && navLink('/my-registrations', 'My Passes')}
+          </div>
+
+          {/* Controls */}
+          <div className="flex items-center gap-3">
+            {/* SFX Toggle */}
+            <button
+              onClick={toggleSfx}
+              style={{
+                border: '2px solid var(--border-color)',
+                borderRadius: '4px',
+                padding: '4px 10px',
+                background: 'var(--badge-bg)',
+                color: 'var(--color-text-primary)',
+                fontSize: '11px',
+                fontWeight: 700,
+                fontFamily: 'Space Grotesk, sans-serif',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                cursor: 'pointer',
+                boxShadow: '1.5px 1.5px 0px var(--border-color)',
+                letterSpacing: '0.04em',
+              }}
+            >
+              {sfxOn ? <Volume2 size={13} /> : <VolumeX size={13} />}
+              <span className="hidden sm:inline">SFX: {sfxOn ? 'ON' : 'OFF'}</span>
+            </button>
+
+            {/* Theme Swap */}
+            <button
+              onClick={handleToggleTheme}
+              className="comic-shadow-sm"
+              style={{
+                background: 'var(--panel-bg)',
+                color: 'var(--color-text-primary)',
+                fontFamily: 'Bangers, cursive',
+                fontSize: '18px',
+                padding: '6px 16px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                letterSpacing: '0.04em',
+                cursor: 'pointer',
+              }}
+            >
+              {theme === 'light' ? <Moon size={14} /> : <Sun size={14} />}
+              <span className="hidden sm:inline">SWAP</span>
+            </button>
+
+            {/* User Account / Auth */}
+            {!loading && (
+              user ? (
+                <div className="relative">
+                  <button
+                    onClick={() => { playSynthSound('click'); setShowUserCard(!showUserCard); }}
+                    className="comic-btn-outline"
+                    style={{ fontSize: '14px', padding: '6px 14px' }}
+                  >
+                    <User size={13} className="mr-1 inline" />
+                    <span className="hidden md:inline">{dbUser?.name || user.displayName || 'AGENT'}</span>
+                  </button>
+
+                  {showUserCard && (
+                    <>
+                      <div className="fixed inset-0 z-40" onClick={() => setShowUserCard(false)} />
+                      <div
+                        className="absolute right-0 top-full mt-3 z-50 flex flex-col gap-3 min-w-[260px] p-5 comic-shadow comic-pop"
+                        style={{ background: 'var(--panel-bg)' }}
+                      >
+                        <h4
+                          style={{
+                            fontFamily: 'Bangers, cursive',
+                            fontSize: '20px',
+                            letterSpacing: '0.06em',
+                            textTransform: 'uppercase',
+                            color: 'var(--color-text-primary)',
+                            borderBottom: '2px solid var(--border-color)',
+                            paddingBottom: '8px',
+                            marginBottom: '4px',
+                          }}
+                        >
+                          YOUR ACCOUNT
+                        </h4>
+                        <div className="flex flex-col gap-2" style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '13px', fontWeight: 500 }}>
+                          {[
+                            { label: 'NAME', value: dbUser?.name || user.displayName || 'User' },
+                            ...((dbUser?.email || user.email) ? [{ label: 'EMAIL', value: dbUser?.email || user.email }] : []),
+                            ...((dbUser?.phone || user.phoneNumber) ? [{ label: 'PHONE', value: dbUser?.phone || user.phoneNumber }] : []),
+                            ...(dbUser?.college ? [{ label: 'COLLEGE', value: dbUser.college }] : []),
+                          ].map(({ label, value }) => (
+                            <div key={label}>
+                              <div style={{ fontSize: '9px', letterSpacing: '0.12em', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', marginBottom: '2px' }}>{label}</div>
+                              <div style={{ color: 'var(--color-text-primary)' }}>{value}</div>
+                            </div>
+                          ))}
+                        </div>
+                        <button
+                          onClick={() => { setShowUserCard(false); playSynthSound('laser'); logout(); }}
+                          className="comic-btn w-full"
+                          style={{ fontSize: '16px', padding: '8px 16px', marginTop: '4px' }}
+                        >
+                          <LogOut size={13} className="mr-1 inline" /> LOG OUT //
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <Link
+                  to="/login"
+                  onClick={() => playSynthSound('laser')}
+                  className="comic-btn"
+                  style={{ fontSize: '15px', padding: '6px 14px', textDecoration: 'none' }}
+                >
+                  <LogIn size={13} className="mr-1 inline" /> SIGN IN
+                </Link>
+              )
+            )}
+          </div>
+        </div>
+      </nav>
+
+      {/* Mobile Drawer Navigation Sidebar (slides in from left) */}
+      <div
+        className={`fixed inset-0 z-45 bg-black/50 backdrop-blur-sm transition-opacity duration-300 md:hidden ${
+          isSidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={() => setIsSidebarOpen(false)}
+      />
+
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 w-[280px] bg-bg-card border-r-4 border-primary p-8 flex flex-col gap-8 transition-transform duration-300 ease-in-out md:hidden`}
+        style={{
+          background: 'var(--panel-bg)',
+          borderColor: 'var(--border-color)',
+          transform: isSidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
+        }}
+      >
+        <div className="flex justify-between items-center border-b border-border-default pb-4">
+          <span style={{ fontFamily: 'Bangers, cursive', fontSize: '24px', letterSpacing: '0.05em', color: 'var(--color-text-primary)' }}>
+            NAVIGATION
+          </span>
+          <button
+            onClick={() => setIsSidebarOpen(false)}
+            className="text-text-secondary hover:text-primary transition-colors p-1"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-6 align-left text-left">
+          {navLink('/', 'Home', () => setIsSidebarOpen(false))}
+          {navLink('/events', 'Events', () => setIsSidebarOpen(false))}
+          {navLink('/schedule', 'Schedule', () => setIsSidebarOpen(false))}
+          {navLink('/winners', 'Winners', () => setIsSidebarOpen(false))}
+          {navLink('/events', 'Register', () => setIsSidebarOpen(false))}
+          {user && hasRegistrations && navLink('/my-registrations', 'My Passes', () => setIsSidebarOpen(false))}
+        </div>
+      </aside>
+    </>
   );
 }

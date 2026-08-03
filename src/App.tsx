@@ -5,6 +5,7 @@ import { Footer } from './components/Footer';
 import { RequireAuth } from './components/RequireAuth';
 import { RequireAdmin } from './components/RequireAdmin';
 import { LandingPage } from './pages/LandingPage';
+import { EventsPage } from './pages/EventsPage';
 import { SchedulePage } from './pages/SchedulePage';
 import { LoginPage } from './pages/LoginPage';
 import { RegistrationsPage } from './pages/RegistrationsPage';
@@ -67,6 +68,7 @@ export default function App() {
         {/* Public routes */}
         <Route path="/" element={<PublicLayout />}>
           <Route index element={<LandingPage />} />
+          <Route path="events" element={<EventsPage />} />
           <Route path="schedule" element={<SchedulePage />} />
           <Route path="winners" element={<WinnersPage />} />
           <Route path="login" element={<LoginPage />} />
@@ -78,7 +80,7 @@ export default function App() {
           {/* Participant routes — require login */}
           <Route element={<RequireAuth />}>
             <Route path="my-registrations" element={<RegistrationsPage />} />
-            <Route path="events" element={<EventDetailPage />} />
+            <Route path="event-dashboard" element={<EventDetailPage />} />
             <Route path="register/:eventId" element={<RegisterPage />} />
           </Route>
 

@@ -61,7 +61,7 @@ export function RegisterPage() {
             if (existing) {
               // Already registered — go straight to their pass
               sessionStorage.setItem('spectrum26_active_registration_id', existing);
-              navigate('/events', { replace: true });
+              navigate('/event-dashboard', { replace: true });
               return;
             }
           }
@@ -191,14 +191,14 @@ export function RegisterPage() {
 
       // Redirect directly to the Event Detail/Pass page
       sessionStorage.setItem('spectrum26_active_registration_id', newReg.id);
-      navigate('/events', { replace: true });
+      navigate('/event-dashboard', { replace: true });
     } catch (err: unknown) {
       console.error('[RegisterPage] Submit registration error:', err);
       const msg = (err as Error).message || '';
       if (msg.startsWith('ALREADY_REGISTERED:')) {
         const existingId = msg.replace('ALREADY_REGISTERED:', '');
         sessionStorage.setItem('spectrum26_active_registration_id', existingId);
-        navigate('/events', { replace: true });
+        navigate('/event-dashboard', { replace: true });
         return;
       }
       setError(msg || 'Failed to complete registration. Please try again.');
