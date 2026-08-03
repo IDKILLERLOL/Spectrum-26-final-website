@@ -249,7 +249,7 @@ export function EventsPage() {
                         </div>
                         <div className="p-3 border border-border-default">
                           <span className="font-micro text-[10px] text-text-muted uppercase">Team Size</span>
-                          <p className="font-heading text-heading text-primary uppercase mt-1">{e.maxMembers === 1 ? '1 Player' : `${e.minMembers}-${e.maxMembers} Players`}</p>
+                          <p className="font-heading text-heading text-primary uppercase mt-1">{e.minMembers === e.maxMembers ? `Only ${e.minMembers} Player${e.minMembers > 1 ? 's' : ''} Allowed` : `${e.minMembers}–${e.maxMembers} Players`}</p>
                         </div>
                         <div className="p-3 border border-border-default">
                           <span className="font-micro text-[10px] text-text-muted uppercase">Entry Fee</span>
@@ -537,7 +537,7 @@ export function EventsPage() {
                         </div>
                         <div className="p-3 border border-border-default">
                           <span className="font-micro text-[10px] text-text-muted uppercase">Team Size</span>
-                          <p className="font-heading text-heading text-primary uppercase mt-1">{e.maxMembers === 1 ? '1 Player' : `${e.minMembers}-${e.maxMembers} Players`}</p>
+                          <p className="font-heading text-heading text-primary uppercase mt-1">{e.minMembers === e.maxMembers ? `Only ${e.minMembers} Player${e.minMembers > 1 ? 's' : ''} Allowed` : `${e.minMembers}–${e.maxMembers} Players`}</p>
                         </div>
                         <div className="p-3 border border-border-default">
                           <span className="font-micro text-[10px] text-text-muted uppercase">Entry Fee</span>

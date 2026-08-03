@@ -152,7 +152,9 @@ export function PublicEventDetailPage() {
           <div>
             <span style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--color-text-muted)', fontWeight: 700 }}>Team Size</span>
             <div style={{ fontSize: '18px', color: 'var(--color-text-primary)', fontWeight: 700, marginTop: '4px' }}>
-              {event.maxMembers === 1 ? '1 Player' : `${event.minMembers} - ${event.maxMembers} Players`}
+              {event.minMembers === event.maxMembers
+                ? `Only ${event.minMembers} Player${event.minMembers > 1 ? 's' : ''} Allowed`
+                : `${event.minMembers} – ${event.maxMembers} Players`}
             </div>
           </div>
 

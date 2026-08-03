@@ -1346,7 +1346,7 @@ function snapToScheduleSlot(snap: DocumentSnapshot | QueryDocumentSnapshot): Sch
 const FALLBACK_SCHEDULE = [
   {
     day: "Day 01",
-    date: "Monday, Sep 28",
+    date: "Tuesday, Sep 30",
     sortTime: "09:00",
     displayTime: "9:00 AM - 10:00 AM",
     location: "Main Auditorium",
@@ -1356,27 +1356,27 @@ const FALLBACK_SCHEDULE = [
   },
   {
     day: "Day 01",
-    date: "Monday, Sep 28",
+    date: "Tuesday, Sep 30",
     sortTime: "10:00",
     displayTime: "10:00 AM - 1:00 PM",
-    location: "Lab 1, CSE Block",
-    title: "Reverse Engineering",
+    location: "CSE Lab Block",
+    title: "Dual Debug",
     type: "TECH",
     sortOrder: 1
   },
   {
     day: "Day 01",
-    date: "Monday, Sep 28",
+    date: "Tuesday, Sep 30",
     sortTime: "10:30",
     displayTime: "10:30 AM - 1:30 PM",
     location: "Seminar Hall",
-    title: "BGMI Match",
+    title: "BGMI",
     type: "NON_TECH",
     sortOrder: 2
   },
   {
     day: "Day 01",
-    date: "Monday, Sep 28",
+    date: "Tuesday, Sep 30",
     sortTime: "13:00",
     displayTime: "1:00 PM - 2:00 PM",
     location: "Cafeteria",
@@ -1386,53 +1386,33 @@ const FALLBACK_SCHEDULE = [
   },
   {
     day: "Day 01",
-    date: "Monday, Sep 28",
+    date: "Tuesday, Sep 30",
     sortTime: "14:00",
     displayTime: "2:00 PM - 5:00 PM",
-    location: "Lab 3, CSE Block",
-    title: "Speed Typing",
+    location: "CSE Lab Block",
+    title: "Singularity Strike",
     type: "TECH",
     sortOrder: 4
   },
   {
-    day: "Day 02",
-    date: "Tuesday, Sep 29",
-    sortTime: "09:30",
-    displayTime: "9:30 AM - 12:30 PM",
-    location: "Lab 2, CSE Block",
-    title: "Code Prism",
-    type: "TECH",
-    sortOrder: 0
-  },
-  {
-    day: "Day 02",
-    date: "Tuesday, Sep 29",
-    sortTime: "10:00",
-    displayTime: "10:00 AM - 1:00 PM",
-    location: "Gaming Lounge",
-    title: "FC 26 Tournament",
-    type: "NON_TECH",
-    sortOrder: 1
-  },
-  {
-    day: "Day 02",
-    date: "Tuesday, Sep 29",
-    sortTime: "13:00",
-    displayTime: "1:00 PM - 2:00 PM",
-    location: "Cafeteria",
-    title: "Lunch Break",
-    type: "BREAK",
-    sortOrder: 2
-  },
-  {
-    day: "Day 02",
-    date: "Tuesday, Sep 29",
+    day: "Day 01",
+    date: "Tuesday, Sep 30",
     sortTime: "14:30",
-    displayTime: "2:30 PM - 4:30 PM",
+    displayTime: "2:30 PM - 5:30 PM",
+    location: "Gaming Lounge",
+    title: "FIFA",
+    type: "NON_TECH",
+    sortOrder: 5
+  },
+  {
+    day: "Day 01",
+    date: "Tuesday, Sep 30",
+    sortTime: "17:30",
+    displayTime: "5:30 PM - 6:30 PM",
     location: "Main Auditorium",
     title: "Closing & Prize Distribution",
     type: "GENERAL",
-    sortOrder: 3
+    sortOrder: 6
   }
 ];
 
