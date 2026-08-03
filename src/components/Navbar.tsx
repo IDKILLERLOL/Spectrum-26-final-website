@@ -131,8 +131,7 @@ export function Navbar() {
             <img
               src="/Logo.jpeg"
               alt="SPECTRUM 26"
-              className="h-10 md:h-12 object-contain"
-              style={{ border: '2px solid var(--border-color)', borderRadius: '4px' }}
+              style={{ maxHeight: '56px', width: 'auto', display: 'block' }}
             />
           </Link>
         </div>
