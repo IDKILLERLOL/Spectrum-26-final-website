@@ -7,40 +7,15 @@ import { categoryLabel, canRegister, isEventFull } from '../types';
 import { playSynthSound } from '../lib/audio';
 
 const TECH_ROUND_DETAILS: Record<string, string[]> = {
-  'Codopoly': [
-    "Overview: A 2v2v2v2 multiplayer board game featuring 4 teams of 2 players.",
-    "Board Layout: Mirrors standard Monopoly but properties are replaced by core CS and Tech topics (DSA, Computer Networks, OS, DBMS).",
-    "Mechanics: Landing on a topic tile requires answering a question from that category to claim/own the property tile.",
-    "Property Tax: Landing on an opponent's owned tile incurs a question tax or score point penalty.",
-    "Chance/Chest: Special action cards award buffs (steals, skips, extra turns) or debuffs (fines, missed turns).",
-    "Win Condition: Highest cumulative points or most property tiles owned when time expires."
+  'Dual Debug': [
+    "Sub-Event 1: Codopoly — A 2v2v2v2 board game where topic tiles (DSA, Networks, OS, DBMS) are claimed by answering questions correctly, charging question taxes/penalties to opponents.",
+    "Sub-Event 2: Swap Challenge — Duos solve 3 coding problems in Round 1, strategize in a 5-min break, then swap places to solve their teammate's remaining unsolved challenges in Round 2.",
+    "Sub-Event 3: Snakes & Ladders — Dodge snakes and climb ladders by opting into solving hard and extra-hard tech challenges on a shared digital board."
   ],
-  'Swap Challenge': [
-    "Round 1 (30 Mins): Each duo is assigned 3 coding challenges (1 Easy, 1 Medium, 1 Hard) and solves as many as possible concurrently.",
-    "Collaboration Break (5 Mins): A short strategy window to review approaches and explain progress to each other.",
-    "Round 2 (30 Mins): Swapping places. Members must attempt to solve the remaining unsolved coding challenges left by their partner.",
-    "Scoring: Based on solved problem count and submission timestamps."
-  ],
-  'Snakes & Ladders': [
-    "Board Layout: Standard 100-tile board played on a shared screen.",
-    "Snakes: Landing on a snake triggers a Hard question. Correct answers bypass the slide; incorrect answers slide you down.",
-    "Ladders: Landing on a ladder triggers a very Hard question. Correct answers let you climb; incorrect answers leave you at the bottom.",
-    "Win Condition: First team to reach tile 100 wins."
-  ],
-  'MCQ — Kahoot Eliminator': [
-    "Format: Rapid-fire Kahoot-style MCQ session.",
-    "Time Factor: Points decrease as the countdown timer ticks down; speed and accuracy are both critical.",
-    "Eliminations: Bottom scorers are eliminated each round, leading to a final solo face-off."
-  ],
-  'Bingo': [
-    "Matchup: 4-5 players per board playing on a shared computer science topic grid.",
-    "Turns: Players take turns picking topic cells. Answering correctly marks the cell. Wrong answers remove the tile from play.",
-    "Win Condition: First player to complete a straight line (horizontal, vertical, or diagonal) of marked cells calls BINGO and wins."
-  ],
-  'Buzzer Round': [
-    "Format: Speed buzzing round featuring 31 questions of varying difficulty.",
-    "Buzzers: Fastest finger gets the chance to answer.",
-    "Penalties: Wrong answers deduct points. Choose wisely to avoid penalties."
+  'Singularity Strike': [
+    "Sub-Event 1: MCQ Round — Rapid-fire multiple-choice tournament where speed and accuracy determine scoring as timers tick down.",
+    "Sub-Event 2: Bingo — 4-5 players play on a shared CS topic grid, claiming cells and winning points, aiming to complete a line first.",
+    "Sub-Event 3: Buzzer Round — Solo battle featuring 31 questions of escalating difficulty using a fastest-finger-buzzer system with wrong answer penalties."
   ]
 };
 
