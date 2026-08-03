@@ -207,6 +207,7 @@ export function EventsPage() {
               <motion.article
                 key={e.id}
                 layout
+                layoutId={`card-${e.id}`}
                 className={`comic-border-thick comic-shadow p-6 flex flex-col gap-4 relative overflow-hidden transition-colors ${
                   isExpanded ? 'lg:col-span-2' : ''
                 }`}
@@ -494,6 +495,7 @@ export function EventsPage() {
               <motion.article
                 key={e.id}
                 layout
+                layoutId={`card-${e.id}`}
                 className={`comic-border-thick comic-shadow p-6 flex flex-col gap-4 relative overflow-hidden transition-colors ${
                   isExpanded ? 'lg:col-span-2' : ''
                 }`}

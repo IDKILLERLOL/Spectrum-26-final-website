@@ -69,7 +69,7 @@ export function PublicEventDetailPage() {
     <main className="relative z-10 w-full min-h-screen py-12 px-6 max-w-3xl mx-auto flex flex-col gap-10">
       {/* Back button */}
       <Link
-        to="/"
+        to="/events"
         onClick={() => playSynthSound('click')}
         className="inline-flex items-center gap-2 text-primary hover:opacity-75 transition-opacity font-heading text-heading uppercase w-fit"
         style={{ textDecoration: 'none' }}
@@ -79,6 +79,7 @@ export function PublicEventDetailPage() {
 
       {/* Main card */}
       <motion.article
+        layoutId={`card-${event.id}`}
         initial={{ opacity: 0, scale: 0.85, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
