@@ -1,13 +1,15 @@
-import { Link } from "react-router-dom";
-import { useState, useEffect, Fragment } from "react";
+import React, { useState, useEffect, Fragment } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "motion/react";
 import { EVENT_DATE } from "../config";
-import { getEvents, db } from "../lib/firestore";
+import { getEvents, db, createRegistration, updateUser } from "../lib/firestore";
 import { getDocs, collection, query, where } from "firebase/firestore";
 import type { Event } from "../types";
 import { canRegister, categoryLabel, isEventFull, FALLBACK_EVENTS } from "../types";
 import { SpeedLines } from "../components/SpeedLines";
 import { playSynthSound } from "../lib/audio";
+import { useAuth } from "../lib/useAuth";
+import { Loader2, X, ArrowRight } from "lucide-react";
 
 export function LandingPage() {
   return (
@@ -246,9 +248,12 @@ function EventCardSkeleton() {
 }
 
 function Events() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [events, setEvents] = useState<Event[]>(FALLBACK_EVENTS);
   const [loading, setLoading] = useState(false);
   const [participantCounts, setParticipantCounts] = useState<Record<string, number>>({});
+  const [registeringEvent, setRegisteringEvent] = useState<Event | null>(null);
 
   useEffect(() => {
     setLoading(true);
@@ -271,6 +276,119 @@ function Events() {
       })
       .catch(console.error);
   }, []);
+
+  const handleRegisterClick = (event: Event) => {
+    if (!user) {
+      navigate(`/login?redirect=register&eventId=${event.id}`);
+    } else {
+      setRegisteringEvent(event);
+    }
+  };
+
+  const [regName, setRegName] = useState(user?.displayName || '');
+  const [regEmail, setRegEmail] = useState(user?.email || '');
+  const [regPhone, setRegPhone] = useState('');
+  const [regCollege, setRegCollege] = useState('');
+  const [regTeamName, setRegTeamName] = useState('');
+  const [regMembers, setRegMembers] = useState<{ name: string; email: string; phone: string; college: string; }[]>([]);
+  const [regError, setRegError] = useState<string | null>(null);
+  const [regSubmitting, setRegSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (registeringEvent) {
+      setRegName(user?.displayName || '');
+      setRegEmail(user?.email || '');
+      setRegPhone('');
+      setRegCollege('');
+      setRegTeamName('');
+      setRegError(null);
+      const count = (registeringEvent.minMembers || 1) - 1;
+      const initialMembers = Array.from({ length: count > 0 ? count : 0 }, () => ({
+        name: '',
+        email: '',
+        phone: '',
+        college: '',
+      }));
+      setRegMembers(initialMembers);
+    }
+  }, [registeringEvent, user]);
+
+  const handleAddMember = () => {
+    if (!registeringEvent) return;
+    if (regMembers.length + 1 >= registeringEvent.maxMembers) return;
+    setRegMembers(prev => [...prev, { name: '', email: '', phone: '', college: '' }]);
+  };
+
+  const handleRemoveMember = (idx: number) => {
+    setRegMembers(prev => prev.filter((_, i) => i !== idx));
+  };
+
+  const handleMemberChange = (idx: number, field: string, val: string) => {
+    setRegMembers(prev => {
+      const copy = [...prev];
+      copy[idx] = { ...copy[idx], [field]: val };
+      return copy;
+    });
+  };
+
+  const handleRegSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!registeringEvent || !user) return;
+    setRegSubmitting(true);
+    setRegError(null);
+    try {
+      if (!regName.trim() || !regEmail.trim()) {
+        setRegError('Name and Email are required.');
+        setRegSubmitting(false);
+        return;
+      }
+      if (registeringEvent.isTeamEvent) {
+        if (!regTeamName.trim()) {
+          setRegError('Team Name is required.');
+          setRegSubmitting(false);
+          return;
+        }
+        for (let i = 0; i < regMembers.length; i++) {
+          const m = regMembers[i];
+          if (!m.name.trim() || !m.email.trim()) {
+            setRegError(`Please fill in Name and Email for Member #${i + 1}.`);
+            setRegSubmitting(false);
+            return;
+          }
+        }
+      }
+
+      await updateUser(user.uid, {
+        name: regName.trim(),
+        phone: regPhone.trim(),
+        email: regEmail.trim(),
+        college: regCollege.trim(),
+      });
+
+      const newReg = await createRegistration(
+        registeringEvent.id,
+        {
+          uid: user.uid,
+          name: regName.trim(),
+          email: regEmail.trim(),
+          phone: regPhone.trim(),
+          college: regCollege.trim(),
+        },
+        user.email || regEmail.trim(),
+        registeringEvent.isTeamEvent ? regMembers : [],
+        registeringEvent.isTeamEvent ? regTeamName.trim() : undefined
+      );
+
+      sessionStorage.setItem('spectrum26_active_registration_id', newReg.id);
+      setRegisteringEvent(null);
+      navigate(`/event/${registeringEvent.id}`);
+    } catch (err: any) {
+      console.error(err);
+      setRegError(err.message || 'Registration failed');
+    } finally {
+      setRegSubmitting(false);
+    }
+  };
 
   const techEvents = events.filter((e) => e.category === 'TECH');
   const nonTechEvents = events.filter((e) => e.category === 'NON_TECH');
@@ -299,7 +417,7 @@ function Events() {
           {loading
             ? Array.from({ length: 3 }).map((_, i) => <EventCardSkeleton key={i} />)
             : techEvents.length > 0
-              ? techEvents.map((e) => <EventCard key={e.id} event={e} participantCount={participantCounts[e.id] ?? 0} />)
+              ? techEvents.map((e) => <EventCard key={e.id} event={e} participantCount={participantCounts[e.id] ?? 0} onRegister={handleRegisterClick} />)
               : <p style={{ fontFamily: 'Space Grotesk', color: 'var(--color-text-muted)', gridColumn: 'span 3' }}>Tech events coming soon.</p>
           }
         </div>
@@ -326,7 +444,7 @@ function Events() {
           {loading
             ? Array.from({ length: 3 }).map((_, i) => <EventCardSkeleton key={i} />)
             : nonTechEvents.length > 0
-              ? nonTechEvents.map((e) => <EventCard key={e.id} event={e} participantCount={participantCounts[e.id] ?? 0} />)
+              ? nonTechEvents.map((e) => <EventCard key={e.id} event={e} participantCount={participantCounts[e.id] ?? 0} onRegister={handleRegisterClick} />)
               : <p style={{ fontFamily: 'Space Grotesk', color: 'var(--color-text-muted)', gridColumn: 'span 3' }}>Non-tech events coming soon.</p>
           }
         </div>
@@ -416,11 +534,196 @@ function Events() {
         </div>
       </section>
 
+      {/* ── Morphing Registration Form Overlay ── */}
+      <AnimatePresence>
+        {registeringEvent && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
+            <motion.div
+              layoutId={registeringEvent.id}
+              className="w-full max-w-2xl bg-bg-card border-4 border-primary comic-shadow p-6 md:p-8 flex flex-col gap-6 relative"
+              style={{ background: 'var(--panel-bg)', maxHeight: '90vh', overflowY: 'auto' }}
+            >
+              <button
+                type="button"
+                onClick={() => setRegisteringEvent(null)}
+                className="absolute top-4 right-4 text-text-muted hover:text-primary transition-colors p-1 border-2 border-transparent hover:border-primary"
+              >
+                <X size={20} />
+              </button>
+
+              <div className="border-b-4 border-primary pb-3">
+                <span className="font-micro text-micro text-text-muted uppercase tracking-widest">
+                  REGISTERING FOR EVENT
+                </span>
+                <h2 className="font-hero text-[36px] uppercase tracking-wide text-primary leading-tight">
+                  {registeringEvent.name}
+                </h2>
+              </div>
+
+              {regError && (
+                <div className="p-3 border border-dashed border-primary text-red-500 font-body text-small">
+                  {regError}
+                </div>
+              )}
+
+              <form onSubmit={handleRegSubmit} className="flex flex-col gap-6">
+                {registeringEvent.isTeamEvent && (
+                  <div className="flex flex-col gap-2">
+                    <label className="font-micro text-micro text-text-muted uppercase tracking-widest text-left">Team Name *</label>
+                    <input
+                      type="text"
+                      required
+                      value={regTeamName}
+                      onChange={(e) => setRegTeamName(e.target.value)}
+                      placeholder="Enter a kickass team name"
+                      className="bg-transparent border-b-2 border-border-strong text-primary font-heading text-heading py-2 focus:outline-none focus:border-primary transition-all text-left"
+                    />
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+                  <div className="flex flex-col gap-2">
+                    <label className="font-micro text-micro text-text-muted uppercase tracking-widest">Leader Name *</label>
+                    <input
+                      type="text"
+                      required
+                      value={regName}
+                      onChange={(e) => setRegName(e.target.value)}
+                      className="bg-transparent border-b-2 border-border-strong text-primary font-heading text-heading py-2 focus:outline-none focus:border-primary transition-all"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="font-micro text-micro text-text-muted uppercase tracking-widest">Leader Email *</label>
+                    <input
+                      type="email"
+                      required
+                      value={regEmail}
+                      onChange={(e) => setRegEmail(e.target.value)}
+                      className="bg-transparent border-b-2 border-border-strong text-primary font-heading text-heading py-2 focus:outline-none focus:border-primary transition-all"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="font-micro text-micro text-text-muted uppercase tracking-widest">Leader Phone</label>
+                    <input
+                      type="tel"
+                      value={regPhone}
+                      onChange={(e) => setRegPhone(e.target.value)}
+                      className="bg-transparent border-b-2 border-border-strong text-primary font-heading text-heading py-2 focus:outline-none focus:border-primary transition-all"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="font-micro text-micro text-text-muted uppercase tracking-widest">College Name *</label>
+                    <input
+                      type="text"
+                      required
+                      value={regCollege}
+                      onChange={(e) => setRegCollege(e.target.value)}
+                      className="bg-transparent border-b-2 border-border-strong text-primary font-heading text-heading py-2 focus:outline-none focus:border-primary transition-all"
+                    />
+                  </div>
+                </div>
+
+                {registeringEvent.isTeamEvent && (
+                  <div className="flex flex-col gap-6 mt-4 text-left">
+                    <div className="flex justify-between items-center border-b border-border-default pb-2">
+                      <h4 className="font-heading text-heading text-primary uppercase">Team Members ({regMembers.length + 1})</h4>
+                      {regMembers.length + 1 < registeringEvent.maxMembers && (
+                        <button
+                          type="button"
+                          onClick={handleAddMember}
+                          className="text-xs uppercase font-bold border border-primary px-3 py-1 hover:bg-primary hover:text-bg-base transition-colors"
+                        >
+                          + Add Member
+                        </button>
+                      )}
+                    </div>
+                    {regMembers.map((m, idx) => (
+                      <div key={idx} className="border border-border-default p-4 flex flex-col gap-4 relative">
+                        <div className="flex justify-between items-center">
+                          <span className="font-micro text-micro text-primary uppercase tracking-widest">Member #{idx + 2}</span>
+                          {regMembers.length + 1 > registeringEvent.minMembers && (
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveMember(idx)}
+                              className="text-xs text-red-500 uppercase hover:underline"
+                            >
+                              Remove
+                            </button>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <input
+                            type="text"
+                            required
+                            placeholder="Name *"
+                            value={m.name}
+                            onChange={(e) => handleMemberChange(idx, 'name', e.target.value)}
+                            className="bg-transparent border-b border-border-strong text-primary font-body text-body py-1.5 focus:outline-none focus:border-primary"
+                          />
+                          <input
+                            type="email"
+                            required
+                            placeholder="Email *"
+                            value={m.email}
+                            onChange={(e) => handleMemberChange(idx, 'email', e.target.value)}
+                            className="bg-transparent border-b border-border-strong text-primary font-body text-body py-1.5 focus:outline-none focus:border-primary"
+                          />
+                          <input
+                            type="tel"
+                            placeholder="Phone (optional)"
+                            value={m.phone}
+                            onChange={(e) => handleMemberChange(idx, 'phone', e.target.value)}
+                            className="bg-transparent border-b border-border-strong text-primary font-body text-body py-1.5 focus:outline-none focus:border-primary"
+                          />
+                          <input
+                            type="text"
+                            required
+                            placeholder="College Name *"
+                            value={m.college}
+                            onChange={(e) => handleMemberChange(idx, 'college', e.target.value)}
+                            className="bg-transparent border-b border-border-strong text-primary font-body text-body py-1.5 focus:outline-none focus:border-primary"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={regSubmitting}
+                  className="w-full flex items-center justify-center gap-3 py-4 mt-4 font-button text-button uppercase tracking-wide transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
+                  style={{
+                    background: 'var(--color-text-primary)',
+                    color: 'var(--color-bg-base)',
+                    borderRadius: '6px',
+                  }}
+                >
+                  {regSubmitting ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : (
+                    <>
+                      Confirm Registration <ArrowRight size={14} />
+                    </>
+                  )}
+                </button>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </main>
   );
 }
 
-function EventCard({ event, participantCount }: { event: Event; participantCount: number }) {
+interface EventCardProps {
+  event: Event;
+  participantCount: number;
+  onRegister: (e: Event) => void;
+  key?: any;
+}
+
+function EventCard({ event, participantCount, onRegister }: EventCardProps) {
   const full = isEventFull(event);
   const open = canRegister(event);
   const badge = EVENT_BADGE[event.name] ?? categoryLabel(event.category);
@@ -531,14 +834,16 @@ function EventCard({ event, participantCount }: { event: Event; participantCount
           DETAILS
         </Link>
         {open ? (
-          <Link
-            to={`/login?redirect=register&eventId=${event.id}`}
-            onClick={() => playSynthSound('laser')}
+          <button
+            onClick={() => {
+              playSynthSound('laser');
+              onRegister(event);
+            }}
             className="comic-btn flex-1 text-center"
-            style={{ fontSize: '16px', padding: '10px 12px', textDecoration: 'none' }}
+            style={{ fontSize: '16px', padding: '10px 12px' }}
           >
             REGISTER
-          </Link>
+          </button>
         ) : (
           <div
             className="comic-btn-outline flex-1 text-center"
