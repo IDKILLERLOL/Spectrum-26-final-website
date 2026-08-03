@@ -69,7 +69,7 @@ function Hero() {
         <Link
           to="/events"
           onClick={() => playSynthSound('laser')}
-          className="comic-btn"
+          className="comic-btn-outline"
           style={{ fontSize: '20px', padding: '12px 28px', textDecoration: 'none' }}
         >
           REGISTER NOW
