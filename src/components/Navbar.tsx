@@ -232,13 +232,12 @@ export function Navbar() {
                 <Link
                   to="/login"
                   onClick={() => playSynthSound('laser')}
-                  className="comic-shadow-sm text-[11px] sm:text-[18px]"
+                  className="comic-shadow-sm text-[11px] sm:text-[18px] hidden md:flex"
                   style={{
                     background: 'var(--panel-bg)',
                     color: 'var(--color-text-primary)',
                     fontFamily: 'Bangers, cursive',
                     padding: '6px 16px',
-                    display: 'flex',
                     alignItems: 'center',
                     gap: '8px',
                     letterSpacing: '0.04em',
@@ -311,6 +310,46 @@ export function Navbar() {
           {navLink('/schedule', 'Schedule', () => setIsSidebarOpen(false))}
           {navLink('/winners', 'Winners', () => setIsSidebarOpen(false))}
           {user && hasRegistrations && navLink('/my-registrations', 'My Passes', () => setIsSidebarOpen(false))}
+        </div>
+
+        {/* Sidebar bottom CTAs */}
+        <div className="mt-auto flex flex-col gap-3 pt-4 border-t-2" style={{ borderColor: 'var(--border-color)' }}>
+          {!loading && !user && (
+            <Link
+              to="/login"
+              onClick={() => { setIsSidebarOpen(false); playSynthSound('laser'); }}
+              className="comic-shadow-sm flex items-center justify-center gap-2"
+              style={{
+                background: 'var(--panel-bg)',
+                color: 'var(--color-text-primary)',
+                fontFamily: 'Bangers, cursive',
+                fontSize: '18px',
+                padding: '8px 16px',
+                letterSpacing: '0.04em',
+                textDecoration: 'none',
+                border: '2px solid var(--border-color)',
+              }}
+            >
+              <LogIn size={14} /> SIGN IN
+            </Link>
+          )}
+          <Link
+            to="/events"
+            onClick={() => { setIsSidebarOpen(false); playSynthSound('laser'); }}
+            className="comic-shadow-sm flex items-center justify-center gap-2"
+            style={{
+              background: 'var(--color-text-primary)',
+              color: 'var(--color-bg-base)',
+              fontFamily: 'Bangers, cursive',
+              fontSize: '18px',
+              padding: '8px 16px',
+              letterSpacing: '0.04em',
+              textDecoration: 'none',
+              border: '2px solid var(--color-bg-base)',
+            }}
+          >
+            REGISTER
+          </Link>
         </div>
       </aside>
     </>
