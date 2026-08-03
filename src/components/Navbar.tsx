@@ -129,7 +129,7 @@ export function Navbar() {
             style={{ display: 'inline-flex', items: 'center', textDecoration: 'none' }}
           >
             <img
-              src="/Logo.jpeg"
+              src={theme === 'dark' ? '/LogoD.jpeg' : '/LogoL.jpeg'}
               alt="SPECTRUM 26"
               style={{ maxHeight: '56px', width: 'auto', aspectRatio: '2/1', objectFit: 'contain', display: 'block' }}
             />
