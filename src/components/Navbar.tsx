@@ -131,7 +131,7 @@ export function Navbar() {
             <img
               src="/Logo.jpeg"
               alt="SPECTRUM 26"
-              style={{ maxHeight: '56px', width: 'auto', display: 'block' }}
+              style={{ maxHeight: '56px', width: 'auto', aspectRatio: '2/1', objectFit: 'contain', display: 'block' }}
             />
           </Link>
         </div>
