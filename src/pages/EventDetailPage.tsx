@@ -9,7 +9,7 @@ import {
   getRegistration, getEvent, getActiveTeamMembers,
   addTeamMember, updateTeamMember, removeTeamMember, transferLeadership,
   updateFeeStatus, submitUpiRef, createRegistration, getMyRegistrations, getUser,
-  hasExistingRegistration, updateTeamName, getEvents,
+  hasExistingRegistration, updateTeamName, getEvents, getPaymentDetails,
 } from '../lib/firestore';
 import {
   notifyTeamEdited, notifyMemberAdded, notifyMemberRemoved,
@@ -45,6 +45,7 @@ export function EventDetailPage() {
   const [saving, setSaving] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [payDetails, setPayDetails] = useState({ upiId: UPI_ID, qrCodeUrl: '' });
 
   // Input states declared at top to follow Rules of Hooks
   const [upiRef, setUpiRef] = useState('');
@@ -81,19 +82,25 @@ export function EventDetailPage() {
     const reg = await getRegistration(registrationId);
     if (reg) {
       setRegistration(reg);
-      const [mems, ev] = await Promise.all([
+      const [mems, ev, pay] = await Promise.all([
         getActiveTeamMembers(reg.id),
         getEvent(reg.eventId),
+        getPaymentDetails(),
       ]);
       setMembers(mems);
       setEvent(ev);
+      setPayDetails(pay);
       return;
     }
 
     // If it's not a Registration ID, check if it's an Event ID
-    const ev = await getEvent(registrationId);
+    const [ev, pay] = await Promise.all([
+      getEvent(registrationId),
+      getPaymentDetails(),
+    ]);
     if (ev) {
       setEvent(ev);
+      setPayDetails(pay);
       setRegistration(null);
       setMembers([]);
       return;
@@ -215,7 +222,7 @@ export function EventDetailPage() {
 
   // ─── Copy UPI ID ────────────────────────────────────────────────────────────
   const handleCopyUpi = () => {
-    navigator.clipboard.writeText(UPI_ID);
+    navigator.clipboard.writeText(payDetails.upiId);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -516,44 +523,11 @@ export function EventDetailPage() {
                   <div className="flex justify-between items-center">
                     <div className="flex flex-col gap-1">
                       <span className="font-micro text-micro text-text-muted uppercase tracking-widest">Team Name</span>
-                      {inlineState.type === 'edit-team-name' ? (
-                        <div className="flex flex-wrap items-center gap-3 mt-1">
-                          <input
-                            type="text"
-                            value={editTeamName}
-                            onChange={(e) => setEditTeamName(e.target.value)}
-                            className="bg-transparent border-b border-border-strong text-primary font-heading text-heading focus:outline-none focus:border-primary transition-all py-1 placeholder:text-text-muted/40"
-                            placeholder="Enter Team Name"
-                            autoFocus
-                          />
-                          <button
-                            onClick={handleSaveTeamName}
-                            disabled={saving}
-                            className="px-4 py-1.5 bg-primary text-bg-base font-button text-small uppercase hover:opacity-90 disabled:opacity-50 flex items-center gap-1"
-                          >
-                            {saving && <Loader2 size={12} className="animate-spin" />} Save
-                          </button>
-                          <button onClick={closeState} className="px-3 py-1.5 border border-border-default text-text-secondary font-button text-small uppercase hover:opacity-75">Cancel</button>
-                        </div>
-                      ) : (
-                        <h3 className="font-heading text-card-title text-primary uppercase mt-1">
-                          {registration.teamName || '(No Team Name set)'}
-                        </h3>
-                      )}
+                      <h3 className="font-heading text-card-title text-primary uppercase mt-1">
+                        {registration.teamName || '(No Team Name set)'}
+                      </h3>
                     </div>
-                    {isLeader && inlineState.type !== 'edit-team-name' && (
-                      <button
-                        onClick={() => {
-                          setEditTeamName(registration.teamName || '');
-                          setInlineState({ type: 'edit-team-name' });
-                        }}
-                        className="flex items-center gap-1 font-button text-micro text-primary border border-primary px-3 py-1.5 hover:bg-primary hover:text-bg-base transition-colors uppercase tracking-wide"
-                      >
-                        <Pencil size={12} /> Edit Name
-                      </button>
-                    )}
                   </div>
-                  {error && inlineState.type === 'edit-team-name' && <p className="font-body text-small text-text-secondary mt-1">{error}</p>}
                 </div>
               )}
 
@@ -561,14 +535,6 @@ export function EventDetailPage() {
                 <h2 className="font-heading text-card-title text-primary uppercase tracking-wide">
                   {event.isTeamEvent ? 'Team Roster' : 'Registration Details'}
                 </h2>
-                {isLeader && members.length < event.maxMembers && (
-                  <button
-                    onClick={() => openState({ type: 'add-member' })}
-                    className="flex items-center gap-2 font-button text-button text-primary border border-primary px-4 py-2 hover:bg-primary hover:text-bg-base transition-colors uppercase tracking-wide"
-                  >
-                    <Plus size={14} /> Add Member
-                  </button>
-                )}
               </div>
 
               {/* Member table */}
@@ -582,7 +548,6 @@ export function EventDetailPage() {
                   const isEditOpen = inlineState.type === 'edit' && inlineState.memberId === member.id;
                   const isRemoveOpen = inlineState.type === 'confirm-remove' && inlineState.memberId === member.id;
                   const isLeaderOpen = inlineState.type === 'confirm-leader' && inlineState.memberId === member.id;
-
                   return (
                     <div key={member.id}>
                       {/* Member row */}
@@ -604,35 +569,6 @@ export function EventDetailPage() {
                             {member.phone && <span>{member.phone}</span>}
                             {member.college && <span className="text-text-muted">{member.college}</span>}
                           </div>
-                        </div>
-
-                        {/* Row actions */}
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          {canEdit && (
-                            <button
-                              onClick={() => isEditOpen ? closeState() : startEdit(member)}
-                              className="p-2 border border-border-default hover:border-primary text-text-secondary hover:text-primary transition-colors"
-                            >
-                              {isEditOpen ? <ChevronUp size={16} /> : <Pencil size={16} />}
-                            </button>
-                          )}
-                          {canMakeLeader && (
-                            <button
-                              onClick={() => setInlineState({ type: 'confirm-leader', memberId: member.id })}
-                              className="p-2 border border-border-default hover:border-primary text-text-secondary hover:text-primary transition-colors"
-                              title="Make Leader"
-                            >
-                              <Crown size={16} />
-                            </button>
-                          )}
-                          {canRemove && (
-                            <button
-                              onClick={() => setInlineState({ type: 'confirm-remove', memberId: member.id })}
-                              className="p-2 border border-border-default hover:border-primary text-text-secondary hover:text-primary transition-colors"
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          )}
                         </div>
                       </div>
 
@@ -785,11 +721,24 @@ export function EventDetailPage() {
                 <div className="flex flex-col gap-2">
                   <label className="font-micro text-micro text-text-muted uppercase tracking-widest">Pay via UPI</label>
                   <div className="border-2 border-primary p-4 flex justify-between items-center font-heading text-heading text-primary">
-                    <span className="tracking-wide">{UPI_ID}</span>
+                    <span className="tracking-wide">{payDetails.upiId}</span>
                     <button onClick={handleCopyUpi} className="text-primary hover:opacity-70 transition-opacity" title="Copy UPI ID">
                       {copied ? <CheckCircle2 size={20} /> : <Copy size={20} />}
                     </button>
                   </div>
+                </div>
+
+                {/* QR Code Embed */}
+                <div className="flex flex-col items-center gap-2 mt-4 p-4 border border-dashed border-primary bg-[#121212]">
+                  <span className="font-micro text-micro text-text-muted uppercase tracking-widest">Scan QR to Pay</span>
+                  <img
+                    src={payDetails.qrCodeUrl || `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(`upi://pay?pa=${payDetails.upiId}&pn=SPECTRUM26&am=${event.price}&cu=INR`)}`}
+                    alt="Payment QR Code"
+                    className="w-48 h-48 border-2 border-primary object-contain"
+                  />
+                  <span style={{ fontSize: '10px', color: 'var(--color-text-muted)', fontFamily: 'Space Grotesk, sans-serif' }}>
+                    Double check the UPI ID before transferring.
+                  </span>
                 </div>
 
                 {/* UPI ref submit — inline expand */}

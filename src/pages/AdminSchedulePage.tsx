@@ -3,7 +3,8 @@ import { Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
 import { useAuth } from '../lib/useAuth';
 import {
   getScheduleSlots, createScheduleSlot, updateScheduleSlot, deleteScheduleSlot,
-  getEventDetails, updateEventDetails, type EventDetails
+  getEventDetails, updateEventDetails, type EventDetails,
+  getPaymentDetails, updatePaymentDetails
 } from '../lib/firestore';
 import type { ScheduleSlot, ScheduleEventType } from '../types';
 
@@ -43,13 +44,21 @@ export function AdminSchedulePage() {
   });
   const [savingDetails, setSavingDetails] = useState(false);
 
+  const [paymentDetails, setPaymentDetails] = useState({
+    upiId: 'spectrum26@upi',
+    qrCodeUrl: '',
+  });
+  const [savingPayments, setSavingPayments] = useState(false);
+
   const reload = useCallback(async () => {
-    const [data, details] = await Promise.all([
+    const [data, details, pay] = await Promise.all([
       getScheduleSlots(),
-      getEventDetails()
+      getEventDetails(),
+      getPaymentDetails()
     ]);
     setSlots(data);
     setEventDetails(details);
+    setPaymentDetails(pay);
   }, []);
 
   useEffect(() => {
@@ -73,6 +82,19 @@ export function AdminSchedulePage() {
       console.error('Failed to save event details:', err);
     } finally {
       setSavingDetails(false);
+    }
+  };
+
+  const handleSavePaymentDetails = async () => {
+    setSavingPayments(true);
+    try {
+      await updatePaymentDetails(paymentDetails, adminEmail ?? '');
+      await reload();
+      window.dispatchEvent(new Event('spectrum26_reload_data'));
+    } catch (err) {
+      console.error('Failed to save payment details:', err);
+    } finally {
+      setSavingPayments(false);
     }
   };
 
@@ -180,56 +202,90 @@ export function AdminSchedulePage() {
         )}
       </div>
 
-      {/* Global Event Details Card */}
+      {/* Global Event Details & Payments Card */}
       {inlineState.type === 'none' && (
-        <div className="border border-border-default p-6 bg-bg-card flex flex-col gap-4">
-          <h2 className="font-heading text-heading uppercase tracking-widest text-primary">Global Event Details</h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="flex flex-col gap-2">
-              <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">Event Name</label>
-              <input
-                type="text"
-                value={eventDetails.name}
-                onChange={(e) => setEventDetails(prev => ({ ...prev, name: e.target.value }))}
-                className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
-              />
+        <div className="flex flex-col gap-6">
+          <div className="border border-border-default p-6 bg-bg-card flex flex-col gap-4">
+            <h2 className="font-heading text-heading uppercase tracking-widest text-primary">Global Event Details</h2>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="flex flex-col gap-2">
+                <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">Event Name</label>
+                <input
+                  type="text"
+                  value={eventDetails.name}
+                  onChange={(e) => setEventDetails(prev => ({ ...prev, name: e.target.value }))}
+                  className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">Location</label>
+                <input
+                  type="text"
+                  value={eventDetails.location}
+                  onChange={(e) => setEventDetails(prev => ({ ...prev, location: e.target.value }))}
+                  className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">Date Description</label>
+                <input
+                  type="text"
+                  value={eventDetails.date}
+                  onChange={(e) => setEventDetails(prev => ({ ...prev, date: e.target.value }))}
+                  className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">Countdown Target</label>
+                <input
+                  type="text"
+                  value={eventDetails.countdownTarget}
+                  onChange={(e) => setEventDetails(prev => ({ ...prev, countdownTarget: e.target.value }))}
+                  placeholder="YYYY-MM-DDTHH:MM:SS"
+                  className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
+                />
+              </div>
             </div>
-            <div className="flex flex-col gap-2">
-              <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">Location</label>
-              <input
-                type="text"
-                value={eventDetails.location}
-                onChange={(e) => setEventDetails(prev => ({ ...prev, location: e.target.value }))}
-                className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">Date Description</label>
-              <input
-                type="text"
-                value={eventDetails.date}
-                onChange={(e) => setEventDetails(prev => ({ ...prev, date: e.target.value }))}
-                className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">Countdown Target</label>
-              <input
-                type="text"
-                value={eventDetails.countdownTarget}
-                onChange={(e) => setEventDetails(prev => ({ ...prev, countdownTarget: e.target.value }))}
-                placeholder="YYYY-MM-DDTHH:MM:SS"
-                className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
-              />
-            </div>
+            <button
+              onClick={handleSaveEventDetails}
+              disabled={savingDetails}
+              className="self-start font-button text-button px-6 py-2 border border-primary bg-primary text-bg-base hover:bg-transparent hover:text-primary transition-colors disabled:opacity-50 mt-2"
+            >
+              {savingDetails ? 'Saving...' : 'Save Global Details'}
+            </button>
           </div>
-          <button
-            onClick={handleSaveEventDetails}
-            disabled={savingDetails}
-            className="self-start font-button text-button px-6 py-2 border border-primary bg-primary text-bg-base hover:bg-transparent hover:text-primary transition-colors disabled:opacity-50 mt-2"
-          >
-            {savingDetails ? 'Saving...' : 'Save Global Details'}
-          </button>
+
+          <div className="border border-border-default p-6 bg-bg-card flex flex-col gap-4">
+            <h2 className="font-heading text-heading uppercase tracking-widest text-primary">UPI &amp; Payments Configuration</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex flex-col gap-2">
+                <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">VP's UPI ID</label>
+                <input
+                  type="text"
+                  value={paymentDetails.upiId}
+                  onChange={(e) => setPaymentDetails(prev => ({ ...prev, upiId: e.target.value }))}
+                  className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">QR Code Image Link / Path</label>
+                <input
+                  type="text"
+                  value={paymentDetails.qrCodeUrl}
+                  onChange={(e) => setPaymentDetails(prev => ({ ...prev, qrCodeUrl: e.target.value }))}
+                  placeholder="e.g. /qr_code.jpg or URL link"
+                  className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
+                />
+              </div>
+            </div>
+            <button
+              onClick={handleSavePaymentDetails}
+              disabled={savingPayments}
+              className="self-start font-button text-button px-6 py-2 border border-primary bg-primary text-bg-base hover:bg-transparent hover:text-primary transition-colors disabled:opacity-50 mt-2"
+            >
+              {savingPayments ? 'Saving...' : 'Save Payment Details'}
+            </button>
+          </div>
         </div>
       )}
 

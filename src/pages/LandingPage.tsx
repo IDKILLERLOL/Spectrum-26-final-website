@@ -70,6 +70,26 @@ function Hero() {
 
       {/* Countdown */}
       <Countdown />
+
+      {/* CTA Buttons */}
+      <div className="mt-8 flex justify-center gap-4 flex-wrap relative z-20">
+        <Link
+          to="/login?redirect=register"
+          onClick={() => playSynthSound('laser')}
+          className="comic-btn"
+          style={{ fontSize: '20px', padding: '12px 28px', textDecoration: 'none' }}
+        >
+          REGISTER NOW
+        </Link>
+        <Link
+          to="/login"
+          onClick={() => playSynthSound('click')}
+          className="comic-btn-outline"
+          style={{ fontSize: '20px', padding: '12px 28px', textDecoration: 'none' }}
+        >
+          SIGN UP / SIGN IN
+        </Link>
+      </div>
     </header>
   );
 }
@@ -325,21 +345,87 @@ function Events() {
             display: 'inline-flex',
             alignItems: 'center',
             gap: '12px',
+            textDecoration: 'none'
           }}
         >
           VIEW FULL TIMELINE &amp; SCHEDULE
         </Link>
       </div>
 
+      {/* ── Venue & Contact Section ── */}
+      <section className="mt-8 p-6 comic-border-thick comic-shadow" style={{ background: 'var(--panel-bg)' }}>
+        <div className="flex items-center gap-4 mb-8">
+          <div
+            className="comic-badge flex items-center gap-2"
+            style={{
+              fontSize: '20px',
+              padding: '6px 16px',
+              background: 'var(--color-text-primary)',
+              color: 'var(--color-bg-base)',
+              transform: 'rotate(-1.5deg)',
+            }}
+          >
+            VENUE &amp; CONTACT
+          </div>
+          <div style={{ flex: 1, height: '4px', background: 'var(--border-color)' }} />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+          {/* Left Column: Details */}
+          <div className="flex flex-col gap-6" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+            <div>
+              <h4 style={{ fontFamily: 'Bangers, cursive', fontSize: '24px', letterSpacing: '0.04em', color: 'var(--color-text-primary)', marginBottom: '8px' }}>
+                LOCATION
+              </h4>
+              <p style={{ fontSize: '15px', color: 'var(--color-text-secondary)', fontWeight: 500, lineHeight: 1.6 }}>
+                SVKM's Shri Bhagubhai Mafatlal Polytechnic<br />
+                Irla, Vile Parle West, Mumbai, Maharashtra 400056
+              </p>
+            </div>
+
+            <div>
+              <h4 style={{ fontFamily: 'Bangers, cursive', fontSize: '24px', letterSpacing: '0.04em', color: 'var(--color-text-primary)', marginBottom: '8px' }}>
+                REGISTRATION SUPPORT
+              </h4>
+              <p style={{ fontSize: '15px', color: 'var(--color-text-secondary)', fontWeight: 500, lineHeight: 1.6 }}>
+                For queries related to passes, payments, or team registration:
+              </p>
+              <ul className="mt-3 flex flex-col gap-2" style={{ listStyle: 'none', padding: 0 }}>
+                <li>
+                  <strong>Email:</strong> <a href="mailto:spectrum.sbmp@gmail.com" style={{ color: 'var(--color-text-primary)', textDecoration: 'underline' }}>spectrum.sbmp@gmail.com</a>
+                </li>
+                <li>
+                  <strong>Helpline:</strong> <a href="tel:+919876543210" style={{ color: 'var(--color-text-primary)', textDecoration: 'underline' }}>+91 98765 43210</a> (Registration Desk)
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Right Column: Google Maps Embed */}
+          <div className="comic-border-medium overflow-hidden h-[300px] relative">
+            <iframe
+              title="SVKM's Shri Bhagubhai Mafatlal Polytechnic Location"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3770.0814986701886!2d72.8354924!3d19.1150493!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7c9db1d607a97%3A0xe54199c0cb8788a1!2sSVKM's%20Shri%20Bhagubhai%20Mafatlal%20Polytechnic!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin"
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              allowFullScreen
+              loading="lazy"
+            />
+          </div>
+        </div>
+      </section>
+
     </main>
   );
 }
 
 function EventCard({ event, participantCount }: { event: Event; participantCount: number }) {
-  const isTech = event.category === 'TECH';
   const full = isEventFull(event);
   const open = canRegister(event);
   const badge = EVENT_BADGE[event.name] ?? categoryLabel(event.category);
+  const isSolo = event.minMembers === 1 && event.maxMembers === 1;
+  const isDuo = event.minMembers === 2 && event.maxMembers === 2;
 
   return (
     <article
@@ -372,7 +458,7 @@ function EventCard({ event, participantCount }: { event: Event; participantCount
         </div>
 
         {/* Card body */}
-        <div className="p-5">
+        <div className="p-5 pb-2">
           <div className="flex flex-wrap gap-2 mb-3">
             <span
               className="comic-badge px-2 py-0.5"
@@ -391,7 +477,7 @@ function EventCard({ event, participantCount }: { event: Event; participantCount
                 border: '2px solid var(--border-color)',
               }}
             >
-              {event.isTeamEvent ? 'SQUAD' : 'SOLO'}
+              {isSolo ? 'SOLO' : isDuo ? 'DUO' : 'TEAM'}
             </span>
             {event.price != null && (
               <span
@@ -411,45 +497,54 @@ function EventCard({ event, participantCount }: { event: Event; participantCount
               textTransform: 'uppercase',
               color: 'var(--color-text-primary)',
               lineHeight: 1.1,
-              marginBottom: '8px',
+              marginBottom: '12px',
             }}
           >
             {event.name}
           </h3>
 
-          <p
-            className="line-clamp-2"
+          <div
             style={{
               fontFamily: 'Space Grotesk, sans-serif',
               fontSize: '13px',
-              fontWeight: 500,
               color: 'var(--color-text-secondary)',
-              lineHeight: 1.55,
-              opacity: 0.85,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '6px',
             }}
           >
-            {event.description || 'Details coming soon.'}
-          </p>
+            <div><strong>Format:</strong> {isSolo ? 'Solo Participation' : isDuo ? 'Duo Team' : 'Squad/Team Event'}</div>
+            <div><strong>Team Size:</strong> {event.maxMembers === 1 ? '1 Player' : `${event.minMembers}-${event.maxMembers} Players`}</div>
+            <div><strong>Entry Fee:</strong> ₹{event.price}</div>
+          </div>
         </div>
       </div>
 
-      {/* CTA button */}
-      <div className="p-5 pt-0">
+      {/* CTA buttons */}
+      <div className="p-5 pt-0 flex gap-3 mt-4">
+        <Link
+          to={`/event/${event.id}`}
+          onClick={() => playSynthSound('click')}
+          className="comic-btn-outline flex-1 text-center"
+          style={{ fontSize: '16px', padding: '10px 12px', textDecoration: 'none' }}
+        >
+          DETAILS
+        </Link>
         {open ? (
           <Link
             to={`/login?redirect=register&eventId=${event.id}`}
             onClick={() => playSynthSound('laser')}
-            className="comic-btn w-full"
-            style={{ fontSize: '20px', padding: '10px 20px' }}
+            className="comic-btn flex-1 text-center"
+            style={{ fontSize: '16px', padding: '10px 12px', textDecoration: 'none' }}
           >
-            REGISTER FOR COMBAT
+            REGISTER
           </Link>
         ) : (
           <div
-            className="comic-btn-outline w-full"
-            style={{ fontSize: '18px', padding: '10px 20px', opacity: 0.5, cursor: 'not-allowed' }}
+            className="comic-btn-outline flex-1 text-center"
+            style={{ fontSize: '14px', padding: '10px 12px', opacity: 0.5, cursor: 'not-allowed' }}
           >
-            {full ? 'SECTOR FULL' : 'CLOSED'}
+            {full ? 'FULL' : 'CLOSED'}
           </div>
         )}
       </div>

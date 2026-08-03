@@ -1747,3 +1747,31 @@ export async function updateEventDetails(details: EventDetails, actorEmail: stri
     diffNew: null,
   });
 }
+
+export async function getPaymentDetails(): Promise<{ upiId: string; qrCodeUrl: string }> {
+  const ref = doc(db, 'systemConfig', 'paymentDetails');
+  const snap = await getDoc(ref);
+  if (snap.exists()) {
+    return snap.data() as { upiId: string; qrCodeUrl: string };
+  }
+  return {
+    upiId: 'spectrum26@upi',
+    qrCodeUrl: '',
+  };
+}
+
+export async function updatePaymentDetails(details: { upiId: string; qrCodeUrl: string }, actorEmail: string): Promise<void> {
+  const ref = doc(db, 'systemConfig', 'paymentDetails');
+  await setDoc(ref, details);
+  await appendAuditLog({
+    timestamp: new Date(),
+    actorEmail,
+    actorType: 'ADMIN',
+    actionType: 'UPDATE_PAYMENT_DETAILS',
+    targetRegistrationId: null,
+    targetEventId: null,
+    ipAddress: null,
+    diffOld: null,
+    diffNew: null,
+  });
+}

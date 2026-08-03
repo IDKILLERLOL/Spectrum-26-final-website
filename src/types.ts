@@ -31,43 +31,85 @@ export interface Event {
 
 export const FALLBACK_EVENTS: Event[] = [
   {
-    id: "tech-1",
-    name: "Reverse Engineering",
+    id: "tech-duo-1",
+    name: "Codopoly",
     category: "TECH",
-    description: "Deconstruct compiled binaries to understand pure logic architecture. Speed and accuracy define the victor.",
+    description: "A 2v2v2v2 multiplayer board game mirroring Monopoly, where properties are replaced by CS/tech topic tiles.",
+    isTeamEvent: true,
+    maxTeams: null,
+    currentTeamCount: 0,
+    registrationOpen: true,
+    price: 150,
+    rulesUrl: null,
+    minMembers: 2,
+    maxMembers: 2
+  },
+  {
+    id: "tech-duo-2",
+    name: "Swap Challenge",
+    category: "TECH",
+    description: "Team up and solve coding problems under time pressure. Explain strategies in breaks, and swap to complete each other's unsolved code.",
+    isTeamEvent: true,
+    maxTeams: null,
+    currentTeamCount: 0,
+    registrationOpen: true,
+    price: 150,
+    rulesUrl: null,
+    minMembers: 2,
+    maxMembers: 2
+  },
+  {
+    id: "tech-duo-3",
+    name: "Snakes & Ladders",
+    category: "TECH",
+    description: "Multiplayer snakes & ladders on a shared board. Dodge snakes and climb ladders by solving tech challenges.",
+    isTeamEvent: true,
+    maxTeams: null,
+    currentTeamCount: 0,
+    registrationOpen: true,
+    price: 150,
+    rulesUrl: null,
+    minMembers: 2,
+    maxMembers: 2
+  },
+  {
+    id: "tech-solo-1",
+    name: "MCQ — Kahoot Eliminator",
+    category: "TECH",
+    description: "Kahoot-style rapid-fire MCQ tournament. Top scorers advance, bottom scorers get eliminated.",
     isTeamEvent: false,
     maxTeams: null,
     currentTeamCount: 0,
     registrationOpen: true,
-    price: 0,
+    price: 50,
     rulesUrl: null,
     minMembers: 1,
     maxMembers: 1
   },
   {
-    id: "tech-2",
-    name: "Speed Typing",
+    id: "tech-solo-2",
+    name: "Bingo",
     category: "TECH",
-    description: "Raw WPM vs flawless syntax. A mechanical sprint through complex code blocks under pressure.",
+    description: "Claim questions on a shared grid of computer science topics. Solve correctly to win points before others swipe them.",
     isTeamEvent: false,
     maxTeams: null,
     currentTeamCount: 0,
     registrationOpen: true,
-    price: 0,
+    price: 50,
     rulesUrl: null,
     minMembers: 1,
     maxMembers: 1
   },
   {
-    id: "tech-3",
-    name: "Code Prism",
+    id: "tech-solo-3",
+    name: "Buzzer Round",
     category: "TECH",
-    description: "Competitive programming challenge focusing on algorithmic efficiency and data structure optimization.",
+    description: "Fastest-finger-first tech questions. Buzz in first to score, but beware of penalties for wrong answers.",
     isTeamEvent: false,
     maxTeams: null,
     currentTeamCount: 0,
     registrationOpen: true,
-    price: 0,
+    price: 50,
     rulesUrl: null,
     minMembers: 1,
     maxMembers: 1
@@ -85,20 +127,6 @@ export const FALLBACK_EVENTS: Event[] = [
     rulesUrl: null,
     minMembers: 4,
     maxMembers: 5
-  },
-  {
-    id: "non-tech-2",
-    name: "Free Fire",
-    category: "NON_TECH",
-    description: "Fast-paced, high-stakes combat. Dominate the skirmish and outlast the competition.",
-    isTeamEvent: true,
-    maxTeams: 50,
-    currentTeamCount: 0,
-    registrationOpen: true,
-    price: 600,
-    rulesUrl: null,
-    minMembers: 4,
-    maxMembers: 4
   },
   {
     id: "non-tech-3",
@@ -242,4 +270,9 @@ export interface ScheduleSlot {
   sortOrder: number;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface PaymentDetails {
+  upiId: string;
+  qrCodeUrl: string;
 }

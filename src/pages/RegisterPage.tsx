@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Loader2, ArrowRight, Plus, Trash2 } from 'lucide-react';
 import { useAuth } from '../lib/useAuth';
-import { getEvent, createRegistration, getUser, updateUser, hasExistingRegistration } from '../lib/firestore';
+import { getEvent, createRegistration, getUser, updateUser, hasExistingRegistration, db } from '../lib/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import type { Event } from '../types';
 
 export function RegisterPage() {
@@ -25,6 +26,7 @@ export function RegisterPage() {
   
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [regCount, setRegCount] = useState<number | null>(null);
 
   // Load event details & pre-fill user profile if available
   useEffect(() => {
@@ -34,6 +36,10 @@ export function RegisterPage() {
       try {
         const ev = await getEvent(eventId);
         setEvent(ev);
+
+        // Fetch registered persons count
+        const memSnap = await getDocs(query(collection(db, 'teamMembers'), where('status', '==', 'ACTIVE')));
+        setRegCount(memSnap.size);
 
         if (!user) {
           navigate(`/login?redirect=register&eventId=${eventId}`, { replace: true });
@@ -247,9 +253,16 @@ export function RegisterPage() {
             borderRadius: '8px',
           }}
         >
-          <h2 className="text-card-title font-heading uppercase tracking-wide border-b border-border-default pb-3" style={{ color: 'var(--color-text-primary)' }}>
-            Registration Form
-          </h2>
+          <div className="flex justify-between items-center border-b border-border-default pb-3 flex-wrap gap-2">
+            <h2 className="text-card-title font-heading uppercase tracking-wide" style={{ color: 'var(--color-text-primary)' }}>
+              Registration Form
+            </h2>
+            {regCount !== null && (
+              <span className="comic-badge text-xs" style={{ padding: '4px 10px', fontSize: '11px', fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700 }}>
+                LIVE COUNTER: {regCount} PARTICIPANTS
+              </span>
+            )}
+          </div>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-8">
             {/* Team Name Input (for team events only, placed at the top) */}
@@ -467,6 +480,15 @@ export function RegisterPage() {
               )}
             </button>
           </form>
+
+          {/* Support Section */}
+          <div className="mt-4 pt-6 border-t border-border-default text-xs font-semibold text-center" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+            <p style={{ color: 'var(--color-text-muted)', marginBottom: '8px' }}>Need help with registering?</p>
+            <p style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+              Helpline Support: <a href="tel:+919876543210" style={{ color: 'var(--color-text-primary)', textDecoration: 'underline' }}>+91 98765 43210</a> (Registration Desk)<br />
+              Email Support: <a href="mailto:spectrum.sbmp@gmail.com" style={{ color: 'var(--color-text-primary)', textDecoration: 'underline' }}>spectrum.sbmp@gmail.com</a>
+            </p>
+          </div>
         </div>
       </div>
     </main>

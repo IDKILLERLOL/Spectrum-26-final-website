@@ -1,0 +1,101 @@
+import { ArrowLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { playSynthSound } from '../lib/audio';
+
+export function ContactPage() {
+  return (
+    <main className="relative z-10 w-full min-h-screen py-12 px-6 max-w-4xl mx-auto flex flex-col gap-10">
+      {/* Back button */}
+      <Link
+        to="/"
+        onClick={() => playSynthSound('click')}
+        className="inline-flex items-center gap-2 text-primary hover:opacity-75 transition-opacity font-heading text-heading uppercase w-fit"
+        style={{ textDecoration: 'none' }}
+      >
+        <ArrowLeft size={20} /> Back to Home
+      </Link>
+
+      {/* Header */}
+      <header className="flex flex-col gap-4 pb-6" style={{ borderBottom: '4px solid var(--border-color)' }}>
+        <span
+          className="comic-badge inline-block"
+          style={{
+            fontFamily: 'Bangers, cursive',
+            fontSize: '13px',
+            padding: '3px 12px',
+            background: 'var(--color-text-primary)',
+            color: 'var(--color-bg-base)',
+            width: 'fit-content',
+            transform: 'rotate(-1deg)',
+          }}
+        >
+          GET IN TOUCH
+        </span>
+        <h1
+          style={{
+            fontFamily: 'Bangers, cursive',
+            fontSize: 'clamp(44px, 8vw, 72px)',
+            lineHeight: 0.95,
+            letterSpacing: '0.04em',
+            textTransform: 'uppercase',
+            color: 'var(--color-text-primary)',
+            transform: 'skewX(-4deg)',
+          }}
+        >
+          Contact Support
+        </h1>
+        <p style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '14px', color: 'var(--color-text-secondary)', opacity: 0.8 }}>
+          Have questions or need assistance with registrations and passes? Reach out to our crew.
+        </p>
+      </header>
+
+      {/* Contact info grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+        <div className="p-6 comic-border-thick flex flex-col gap-6" style={{ background: 'var(--panel-bg)' }}>
+          <div>
+            <h3 style={{ fontFamily: 'Bangers, cursive', fontSize: '24px', letterSpacing: '0.04em', color: 'var(--color-text-primary)', textTransform: 'uppercase', marginBottom: '8px' }}>
+              REGISTRATION DESK
+            </h3>
+            <p style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '15px', color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+              For registration inquiries, pass upgrades, payments, and team matching assistance:
+            </p>
+            <ul className="mt-4 flex flex-col gap-3 font-body text-body text-text-secondary" style={{ listStyle: 'none', padding: 0 }}>
+              <li>
+                <strong>Email:</strong> <a href="mailto:spectrum.sbmp@gmail.com" className="text-primary hover:opacity-75 transition-opacity" style={{ textDecoration: 'underline' }}>spectrum.sbmp@gmail.com</a>
+              </li>
+              <li>
+                <strong>Phone Support:</strong> <a href="tel:+919876543210" className="text-primary hover:opacity-75 transition-opacity" style={{ textDecoration: 'underline' }}>+91 98765 43210</a>
+              </li>
+              <li>
+                <strong>Hours:</strong> 9:00 AM - 5:00 PM IST (Mon - Sat)
+              </li>
+            </ul>
+          </div>
+
+          <div style={{ borderTop: '2px solid var(--border-color)', paddingTop: '16px' }}>
+            <h3 style={{ fontFamily: 'Bangers, cursive', fontSize: '20px', letterSpacing: '0.04em', color: 'var(--color-text-primary)', textTransform: 'uppercase', marginBottom: '8px' }}>
+              VENUE DETAILS
+            </h3>
+            <p style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '14px', color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
+              <strong>SVKM's Shri Bhagubhai Mafatlal Polytechnic</strong><br />
+              Irla, Vile Parle West, Mumbai, Maharashtra 400056
+            </p>
+          </div>
+        </div>
+
+        {/* Map iframe */}
+        <div className="comic-border-thick overflow-hidden min-h-[350px] relative">
+          <iframe
+            title="SVKM's Shri Bhagubhai Mafatlal Polytechnic Map"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3770.0814986701886!2d72.8354924!3d19.1150493!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7c9db1d607a97%3A0xe54199c0cb8788a1!2sSVKM's%20Shri%20Bhagubhai%20Mafatlal%20Polytechnic!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin"
+            width="100%"
+            height="100%"
+            style={{ border: 0 }}
+            allowFullScreen
+            loading="lazy"
+          />
+        </div>
+      </div>
+    </main>
+  );
+}

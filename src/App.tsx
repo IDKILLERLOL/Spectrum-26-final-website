@@ -23,6 +23,9 @@ import { AdminCreateRegistrationPage } from './pages/AdminCreateRegistrationPage
 import { WinnersPage } from './pages/WinnersPage';
 import { AdminAccountsPage } from './pages/AdminAccountsPage';
 import { ScrollToTop } from './components/ScrollToTop';
+import { ContactPage } from './pages/ContactPage';
+import { PublicEventDetailPage } from './pages/PublicEventDetailPage';
+import { PublicRegistrationsPage } from './pages/PublicRegistrationsPage';
 
 
 function PublicLayout() {
@@ -67,6 +70,9 @@ export default function App() {
           <Route path="schedule" element={<SchedulePage />} />
           <Route path="winners" element={<WinnersPage />} />
           <Route path="login" element={<LoginPage />} />
+          <Route path="contact" element={<ContactPage />} />
+          <Route path="event/:id" element={<PublicEventDetailPage />} />
+          <Route path="registrations" element={<PublicRegistrationsPage />} />
           <Route path="pass/:id" element={<PublicPassPage />} />
 
           {/* Participant routes — require login */}

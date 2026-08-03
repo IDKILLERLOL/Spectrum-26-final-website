@@ -340,21 +340,26 @@ function EventFormFields({
         </select>
       </div>
 
-      {/* Team / Solo */}
+      {/* Team / Solo / Duo */}
       <div className="flex flex-col gap-2">
         <label className="font-micro text-micro text-text-muted uppercase tracking-widest flex items-center gap-2">
           Format {categoryLocked && <Lock size={10} />}
         </label>
         <select
-          value={form.isTeamEvent ? 'team' : 'solo'}
+          value={form.isTeamEvent ? (form.maxMembers === 2 ? 'duo' : 'team') : 'solo'}
           onChange={(e) => {
-            const isTeam = e.target.value === 'team';
-            setField('isTeamEvent', isTeam);
-            if (!isTeam) {
+            const val = e.target.value;
+            if (val === 'solo') {
+              setField('isTeamEvent', false);
               setField('minMembers', 1);
               setField('maxMembers', 1);
-            } else {
+            } else if (val === 'duo') {
+              setField('isTeamEvent', true);
               setField('minMembers', 2);
+              setField('maxMembers', 2);
+            } else {
+              setField('isTeamEvent', true);
+              setField('minMembers', 3);
               setField('maxMembers', 4);
             }
           }}
@@ -362,7 +367,8 @@ function EventFormFields({
           className="bg-bg-base border-b-2 border-border-strong text-primary font-heading text-heading py-2 focus:outline-none focus:border-primary transition-all disabled:opacity-40"
         >
           <option value="solo">Solo</option>
-          <option value="team">Team</option>
+          <option value="duo">Duo</option>
+          <option value="team">Team (3+)</option>
         </select>
       </div>
 

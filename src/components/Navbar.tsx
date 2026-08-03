@@ -80,26 +80,18 @@ export function Navbar() {
       style={{ background: 'var(--panel-bg)', borderColor: 'var(--border-color)' }}
     >
       {/* Wordmark */}
-      <div className="flex items-center gap-3">
         <Link
           to="/"
           onClick={() => playSynthSound('click')}
-          style={{
-            fontFamily: 'Bangers, cursive',
-            fontSize: 'clamp(24px, 4vw, 36px)',
-            letterSpacing: '0.06em',
-            textTransform: 'uppercase',
-            color: 'var(--color-text-primary)',
-            transform: 'skewX(-12deg)',
-            display: 'inline-block',
-            fontStyle: 'italic',
-            textDecoration: 'none',
-            userSelect: 'none',
-          }}
+          style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }}
         >
-          SPECTRUM 26
+          <img
+            src="/favicon.jpg"
+            alt="SPECTRUM 26"
+            className="h-10 md:h-12 object-contain"
+            style={{ border: '2px solid var(--border-color)', borderRadius: '4px' }}
+          />
         </Link>
-      </div>
 
       {/* Right side: nav links + controls */}
       <div className="flex items-center gap-6 flex-wrap">
