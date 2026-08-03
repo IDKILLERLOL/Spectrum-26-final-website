@@ -310,7 +310,6 @@ export function Navbar() {
           {navLink('/events', 'Events', () => setIsSidebarOpen(false))}
           {navLink('/schedule', 'Schedule', () => setIsSidebarOpen(false))}
           {navLink('/winners', 'Winners', () => setIsSidebarOpen(false))}
-          {navLink('/events', 'Register', () => setIsSidebarOpen(false))}
           {user && hasRegistrations && navLink('/my-registrations', 'My Passes', () => setIsSidebarOpen(false))}
         </div>
       </aside>
