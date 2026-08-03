@@ -129,7 +129,7 @@ export function Navbar() {
             style={{ display: 'inline-flex', items: 'center', textDecoration: 'none' }}
           >
             <img
-              src="/favicon.jpg"
+              src="/Logo.jpeg"
               alt="SPECTRUM 26"
               className="h-10 md:h-12 object-contain"
               style={{ border: '2px solid var(--border-color)', borderRadius: '4px' }}
@@ -145,27 +145,6 @@ export function Navbar() {
             {navLink('/events', 'Events')}
             {navLink('/schedule', 'Schedule')}
             {navLink('/winners', 'Winners')}
-            <Link
-              to="/events"
-              onClick={() => playSynthSound('laser')}
-              className="comic-shadow-sm"
-              style={{
-                background: 'var(--color-text-primary)',
-                color: 'var(--color-bg-base)',
-                fontFamily: 'Bangers, cursive',
-                fontSize: '18px',
-                padding: '6px 16px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                letterSpacing: '0.04em',
-                cursor: 'pointer',
-                textDecoration: 'none',
-                border: '2px solid var(--color-bg-base)',
-              }}
-            >
-              REGISTER
-            </Link>
             {user && hasRegistrations && navLink('/my-registrations', 'My Passes')}
           </div>
 
@@ -274,6 +253,28 @@ export function Navbar() {
                 </Link>
               )
             )}
+
+            {/* REGISTER Button (far right) */}
+            <Link
+              to="/events"
+              onClick={() => playSynthSound('laser')}
+              className="comic-shadow-sm hidden md:flex"
+              style={{
+                background: 'var(--color-text-primary)',
+                color: 'var(--color-bg-base)',
+                fontFamily: 'Bangers, cursive',
+                fontSize: '18px',
+                padding: '6px 16px',
+                alignItems: 'center',
+                gap: '8px',
+                letterSpacing: '0.04em',
+                cursor: 'pointer',
+                textDecoration: 'none',
+                border: '2px solid var(--color-bg-base)',
+              }}
+            >
+              REGISTER
+            </Link>
           </div>
         </div>
       </nav>

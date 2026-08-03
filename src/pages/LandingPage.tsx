@@ -182,7 +182,7 @@ function VenueContact() {
         <div className="comic-border-medium overflow-hidden h-[300px] relative">
           <iframe
             title="SVKM's Shri Bhagubhai Mafatlal Polytechnic Location"
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3770.0814986701886!2d72.8354924!3d19.1150493!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7c9db1d607a97%3A0xe54199c0cb8788a1!2sSVKM's%20Shri%20Bhagubhai%20Mafatlal%20Polytechnic!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin"
+            src="https://maps.google.com/maps?q=SVKM's%20Shri%20Bhagubhai%20Mafatlal%20Polytechnic&t=&z=16&ie=UTF8&iwloc=&output=embed"
             width="100%"
             height="100%"
             style={{ border: 0 }}
