@@ -232,12 +232,11 @@ export function Navbar() {
                 <Link
                   to="/login"
                   onClick={() => playSynthSound('laser')}
-                  className="comic-shadow-sm"
+                  className="comic-shadow-sm text-[11px] sm:text-[18px]"
                   style={{
                     background: 'var(--panel-bg)',
                     color: 'var(--color-text-primary)',
                     fontFamily: 'Bangers, cursive',
-                    fontSize: '18px',
                     padding: '6px 16px',
                     display: 'flex',
                     alignItems: 'center',
