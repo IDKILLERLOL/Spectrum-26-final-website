@@ -1,8 +1,18 @@
 import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { playSynthSound } from '../lib/audio';
+import { useState, useEffect } from 'react';
 
 export function ContactPage() {
+  const [details, setDetails] = useState<any>(null);
+  useEffect(() => {
+    import('../lib/firestore').then(m => m.getEventDetails()).then(setDetails).catch(console.error);
+  }, []);
+
+  const email = details?.helplineEmail || 'spectrum.sbmp@gmail.com';
+  const phone = details?.helplinePhone || '+91 98765 43210';
+  const locationText = details?.location || "SVKM's Shri Bhagubhai Mafatlal Polytechnic\nIrla, Vile Parle West, Mumbai, Maharashtra 400056";
+
   return (
     <main className="relative z-10 w-full min-h-screen py-12 px-6 max-w-4xl mx-auto flex flex-col gap-10">
       {/* Back button */}
@@ -61,10 +71,10 @@ export function ContactPage() {
             </p>
             <ul className="mt-4 flex flex-col gap-3 font-body text-body text-text-secondary" style={{ listStyle: 'none', padding: 0 }}>
               <li>
-                <strong>Email:</strong> <a href="mailto:spectrum.sbmp@gmail.com" className="text-primary hover:opacity-75 transition-opacity" style={{ textDecoration: 'underline' }}>spectrum.sbmp@gmail.com</a>
+                <strong>Email:</strong> <a href={`mailto:${email}`} className="text-primary hover:opacity-75 transition-opacity" style={{ textDecoration: 'underline' }}>{email}</a>
               </li>
               <li>
-                <strong>Phone Support:</strong> <a href="tel:+919876543210" className="text-primary hover:opacity-75 transition-opacity" style={{ textDecoration: 'underline' }}>+91 98765 43210</a>
+                <strong>Phone Support:</strong> <a href={`tel:${phone.replace(/\s+/g, '')}`} className="text-primary hover:opacity-75 transition-opacity" style={{ textDecoration: 'underline' }}>{phone}</a>
               </li>
               <li>
                 <strong>Hours:</strong> 9:00 AM - 5:00 PM IST (Mon - Sat)
@@ -76,9 +86,8 @@ export function ContactPage() {
             <h3 style={{ fontFamily: 'Bangers, cursive', fontSize: '20px', letterSpacing: '0.04em', color: 'var(--color-text-primary)', textTransform: 'uppercase', marginBottom: '8px' }}>
               VENUE DETAILS
             </h3>
-            <p style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '14px', color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
-              <strong>SVKM's Shri Bhagubhai Mafatlal Polytechnic</strong><br />
-              Irla, Vile Parle West, Mumbai, Maharashtra 400056
+            <p style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '14px', color: 'var(--color-text-secondary)', lineHeight: 1.5, whiteSpace: 'pre-line' }}>
+              {locationText}
             </p>
           </div>
         </div>

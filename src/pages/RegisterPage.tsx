@@ -27,6 +27,8 @@ export function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [regCount, setRegCount] = useState<number | null>(null);
+  const [supportPhone, setSupportPhone] = useState('+91 98765 43210');
+  const [supportEmail, setSupportEmail] = useState('spectrum.sbmp@gmail.com');
 
   // Load event details & pre-fill user profile if available
   useEffect(() => {
@@ -36,6 +38,14 @@ export function RegisterPage() {
       try {
         const ev = await getEvent(eventId);
         setEvent(ev);
+
+        // Fetch support contacts dynamically
+        const { getEventDetails } = await import('../lib/firestore');
+        const details = await getEventDetails();
+        if (details) {
+          setSupportPhone(details.helplinePhone || '+91 98765 43210');
+          setSupportEmail(details.helplineEmail || 'spectrum.sbmp@gmail.com');
+        }
 
         // Fetch registered persons count
         const memSnap = await getDocs(query(collection(db, 'teamMembers'), where('status', '==', 'ACTIVE')));
@@ -485,8 +495,8 @@ export function RegisterPage() {
           <div className="mt-4 pt-6 border-t border-border-default text-xs font-semibold text-center" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
             <p style={{ color: 'var(--color-text-muted)', marginBottom: '8px' }}>Need help with registering?</p>
             <p style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
-              Helpline Support: <a href="tel:+919876543210" style={{ color: 'var(--color-text-primary)', textDecoration: 'underline' }}>+91 98765 43210</a> (Registration Desk)<br />
-              Email Support: <a href="mailto:spectrum.sbmp@gmail.com" style={{ color: 'var(--color-text-primary)', textDecoration: 'underline' }}>spectrum.sbmp@gmail.com</a>
+              Helpline Support: <a href={`tel:${supportPhone.replace(/\s+/g, '')}`} style={{ color: 'var(--color-text-primary)', textDecoration: 'underline' }}>{supportPhone}</a> (Registration Desk)<br />
+              Email Support: <a href={`mailto:${supportEmail}`} style={{ color: 'var(--color-text-primary)', textDecoration: 'underline' }}>{supportEmail}</a>
             </p>
           </div>
         </div>

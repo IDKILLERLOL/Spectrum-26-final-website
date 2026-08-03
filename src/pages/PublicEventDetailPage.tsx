@@ -5,6 +5,7 @@ import { getEvent } from '../lib/firestore';
 import type { Event } from '../types';
 import { categoryLabel, canRegister, isEventFull } from '../types';
 import { playSynthSound } from '../lib/audio';
+import { motion } from 'motion/react';
 
 const TECH_ROUND_DETAILS: Record<string, string[]> = {
   'Dual Debug': [
@@ -60,6 +61,10 @@ export function PublicEventDetailPage() {
   const open = canRegister(event);
   const full = isEventFull(event);
 
+  const roundsToRender = (event.roundDetails && event.roundDetails.length > 0)
+    ? event.roundDetails
+    : TECH_ROUND_DETAILS[event.name];
+
   return (
     <main className="relative z-10 w-full min-h-screen py-12 px-6 max-w-3xl mx-auto flex flex-col gap-10">
       {/* Back button */}
@@ -73,7 +78,13 @@ export function PublicEventDetailPage() {
       </Link>
 
       {/* Main card */}
-      <article className="p-8 comic-border-thick comic-shadow" style={{ background: 'var(--panel-bg)' }}>
+      <motion.article
+        initial={{ opacity: 0, scale: 0.85, y: 30 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        className="p-8 comic-border-thick comic-shadow"
+        style={{ background: 'var(--panel-bg)' }}
+      >
         {/* Badges */}
         <div className="flex gap-3 mb-6">
           <span
@@ -152,8 +163,8 @@ export function PublicEventDetailPage() {
           </div>
         </div>
 
-        {/* Tech event expandable round details */}
-        {event.category === 'TECH' && TECH_ROUND_DETAILS[event.name] && (
+        {/* Event expandable round details */}
+        {roundsToRender && roundsToRender.length > 0 && (
           <div className="mb-8 pt-2 text-left" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
             <details className="group border border-border-default bg-bg-elevated p-4 cursor-pointer">
               <summary className="font-heading text-heading text-primary uppercase flex justify-between items-center select-none">
@@ -161,7 +172,7 @@ export function PublicEventDetailPage() {
                 <span className="transition-transform group-open:rotate-180">▼</span>
               </summary>
               <div className="mt-4 flex flex-col gap-3 font-body text-small text-text-secondary leading-relaxed cursor-default">
-                {TECH_ROUND_DETAILS[event.name].map((round, idx) => (
+                {roundsToRender.map((round, idx) => (
                   <div key={idx} className="flex gap-2">
                     <span className="text-primary font-bold">•</span>
                     <span>{round}</span>
@@ -192,7 +203,7 @@ export function PublicEventDetailPage() {
             </div>
           )}
         </div>
-      </article>
+      </motion.article>
     </main>
   );
 }

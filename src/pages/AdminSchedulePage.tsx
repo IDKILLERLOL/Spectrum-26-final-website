@@ -41,6 +41,8 @@ export function AdminSchedulePage() {
     location: 'College Campus',
     date: 'September 30, 2026',
     countdownTarget: '2026-09-30T09:00:00',
+    helplinePhone: '+91 98765 43210',
+    helplineEmail: 'spectrum.sbmp@gmail.com',
   });
   const [savingDetails, setSavingDetails] = useState(false);
 
@@ -242,6 +244,24 @@ export function AdminSchedulePage() {
                   value={eventDetails.countdownTarget}
                   onChange={(e) => setEventDetails(prev => ({ ...prev, countdownTarget: e.target.value }))}
                   placeholder="YYYY-MM-DDTHH:MM:SS"
+                  className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">Support Helpline Phone</label>
+                <input
+                  type="text"
+                  value={eventDetails.helplinePhone || ''}
+                  onChange={(e) => setEventDetails(prev => ({ ...prev, helplinePhone: e.target.value }))}
+                  className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">Support Helpline Email</label>
+                <input
+                  type="email"
+                  value={eventDetails.helplineEmail || ''}
+                  onChange={(e) => setEventDetails(prev => ({ ...prev, helplineEmail: e.target.value }))}
                   className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
                 />
               </div>

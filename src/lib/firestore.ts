@@ -1716,19 +1716,31 @@ export interface EventDetails {
   location: string;
   date: string;
   countdownTarget: string; // e.g. "2026-09-22T09:00:00"
+  helplinePhone?: string;
+  helplineEmail?: string;
 }
 
 export async function getEventDetails(): Promise<EventDetails> {
   const ref = doc(db, 'systemConfig', 'eventDetails');
   const snap = await getDoc(ref);
   if (snap.exists()) {
-    return snap.data() as EventDetails;
+    const data = snap.data();
+    return {
+      name: data.name || 'SPECTRUM 26',
+      location: data.location || 'College Campus',
+      date: data.date || 'September 30, 2026',
+      countdownTarget: data.countdownTarget || '2026-09-30T09:00:00',
+      helplinePhone: data.helplinePhone || '+91 98765 43210',
+      helplineEmail: data.helplineEmail || 'spectrum.sbmp@gmail.com',
+    };
   }
   return {
     name: 'SPECTRUM 26',
     location: 'College Campus',
     date: 'September 30, 2026',
     countdownTarget: '2026-09-30T09:00:00',
+    helplinePhone: '+91 98765 43210',
+    helplineEmail: 'spectrum.sbmp@gmail.com',
   };
 }
 

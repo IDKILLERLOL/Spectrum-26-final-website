@@ -145,36 +145,32 @@ export function Navbar() {
             {navLink('/events', 'Events')}
             {navLink('/schedule', 'Schedule')}
             {navLink('/winners', 'Winners')}
-            {navLink('/events', 'Register')}
+            <Link
+              to="/events"
+              onClick={() => playSynthSound('laser')}
+              className="comic-shadow-sm"
+              style={{
+                background: 'var(--color-text-primary)',
+                color: 'var(--color-bg-base)',
+                fontFamily: 'Bangers, cursive',
+                fontSize: '18px',
+                padding: '6px 16px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                letterSpacing: '0.04em',
+                cursor: 'pointer',
+                textDecoration: 'none',
+                border: '2px solid var(--color-bg-base)',
+              }}
+            >
+              REGISTER
+            </Link>
             {user && hasRegistrations && navLink('/my-registrations', 'My Passes')}
           </div>
 
           {/* Controls */}
           <div className="flex items-center gap-3">
-            {/* SFX Toggle */}
-            <button
-              onClick={toggleSfx}
-              style={{
-                border: '2px solid var(--border-color)',
-                borderRadius: '4px',
-                padding: '4px 10px',
-                background: 'var(--badge-bg)',
-                color: 'var(--color-text-primary)',
-                fontSize: '11px',
-                fontWeight: 700,
-                fontFamily: 'Space Grotesk, sans-serif',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                cursor: 'pointer',
-                boxShadow: '1.5px 1.5px 0px var(--border-color)',
-                letterSpacing: '0.04em',
-              }}
-            >
-              {sfxOn ? <Volume2 size={13} /> : <VolumeX size={13} />}
-              <span className="hidden sm:inline">SFX: {sfxOn ? 'ON' : 'OFF'}</span>
-            </button>
-
             {/* Theme Swap */}
             <button
               onClick={handleToggleTheme}
@@ -258,10 +254,23 @@ export function Navbar() {
                 <Link
                   to="/login"
                   onClick={() => playSynthSound('laser')}
-                  className="comic-btn"
-                  style={{ fontSize: '15px', padding: '6px 14px', textDecoration: 'none' }}
+                  className="comic-shadow-sm"
+                  style={{
+                    background: 'var(--panel-bg)',
+                    color: 'var(--color-text-primary)',
+                    fontFamily: 'Bangers, cursive',
+                    fontSize: '18px',
+                    padding: '6px 16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    letterSpacing: '0.04em',
+                    cursor: 'pointer',
+                    textDecoration: 'none',
+                    border: '2px solid var(--border-color)',
+                  }}
                 >
-                  <LogIn size={13} className="mr-1 inline" /> SIGN IN
+                  <LogIn size={14} className="mr-1 inline" /> SIGN IN
                 </Link>
               )
             )}

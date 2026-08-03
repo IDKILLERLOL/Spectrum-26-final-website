@@ -434,12 +434,11 @@ export function EventsPage() {
                   <button
                     onClick={() => {
                       playSynthSound('click');
-                      setExpandedEventId(isExpanded ? null : e.id);
-                      setRegisteringEventId(null);
+                      navigate(`/event/${e.id}`);
                     }}
                     className="comic-btn-outline flex-1 text-center py-2"
                   >
-                    {isExpanded ? 'HIDE DETAILS' : 'DETAILS'}
+                    DETAILS
                   </button>
                   {open ? (
                     <button
@@ -704,12 +703,11 @@ export function EventsPage() {
                   <button
                     onClick={() => {
                       playSynthSound('click');
-                      setExpandedEventId(isExpanded ? null : e.id);
-                      setRegisteringEventId(null);
+                      navigate(`/event/${e.id}`);
                     }}
                     className="comic-btn-outline flex-1 text-center py-2"
                   >
-                    {isExpanded ? 'HIDE DETAILS' : 'DETAILS'}
+                    DETAILS
                   </button>
                   {open ? (
                     <button

@@ -26,6 +26,7 @@ const EMPTY_FORM: EventFormData = {
   rulesUrl: null,
   minMembers: 1,
   maxMembers: 1,
+  roundDetails: [],
 };
 
 export function AdminEventsPage() {
@@ -70,6 +71,7 @@ export function AdminEventsPage() {
       rulesUrl: event.rulesUrl,
       minMembers: event.minMembers,
       maxMembers: event.maxMembers,
+      roundDetails: event.roundDetails || [],
     });
     setError(null);
     setInlineState({ type: 'edit', eventId: event.id });
@@ -447,6 +449,18 @@ function EventFormFields({
           onChange={(e) => setField('rulesUrl', e.target.value || null)}
           placeholder="https://..."
           className="bg-transparent border-b-2 border-border-strong text-primary font-body text-body py-2 focus:outline-none focus:border-primary transition-all"
+        />
+      </div>
+
+      {/* Round Details */}
+      <div className="flex flex-col gap-2 md:col-span-2">
+        <label className="font-micro text-micro text-text-muted uppercase tracking-widest">Round Details / Sub-Events (one per line)</label>
+        <textarea
+          value={(form.roundDetails || []).join('\n')}
+          onChange={(e) => setField('roundDetails', e.target.value.split('\n').filter(line => line.trim() !== ''))}
+          rows={4}
+          placeholder="Sub-Event 1: Codopoly — CS topic board game..."
+          className="bg-transparent border border-border-strong text-primary font-body text-body p-3 focus:outline-none focus:border-primary transition-all resize-y"
         />
       </div>
 

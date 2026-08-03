@@ -27,6 +27,7 @@ export interface Event {
   rulesUrl: string | null;
   minMembers: number;
   maxMembers: number;
+  roundDetails?: string[];
 }
 
 export const FALLBACK_EVENTS: Event[] = [

@@ -64,25 +64,6 @@ function Hero() {
       {/* Countdown */}
       <Countdown />
 
-      {/* CTA Buttons */}
-      <div className="mt-8 flex justify-center gap-4 flex-wrap relative z-20">
-        <Link
-          to="/events"
-          onClick={() => playSynthSound('laser')}
-          className="comic-btn-outline"
-          style={{ fontSize: '20px', padding: '12px 28px', textDecoration: 'none' }}
-        >
-          REGISTER NOW
-        </Link>
-        <Link
-          to="/login"
-          onClick={() => playSynthSound('click')}
-          className="comic-btn-outline"
-          style={{ fontSize: '20px', padding: '12px 28px', textDecoration: 'none' }}
-        >
-          SIGN IN
-        </Link>
-      </div>
     </header>
   );
 }
@@ -140,6 +121,15 @@ function Countdown() {
 }
 
 function VenueContact() {
+  const [details, setDetails] = useState<any>(null);
+  useEffect(() => {
+    import('../lib/firestore').then(m => m.getEventDetails()).then(setDetails).catch(console.error);
+  }, []);
+
+  const email = details?.helplineEmail || 'spectrum.sbmp@gmail.com';
+  const phone = details?.helplinePhone || '+91 98765 43210';
+  const locationText = details?.location || "SVKM's Shri Bhagubhai Mafatlal Polytechnic\nIrla, Vile Parle West, Mumbai, Maharashtra 400056";
+
   return (
     <section className="relative z-10 max-w-7xl mx-auto w-[92%] mt-8 p-6 comic-border-thick comic-shadow" style={{ background: 'var(--panel-bg)' }}>
       <div className="flex items-center gap-4 mb-8">
@@ -165,9 +155,8 @@ function VenueContact() {
             <h4 style={{ fontFamily: 'Bangers, cursive', fontSize: '24px', letterSpacing: '0.04em', color: 'var(--color-text-primary)', marginBottom: '8px' }}>
               LOCATION
             </h4>
-            <p style={{ fontSize: '15px', color: 'var(--color-text-secondary)', fontWeight: 500, lineHeight: 1.6 }}>
-              SVKM's Shri Bhagubhai Mafatlal Polytechnic<br />
-              Irla, Vile Parle West, Mumbai, Maharashtra 400056
+            <p style={{ fontSize: '15px', color: 'var(--color-text-secondary)', fontWeight: 500, lineHeight: 1.6, whiteSpace: 'pre-line' }}>
+              {locationText}
             </p>
           </div>
 
@@ -180,10 +169,10 @@ function VenueContact() {
             </p>
             <ul className="mt-3 flex flex-col gap-2" style={{ listStyle: 'none', padding: 0 }}>
               <li>
-                <strong>Email:</strong> <a href="mailto:spectrum.sbmp@gmail.com" style={{ color: 'var(--color-text-primary)', textDecoration: 'underline' }}>spectrum.sbmp@gmail.com</a>
+                <strong>Email:</strong> <a href={`mailto:${email}`} style={{ color: 'var(--color-text-primary)', textDecoration: 'underline' }}>{email}</a>
               </li>
               <li>
-                <strong>Helpline:</strong> <a href="tel:+919876543210" style={{ color: 'var(--color-text-primary)', textDecoration: 'underline' }}>+91 98765 43210</a> (Registration Desk)
+                <strong>Helpline:</strong> <a href={`tel:${phone.replace(/\s+/g, '')}`} style={{ color: 'var(--color-text-primary)', textDecoration: 'underline' }}>{phone}</a> (Registration Desk)
               </li>
             </ul>
           </div>
