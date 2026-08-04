@@ -20,6 +20,11 @@ export function applyTheme(theme: Theme) {
     html.classList.remove('dark');
   }
   localStorage.setItem('spectrum26_theme', theme);
+  
+  const favicon = document.querySelector('link[rel="icon"]');
+  if (favicon) {
+    favicon.setAttribute('href', theme === 'dark' ? '/white.ico' : '/black.ico');
+  }
 }
 
 export function toggleTheme(currentTheme: Theme, callback?: (next: Theme) => void) {
