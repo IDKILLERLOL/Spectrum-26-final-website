@@ -76,12 +76,12 @@ export default function App() {
           <Route path="event/:id" element={<PublicEventDetailPage />} />
           <Route path="registrations" element={<PublicRegistrationsPage />} />
           <Route path="pass/:id" element={<PublicPassPage />} />
+          <Route path="register/:eventId" element={<RegisterPage />} />
 
           {/* Participant routes — require login */}
           <Route element={<RequireAuth />}>
             <Route path="my-registrations" element={<RegistrationsPage />} />
             <Route path="event-dashboard" element={<EventDetailPage />} />
-            <Route path="register/:eventId" element={<RegisterPage />} />
           </Route>
 
         </Route>

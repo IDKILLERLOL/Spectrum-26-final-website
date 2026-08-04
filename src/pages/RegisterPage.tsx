@@ -51,11 +51,7 @@ export function RegisterPage() {
         const memSnap = await getDocs(query(collection(db, 'teamMembers'), where('status', '==', 'ACTIVE')));
         setRegCount(memSnap.size);
 
-        if (!user) {
-          navigate(`/login?redirect=register&eventId=${eventId}`, { replace: true });
-          return;
-        }
-
+        // Skip authentication check and pre-fill if user is logged in
         if (user) {
           const profile = await getUser(user.uid);
           if (profile) {
@@ -71,7 +67,7 @@ export function RegisterPage() {
             if (existing) {
               // Already registered — go straight to their pass
               sessionStorage.setItem('spectrum26_active_registration_id', existing);
-              navigate('/event-dashboard', { replace: true });
+              navigate(`/pass/${existing}`, { replace: true });
               return;
             }
           }
@@ -172,43 +168,47 @@ export function RegisterPage() {
   };
 
   const completeRegistration = async () => {
-    if (!eventId || !event || !user) return;
+    if (!eventId || !event) return;
     setSubmitting(true);
     setError(null);
     try {
-      // Save leader details to their global user profile
-      await updateUser(user.uid, {
-        name: name.trim(),
-        phone: phone.trim(),
-        email: email.trim(),
-        college: college.trim(),
-      });
+      // Save leader details to their global user profile if authenticated
+      if (user) {
+        await updateUser(user.uid, {
+          name: name.trim(),
+          phone: phone.trim(),
+          email: email.trim(),
+          college: college.trim(),
+        });
+      }
+
+      const leaderUid = user ? user.uid : `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
       // Create the event registration with members list
       const newReg = await createRegistration(
         event.id,
         {
-          uid: user.uid,
+          uid: leaderUid,
           name: name.trim(),
           email: email.trim(),
           phone: phone.trim(),
           college: college.trim(),
         },
-        user.email || email.trim(),
+        user?.email || email.trim(),
         event.isTeamEvent ? members : [],
         event.isTeamEvent ? teamName.trim() : undefined
       );
 
-      // Redirect directly to the Event Detail/Pass page
+      // Redirect directly to the Pass page
       sessionStorage.setItem('spectrum26_active_registration_id', newReg.id);
-      navigate('/event-dashboard', { replace: true });
+      navigate(`/pass/${newReg.id}`, { replace: true });
     } catch (err: unknown) {
       console.error('[RegisterPage] Submit registration error:', err);
       const msg = (err as Error).message || '';
       if (msg.startsWith('ALREADY_REGISTERED:')) {
         const existingId = msg.replace('ALREADY_REGISTERED:', '');
         sessionStorage.setItem('spectrum26_active_registration_id', existingId);
-        navigate('/event-dashboard', { replace: true });
+        navigate(`/pass/${existingId}`, { replace: true });
         return;
       }
       setError(msg || 'Failed to complete registration. Please try again.');
