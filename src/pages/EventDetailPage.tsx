@@ -496,7 +496,7 @@ export function EventDetailPage() {
 
 
   const perPersonPrice = event?.price || 0;
-  const totalPeopleCount = event?.isTeamEvent ? (members.length + 1) : 1;
+  const totalPeopleCount = event?.isTeamEvent ? members.length : 1;
   const totalPrice = perPersonPrice * totalPeopleCount;
 
   const currentMember = members.find((m) => m.email && user?.email && m.email.toLowerCase() === user.email.toLowerCase());
@@ -596,10 +596,18 @@ export function EventDetailPage() {
                 </div>
               )}
 
-              <div className="flex justify-between items-end pb-4 border-b-4 border-primary mb-4">
+              <div className="flex justify-between items-center pb-4 border-b-4 border-primary mb-4">
                 <h2 className="font-heading text-card-title text-primary uppercase tracking-wide">
                   {event.isTeamEvent ? 'Team Roster' : 'Registration Details'}
                 </h2>
+                {event.isTeamEvent && isLeader && members.length < event.maxMembers && (
+                  <button
+                    onClick={() => openState({ type: 'add-member' })}
+                    className="flex items-center gap-2 font-button text-micro text-primary border border-primary px-3 py-1.5 hover:bg-primary hover:text-bg-base transition-all uppercase tracking-wide font-bold"
+                  >
+                    <Plus size={12} /> Add Member
+                  </button>
+                )}
               </div>
 
               {/* Member table */}
