@@ -73,14 +73,17 @@ export function useAuth() {
     const checkSession = async () => {
       if (!verifiedThisSession) {
         verifiedThisSession = true;
-        try {
-          await firebaseLogout();
-        } catch (e) {
-          console.error('[auth] Init logout error:', e);
+        const wasAdmin = !!getStoredAdminSession();
+        if (wasAdmin) {
+          try {
+            await firebaseLogout();
+          } catch (e) {
+            console.error('[auth] Init logout error:', e);
+          }
+          clearAdminSession();
+          setAdminSession(null);
+          setUser(null);
         }
-        clearAdminSession();
-        setAdminSession(null);
-        setUser(null);
       }
 
       const unsubscribe = initAuth(async (firebaseUser) => {
