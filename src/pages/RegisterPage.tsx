@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Loader2, ArrowRight, Plus, Trash2 } from 'lucide-react';
 import { useAuth } from '../lib/useAuth';
 import { getEvent, createRegistration, getUser, updateUser, hasExistingRegistration, db, getEventDetails } from '../lib/firestore';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs, query, where, getCountFromServer } from 'firebase/firestore';
 import type { Event } from '../types';
 
 export function RegisterPage() {
@@ -51,8 +51,9 @@ export function RegisterPage() {
           setSupportEmail(details.helplineEmail || 'spectrum.sbmp@gmail.com');
         }
 
-        // Skip teamMembers query to prevent slow page load
-        setRegCount(78); // Hardcode a fallback counter instead of fetching all documents
+        // Fetch registered persons count accurately using server aggregation (fast & cheap)
+        const countSnap = await getCountFromServer(query(collection(db, 'teamMembers'), where('status', '==', 'ACTIVE')));
+        setRegCount(countSnap.data().count);
 
         // Skip authentication check and pre-fill if user is logged in
         if (user && ev) {
@@ -280,7 +281,7 @@ export function RegisterPage() {
             {/* Team Name Input (for team events only, placed at the top) */}
             {event.isTeamEvent && (
               <div className="flex flex-col gap-6 pb-4 border-b border-border-default">
-                <h3 className="font-heading text-body text-primary uppercase border-b border-dashed border-border-subtle pb-2">
+                <h3 className="font-heading text-body text-primary uppercase pb-2">
                   Team Identification
                 </h3>
                 <div className="flex flex-col gap-2">
@@ -293,7 +294,7 @@ export function RegisterPage() {
                     onChange={(e) => setTeamName(e.target.value)}
                     placeholder="Enter your team name"
                     required
-                    className="bg-transparent border-b-2 border-border-strong text-primary font-heading text-heading py-2 focus:outline-none focus:border-primary transition-all placeholder:text-text-muted/40 w-full"
+                    className="bg-transparent border-b-2 border-border-strong text-primary font-body text-body py-2 focus:outline-none focus:border-primary transition-all placeholder:text-text-muted/40 w-full"
                   />
                 </div>
               </div>
@@ -301,7 +302,7 @@ export function RegisterPage() {
 
             {/* Leader / Registrant Section */}
             <div className="flex flex-col gap-6">
-              <h3 className="font-heading text-body text-primary uppercase border-b border-dashed border-border-subtle pb-2">
+              <h3 className="font-heading text-body text-primary uppercase pb-2">
                 Leader / Registrant Details
               </h3>
 
@@ -316,7 +317,7 @@ export function RegisterPage() {
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Enter your name"
                     required
-                    className="bg-transparent border-b-2 border-border-strong text-primary font-heading text-heading py-2 focus:outline-none focus:border-primary transition-all"
+                    className="bg-transparent border-b-2 border-border-strong text-primary font-body text-body py-2 focus:outline-none focus:border-primary transition-all"
                   />
                 </div>
 
@@ -330,7 +331,7 @@ export function RegisterPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@example.com"
                     required
-                    className="bg-transparent border-b-2 border-border-strong text-primary font-heading text-heading py-2 focus:outline-none focus:border-primary transition-all"
+                    className="bg-transparent border-b-2 border-border-strong text-primary font-body text-body py-2 focus:outline-none focus:border-primary transition-all"
                   />
                 </div>
 
@@ -344,7 +345,7 @@ export function RegisterPage() {
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="e.g. +91 98765 43210"
                     required
-                    className="bg-transparent border-b-2 border-border-strong text-primary font-heading text-heading py-2 focus:outline-none focus:border-primary transition-all"
+                    className="bg-transparent border-b-2 border-border-strong text-primary font-body text-body py-2 focus:outline-none focus:border-primary transition-all"
                   />
                 </div>
 
@@ -358,7 +359,7 @@ export function RegisterPage() {
                     onChange={(e) => setCollege(e.target.value)}
                     placeholder="e.g. Stanford University"
                     required
-                    className="bg-transparent border-b-2 border-border-strong text-primary font-heading text-heading py-2 focus:outline-none focus:border-primary transition-all"
+                    className="bg-transparent border-b-2 border-border-strong text-primary font-body text-body py-2 focus:outline-none focus:border-primary transition-all"
                   />
                 </div>
               </div>
@@ -495,10 +496,11 @@ export function RegisterPage() {
 
           {/* Support Section */}
           <div className="mt-4 pt-6 border-t border-border-default text-xs font-semibold text-center" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-            <p style={{ color: 'var(--color-text-muted)', marginBottom: '8px' }}>Need help with registering?</p>
-            <p style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
-              Helpline Support: <a href={`tel:${supportPhone.replace(/\s+/g, '')}`} style={{ color: 'var(--color-text-primary)', textDecoration: 'underline' }}>{supportPhone}</a> (Registration Desk)<br />
-              Email Support: <a href={`mailto:${supportEmail}`} style={{ color: 'var(--color-text-primary)', textDecoration: 'underline' }}>{supportEmail}</a>
+            <p style={{ color: 'var(--color-text-muted)' }}>
+              Need help with registering?{' '}
+              <Link to="/contact" style={{ color: 'var(--color-text-primary)', textDecoration: 'underline' }}>
+                Contact Us.
+              </Link>
             </p>
           </div>
         </div>
