@@ -9,6 +9,7 @@ import { getTheme, toggleTheme as triggerToggleTheme } from '../lib/theme';
 type GateStep = 'password' | 'google';
 
 export function AdminGatePage() {
+  console.log("[Mount] AdminGatePage component loaded");
   const navigate = useNavigate();
   const { isAdmin, verifyAdminPassword, adminLoginWithGoogle, adminBypassGoogle } = useAuth();
   const [showBypass, setShowBypass] = useState(false);

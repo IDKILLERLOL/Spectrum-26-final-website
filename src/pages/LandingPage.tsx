@@ -5,6 +5,7 @@ import { SpeedLines } from '../components/SpeedLines';
 import { playSynthSound } from '../lib/audio';
 
 export function LandingPage() {
+  console.log("[Mount] LandingPage component loaded");
   return (
     <div className="relative z-10 flex flex-col gap-12 pb-16">
       <SpeedLines />

@@ -118,6 +118,7 @@ function ScheduleCardSkeleton() {
 }
 
 export function SchedulePage() {
+  console.log("[Mount] SchedulePage component loaded");
   const [slots, setSlots] = useState<ScheduleSlot[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeDayIndex, setActiveDayIndex] = useState(0);

@@ -7,6 +7,7 @@ import { playSynthSound } from '../lib/audio';
 import { Loader2 } from 'lucide-react';
 
 export function PublicRegistrationsPage() {
+  console.log("[Mount] PublicRegistrationsPage component loaded");
   const [events, setEvents] = useState<Event[]>([]);
   const [selectedEventId, setSelectedEventId] = useState<string>('');
   const [registrations, setRegistrations] = useState<Registration[]>([]);

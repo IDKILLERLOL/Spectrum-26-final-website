@@ -6,6 +6,7 @@ import type { Registration, Event, TeamMember } from '../types';
 import { categoryLabel } from '../types';
 
 export function PublicPassPage() {
+  console.log("[Mount] PublicPassPage component loaded");
   const { id } = useParams<{ id: string }>();
   const [registration, setRegistration] = useState<Registration | null>(null);
   const [event, setEvent] = useState<Event | null>(null);

@@ -65,6 +65,7 @@ function ContenderRoster({ contenders }: { contenders: CompetingTeam[] }) {
 }
 
 export function WinnersPage() {
+  console.log("[Mount] WinnersPage component loaded");
   const [events, setEvents] = useState<Event[]>([]);
   const [winners, setWinners] = useState<Winner[]>([]);
   const [competingTeams, setCompetingTeams] = useState<Map<string, CompetingTeam[]>>(new Map());

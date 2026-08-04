@@ -28,6 +28,7 @@ const EMPTY_FORM: SlotFormData = {
 };
 
 export function AdminSchedulePage() {
+  console.log("[Mount] AdminSchedulePage component loaded");
   const { adminEmail } = useAuth();
   const [slots, setSlots] = useState<ScheduleSlot[]>([]);
   const [loading, setLoading] = useState(true);

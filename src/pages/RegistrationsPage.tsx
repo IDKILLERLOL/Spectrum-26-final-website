@@ -10,6 +10,7 @@ import { playSynthSound } from '../lib/audio';
 type RegWithEvent = Registration & { event: Event | null };
 
 export function RegistrationsPage() {
+  console.log("[Mount] RegistrationsPage component loaded");
   const { user } = useAuth();
   const navigate = useNavigate();
   const [items, setItems] = useState<RegWithEvent[]>([]);

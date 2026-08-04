@@ -7,6 +7,7 @@ import { collection, getDocs, query, where } from 'firebase/firestore';
 import type { Event } from '../types';
 
 export function RegisterPage() {
+  console.log("[Mount] RegisterPage component loaded");
   const { eventId } = useParams<{ eventId: string }>();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();

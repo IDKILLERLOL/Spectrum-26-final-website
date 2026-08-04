@@ -20,6 +20,7 @@ type InlineState =
   | { type: 'add' };
 
 export function AdminEditRegistrationPage() {
+  console.log("[Mount] AdminEditRegistrationPage component loaded");
   const { id: regId } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { adminEmail } = useAuth();

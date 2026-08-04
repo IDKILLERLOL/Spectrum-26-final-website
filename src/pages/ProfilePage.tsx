@@ -7,6 +7,7 @@ import { notifyEmailChanged } from '../lib/email';
 import type { User } from '../types';
 
 export function ProfilePage() {
+  console.log("[Mount] ProfilePage component loaded");
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();

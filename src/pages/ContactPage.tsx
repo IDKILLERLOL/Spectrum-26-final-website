@@ -4,6 +4,7 @@ import { playSynthSound } from '../lib/audio';
 import { useState, useEffect } from 'react';
 
 export function ContactPage() {
+  console.log("[Mount] ContactPage component loaded");
   const [details, setDetails] = useState<any>(null);
   useEffect(() => {
     import('../lib/firestore').then(m => m.getEventDetails()).then(setDetails).catch(console.error);

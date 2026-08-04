@@ -8,6 +8,7 @@ import type { QueryDocumentSnapshot } from 'firebase/firestore';
 const PAGE_SIZE = 7;
 
 export function AuditLogPage() {
+  console.log("[Mount] AuditLogPage component loaded");
   const { adminEmail } = useAuth();
   const [entries, setEntries] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);

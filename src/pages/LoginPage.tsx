@@ -19,6 +19,7 @@ function hashPassword(password: string, email: string): string {
 }
 
 export function LoginPage() {
+  console.log("[Mount] LoginPage component loaded");
   const navigate = useNavigate();
   const location = useLocation();
   const { user, loginWithGoogle, setOtpUser } = useAuth();

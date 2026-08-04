@@ -16,6 +16,7 @@ const NAV_ITEMS = [
 
 
 export function Sidebar() {
+  console.log("[Mount] Sidebar component loaded");
   const location = useLocation();
   const navigate = useNavigate();
   const { adminEmail, adminLogout } = useAuth();

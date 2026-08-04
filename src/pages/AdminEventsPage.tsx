@@ -30,6 +30,7 @@ const EMPTY_FORM: EventFormData = {
 };
 
 export function AdminEventsPage() {
+  console.log("[Mount] AdminEventsPage component loaded");
   const { adminEmail } = useAuth();
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);

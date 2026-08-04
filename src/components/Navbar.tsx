@@ -7,6 +7,7 @@ import { playSynthSound, setSoundEnabled } from '../lib/audio';
 import { Volume2, VolumeX, Sun, Moon, LogIn, LogOut, User, Menu, X } from 'lucide-react';
 
 export function Navbar() {
+  console.log("[Mount] Navbar component loaded");
   const location = useLocation();
   const { user, loading, logout } = useAuth();
   const [theme, setTheme] = useState(getTheme);

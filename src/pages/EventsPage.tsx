@@ -30,6 +30,7 @@ const TECH_ROUND_DETAILS: Record<string, string[]> = {
 };
 
 export function EventsPage() {
+  console.log("[Mount] EventsPage component loaded");
   const { user } = useAuth();
   const navigate = useNavigate();
   const [events, setEvents] = useState<Event[]>(FALLBACK_EVENTS);

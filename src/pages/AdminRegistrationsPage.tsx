@@ -18,6 +18,7 @@ type RowView = {
 };
 
 export function AdminRegistrationsPage() {
+  console.log("[Mount] AdminRegistrationsPage component loaded");
   const { adminEmail } = useAuth();
   const [rows, setRows] = useState<RowView[]>([]);
   const [loading, setLoading] = useState(true);

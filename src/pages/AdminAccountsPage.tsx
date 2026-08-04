@@ -6,6 +6,7 @@ import { useAuth } from '../lib/useAuth';
 import type { User as DbUser } from '../types';
 
 export function AdminAccountsPage() {
+  console.log("[Mount] AdminAccountsPage component loaded");
   const { adminEmail } = useAuth();
   const [users, setUsers] = useState<DbUser[]>([]);
   const [unregisteredUsers, setUnregisteredUsers] = useState<DbUser[]>([]);

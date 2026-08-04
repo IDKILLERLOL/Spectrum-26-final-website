@@ -21,6 +21,7 @@ const TECH_ROUND_DETAILS: Record<string, string[]> = {
 };
 
 export function PublicEventDetailPage() {
+  console.log("[Mount] PublicEventDetailPage component loaded");
   const { id } = useParams<{ id: string }>();
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
