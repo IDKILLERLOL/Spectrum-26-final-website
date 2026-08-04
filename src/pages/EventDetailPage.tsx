@@ -800,65 +800,6 @@ export function EventDetailPage() {
                 </span>
               </div>
 
-              {/* UPI ref submit — inline expand */}
-              {inlineState.type !== 'submit-upi' ? (
-                <button
-                  onClick={() => openState({ type: 'submit-upi' })}
-                  className="w-full bg-primary text-bg-base font-button text-button uppercase py-4 hover:opacity-90 transition-opacity flex justify-center items-center gap-2 border-2 border-primary"
-                >
-                  <ArrowRight size={18} /> Submit Transaction ID
-                </button>
-              ) : (
-                <div className="expand-in flex flex-col gap-4 border-l-2 border-primary pl-4">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="font-micro text-micro text-primary uppercase tracking-widest">Transaction / UTR Reference</label>
-                    <input
-                      type="text"
-                      value={upiRef}
-                      onChange={(e) => setUpiRef(e.target.value)}
-                      placeholder="e.g. 312345678901"
-                      className="bg-transparent border-b border-border-strong text-primary font-heading text-heading py-2 focus:outline-none focus:border-primary transition-all"
-                    />
-                  </div>
-                  
-                  {/* Payment Screenshot File Input */}
-                  <div className="flex flex-col gap-2">
-                    <label className="font-micro text-micro text-primary uppercase tracking-widest">Payment Proof / Screenshot</label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                      className="text-xs text-text-secondary cursor-pointer"
-                    />
-                    {imageLoading && <span className="text-xs text-text-muted animate-pulse">Processing screenshot...</span>}
-                    {screenshotBase64 && (
-                      <div className="relative w-32 h-32 border border-border-default mt-1 overflow-hidden bg-black/50">
-                        <img src={screenshotBase64} alt="Screenshot preview" className="w-full h-full object-cover" />
-                        <button 
-                          type="button" 
-                          onClick={() => setScreenshotBase64(null)}
-                          className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full p-1 text-[9px] font-bold"
-                          style={{ width: '16px', height: '16px', display: 'flex', alignItems: 'center', justify: 'center' }}
-                        >
-                          X
-                        </button>
-                      </div>
-                    )}
-                  </div>
-
-                  {error && <p className="font-body text-small text-text-secondary">{error}</p>}
-                  <div className="flex gap-3 mt-2">
-                    <button onClick={closeState} className="px-4 py-2 border border-border-default text-text-secondary font-button text-button uppercase hover:opacity-70">Cancel</button>
-                    <button
-                      onClick={handleSubmitUpiRef}
-                      disabled={saving || !upiRef.trim() || imageLoading}
-                      className="flex-1 bg-primary text-bg-base font-button text-button uppercase py-3 hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
-                    >
-                      {saving && <Loader2 size={14} className="animate-spin" />} Submit
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
           )}
 
@@ -925,11 +866,75 @@ export function EventDetailPage() {
               ) : (
                 <>
                   <div className="w-16 h-16 border-2 border-primary bg-bg-base flex items-center justify-center relative z-10">
-                    <Lock size={32} className="text-primary" />
+                    {registration?.upiTransactionRef ? (
+                      <Clock size={32} className="text-primary animate-pulse" />
+                    ) : (
+                      <Lock size={32} className="text-primary" />
+                    )}
                   </div>
-                  <div className="relative z-10 flex flex-col gap-3 px-4 bg-bg-base p-4 border border-primary">
-                    <span className="font-heading text-card-title text-primary uppercase">Entry Pass Locked</span>
-                    <span className="font-body text-small text-text-muted">Generated upon payment verification.</span>
+                  <div className="relative z-10 flex flex-col gap-3 px-4 bg-bg-base p-4 border border-primary w-full max-w-[280px]">
+                    <span className="font-heading text-card-title text-primary uppercase">
+                      {registration?.upiTransactionRef ? 'Payment Pending' : 'Entry Pass Locked'}
+                    </span>
+                    <span className="font-body text-small text-text-muted">
+                      {registration?.upiTransactionRef 
+                        ? 'Admin is verifying your transaction. You can update details below.'
+                        : 'Generated upon payment verification.'}
+                    </span>
+
+                    {/* Submit form directly inside */}
+                    <div className="flex flex-col gap-4 border-t border-border-default pt-4 text-left w-full mt-2">
+                      <div className="flex flex-col gap-1">
+                        <label className="font-micro text-[10px] text-text-muted uppercase tracking-widest">Transaction / UTR ID</label>
+                        <input
+                          type="text"
+                          value={upiRef}
+                          onChange={(e) => setUpiRef(e.target.value)}
+                          placeholder="e.g. 312345678901"
+                          className="bg-transparent border-b border-border-strong text-primary font-mono text-small py-1.5 focus:outline-none focus:border-primary transition-all w-full"
+                        />
+                      </div>
+                      
+                      <div className="flex flex-col gap-1.5">
+                        <label className="font-micro text-[10px] text-text-muted uppercase tracking-widest">Payment Proof / Screenshot</label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileChange}
+                          className="text-[10px] text-text-secondary cursor-pointer w-full file:bg-primary file:text-bg-base file:border-none file:px-2 file:py-1 file:font-bold file:uppercase file:text-[9px] hover:file:opacity-85 file:cursor-pointer"
+                        />
+                        {imageLoading && <span className="text-[10px] text-text-muted animate-pulse">Processing...</span>}
+                        {screenshotBase64 && (
+                          <div className="relative w-20 h-20 border border-border-default mt-1 overflow-hidden bg-black/50">
+                            <img src={screenshotBase64} alt="Screenshot preview" className="w-full h-full object-cover" />
+                            <button 
+                              type="button" 
+                              onClick={() => setScreenshotBase64(null)}
+                              className="absolute top-0.5 right-0.5 bg-red-600 hover:bg-red-700 text-white rounded-full p-0.5 text-[8px] font-bold"
+                              style={{ width: '12px', height: '12px', display: 'flex', alignItems: 'center', justify: 'center' }}
+                            >
+                              X
+                            </button>
+                          </div>
+                        )}
+                        {registration?.paymentScreenshotUrl && !screenshotBase64 && (
+                          <div className="flex flex-col gap-1 mt-1">
+                            <span className="font-micro text-[9px] text-text-muted uppercase">Last Submitted Proof</span>
+                            <img src={registration.paymentScreenshotUrl} alt="Submitted proof" className="w-16 h-16 object-cover border border-border-default" />
+                          </div>
+                        )}
+                      </div>
+
+                      {error && <p className="font-body text-small text-text-secondary">{error}</p>}
+                      <button
+                        onClick={handleSubmitUpiRef}
+                        disabled={saving || !upiRef.trim() || imageLoading}
+                        className="bg-primary text-bg-base font-button text-micro uppercase py-2 hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2 font-bold w-full"
+                      >
+                        {saving && <Loader2 size={10} className="animate-spin" />}
+                        {registration?.upiTransactionRef ? 'Update Details' : 'Submit Details'}
+                      </button>
+                    </div>
                   </div>
                 </>
               )}
