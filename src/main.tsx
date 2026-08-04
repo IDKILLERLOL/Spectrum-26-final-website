@@ -53,10 +53,6 @@ if (theme === 'dark') {
 } else {
   document.documentElement.classList.remove('dark');
 }
-const favicon = document.querySelector('link[rel="icon"]');
-if (favicon) {
-  favicon.setAttribute('href', theme === 'dark' ? '/white.ico' : '/black.ico');
-}
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
