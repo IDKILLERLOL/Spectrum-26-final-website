@@ -259,10 +259,9 @@ export function RegisterPage() {
         </div>
 
         <div
-          className="p-8 border flex flex-col gap-8"
+          className="p-8 flex flex-col gap-8"
           style={{
             background: 'var(--color-bg-card)',
-            borderColor: 'var(--color-border-default)',
             borderRadius: '8px',
           }}
         >
