@@ -14,7 +14,9 @@ export function RegisterPage() {
 
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
-  
+
+  console.log("[RegisterPage Debug] Render state:", { loading, authLoading, eventId, hasUser: !!user });
+
   // Leader / registrant state
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
