@@ -731,22 +731,6 @@ export function EventDetailPage() {
 
         {/* Right: Fee & QR */}
         <div className="md:col-span-4 flex flex-col gap-12">
-          {/* Admin fee status toggle */}
-          {isAdmin && (
-            <div className="flex flex-col gap-4">
-              <div className="flex justify-between items-end border-b-4 border-primary pb-4">
-                <h3 className="font-heading text-card-title text-primary uppercase">Admin Controls</h3>
-              </div>
-              <button
-                onClick={handleToggleFee}
-                disabled={saving}
-                className="w-full font-button text-button py-4 border-2 border-primary uppercase tracking-wide flex items-center justify-center gap-2 hover:bg-primary hover:text-bg-base transition-colors disabled:opacity-50"
-              >
-                {saving && <Loader2 size={14} className="animate-spin" />}
-                Mark as {paid ? 'Pending' : 'Paid'}
-              </button>
-            </div>
-          )}
 
           {/* Payment section */}
           <div className="flex flex-col gap-8">
