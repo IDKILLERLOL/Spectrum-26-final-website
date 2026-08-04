@@ -477,7 +477,7 @@ export function EventDetailPage() {
 
 
 
-  const currentMember = members.find((m) => m.email.toLowerCase() === user?.email?.toLowerCase());
+  const currentMember = members.find((m) => m.email && user?.email && m.email.toLowerCase() === user.email.toLowerCase());
   const activeMember = currentMember || leaderMember;
 
   // ─── QR code URL (on-demand, no storage) ────────────────────────────────────
