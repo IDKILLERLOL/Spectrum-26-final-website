@@ -133,20 +133,35 @@ export async function syncRegistrationsToGoogleSheets(
     throw new Error(`Failed to fetch spreadsheet info: ${getRes.statusText}`);
   }
   const sheetData = await getRes.json();
-  const existingSheetTitles: string[] = (sheetData.sheets || []).map((s: any) => s.properties.title);
+  const existingSheets = sheetData.sheets || [];
+  const existingSheetTitles: string[] = existingSheets.map((s: any) => s.properties.title);
 
-  // 2. Identify separate worksheets needed for each event
-  const eventNames = events.map(e => e.name);
-  const sheetsToAdd = eventNames.filter(name => !existingSheetTitles.includes(name));
+  // 2. Identify allowed worksheets and actions
+  const allowedTitles = ["All Registrations", ...events.map(e => e.name)];
+  
+  const requests: any[] = [];
+  
+  // A. Add sheets that are missing
+  for (const title of allowedTitles) {
+    if (!existingSheetTitles.includes(title)) {
+      requests.push({
+        addSheet: { properties: { title } }
+      });
+    }
+  }
+  
+  // B. Delete sheets that are not allowed
+  for (const s of existingSheets) {
+    if (!allowedTitles.includes(s.properties.title)) {
+      requests.push({
+        deleteSheet: { sheetId: s.properties.sheetId }
+      });
+    }
+  }
 
-  if (sheetsToAdd.length > 0) {
-    // Batch add new sheets
+  // C. Execute batch update
+  if (requests.length > 0) {
     const batchUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`;
-    const requests = sheetsToAdd.map(title => ({
-      addSheet: {
-        properties: { title }
-      }
-    }));
     const batchRes = await fetch(batchUrl, {
       method: 'POST',
       headers: {
@@ -156,11 +171,77 @@ export async function syncRegistrationsToGoogleSheets(
       body: JSON.stringify({ requests })
     });
     if (!batchRes.ok) {
-      console.warn("Failed to create some worksheets", await batchRes.json());
+      console.warn("Failed to update worksheets structure", await batchRes.json());
     }
   }
 
-  // 3. Populate each sheet with teams, members, emails, phones, college, fee status, checked-in status
+  // 3. Populate "All Registrations" sheet
+  const universalRows: any[][] = [
+    ['Event Name', 'Team/Leader Name', 'Role', 'Name', 'Email', 'Phone', 'College', 'Fee Status', 'Checked In', 'Registered At']
+  ];
+
+  for (const reg of registrations) {
+    const event = events.find(e => e.id === reg.eventId);
+    const regMembers = teamMembers.filter(m => m.registrationId === reg.id && m.status === 'ACTIVE');
+    const leader = regMembers.find(m => m.role === 'LEADER') || regMembers[0];
+    const membersList = regMembers.filter(m => m.role === 'MEMBER');
+
+    const eventName = event ? event.name : 'Unknown Event';
+    const displayName = reg.teamName || (leader ? leader.name : 'Anonymous');
+
+    // Add leader row
+    universalRows.push([
+      eventName,
+      displayName,
+      'LEADER',
+      leader ? leader.name : '',
+      leader ? leader.email : '',
+      leader ? leader.phone : '',
+      leader ? (leader.college || '') : '',
+      reg.feeStatus,
+      reg.checkedIn ? 'Yes' : 'No',
+      reg.createdAt ? new Date(reg.createdAt).toLocaleString() : ''
+    ]);
+
+    // Add member rows
+    for (const m of membersList) {
+      universalRows.push([
+        eventName,
+        displayName,
+        'MEMBER',
+        m.name,
+        m.email,
+        m.phone,
+        m.college || '',
+        reg.feeStatus,
+        reg.checkedIn ? 'Yes' : 'No',
+        reg.createdAt ? new Date(reg.createdAt).toLocaleString() : ''
+      ]);
+    }
+  }
+
+  // Clear universal values
+  const clearUniversalUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent("All Registrations")}!A1:Z5000:clear`;
+  await fetch(clearUniversalUrl, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+
+  // Update universal values
+  const updateUniversalUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent("All Registrations")}!A1?valueInputOption=USER_ENTERED`;
+  const updateUniversalRes = await fetch(updateUniversalUrl, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ values: universalRows })
+  });
+  if (!updateUniversalRes.ok) {
+    console.error("Failed to sync universal worksheet", await updateUniversalRes.json());
+  }
+
+  // 4. Populate each event sheet with teams
   for (const ev of events) {
     const evRegs = registrations.filter(r => r.eventId === ev.id);
     
