@@ -100,8 +100,8 @@ export function AdminEventsPage() {
         }
       }
       await createEvent(data, adminEmail ?? '');
-      await reload();
       closeState();
+      reload().catch(console.error);
     } catch (err: unknown) {
       setError((err as Error).message || 'Failed to create event.');
     } finally { setSaving(false); }
@@ -132,8 +132,8 @@ export function AdminEventsPage() {
         }
       }
       await updateEvent(eventId, patch, adminEmail ?? '');
-      await reload();
       closeState();
+      reload().catch(console.error);
     } catch (err: unknown) {
       setError((err as Error).message || 'Failed to update event.');
     } finally { setSaving(false); }
@@ -145,8 +145,8 @@ export function AdminEventsPage() {
     setSaving(true);
     try {
       await deleteEvent(eventId, adminEmail ?? '');
-      await reload();
       closeState();
+      reload().catch(console.error);
     } catch (err: unknown) {
       setError((err as Error).message || 'Cannot delete: teams are registered for this event.');
     } finally { setSaving(false); }

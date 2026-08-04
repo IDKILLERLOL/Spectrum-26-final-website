@@ -720,7 +720,7 @@ export function EventDetailPage() {
 
             {/* Help mailto button */}
             <a
-              href={`mailto:${HELP_EMAIL}?subject=Help with registration ${registration.id}&body=Hi, I need help with my registration for ${event.name}.`}
+              href={`mailto:${supportEmail}?subject=Help with registration ${registration.id}&body=Hi, I need help with my registration for ${event.name}.`}
               className="inline-flex items-center gap-2 font-button text-button text-text-secondary border border-dashed border-border-default px-6 py-3 hover:border-primary hover:text-primary transition-colors uppercase tracking-wide w-max"
             >
               <Mail size={14} /> Need help with this team?
