@@ -3,8 +3,18 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Loader2, ArrowRight, Plus, Trash2 } from 'lucide-react';
 import { useAuth } from '../lib/useAuth';
 import { getEvent, createRegistration, getUser, updateUser, hasExistingRegistration, db, getEventDetails } from '../lib/firestore';
-import { collection, getDocs, query, where, getCountFromServer } from 'firebase/firestore';
+import { collection, getDocs, query, where, getCountFromServer, doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import type { Event } from '../types';
+
+function hashPassword(password: string, email: string): string {
+  const str = `${email}::${password}`;
+  let hash = 5381;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) + hash + str.charCodeAt(i);
+    hash = hash & hash; // 32-bit
+  }
+  return (hash >>> 0).toString(16);
+}
 
 export function RegisterPage() {
   console.log("[Mount] RegisterPage component loaded");
@@ -22,6 +32,7 @@ export function RegisterPage() {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [college, setCollege] = useState('');
+  const [password, setPassword] = useState('');
   const [teamName, setTeamName] = useState('');
   
   // Team members state (for team events)
@@ -114,6 +125,11 @@ export function RegisterPage() {
       return;
     }
 
+    if (!user && !password.trim()) {
+      setError('Please create a password for your account.');
+      return;
+    }
+
     // Validate team members if team event
     if (event.isTeamEvent) {
       if (!teamName.trim()) {
@@ -187,6 +203,21 @@ export function RegisterPage() {
       }
 
       const leaderUid = user ? user.uid : `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+      // If they are not logged in (guest), create their user document with the password hash!
+      if (!user) {
+        const userRef = doc(db, 'users', leaderUid);
+        const passHash = hashPassword(password.trim(), email.trim().toLowerCase());
+        await setDoc(userRef, {
+          email: email.trim().toLowerCase(),
+          name: name.trim(),
+          phone: phone.trim(),
+          college: college.trim(),
+          authMethod: 'otp', // So they login via email/password in LoginPage
+          passwordHash: passHash,
+          createdAt: serverTimestamp()
+        });
+      }
 
       // Create the event registration with members list
       const newReg = await createRegistration(
@@ -362,6 +393,22 @@ export function RegisterPage() {
                     className="bg-transparent border-b-2 border-border-strong text-primary font-body text-body py-2 focus:outline-none focus:border-primary transition-all"
                   />
                 </div>
+
+                {!user && (
+                  <div className="flex flex-col gap-2">
+                    <label className="text-micro font-body uppercase tracking-widest" style={{ color: 'var(--color-text-muted)' }}>
+                      Create Account Password *
+                    </label>
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Min 6 characters recommended"
+                      required
+                      className="bg-transparent border-b-2 border-border-strong text-primary font-body text-body py-2 focus:outline-none focus:border-primary transition-all"
+                    />
+                  </div>
+                )}
               </div>
             </div>
 
