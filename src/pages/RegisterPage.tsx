@@ -17,15 +17,12 @@ function hashPassword(password: string, email: string): string {
 }
 
 export function RegisterPage() {
-  console.log("[Mount] RegisterPage component loaded");
   const { eventId } = useParams<{ eventId: string }>();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
 
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
-
-  console.log("[RegisterPage Debug] Render state:", { loading, authLoading, eventId, hasUser: !!user });
 
   // Leader / registrant state
   const [name, setName] = useState('');

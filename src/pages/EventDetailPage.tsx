@@ -36,12 +36,14 @@ export function EventDetailPage() {
   const { user, adminEmail, isAdmin } = useAuth();
   const navigate = useNavigate();
 
-
-
   const [registration, setRegistration] = useState<Registration | null>(null);
   const [event, setEvent] = useState<Event | null>(null);
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
+
+  console.log("[Mount] EventDetailPage component loaded");
+  console.log("[EventDetailPage Debug] Render state:", { loading, urlId, registrationId, hasUser: !!user, hasEvent: !!event, hasReg: !!registration, membersCount: members.length });
+
   const [inlineState, setInlineState] = useState<InlineState>({ type: 'none' });
   const [saving, setSaving] = useState(false);
   const [copied, setCopied] = useState(false);
