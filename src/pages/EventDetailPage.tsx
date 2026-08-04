@@ -50,6 +50,8 @@ export function EventDetailPage() {
 
   // Input states declared at top to follow Rules of Hooks
   const [upiRef, setUpiRef] = useState('');
+  const [screenshotBase64, setScreenshotBase64] = useState<string | null>(null);
+  const [imageLoading, setImageLoading] = useState(false);
   const [editName, setEditName] = useState('');
   const [editPhone, setEditPhone] = useState('');
   const [editEmail, setEditEmail] = useState('');
@@ -219,7 +221,47 @@ export function EventDetailPage() {
 
 
   const openState = (s: InlineState) => { setInlineState(s); setError(null); };
-  const closeState = () => setInlineState({ type: 'none' });
+  const closeState = () => {
+    setInlineState({ type: 'none' });
+    setScreenshotBase64(null);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImageLoading(true);
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        // Draw and compress on canvas
+        const canvas = document.createElement('canvas');
+        const max_width = 800; // Limit image dimensions to maintain reasonable Base64 payload size
+        let width = img.width;
+        let height = img.height;
+
+        if (width > max_width) {
+          height = Math.round((height * max_width) / width);
+          width = max_width;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          // Compress to JPEG with 0.75 quality (keeps file size ~50KB - 150KB)
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
+          setScreenshotBase64(dataUrl);
+        }
+        setImageLoading(false);
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
 
   // ─── Copy UPI ID ────────────────────────────────────────────────────────────
   const handleCopyUpi = () => {
@@ -245,7 +287,7 @@ export function EventDetailPage() {
     if (!upiRef.trim() || !registration) return;
     setSaving(true);
     try {
-      await submitUpiRef(registration.id, upiRef.trim(), actorEmail);
+      await submitUpiRef(registration.id, upiRef.trim(), actorEmail, screenshotBase64);
       await reload();
       closeState();
     } catch { setError('Failed to save. Try again.'); }
@@ -752,20 +794,48 @@ export function EventDetailPage() {
                   </button>
                 ) : (
                   <div className="expand-in flex flex-col gap-4 border-l-2 border-primary pl-4">
-                    <label className="font-micro text-micro text-primary uppercase tracking-widest">Transaction / UTR Reference</label>
-                    <input
-                      type="text"
-                      value={upiRef}
-                      onChange={(e) => setUpiRef(e.target.value)}
-                      placeholder="e.g. 312345678901"
-                      className="bg-transparent border-b border-border-strong text-primary font-heading text-heading py-2 focus:outline-none focus:border-primary transition-all"
-                    />
+                    <div className="flex flex-col gap-1.5">
+                      <label className="font-micro text-micro text-primary uppercase tracking-widest">Transaction / UTR Reference</label>
+                      <input
+                        type="text"
+                        value={upiRef}
+                        onChange={(e) => setUpiRef(e.target.value)}
+                        placeholder="e.g. 312345678901"
+                        className="bg-transparent border-b border-border-strong text-primary font-heading text-heading py-2 focus:outline-none focus:border-primary transition-all"
+                      />
+                    </div>
+                    
+                    {/* Payment Screenshot File Input */}
+                    <div className="flex flex-col gap-2">
+                      <label className="font-micro text-micro text-primary uppercase tracking-widest">Payment Proof / Screenshot</label>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        className="text-xs text-text-secondary cursor-pointer"
+                      />
+                      {imageLoading && <span className="text-xs text-text-muted animate-pulse">Processing screenshot...</span>}
+                      {screenshotBase64 && (
+                        <div className="relative w-32 h-32 border border-border-default mt-1 overflow-hidden bg-black/50">
+                          <img src={screenshotBase64} alt="Screenshot preview" className="w-full h-full object-cover" />
+                          <button 
+                            type="button" 
+                            onClick={() => setScreenshotBase64(null)}
+                            className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full p-1 text-[9px] font-bold"
+                            style={{ width: '16px', height: '16px', display: 'flex', alignItems: 'center', justify: 'center' }}
+                          >
+                            X
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
                     {error && <p className="font-body text-small text-text-secondary">{error}</p>}
-                    <div className="flex gap-3">
+                    <div className="flex gap-3 mt-2">
                       <button onClick={closeState} className="px-4 py-2 border border-border-default text-text-secondary font-button text-button uppercase hover:opacity-70">Cancel</button>
                       <button
                         onClick={handleSubmitUpiRef}
-                        disabled={saving || !upiRef.trim()}
+                        disabled={saving || !upiRef.trim() || imageLoading}
                         className="flex-1 bg-primary text-bg-base font-button text-button uppercase py-3 hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
                       >
                         {saving && <Loader2 size={14} className="animate-spin" />} Submit
