@@ -158,75 +158,7 @@ export function Navbar() {
             SWAP
           </button>
 
-          {/* Auth */}
-          {!loading && (
-            user ? (
-              <div className="relative">
-                <button
-                  onClick={() => { playSynthSound('click'); setShowUserCard(!showUserCard); }}
-                  className="comic-btn-outline"
-                  style={{ fontSize: '14px', padding: '6px 14px' }}
-                >
-                  <User size={13} className="mr-1 inline" />
-                  {dbUser?.name || user.displayName || user.email?.split('@')[0] || 'AGENT'}
-                </button>
 
-                {showUserCard && (
-                  <>
-                    <div className="fixed inset-0 z-40" onClick={() => setShowUserCard(false)} />
-                    <div
-                      className="absolute right-0 top-full mt-3 z-50 flex flex-col gap-3 min-w-[260px] p-5 comic-shadow comic-pop"
-                      style={{ background: 'var(--panel-bg)' }}
-                    >
-                      <h4
-                        style={{
-                          fontFamily: 'Bangers, cursive',
-                          fontSize: '20px',
-                          letterSpacing: '0.06em',
-                          textTransform: 'uppercase',
-                          color: 'var(--color-text-primary)',
-                          borderBottom: '2px solid var(--border-color)',
-                          paddingBottom: '8px',
-                          marginBottom: '4px',
-                        }}
-                      >
-                        YOUR ACCOUNT
-                      </h4>
-                      <div className="flex flex-col gap-2" style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '13px', fontWeight: 500 }}>
-                        {[
-                          { label: 'NAME', value: dbUser?.name || user.displayName || 'User' },
-                          ...((dbUser?.email || user.email) ? [{ label: 'EMAIL', value: dbUser?.email || user.email }] : []),
-                          ...((dbUser?.phone || user.phoneNumber) ? [{ label: 'PHONE', value: dbUser?.phone || user.phoneNumber }] : []),
-                          ...(dbUser?.college ? [{ label: 'COLLEGE', value: dbUser.college }] : []),
-                        ].map(({ label, value }) => (
-                          <div key={label}>
-                            <div style={{ fontSize: '9px', letterSpacing: '0.12em', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', marginBottom: '2px' }}>{label}</div>
-                            <div style={{ color: 'var(--color-text-primary)' }}>{value}</div>
-                          </div>
-                        ))}
-                      </div>
-                      <button
-                        onClick={() => { setShowUserCard(false); playSynthSound('laser'); logout(); }}
-                        className="comic-btn w-full"
-                        style={{ fontSize: '16px', padding: '8px 16px', marginTop: '4px' }}
-                      >
-                        <LogOut size={13} className="mr-1 inline" /> LOG OUT //
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            ) : (
-              <Link
-                to="/login"
-                onClick={() => playSynthSound('laser')}
-                className="comic-btn"
-                style={{ fontSize: '16px', padding: '6px 16px' }}
-              >
-                <LogIn size={14} className="mr-1 inline" /> SIGN IN
-              </Link>
-            )
-          )}
         </div>
       </div>
 
