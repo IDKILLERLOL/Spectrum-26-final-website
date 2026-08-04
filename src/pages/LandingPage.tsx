@@ -95,27 +95,46 @@ function Countdown() {
   ];
 
   return (
-    <div
-      className="flex gap-3 md:gap-4 justify-center items-center mt-10 relative z-20 flex-wrap select-none"
-      style={{ fontFamily: 'Bangers, cursive' }}
-    >
-      {units.map((unit) => (
-        <div
-          key={unit.label}
-          className="w-20 h-20 md:w-28 md:h-28 comic-border-thick flex flex-col justify-center items-center rotate-[-1deg]"
-          style={{
-            background: 'var(--panel-bg)',
-            boxShadow: '4px 4px 0px var(--border-color)',
-          }}
-        >
-          <span className="text-[36px] md:text-[54px] leading-none text-primary">
-            {String(unit.value).padStart(2, '0')}
-          </span>
-          <span className="text-[12px] md:text-[14px] uppercase tracking-wider text-text-muted">
-            {unit.label}
-          </span>
-        </div>
-      ))}
+    <div className="flex flex-col items-center gap-6 mt-10 relative z-20">
+      <div
+        className="flex gap-3 md:gap-4 justify-center items-center flex-wrap select-none"
+        style={{ fontFamily: 'Bangers, cursive' }}
+      >
+        {units.map((unit) => (
+          <div
+            key={unit.label}
+            className="w-20 h-20 md:w-28 md:h-28 comic-border-thick flex flex-col justify-center items-center rotate-[-1deg]"
+            style={{
+              background: 'var(--panel-bg)',
+              boxShadow: '4px 4px 0px var(--border-color)',
+            }}
+          >
+            <span className="text-[36px] md:text-[54px] leading-none text-primary">
+              {String(unit.value).padStart(2, '0')}
+            </span>
+            <span className="text-[12px] md:text-[14px] uppercase tracking-wider text-text-muted">
+              {unit.label}
+            </span>
+          </div>
+        ))}
+      </div>
+      <Link
+        to="/events"
+        onClick={() => playSynthSound('laser')}
+        className="comic-shadow-sm inline-flex items-center gap-2"
+        style={{
+          background: 'var(--color-text-primary)',
+          color: 'var(--color-bg-base)',
+          fontFamily: 'Bangers, cursive',
+          fontSize: '20px',
+          padding: '8px 24px',
+          letterSpacing: '0.04em',
+          textDecoration: 'none',
+          border: '2px solid var(--color-bg-base)',
+        }}
+      >
+        VIEW EVENTS
+      </Link>
     </div>
   );
 }
@@ -185,17 +204,26 @@ function VenueContact() {
         </div>
 
         {/* Right Column: Google Maps Embed */}
-        <div className="comic-border-medium overflow-hidden h-[300px] relative">
+        <a 
+          href="https://maps.app.goo.gl/jS54o8EKGNT7gRHS6"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="comic-border-medium overflow-hidden h-[300px] relative block cursor-pointer group"
+          title="Click to open in Google Maps"
+        >
           <iframe
             title="SVKM's Shri Bhagubhai Mafatlal Polytechnic Location"
             src="https://maps.google.com/maps?q=SVKM's%20Shri%20Bhagubhai%20Mafatlal%20Polytechnic&t=&z=16&ie=UTF8&iwloc=&output=embed"
             width="100%"
             height="100%"
-            style={{ border: 0 }}
+            style={{ border: 0, pointerEvents: 'none' }}
             allowFullScreen
             loading="lazy"
           />
-        </div>
+          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white font-bold uppercase tracking-wider text-sm pointer-events-none" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+            Open in Google Maps ↗
+          </div>
+        </a>
       </div>
     </section>
   );

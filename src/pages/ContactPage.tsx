@@ -93,17 +93,26 @@ export function ContactPage() {
         </div>
 
         {/* Map iframe */}
-        <div className="comic-border-thick overflow-hidden min-h-[350px] relative">
+        <a 
+          href="https://maps.app.goo.gl/jS54o8EKGNT7gRHS6"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="comic-border-thick overflow-hidden min-h-[350px] relative block cursor-pointer group"
+          title="Click to open in Google Maps"
+        >
           <iframe
             title="SVKM's Shri Bhagubhai Mafatlal Polytechnic Map"
             src="https://maps.google.com/maps?q=SVKM's%20Shri%20Bhagubhai%20Mafatlal%20Polytechnic&t=&z=16&ie=UTF8&iwloc=&output=embed"
             width="100%"
             height="100%"
-            style={{ border: 0 }}
+            style={{ border: 0, pointerEvents: 'none' }}
             allowFullScreen
             loading="lazy"
           />
-        </div>
+          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white font-bold uppercase tracking-wider text-sm pointer-events-none" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+            Open in Google Maps ↗
+          </div>
+        </a>
       </div>
     </main>
   );
