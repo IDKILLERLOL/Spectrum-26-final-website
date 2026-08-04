@@ -83,7 +83,7 @@ export function RegisterPage() {
     };
 
     loadData();
-  }, [eventId, user, navigate]);
+  }, [eventId, user, navigate, authLoading]);
 
   const handleAddMember = () => {
     if (event && members.length + 1 >= event.maxMembers) {
