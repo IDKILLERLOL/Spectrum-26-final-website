@@ -126,8 +126,6 @@ function VenueContact() {
     import('../lib/firestore').then(m => m.getEventDetails()).then(setDetails).catch(console.error);
   }, []);
 
-  const email = details?.helplineEmail || 'spectrum.sbmp@gmail.com';
-  const phone = details?.helplinePhone || '+91 98765 43210';
   const locationText = details?.location || "SVKM's Shri Bhagubhai Mafatlal Polytechnic\nIrla, Vile Parle West, Mumbai, Maharashtra 400056";
 
   return (
@@ -164,17 +162,25 @@ function VenueContact() {
             <h4 style={{ fontFamily: 'Bangers, cursive', fontSize: '24px', letterSpacing: '0.04em', color: 'var(--color-text-primary)', marginBottom: '8px' }}>
               REGISTRATION SUPPORT
             </h4>
-            <p style={{ fontSize: '15px', color: 'var(--color-text-secondary)', fontWeight: 500, lineHeight: 1.6 }}>
-              For queries related to passes, payments, or team registration:
+            <p style={{ fontSize: '15px', color: 'var(--color-text-secondary)', fontWeight: 500, lineHeight: 1.6, marginBottom: '16px' }}>
+              For queries related to passes, payments, or team registration, reach out to us directly.
             </p>
-            <ul className="mt-3 flex flex-col gap-2" style={{ listStyle: 'none', padding: 0 }}>
-              <li>
-                <strong>Email:</strong> <a href={`mailto:${email}`} style={{ color: 'var(--color-text-primary)', textDecoration: 'underline' }}>{email}</a>
-              </li>
-              <li>
-                <strong>Helpline:</strong> <a href={`tel:${phone.replace(/\s+/g, '')}`} style={{ color: 'var(--color-text-primary)', textDecoration: 'underline' }}>{phone}</a> (Registration Desk)
-              </li>
-            </ul>
+            <Link
+              to="/contact"
+              className="comic-shadow-sm inline-flex items-center gap-2"
+              style={{
+                background: 'var(--color-text-primary)',
+                color: 'var(--color-bg-base)',
+                fontFamily: 'Bangers, cursive',
+                fontSize: '18px',
+                padding: '8px 20px',
+                letterSpacing: '0.04em',
+                textDecoration: 'none',
+                border: '2px solid var(--color-bg-base)',
+              }}
+            >
+              CONTACT US
+            </Link>
           </div>
         </div>
 

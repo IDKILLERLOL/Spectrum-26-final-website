@@ -445,8 +445,11 @@ export function EventsPage() {
                     <button
                       onClick={() => {
                         playSynthSound('laser');
-                        setExpandedEventId(e.id);
-                        startRegistration(e);
+                        if (!user) {
+                          navigate(`/login?redirect=register&eventId=${e.id}`);
+                          return;
+                        }
+                        navigate(`/register/${e.id}`);
                       }}
                       className="comic-btn flex-1 text-center py-2"
                     >
@@ -715,8 +718,11 @@ export function EventsPage() {
                     <button
                       onClick={() => {
                         playSynthSound('laser');
-                        setExpandedEventId(e.id);
-                        startRegistration(e);
+                        if (!user) {
+                          navigate(`/login?redirect=register&eventId=${e.id}`);
+                          return;
+                        }
+                        navigate(`/register/${e.id}`);
                       }}
                       className="comic-btn flex-1 text-center py-2"
                     >

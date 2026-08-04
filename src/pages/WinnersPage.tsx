@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Trophy, Users, Loader2, Sparkles, Award } from 'lucide-react';
+import { Trophy, Users, Loader2, Sparkles, Award, ChevronDown } from 'lucide-react';
 import { getEvents, getWinners, getAllRegistrations, db } from '../lib/firestore';
 import { getDocs, collection, query, where } from 'firebase/firestore';
 import type { Event, Winner } from '../types';
@@ -13,6 +13,56 @@ type CompetingTeam = {
   members: string[];
   teamName?: string;
 };
+
+function ContenderRoster({ contenders }: { contenders: CompetingTeam[] }) {
+  const [expanded, setExpanded] = useState(false);
+  const sorted = [...contenders].sort((a, b) =>
+    (a.teamName || a.leaderName).localeCompare(b.teamName || b.leaderName)
+  );
+  const visible = expanded ? sorted : sorted.slice(0, 3);
+
+  return (
+    <div className="flex flex-col gap-3">
+      <h3
+        className="text-primary uppercase flex items-center gap-2 border-b border-border-subtle pb-2"
+        style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '18px', fontWeight: 700, letterSpacing: '0.04em' }}
+      >
+        <Users size={14} /> ROSTER
+        <span
+          className="ml-auto comic-badge"
+          style={{ fontSize: '10px', padding: '2px 8px', fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700 }}
+        >
+          {contenders.length} REGISTERED
+        </span>
+      </h3>
+
+      {contenders.length === 0 ? (
+        <span className="font-body text-small text-text-muted italic">Waiting for contestants to register.</span>
+      ) : (
+        <>
+          <div className="flex flex-col gap-1.5 divide-y divide-border-subtle/30" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+            {visible.map((c, i) => (
+              <div key={c.regId} className="pt-1.5 flex items-center justify-between text-xs text-text-secondary">
+                <span className="font-bold truncate max-w-[130px]">{c.teamName || c.leaderName}</span>
+                <span style={{ fontSize: '9px', color: 'var(--color-text-muted)' }}>#{(i + 1).toString().padStart(2, '0')}</span>
+              </div>
+            ))}
+          </div>
+          {sorted.length > 3 && (
+            <button
+              onClick={() => setExpanded(e => !e)}
+              className="flex items-center gap-1 text-primary mt-1"
+              style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+            >
+              <ChevronDown size={12} style={{ transform: expanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+              {expanded ? `Show Less` : `+${sorted.length - 3} More`}
+            </button>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
 
 export function WinnersPage() {
   const [events, setEvents] = useState<Event[]>([]);
@@ -258,24 +308,7 @@ export function WinnersPage() {
 
               {/* Right Column: Contender list */}
               <div className="lg:col-span-3 flex flex-col justify-between border-t lg:border-t-0 lg:border-l border-border-subtle pt-6 lg:pt-0 lg:pl-6">
-                <div className="flex flex-col gap-4">
-                  <h3 className="text-primary uppercase flex items-center gap-2 border-b border-border-subtle pb-2" style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '18px', fontWeight: 700, letterSpacing: '0.04em' }}>
-                    <Users size={14} /> ROSTER ({contenders.length})
-                  </h3>
-
-                  {contenders.length === 0 ? (
-                    <span className="font-body text-small text-text-muted italic">Waiting for contestants to register.</span>
-                  ) : (
-                    <div className="max-h-40 overflow-y-auto pr-1 flex flex-col gap-1.5 divide-y divide-border-subtle/30" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                      {contenders.map((c) => (
-                        <div key={c.regId} className="pt-1.5 flex items-center justify-between text-xs text-text-secondary">
-                          <span className="font-bold truncate max-w-[150px]">{c.teamName || c.leaderName}</span>
-                          <span style={{ fontSize: '9px', color: 'var(--color-text-muted)' }}>ID: #{c.regId.slice(0, 4).toUpperCase()}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                <ContenderRoster contenders={contenders} />
               </div>
             </div>
           );
