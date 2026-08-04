@@ -495,6 +495,10 @@ export function EventDetailPage() {
 
 
 
+  const perPersonPrice = event?.price || 0;
+  const totalPeopleCount = event?.isTeamEvent ? (members.length + 1) : 1;
+  const totalPrice = perPersonPrice * totalPeopleCount;
+
   const currentMember = members.find((m) => m.email && user?.email && m.email.toLowerCase() === user.email.toLowerCase());
   const activeMember = currentMember || leaderMember;
 
@@ -746,107 +750,109 @@ export function EventDetailPage() {
           </div>
         )}
 
-
         {/* Right: Fee & QR */}
         <div className="md:col-span-4 flex flex-col gap-12">
 
           {/* Payment section */}
-          <div className="flex flex-col gap-8">
-            <div className="flex justify-between items-end border-b-4 border-primary pb-4">
-              <h3 className="font-heading text-card-title text-primary uppercase">Registration Fee</h3>
-            </div>
+          {!paid && (
+            <div className="flex flex-col gap-8">
+              <div className="flex justify-between items-end border-b-4 border-primary pb-4">
+                <h3 className="font-heading text-card-title text-primary uppercase">Registration Fee</h3>
+              </div>
 
-            <div className="font-countdown text-[48px] leading-none font-bold text-primary tracking-tight">
-              {event.price != null ? `₹${event.price}` : 'TBA'}
-              <span className="font-body text-text-muted text-[20px] font-medium ml-1">/{event.isTeamEvent ? 'team' : 'entry'}</span>
-            </div>
+              <div className="font-countdown text-[48px] leading-none font-bold text-primary tracking-tight">
+                {event.price != null ? `₹${totalPrice}` : 'TBA'}
+                {event.isTeamEvent && (
+                  <span className="font-body text-text-muted text-[14px] font-medium block mt-2 animate-fade-in" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+                    (₹{event.price} per person × {totalPeopleCount} members)
+                  </span>
+                )}
+              </div>
 
-            {!paid && (
-              <>
-                <div className="flex flex-col gap-2">
-                  <label className="font-micro text-micro text-text-muted uppercase tracking-widest">Pay via UPI</label>
-                  <div className="border-2 border-primary p-4 flex justify-between items-center font-heading text-heading text-primary">
-                    <span className="tracking-wide">{payDetails.upiId}</span>
-                    <button onClick={handleCopyUpi} className="text-primary hover:opacity-70 transition-opacity" title="Copy UPI ID">
-                      {copied ? <CheckCircle2 size={20} /> : <Copy size={20} />}
+              <div className="flex flex-col gap-2">
+                <label className="font-micro text-micro text-text-muted uppercase tracking-widest">Pay via UPI</label>
+                <div className="border-2 border-primary p-4 flex justify-between items-center font-heading text-heading text-primary">
+                  <span className="tracking-wide">{payDetails.upiId}</span>
+                  <button onClick={handleCopyUpi} className="text-primary hover:opacity-70 transition-opacity" title="Copy UPI ID">
+                    {copied ? <CheckCircle2 size={20} /> : <Copy size={20} />}
+                  </button>
+                </div>
+              </div>
+
+              {/* QR Code Embed */}
+              <div className="flex flex-col items-center gap-2 mt-4 p-4 border border-dashed border-primary bg-[#121212]">
+                <span className="font-micro text-micro text-text-muted uppercase tracking-widest">Scan QR to Pay</span>
+                <img
+                  src={payDetails.qrCodeUrl || `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(`upi://pay?pa=${payDetails.upiId}&pn=SPECTRUM26&am=${totalPrice}&cu=INR`)}`}
+                  alt="Payment QR Code"
+                  className="w-48 h-48 border-2 border-primary object-contain"
+                />
+                <span style={{ fontSize: '10px', color: 'var(--color-text-muted)', fontFamily: 'Space Grotesk, sans-serif' }}>
+                  Double check the UPI ID before transferring.
+                </span>
+              </div>
+
+              {/* UPI ref submit — inline expand */}
+              {inlineState.type !== 'submit-upi' ? (
+                <button
+                  onClick={() => openState({ type: 'submit-upi' })}
+                  className="w-full bg-primary text-bg-base font-button text-button uppercase py-4 hover:opacity-90 transition-opacity flex justify-center items-center gap-2 border-2 border-primary"
+                >
+                  <ArrowRight size={18} /> Submit Transaction ID
+                </button>
+              ) : (
+                <div className="expand-in flex flex-col gap-4 border-l-2 border-primary pl-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="font-micro text-micro text-primary uppercase tracking-widest">Transaction / UTR Reference</label>
+                    <input
+                      type="text"
+                      value={upiRef}
+                      onChange={(e) => setUpiRef(e.target.value)}
+                      placeholder="e.g. 312345678901"
+                      className="bg-transparent border-b border-border-strong text-primary font-heading text-heading py-2 focus:outline-none focus:border-primary transition-all"
+                    />
+                  </div>
+                  
+                  {/* Payment Screenshot File Input */}
+                  <div className="flex flex-col gap-2">
+                    <label className="font-micro text-micro text-primary uppercase tracking-widest">Payment Proof / Screenshot</label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="text-xs text-text-secondary cursor-pointer"
+                    />
+                    {imageLoading && <span className="text-xs text-text-muted animate-pulse">Processing screenshot...</span>}
+                    {screenshotBase64 && (
+                      <div className="relative w-32 h-32 border border-border-default mt-1 overflow-hidden bg-black/50">
+                        <img src={screenshotBase64} alt="Screenshot preview" className="w-full h-full object-cover" />
+                        <button 
+                          type="button" 
+                          onClick={() => setScreenshotBase64(null)}
+                          className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full p-1 text-[9px] font-bold"
+                          style={{ width: '16px', height: '16px', display: 'flex', alignItems: 'center', justify: 'center' }}
+                        >
+                          X
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {error && <p className="font-body text-small text-text-secondary">{error}</p>}
+                  <div className="flex gap-3 mt-2">
+                    <button onClick={closeState} className="px-4 py-2 border border-border-default text-text-secondary font-button text-button uppercase hover:opacity-70">Cancel</button>
+                    <button
+                      onClick={handleSubmitUpiRef}
+                      disabled={saving || !upiRef.trim() || imageLoading}
+                      className="flex-1 bg-primary text-bg-base font-button text-button uppercase py-3 hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                      {saving && <Loader2 size={14} className="animate-spin" />} Submit
                     </button>
                   </div>
                 </div>
-
-                {/* QR Code Embed */}
-                <div className="flex flex-col items-center gap-2 mt-4 p-4 border border-dashed border-primary bg-[#121212]">
-                  <span className="font-micro text-micro text-text-muted uppercase tracking-widest">Scan QR to Pay</span>
-                  <img
-                    src={payDetails.qrCodeUrl || `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(`upi://pay?pa=${payDetails.upiId}&pn=SPECTRUM26&am=${event.price}&cu=INR`)}`}
-                    alt="Payment QR Code"
-                    className="w-48 h-48 border-2 border-primary object-contain"
-                  />
-                  <span style={{ fontSize: '10px', color: 'var(--color-text-muted)', fontFamily: 'Space Grotesk, sans-serif' }}>
-                    Double check the UPI ID before transferring.
-                  </span>
-                </div>
-
-                {/* UPI ref submit — inline expand */}
-                {inlineState.type !== 'submit-upi' ? (
-                  <button
-                    onClick={() => openState({ type: 'submit-upi' })}
-                    className="w-full bg-primary text-bg-base font-button text-button uppercase py-4 hover:opacity-90 transition-opacity flex justify-center items-center gap-2 border-2 border-primary"
-                  >
-                    <ArrowRight size={18} /> Submit Transaction ID
-                  </button>
-                ) : (
-                  <div className="expand-in flex flex-col gap-4 border-l-2 border-primary pl-4">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="font-micro text-micro text-primary uppercase tracking-widest">Transaction / UTR Reference</label>
-                      <input
-                        type="text"
-                        value={upiRef}
-                        onChange={(e) => setUpiRef(e.target.value)}
-                        placeholder="e.g. 312345678901"
-                        className="bg-transparent border-b border-border-strong text-primary font-heading text-heading py-2 focus:outline-none focus:border-primary transition-all"
-                      />
-                    </div>
-                    
-                    {/* Payment Screenshot File Input */}
-                    <div className="flex flex-col gap-2">
-                      <label className="font-micro text-micro text-primary uppercase tracking-widest">Payment Proof / Screenshot</label>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleFileChange}
-                        className="text-xs text-text-secondary cursor-pointer"
-                      />
-                      {imageLoading && <span className="text-xs text-text-muted animate-pulse">Processing screenshot...</span>}
-                      {screenshotBase64 && (
-                        <div className="relative w-32 h-32 border border-border-default mt-1 overflow-hidden bg-black/50">
-                          <img src={screenshotBase64} alt="Screenshot preview" className="w-full h-full object-cover" />
-                          <button 
-                            type="button" 
-                            onClick={() => setScreenshotBase64(null)}
-                            className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full p-1 text-[9px] font-bold"
-                            style={{ width: '16px', height: '16px', display: 'flex', alignItems: 'center', justify: 'center' }}
-                          >
-                            X
-                          </button>
-                        </div>
-                      )}
-                    </div>
-
-                    {error && <p className="font-body text-small text-text-secondary">{error}</p>}
-                    <div className="flex gap-3 mt-2">
-                      <button onClick={closeState} className="px-4 py-2 border border-border-default text-text-secondary font-button text-button uppercase hover:opacity-70">Cancel</button>
-                      <button
-                        onClick={handleSubmitUpiRef}
-                        disabled={saving || !upiRef.trim() || imageLoading}
-                        className="flex-1 bg-primary text-bg-base font-button text-button uppercase py-3 hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
-                      >
-                        {saving && <Loader2 size={14} className="animate-spin" />} Submit
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
+              )}
+            </div>
+          )}
 
             {/* QR Entry Pass */}
             <div className={`border-2 ${paid ? 'border-primary' : 'border-dashed border-primary'} p-8 flex flex-col items-center justify-center gap-6 text-center min-h-[280px] relative overflow-hidden`}>
@@ -923,7 +929,6 @@ export function EventDetailPage() {
 
           </div>
         </div>
-      </div>
 
       {/* Security Alert Modal */}
       {showSecurityModal && (
