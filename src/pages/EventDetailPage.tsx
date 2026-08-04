@@ -31,8 +31,8 @@ type InlineState =
   | { type: 'edit-team-name' };
 
 export function EventDetailPage() {
-  console.log("[Mount] EventDetailPage component loaded");
-  const registrationId = sessionStorage.getItem('spectrum26_active_registration_id') || '';
+  const { eventId: urlId } = useParams<{ eventId: string }>();
+  const registrationId = urlId || sessionStorage.getItem('spectrum26_active_registration_id') || '';
   const { user, adminEmail, isAdmin } = useAuth();
   const navigate = useNavigate();
 
