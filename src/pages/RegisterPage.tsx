@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Loader2, ArrowRight, Plus, Trash2 } from 'lucide-react';
 import { useAuth } from '../lib/useAuth';
-import { getEvent, createRegistration, getUser, updateUser, hasExistingRegistration, db } from '../lib/firestore';
+import { getEvent, createRegistration, getUser, updateUser, hasExistingRegistration, db, getEventDetails } from '../lib/firestore';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import type { Event } from '../types';
 
@@ -36,12 +36,13 @@ export function RegisterPage() {
 
     const loadData = async () => {
       try {
-        const ev = await getEvent(eventId);
+        // Fetch event & details in parallel to minimize load latency
+        const [ev, details] = await Promise.all([
+          getEvent(eventId),
+          getEventDetails()
+        ]);
+        
         setEvent(ev);
-
-        // Fetch support contacts dynamically
-        const { getEventDetails } = await import('../lib/firestore');
-        const details = await getEventDetails();
         if (details) {
           setSupportPhone(details.helplinePhone || '+91 98765 43210');
           setSupportEmail(details.helplineEmail || 'spectrum.sbmp@gmail.com');
@@ -51,8 +52,12 @@ export function RegisterPage() {
         setRegCount(78); // Hardcode a fallback counter instead of fetching all documents
 
         // Skip authentication check and pre-fill if user is logged in
-        if (user) {
-          const profile = await getUser(user.uid);
+        if (user && ev) {
+          const [profile, existing] = await Promise.all([
+            getUser(user.uid),
+            hasExistingRegistration(user.uid, ev.id)
+          ]);
+
           if (profile) {
             setName(profile.name || '');
             setEmail(profile.email || user.email || '');
@@ -60,15 +65,11 @@ export function RegisterPage() {
             setCollege(profile.college || '');
           }
 
-          // Check if user is already registered for this event
-          if (ev && user) {
-            const existing = await hasExistingRegistration(user.uid, ev.id);
-            if (existing) {
-              // Already registered — go straight to their pass
-              sessionStorage.setItem('spectrum26_active_registration_id', existing);
-              navigate(`/pass/${existing}`, { replace: true });
-              return;
-            }
+          if (existing) {
+            // Already registered — go straight to their pass
+            sessionStorage.setItem('spectrum26_active_registration_id', existing);
+            navigate(`/pass/${existing}`, { replace: true });
+            return;
           }
         }
       } catch (err) {
