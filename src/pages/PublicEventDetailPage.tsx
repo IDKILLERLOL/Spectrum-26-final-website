@@ -154,7 +154,7 @@ export function PublicEventDetailPage() {
             <span style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--color-text-muted)', fontWeight: 700 }}>Team Size</span>
             <div style={{ fontSize: '18px', color: 'var(--color-text-primary)', fontWeight: 700, marginTop: '4px' }}>
               {event.minMembers === event.maxMembers
-                ? `Only ${event.minMembers} Player${event.minMembers > 1 ? 's' : ''} Allowed`
+                ? (event.minMembers === 2 ? 'Only 2 Players Per Duo' : `Only ${event.minMembers} Player${event.minMembers > 1 ? 's' : ''} Allowed`)
                 : `${event.minMembers} – ${event.maxMembers} Players`}
             </div>
           </div>
