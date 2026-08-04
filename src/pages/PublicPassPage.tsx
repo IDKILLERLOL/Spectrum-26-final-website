@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Eye, EyeOff, Loader2, CheckCircle2, Lock, ShieldAlert } from 'lucide-react';
-import { getRegistration, getEvent, getActiveTeamMembers } from '../lib/firestore';
+import { Eye, EyeOff, Loader2, CheckCircle2, Lock, ShieldAlert, Upload, Image as ImageIcon, X, Send } from 'lucide-react';
+import { getRegistration, getEvent, getActiveTeamMembers, submitUpiRef } from '../lib/firestore';
 import type { Registration, Event, TeamMember } from '../types';
 import { categoryLabel } from '../types';
 
@@ -13,6 +13,12 @@ export function PublicPassPage() {
   const [loading, setLoading] = useState(true);
   const [showId, setShowId] = useState(false);
 
+  // Payment proof form state
+  const [txId, setTxId] = useState('');
+  const [proofImage, setProofImage] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
+
   const queryParams = new URLSearchParams(window.location.search);
   const scannedMemberId = queryParams.get('memberId');
 
@@ -23,6 +29,8 @@ export function PublicPassPage() {
       .then(async (reg) => {
         if (reg) {
           setRegistration(reg);
+          setTxId(reg.upiTransactionRef || '');
+          setProofImage(reg.paymentProofUrl || null);
           const [mems, ev] = await Promise.all([
             getActiveTeamMembers(reg.id),
             getEvent(reg.eventId),
@@ -34,6 +42,45 @@ export function PublicPassPage() {
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [id]);
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please upload a valid image file (PNG, JPG, JPEG, WEBP).');
+      return;
+    }
+
+    // Convert file to Base64
+    const reader = new FileReader();
+    reader.onload = () => {
+      setProofImage(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSubmitProof = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!registration) return;
+    if (!txId.trim() && !proofImage) {
+      alert('Please enter a Transaction ID or upload a screenshot.');
+      return;
+    }
+
+    setSubmitting(true);
+    setSuccessMsg(null);
+    try {
+      await submitUpiRef(registration.id, txId.trim(), 'participant', proofImage);
+      setRegistration((prev) => prev ? { ...prev, upiTransactionRef: txId.trim(), paymentProofUrl: proofImage } : null);
+      setSuccessMsg('Payment proof submitted successfully! Verification pending admin review.');
+    } catch (err) {
+      console.error('[PublicPassPage] Failed to submit payment proof:', err);
+      alert('Failed to submit payment proof. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -116,18 +163,107 @@ export function PublicPassPage() {
             </div>
           </div>
 
-          {/* Verification Status */}
-          <div className={`p-4 border flex items-center gap-3 ${paid ? 'border-primary bg-primary/5 text-primary' : 'border-red-500 bg-red-500/5 text-red-500'}`}>
-            {paid ? (
-              <>
-                <CheckCircle2 size={20} className="shrink-0" />
-                <span className="font-heading text-heading uppercase tracking-wider">Pass Validated for Entry</span>
-              </>
-            ) : (
-              <>
-                <Lock size={20} className="shrink-0" />
-                <span className="font-heading text-heading uppercase tracking-wider">Payment Verification Pending</span>
-              </>
+          {/* Verification Status Container */}
+          <div className="flex flex-col gap-4">
+            <div className={`p-4 border flex items-center gap-3 ${paid ? 'border-primary bg-primary/5 text-primary' : 'border-red-500 bg-red-500/5 text-red-500'}`}>
+              {paid ? (
+                <>
+                  <CheckCircle2 size={20} className="shrink-0" />
+                  <span className="font-heading text-heading uppercase tracking-wider">Pass Validated for Entry</span>
+                </>
+              ) : (
+                <>
+                  <Lock size={20} className="shrink-0 text-red-500" />
+                  <span className="font-heading text-heading uppercase tracking-wider text-red-500">PAYMENT VERIFICATION PENDING</span>
+                </>
+              )}
+            </div>
+
+            {/* Submission Form for Unpaid / Pending Verification Pass */}
+            {!paid && (
+              <form onSubmit={handleSubmitProof} className="flex flex-col gap-4 p-5 border border-dashed border-border-strong bg-bg-elevated/40 rounded-sm">
+                <div className="flex flex-col gap-1">
+                  <span className="font-heading text-card-title text-primary uppercase tracking-wide flex items-center gap-2">
+                    <Upload size={16} /> Submit Payment Details
+                  </span>
+                  <p className="font-body text-small text-text-secondary">
+                    Provide your UPI Transaction Ref / UTR and upload payment screenshot for admin verification.
+                  </p>
+                </div>
+
+                {/* Transaction ID Input */}
+                <div className="flex flex-col gap-1">
+                  <label className="font-micro text-micro uppercase tracking-wider text-text-muted">
+                    Transaction ID / Ref (UTR)
+                  </label>
+                  <input
+                    type="text"
+                    value={txId}
+                    onChange={(e) => setTxId(e.target.value)}
+                    placeholder="e.g. 329182391024 or UPI/123456"
+                    className="w-full bg-bg-base border border-border-default px-3 py-2 text-body font-mono text-primary focus:outline-none focus:border-primary"
+                  />
+                </div>
+
+                {/* Screenshot Uploader */}
+                <div className="flex flex-col gap-2">
+                  <label className="font-micro text-micro uppercase tracking-wider text-text-muted">
+                    Payment Screenshot
+                  </label>
+                  {proofImage ? (
+                    <div className="relative border border-primary p-2 bg-bg-base flex flex-col items-center gap-2">
+                      <img
+                        src={proofImage}
+                        alt="Payment Screenshot Preview"
+                        className="max-h-48 w-auto object-contain rounded"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setProofImage(null)}
+                        className="flex items-center gap-1 font-micro text-micro text-red-400 hover:text-red-300 uppercase py-1"
+                      >
+                        <X size={14} /> Remove Screenshot
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="border-2 border-dashed border-border-default hover:border-primary transition-colors p-4 flex flex-col items-center gap-2 cursor-pointer bg-bg-base">
+                      <ImageIcon size={24} className="text-text-muted" />
+                      <span className="font-button text-small text-primary uppercase">Click to upload screenshot</span>
+                      <span className="font-micro text-micro text-text-muted">PNG, JPG, JPEG, WEBP</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                      />
+                    </label>
+                  )}
+                </div>
+
+                {/* Success Feedback */}
+                {successMsg && (
+                  <div className="p-3 border border-primary bg-primary/10 text-primary font-body text-small flex items-center gap-2">
+                    <CheckCircle2 size={16} className="shrink-0" />
+                    {successMsg}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full bg-primary text-bg-base font-button text-button uppercase py-3 flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50"
+                >
+                  {submitting ? (
+                    <>
+                      <Loader2 size={16} className="animate-spin" /> Submitting...
+                    </>
+                  ) : (
+                    <>
+                      <Send size={14} /> Submit Payment Proof
+                    </>
+                  )}
+                </button>
+              </form>
             )}
           </div>
         </div>
@@ -159,3 +295,4 @@ export function PublicPassPage() {
     </main>
   );
 }
+

@@ -531,6 +531,24 @@ export function AdminEditRegistrationPage() {
               <code className="font-mono text-heading text-primary">{registration.upiTransactionRef ?? '(not submitted)'}</code>
             </div>
 
+            {registration.paymentProofUrl && (
+              <div className="flex flex-col gap-2 border-t border-border-subtle pt-3">
+                <span className="font-micro text-micro text-text-muted uppercase">Payment Screenshot Proof</span>
+                <a
+                  href={registration.paymentProofUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="border border-primary/40 hover:border-primary p-1 bg-bg-base block rounded overflow-hidden"
+                >
+                  <img
+                    src={registration.paymentProofUrl}
+                    alt="Uploaded Payment Proof"
+                    className="max-h-48 w-full object-contain"
+                  />
+                </a>
+              </div>
+            )}
+
             {/* Action buttons */}
             <div className="flex flex-col gap-3 mt-4 pt-4 border-t border-border-subtle">
               <button

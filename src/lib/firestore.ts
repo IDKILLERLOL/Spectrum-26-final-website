@@ -121,6 +121,7 @@ function snapToRegistration(snap: DocumentSnapshot | QueryDocumentSnapshot): Reg
     leaderId: d.leaderId ?? '',
     feeStatus: d.feeStatus ?? 'PENDING',
     upiTransactionRef: d.upiTransactionRef ?? null,
+    paymentProofUrl: d.paymentProofUrl ?? null,
     checkedIn: d.checkedIn ?? false,
     createdAt: tsToDate(d.createdAt),
     lastEditedBy: d.lastEditedBy ?? '',
@@ -1154,13 +1155,18 @@ export async function updateFeeStatus(
 export async function submitUpiRef(
   registrationId: string,
   upiTransactionRef: string,
-  actorEmail: string
+  actorEmail: string,
+  paymentProofUrl?: string | null
 ): Promise<void> {
-  await updateDoc(doc(db, 'registrations', registrationId), {
+  const patch: Record<string, unknown> = {
     upiTransactionRef,
     lastEditedBy: actorEmail,
     lastEditedAt: serverTimestamp(),
-  });
+  };
+  if (paymentProofUrl !== undefined) {
+    patch.paymentProofUrl = paymentProofUrl;
+  }
+  await updateDoc(doc(db, 'registrations', registrationId), patch);
   autoSyncToSheets().catch(console.error);
 }
 
