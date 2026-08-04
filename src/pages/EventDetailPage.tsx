@@ -84,45 +84,52 @@ export function EventDetailPage() {
   const reload = async () => {
     if (!registrationId) return;
 
-    // Check if the URL parameter is a Registration ID
-    const reg = await getRegistration(registrationId);
-    if (reg) {
-      setRegistration(reg);
-      const [mems, ev, pay, details] = await Promise.all([
-        getActiveTeamMembers(reg.id),
-        getEvent(reg.eventId),
-        getPaymentDetails(),
-        getEventDetails(),
-      ]);
-      setMembers(mems);
-      setEvent(ev);
-      setPayDetails(pay);
-      if (details?.helplineEmail) {
-        setSupportEmail(details.helplineEmail);
-      }
-      return;
-    }
+    try {
+      // Check if the URL parameter is a Registration ID
+      const reg = await getRegistration(registrationId);
+      if (reg) {
+        setRegistration(reg);
+        const [mems, ev] = await Promise.all([
+          getActiveTeamMembers(reg.id),
+          getEvent(reg.eventId),
+        ]);
+        setMembers(mems);
+        setEvent(ev);
 
-    // If it's not a Registration ID, check if it's an Event ID
-    const [ev, pay, details] = await Promise.all([
-      getEvent(registrationId),
-      getPaymentDetails(),
-      getEventDetails(),
-    ]);
-    if (ev) {
-      setEvent(ev);
-      setPayDetails(pay);
-      if (details?.helplineEmail) {
-        setSupportEmail(details.helplineEmail);
+        // Fetch auxiliary details in the background gracefully
+        getPaymentDetails().then(setPayDetails).catch(console.error);
+        getEventDetails().then((details) => {
+          if (details?.helplineEmail) {
+            setSupportEmail(details.helplineEmail);
+          }
+        }).catch(console.error);
+        return;
       }
+
+      // If it's not a Registration ID, check if it's an Event ID
+      const ev = await getEvent(registrationId);
+      if (ev) {
+        setEvent(ev);
+        setRegistration(null);
+        setMembers([]);
+
+        // Fetch auxiliary details in the background gracefully
+        getPaymentDetails().then(setPayDetails).catch(console.error);
+        getEventDetails().then((details) => {
+          if (details?.helplineEmail) {
+            setSupportEmail(details.helplineEmail);
+          }
+        }).catch(console.error);
+        return;
+      }
+
+      // Neither Registration nor Event exists
       setRegistration(null);
-      setMembers([]);
-      return;
+      setEvent(null);
+    } catch (err) {
+      console.error("[EventDetailPage] Reload error:", err);
+      setError("Failed to load data. Please refresh.");
     }
-
-    // Neither Registration nor Event exists
-    setRegistration(null);
-    setEvent(null);
   };
 
   const [allEvents, setAllEvents] = useState<Event[]>([]);
