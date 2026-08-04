@@ -49,6 +49,7 @@ export function EventDetailPage() {
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [payDetails, setPayDetails] = useState({ upiId: UPI_ID, qrCodeUrl: '' });
+  const [supportEmail, setSupportEmail] = useState('spectrum.sbmp@gmail.com');
 
   // Input states declared at top to follow Rules of Hooks
   const [upiRef, setUpiRef] = useState('');
@@ -87,25 +88,33 @@ export function EventDetailPage() {
     const reg = await getRegistration(registrationId);
     if (reg) {
       setRegistration(reg);
-      const [mems, ev, pay] = await Promise.all([
+      const [mems, ev, pay, details] = await Promise.all([
         getActiveTeamMembers(reg.id),
         getEvent(reg.eventId),
         getPaymentDetails(),
+        getEventDetails(),
       ]);
       setMembers(mems);
       setEvent(ev);
       setPayDetails(pay);
+      if (details?.helplineEmail) {
+        setSupportEmail(details.helplineEmail);
+      }
       return;
     }
 
     // If it's not a Registration ID, check if it's an Event ID
-    const [ev, pay] = await Promise.all([
+    const [ev, pay, details] = await Promise.all([
       getEvent(registrationId),
       getPaymentDetails(),
+      getEventDetails(),
     ]);
     if (ev) {
       setEvent(ev);
       setPayDetails(pay);
+      if (details?.helplineEmail) {
+        setSupportEmail(details.helplineEmail);
+      }
       setRegistration(null);
       setMembers([]);
       return;
