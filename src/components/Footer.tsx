@@ -68,7 +68,6 @@ export function Footer() {
           </Link>
         ))}
       </div>
-      </div>
 
       {/* Copyright */}
       <div
