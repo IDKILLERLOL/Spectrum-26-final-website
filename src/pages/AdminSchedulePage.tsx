@@ -249,11 +249,41 @@ export function AdminSchedulePage() {
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">Support Helpline Phone</label>
+                <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">Helpline Phone 1</label>
                 <input
                   type="text"
-                  value={eventDetails.helplinePhone || ''}
-                  onChange={(e) => setEventDetails(prev => ({ ...prev, helplinePhone: e.target.value }))}
+                  value={eventDetails.helplinePhones?.[0] ?? eventDetails.helplinePhone ?? '+91 86574 78886'}
+                  onChange={(e) => {
+                    const next = [...(eventDetails.helplinePhones || ['+91 86574 78886', '+91 90046 20948', '+91 90210 95204'])];
+                    next[0] = e.target.value;
+                    setEventDetails(prev => ({ ...prev, helplinePhone: next[0], helplinePhones: next }));
+                  }}
+                  className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">Helpline Phone 2</label>
+                <input
+                  type="text"
+                  value={eventDetails.helplinePhones?.[1] ?? '+91 90046 20948'}
+                  onChange={(e) => {
+                    const next = [...(eventDetails.helplinePhones || ['+91 86574 78886', '+91 90046 20948', '+91 90210 95204'])];
+                    next[1] = e.target.value;
+                    setEventDetails(prev => ({ ...prev, helplinePhones: next }));
+                  }}
+                  className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">Helpline Phone 3</label>
+                <input
+                  type="text"
+                  value={eventDetails.helplinePhones?.[2] ?? '+91 90210 95204'}
+                  onChange={(e) => {
+                    const next = [...(eventDetails.helplinePhones || ['+91 86574 78886', '+91 90046 20948', '+91 90210 95204'])];
+                    next[2] = e.target.value;
+                    setEventDetails(prev => ({ ...prev, helplinePhones: next }));
+                  }}
                   className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
                 />
               </div>

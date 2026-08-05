@@ -77,11 +77,10 @@ export function ContactPage() {
               <li>
                 <strong>Phone Support:</strong>
                 <div className="flex flex-col gap-1 mt-1 font-mono text-small">
-                  {[
-                    '+91 86574 78886',
-                    '+91 90046 20948',
-                    '+91 90210 95204'
-                  ].map((pNum) => (
+                  {(details?.helplinePhones && details.helplinePhones.length > 0
+                    ? details.helplinePhones
+                    : ['+91 86574 78886', '+91 90046 20948', '+91 90210 95204']
+                  ).map((pNum: string) => (
                     <a
                       key={pNum}
                       href={`tel:${pNum.replace(/\s+/g, '')}`}

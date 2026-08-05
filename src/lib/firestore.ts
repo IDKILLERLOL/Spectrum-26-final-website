@@ -1705,6 +1705,7 @@ export interface EventDetails {
   date: string;
   countdownTarget: string; // e.g. "2026-09-22T09:00:00"
   helplinePhone?: string;
+  helplinePhones?: string[];
   helplineEmail?: string;
 }
 
@@ -1718,7 +1719,8 @@ export async function getEventDetails(): Promise<EventDetails> {
       location: data.location || 'College Campus',
       date: data.date || 'September 30, 2026',
       countdownTarget: data.countdownTarget || '2026-09-30T09:00:00',
-      helplinePhone: data.helplinePhone || '+91 98765 43210',
+      helplinePhone: data.helplinePhone || '+91 86574 78886',
+      helplinePhones: data.helplinePhones || ['+91 86574 78886', '+91 90046 20948', '+91 90210 95204'],
       helplineEmail: data.helplineEmail || 'spectrum.sbmp@gmail.com',
     };
   }
@@ -1727,7 +1729,8 @@ export async function getEventDetails(): Promise<EventDetails> {
     location: 'College Campus',
     date: 'September 30, 2026',
     countdownTarget: '2026-09-30T09:00:00',
-    helplinePhone: '+91 98765 43210',
+    helplinePhone: '+91 86574 78886',
+    helplinePhones: ['+91 86574 78886', '+91 90046 20948', '+91 90210 95204'],
     helplineEmail: 'spectrum.sbmp@gmail.com',
   };
 }
