@@ -121,7 +121,8 @@ function snapToRegistration(snap: DocumentSnapshot | QueryDocumentSnapshot): Reg
     leaderId: d.leaderId ?? '',
     feeStatus: d.feeStatus ?? 'PENDING',
     upiTransactionRef: d.upiTransactionRef ?? null,
-    paymentProofUrl: d.paymentProofUrl ?? null,
+    paymentProofUrl: d.paymentProofUrl ?? d.paymentScreenshotUrl ?? null,
+    paymentScreenshotUrl: d.paymentScreenshotUrl ?? d.paymentProofUrl ?? null,
     checkedIn: d.checkedIn ?? false,
     createdAt: tsToDate(d.createdAt),
     lastEditedBy: d.lastEditedBy ?? '',
@@ -1165,6 +1166,7 @@ export async function submitUpiRef(
   };
   if (paymentProofUrl !== undefined) {
     patch.paymentProofUrl = paymentProofUrl;
+    patch.paymentScreenshotUrl = paymentProofUrl;
   }
   await updateDoc(doc(db, 'registrations', registrationId), patch);
   autoSyncToSheets().catch(console.error);
@@ -1352,7 +1354,7 @@ function snapToScheduleSlot(snap: DocumentSnapshot | QueryDocumentSnapshot): Sch
 const FALLBACK_SCHEDULE = [
   {
     day: "Day 01",
-    date: "Monday, Sep 28",
+    date: "Tuesday, Sep 30",
     sortTime: "09:00",
     displayTime: "9:00 AM - 10:00 AM",
     location: "Main Auditorium",
@@ -1362,27 +1364,27 @@ const FALLBACK_SCHEDULE = [
   },
   {
     day: "Day 01",
-    date: "Monday, Sep 28",
+    date: "Tuesday, Sep 30",
     sortTime: "10:00",
     displayTime: "10:00 AM - 1:00 PM",
-    location: "Lab 1, CSE Block",
-    title: "Reverse Engineering",
+    location: "CSE Lab Block",
+    title: "Dual Debug",
     type: "TECH",
     sortOrder: 1
   },
   {
     day: "Day 01",
-    date: "Monday, Sep 28",
+    date: "Tuesday, Sep 30",
     sortTime: "10:30",
     displayTime: "10:30 AM - 1:30 PM",
     location: "Seminar Hall",
-    title: "BGMI Match",
+    title: "BGMI",
     type: "NON_TECH",
     sortOrder: 2
   },
   {
     day: "Day 01",
-    date: "Monday, Sep 28",
+    date: "Tuesday, Sep 30",
     sortTime: "13:00",
     displayTime: "1:00 PM - 2:00 PM",
     location: "Cafeteria",
@@ -1392,53 +1394,33 @@ const FALLBACK_SCHEDULE = [
   },
   {
     day: "Day 01",
-    date: "Monday, Sep 28",
+    date: "Tuesday, Sep 30",
     sortTime: "14:00",
     displayTime: "2:00 PM - 5:00 PM",
-    location: "Lab 3, CSE Block",
-    title: "Speed Typing",
+    location: "CSE Lab Block",
+    title: "Singularity Strike",
     type: "TECH",
     sortOrder: 4
   },
   {
-    day: "Day 02",
-    date: "Tuesday, Sep 29",
-    sortTime: "09:30",
-    displayTime: "9:30 AM - 12:30 PM",
-    location: "Lab 2, CSE Block",
-    title: "Code Prism",
-    type: "TECH",
-    sortOrder: 0
-  },
-  {
-    day: "Day 02",
-    date: "Tuesday, Sep 29",
-    sortTime: "10:00",
-    displayTime: "10:00 AM - 1:00 PM",
-    location: "Gaming Lounge",
-    title: "FC 26 Tournament",
-    type: "NON_TECH",
-    sortOrder: 1
-  },
-  {
-    day: "Day 02",
-    date: "Tuesday, Sep 29",
-    sortTime: "13:00",
-    displayTime: "1:00 PM - 2:00 PM",
-    location: "Cafeteria",
-    title: "Lunch Break",
-    type: "BREAK",
-    sortOrder: 2
-  },
-  {
-    day: "Day 02",
-    date: "Tuesday, Sep 29",
+    day: "Day 01",
+    date: "Tuesday, Sep 30",
     sortTime: "14:30",
-    displayTime: "2:30 PM - 4:30 PM",
+    displayTime: "2:30 PM - 5:30 PM",
+    location: "Gaming Lounge",
+    title: "FIFA",
+    type: "NON_TECH",
+    sortOrder: 5
+  },
+  {
+    day: "Day 01",
+    date: "Tuesday, Sep 30",
+    sortTime: "17:30",
+    displayTime: "5:30 PM - 6:30 PM",
     location: "Main Auditorium",
     title: "Closing & Prize Distribution",
     type: "GENERAL",
-    sortOrder: 3
+    sortOrder: 6
   }
 ];
 
@@ -1722,19 +1704,31 @@ export interface EventDetails {
   location: string;
   date: string;
   countdownTarget: string; // e.g. "2026-09-22T09:00:00"
+  helplinePhone?: string;
+  helplineEmail?: string;
 }
 
 export async function getEventDetails(): Promise<EventDetails> {
   const ref = doc(db, 'systemConfig', 'eventDetails');
   const snap = await getDoc(ref);
   if (snap.exists()) {
-    return snap.data() as EventDetails;
+    const data = snap.data();
+    return {
+      name: data.name || 'SPECTRUM 26',
+      location: data.location || 'College Campus',
+      date: data.date || 'September 30, 2026',
+      countdownTarget: data.countdownTarget || '2026-09-30T09:00:00',
+      helplinePhone: data.helplinePhone || '+91 98765 43210',
+      helplineEmail: data.helplineEmail || 'spectrum.sbmp@gmail.com',
+    };
   }
   return {
     name: 'SPECTRUM 26',
     location: 'College Campus',
-    date: 'September 22, 2026',
-    countdownTarget: '2026-09-22T09:00:00',
+    date: 'September 30, 2026',
+    countdownTarget: '2026-09-30T09:00:00',
+    helplinePhone: '+91 98765 43210',
+    helplineEmail: 'spectrum.sbmp@gmail.com',
   };
 }
 
@@ -1746,6 +1740,34 @@ export async function updateEventDetails(details: EventDetails, actorEmail: stri
     actorEmail,
     actorType: 'ADMIN',
     actionType: 'UPDATE_EVENT_DETAILS',
+    targetRegistrationId: null,
+    targetEventId: null,
+    ipAddress: null,
+    diffOld: null,
+    diffNew: null,
+  });
+}
+
+export async function getPaymentDetails(): Promise<{ upiId: string; qrCodeUrl: string }> {
+  const ref = doc(db, 'systemConfig', 'paymentDetails');
+  const snap = await getDoc(ref);
+  if (snap.exists()) {
+    return snap.data() as { upiId: string; qrCodeUrl: string };
+  }
+  return {
+    upiId: 'spectrum26@upi',
+    qrCodeUrl: '',
+  };
+}
+
+export async function updatePaymentDetails(details: { upiId: string; qrCodeUrl: string }, actorEmail: string): Promise<void> {
+  const ref = doc(db, 'systemConfig', 'paymentDetails');
+  await setDoc(ref, details);
+  await appendAuditLog({
+    timestamp: new Date(),
+    actorEmail,
+    actorType: 'ADMIN',
+    actionType: 'UPDATE_PAYMENT_DETAILS',
     targetRegistrationId: null,
     targetEventId: null,
     ipAddress: null,

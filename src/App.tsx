@@ -5,6 +5,7 @@ import { Footer } from './components/Footer';
 import { RequireAuth } from './components/RequireAuth';
 import { RequireAdmin } from './components/RequireAdmin';
 import { LandingPage } from './pages/LandingPage';
+import { EventsPage } from './pages/EventsPage';
 import { SchedulePage } from './pages/SchedulePage';
 import { LoginPage } from './pages/LoginPage';
 import { RegistrationsPage } from './pages/RegistrationsPage';
@@ -24,6 +25,9 @@ import { WinnersPage } from './pages/WinnersPage';
 import { GalleryPage } from './pages/GalleryPage';
 import { AdminAccountsPage } from './pages/AdminAccountsPage';
 import { ScrollToTop } from './components/ScrollToTop';
+import { ContactPage } from './pages/ContactPage';
+import { PublicEventDetailPage } from './pages/PublicEventDetailPage';
+import { PublicRegistrationsPage } from './pages/PublicRegistrationsPage';
 
 
 function PublicLayout() {
@@ -65,17 +69,21 @@ export default function App() {
         {/* Public routes */}
         <Route path="/" element={<PublicLayout />}>
           <Route index element={<LandingPage />} />
+          <Route path="events" element={<EventsPage />} />
           <Route path="schedule" element={<SchedulePage />} />
           <Route path="winners" element={<WinnersPage />} />
           <Route path="gallery" element={<GalleryPage />} />
           <Route path="login" element={<LoginPage />} />
+          <Route path="contact" element={<ContactPage />} />
+          <Route path="event/:id" element={<PublicEventDetailPage />} />
+          <Route path="registrations" element={<PublicRegistrationsPage />} />
           <Route path="pass/:id" element={<PublicPassPage />} />
+          <Route path="register/:eventId" element={<RegisterPage />} />
 
           {/* Participant routes — require login */}
           <Route element={<RequireAuth />}>
             <Route path="my-registrations" element={<RegistrationsPage />} />
-            <Route path="events" element={<EventDetailPage />} />
-            <Route path="register/:eventId" element={<RegisterPage />} />
+            <Route path="event-dashboard" element={<EventDetailPage />} />
           </Route>
 
         </Route>

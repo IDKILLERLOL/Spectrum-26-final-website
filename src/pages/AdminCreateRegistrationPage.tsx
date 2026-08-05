@@ -7,6 +7,7 @@ import type { Event } from '../types';
 import { categoryLabel } from '../types';
 
 export function AdminCreateRegistrationPage() {
+  console.log("[Mount] AdminCreateRegistrationPage component loaded");
   const navigate = useNavigate();
   const { adminEmail } = useAuth();
 

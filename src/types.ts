@@ -27,47 +27,34 @@ export interface Event {
   rulesUrl: string | null;
   minMembers: number;
   maxMembers: number;
+  roundDetails?: string[];
 }
 
 export const FALLBACK_EVENTS: Event[] = [
   {
-    id: "tech-1",
-    name: "Reverse Engineering",
+    id: "tech-duo-1",
+    name: "Dual Debug",
     category: "TECH",
-    description: "Deconstruct compiled binaries to understand pure logic architecture. Speed and accuracy define the victor.",
-    isTeamEvent: false,
+    description: "The ultimate duo coding face-off. Show off your team debugging and board game strategy in Codopoly, Swap Challenge, and Snakes & Ladders.",
+    isTeamEvent: true,
     maxTeams: null,
     currentTeamCount: 0,
     registrationOpen: true,
-    price: 0,
+    price: 150,
     rulesUrl: null,
-    minMembers: 1,
-    maxMembers: 1
+    minMembers: 2,
+    maxMembers: 2
   },
   {
-    id: "tech-2",
-    name: "Speed Typing",
+    id: "tech-solo-1",
+    name: "Singularity Strike",
     category: "TECH",
-    description: "Raw WPM vs flawless syntax. A mechanical sprint through complex code blocks under pressure.",
+    description: "The ultimate solo arena battle. Conquer the grid, survive the buzzer, and rank in the MCQ challenges.",
     isTeamEvent: false,
     maxTeams: null,
     currentTeamCount: 0,
     registrationOpen: true,
-    price: 0,
-    rulesUrl: null,
-    minMembers: 1,
-    maxMembers: 1
-  },
-  {
-    id: "tech-3",
-    name: "Code Prism",
-    category: "TECH",
-    description: "Competitive programming challenge focusing on algorithmic efficiency and data structure optimization.",
-    isTeamEvent: false,
-    maxTeams: null,
-    currentTeamCount: 0,
-    registrationOpen: true,
-    price: 0,
+    price: 50,
     rulesUrl: null,
     minMembers: 1,
     maxMembers: 1
@@ -85,20 +72,6 @@ export const FALLBACK_EVENTS: Event[] = [
     rulesUrl: null,
     minMembers: 4,
     maxMembers: 5
-  },
-  {
-    id: "non-tech-2",
-    name: "Free Fire",
-    category: "NON_TECH",
-    description: "Fast-paced, high-stakes combat. Dominate the skirmish and outlast the competition.",
-    isTeamEvent: true,
-    maxTeams: 50,
-    currentTeamCount: 0,
-    registrationOpen: true,
-    price: 600,
-    rulesUrl: null,
-    minMembers: 4,
-    maxMembers: 4
   },
   {
     id: "non-tech-3",
@@ -125,6 +98,7 @@ export interface Registration {
   feeStatus: 'PENDING' | 'PAID';
   upiTransactionRef: string | null;
   paymentProofUrl?: string | null;
+  paymentScreenshotUrl?: string | null;
   checkedIn: boolean;
   createdAt: Date;
   lastEditedBy: string; // User UID or admin email
@@ -243,4 +217,9 @@ export interface ScheduleSlot {
   sortOrder: number;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface PaymentDetails {
+  upiId: string;
+  qrCodeUrl: string;
 }

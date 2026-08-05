@@ -10,6 +10,7 @@ type InlineState =
   | { type: 'confirm-remove'; email: string };
 
 export function AdminUsersPage() {
+  console.log("[Mount] AdminUsersPage component loaded");
   const { adminEmail } = useAuth();
   const [entries, setEntries] = useState<AdminWhitelistEntry[]>([]);
   const [loading, setLoading] = useState(true);

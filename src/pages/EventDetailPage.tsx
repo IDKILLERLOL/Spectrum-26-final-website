@@ -9,7 +9,7 @@ import {
   getRegistration, getEvent, getActiveTeamMembers,
   addTeamMember, updateTeamMember, removeTeamMember, transferLeadership,
   updateFeeStatus, submitUpiRef, createRegistration, getMyRegistrations, getUser,
-  hasExistingRegistration, updateTeamName, getEvents,
+  hasExistingRegistration, updateTeamName, getEvents, getPaymentDetails,
 } from '../lib/firestore';
 import {
   notifyTeamEdited, notifyMemberAdded, notifyMemberRemoved,
@@ -31,23 +31,30 @@ type InlineState =
   | { type: 'edit-team-name' };
 
 export function EventDetailPage() {
-  const registrationId = sessionStorage.getItem('spectrum26_active_registration_id') || '';
+  const { eventId: urlId } = useParams<{ eventId: string }>();
+  const registrationId = urlId || sessionStorage.getItem('spectrum26_active_registration_id') || '';
   const { user, adminEmail, isAdmin } = useAuth();
   const navigate = useNavigate();
-
-
 
   const [registration, setRegistration] = useState<Registration | null>(null);
   const [event, setEvent] = useState<Event | null>(null);
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
+
+  console.log("[Mount] EventDetailPage component loaded");
+  console.log("[EventDetailPage Debug] Render state:", { loading, urlId, registrationId, hasUser: !!user, hasEvent: !!event, hasReg: !!registration, membersCount: members.length });
+
   const [inlineState, setInlineState] = useState<InlineState>({ type: 'none' });
   const [saving, setSaving] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [payDetails, setPayDetails] = useState({ upiId: UPI_ID, qrCodeUrl: '' });
+  const [supportEmail, setSupportEmail] = useState('spectrum.sbmp@gmail.com');
 
   // Input states declared at top to follow Rules of Hooks
   const [upiRef, setUpiRef] = useState('');
+  const [screenshotBase64, setScreenshotBase64] = useState<string | null>(null);
+  const [imageLoading, setImageLoading] = useState(false);
   const [editName, setEditName] = useState('');
   const [editPhone, setEditPhone] = useState('');
   const [editEmail, setEditEmail] = useState('');
@@ -77,31 +84,52 @@ export function EventDetailPage() {
   const reload = async () => {
     if (!registrationId) return;
 
-    // Check if the URL parameter is a Registration ID
-    const reg = await getRegistration(registrationId);
-    if (reg) {
-      setRegistration(reg);
-      const [mems, ev] = await Promise.all([
-        getActiveTeamMembers(reg.id),
-        getEvent(reg.eventId),
-      ]);
-      setMembers(mems);
-      setEvent(ev);
-      return;
-    }
+    try {
+      // Check if the URL parameter is a Registration ID
+      const reg = await getRegistration(registrationId);
+      if (reg) {
+        setRegistration(reg);
+        const [mems, ev] = await Promise.all([
+          getActiveTeamMembers(reg.id),
+          getEvent(reg.eventId),
+        ]);
+        setMembers(mems);
+        setEvent(ev);
 
-    // If it's not a Registration ID, check if it's an Event ID
-    const ev = await getEvent(registrationId);
-    if (ev) {
-      setEvent(ev);
+        // Fetch auxiliary details in the background gracefully
+        getPaymentDetails().then(setPayDetails).catch(console.error);
+        getEventDetails().then((details) => {
+          if (details?.helplineEmail) {
+            setSupportEmail(details.helplineEmail);
+          }
+        }).catch(console.error);
+        return;
+      }
+
+      // If it's not a Registration ID, check if it's an Event ID
+      const ev = await getEvent(registrationId);
+      if (ev) {
+        setEvent(ev);
+        setRegistration(null);
+        setMembers([]);
+
+        // Fetch auxiliary details in the background gracefully
+        getPaymentDetails().then(setPayDetails).catch(console.error);
+        getEventDetails().then((details) => {
+          if (details?.helplineEmail) {
+            setSupportEmail(details.helplineEmail);
+          }
+        }).catch(console.error);
+        return;
+      }
+
+      // Neither Registration nor Event exists
       setRegistration(null);
-      setMembers([]);
-      return;
+      setEvent(null);
+    } catch (err) {
+      console.error("[EventDetailPage] Reload error:", err);
+      setError("Failed to load data. Please refresh.");
     }
-
-    // Neither Registration nor Event exists
-    setRegistration(null);
-    setEvent(null);
   };
 
   const [allEvents, setAllEvents] = useState<Event[]>([]);
@@ -211,11 +239,51 @@ export function EventDetailPage() {
 
 
   const openState = (s: InlineState) => { setInlineState(s); setError(null); };
-  const closeState = () => setInlineState({ type: 'none' });
+  const closeState = () => {
+    setInlineState({ type: 'none' });
+    setScreenshotBase64(null);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImageLoading(true);
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        // Draw and compress on canvas
+        const canvas = document.createElement('canvas');
+        const max_width = 800; // Limit image dimensions to maintain reasonable Base64 payload size
+        let width = img.width;
+        let height = img.height;
+
+        if (width > max_width) {
+          height = Math.round((height * max_width) / width);
+          width = max_width;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          // Compress to JPEG with 0.75 quality (keeps file size ~50KB - 150KB)
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
+          setScreenshotBase64(dataUrl);
+        }
+        setImageLoading(false);
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
 
   // ─── Copy UPI ID ────────────────────────────────────────────────────────────
   const handleCopyUpi = () => {
-    navigator.clipboard.writeText(UPI_ID);
+    navigator.clipboard.writeText(payDetails.upiId);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -237,7 +305,7 @@ export function EventDetailPage() {
     if (!upiRef.trim() || !registration) return;
     setSaving(true);
     try {
-      await submitUpiRef(registration.id, upiRef.trim(), actorEmail);
+      await submitUpiRef(registration.id, upiRef.trim(), actorEmail, screenshotBase64);
       await reload();
       closeState();
     } catch { setError('Failed to save. Try again.'); }
@@ -427,7 +495,11 @@ export function EventDetailPage() {
 
 
 
-  const currentMember = members.find((m) => m.email.toLowerCase() === user?.email?.toLowerCase());
+  const perPersonPrice = event?.price || 0;
+  const totalPeopleCount = event?.isTeamEvent ? members.length : 1;
+  const totalPrice = perPersonPrice * totalPeopleCount;
+
+  const currentMember = members.find((m) => m.email && user?.email && m.email.toLowerCase() === user.email.toLowerCase());
   const activeMember = currentMember || leaderMember;
 
   // ─── QR code URL (on-demand, no storage) ────────────────────────────────────
@@ -516,57 +588,24 @@ export function EventDetailPage() {
                   <div className="flex justify-between items-center">
                     <div className="flex flex-col gap-1">
                       <span className="font-micro text-micro text-text-muted uppercase tracking-widest">Team Name</span>
-                      {inlineState.type === 'edit-team-name' ? (
-                        <div className="flex flex-wrap items-center gap-3 mt-1">
-                          <input
-                            type="text"
-                            value={editTeamName}
-                            onChange={(e) => setEditTeamName(e.target.value)}
-                            className="bg-transparent border-b border-border-strong text-primary font-heading text-heading focus:outline-none focus:border-primary transition-all py-1 placeholder:text-text-muted/40"
-                            placeholder="Enter Team Name"
-                            autoFocus
-                          />
-                          <button
-                            onClick={handleSaveTeamName}
-                            disabled={saving}
-                            className="px-4 py-1.5 bg-primary text-bg-base font-button text-small uppercase hover:opacity-90 disabled:opacity-50 flex items-center gap-1"
-                          >
-                            {saving && <Loader2 size={12} className="animate-spin" />} Save
-                          </button>
-                          <button onClick={closeState} className="px-3 py-1.5 border border-border-default text-text-secondary font-button text-small uppercase hover:opacity-75">Cancel</button>
-                        </div>
-                      ) : (
-                        <h3 className="font-heading text-card-title text-primary uppercase mt-1">
-                          {registration.teamName || '(No Team Name set)'}
-                        </h3>
-                      )}
+                      <h3 className="font-heading text-card-title text-primary uppercase mt-1">
+                        {registration.teamName || '(No Team Name set)'}
+                      </h3>
                     </div>
-                    {isLeader && inlineState.type !== 'edit-team-name' && (
-                      <button
-                        onClick={() => {
-                          setEditTeamName(registration.teamName || '');
-                          setInlineState({ type: 'edit-team-name' });
-                        }}
-                        className="flex items-center gap-1 font-button text-micro text-primary border border-primary px-3 py-1.5 hover:bg-primary hover:text-bg-base transition-colors uppercase tracking-wide"
-                      >
-                        <Pencil size={12} /> Edit Name
-                      </button>
-                    )}
                   </div>
-                  {error && inlineState.type === 'edit-team-name' && <p className="font-body text-small text-text-secondary mt-1">{error}</p>}
                 </div>
               )}
 
-              <div className="flex justify-between items-end pb-4 border-b-4 border-primary mb-4">
+              <div className="flex justify-between items-center pb-4 border-b-4 border-primary mb-4">
                 <h2 className="font-heading text-card-title text-primary uppercase tracking-wide">
                   {event.isTeamEvent ? 'Team Roster' : 'Registration Details'}
                 </h2>
-                {isLeader && members.length < event.maxMembers && (
+                {event.isTeamEvent && isLeader && members.length < event.maxMembers && (
                   <button
                     onClick={() => openState({ type: 'add-member' })}
-                    className="flex items-center gap-2 font-button text-button text-primary border border-primary px-4 py-2 hover:bg-primary hover:text-bg-base transition-colors uppercase tracking-wide"
+                    className="flex items-center gap-2 font-button text-micro text-primary border border-primary px-3 py-1.5 hover:bg-primary hover:text-bg-base transition-all uppercase tracking-wide font-bold"
                   >
-                    <Plus size={14} /> Add Member
+                    <Plus size={12} /> Add Member
                   </button>
                 )}
               </div>
@@ -582,7 +621,6 @@ export function EventDetailPage() {
                   const isEditOpen = inlineState.type === 'edit' && inlineState.memberId === member.id;
                   const isRemoveOpen = inlineState.type === 'confirm-remove' && inlineState.memberId === member.id;
                   const isLeaderOpen = inlineState.type === 'confirm-leader' && inlineState.memberId === member.id;
-
                   return (
                     <div key={member.id}>
                       {/* Member row */}
@@ -604,35 +642,6 @@ export function EventDetailPage() {
                             {member.phone && <span>{member.phone}</span>}
                             {member.college && <span className="text-text-muted">{member.college}</span>}
                           </div>
-                        </div>
-
-                        {/* Row actions */}
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          {canEdit && (
-                            <button
-                              onClick={() => isEditOpen ? closeState() : startEdit(member)}
-                              className="p-2 border border-border-default hover:border-primary text-text-secondary hover:text-primary transition-colors"
-                            >
-                              {isEditOpen ? <ChevronUp size={16} /> : <Pencil size={16} />}
-                            </button>
-                          )}
-                          {canMakeLeader && (
-                            <button
-                              onClick={() => setInlineState({ type: 'confirm-leader', memberId: member.id })}
-                              className="p-2 border border-border-default hover:border-primary text-text-secondary hover:text-primary transition-colors"
-                              title="Make Leader"
-                            >
-                              <Crown size={16} />
-                            </button>
-                          )}
-                          {canRemove && (
-                            <button
-                              onClick={() => setInlineState({ type: 'confirm-remove', memberId: member.id })}
-                              className="p-2 border border-border-default hover:border-primary text-text-secondary hover:text-primary transition-colors"
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          )}
                         </div>
                       </div>
 
@@ -741,7 +750,7 @@ export function EventDetailPage() {
 
             {/* Help mailto button */}
             <a
-              href={`mailto:${HELP_EMAIL}?subject=Help with registration ${registration.id}&body=Hi, I need help with my registration for ${event.name}.`}
+              href={`mailto:${supportEmail}?subject=Help with registration ${registration.id}&body=Hi, I need help with my registration for ${event.name}.`}
               className="inline-flex items-center gap-2 font-button text-button text-text-secondary border border-dashed border-border-default px-6 py-3 hover:border-primary hover:text-primary transition-colors uppercase tracking-wide w-max"
             >
               <Mail size={14} /> Need help with this team?
@@ -749,82 +758,50 @@ export function EventDetailPage() {
           </div>
         )}
 
-
         {/* Right: Fee & QR */}
         <div className="md:col-span-4 flex flex-col gap-12">
-          {/* Admin fee status toggle */}
-          {isAdmin && (
-            <div className="flex flex-col gap-4">
-              <div className="flex justify-between items-end border-b-4 border-primary pb-4">
-                <h3 className="font-heading text-card-title text-primary uppercase">Admin Controls</h3>
-              </div>
-              <button
-                onClick={handleToggleFee}
-                disabled={saving}
-                className="w-full font-button text-button py-4 border-2 border-primary uppercase tracking-wide flex items-center justify-center gap-2 hover:bg-primary hover:text-bg-base transition-colors disabled:opacity-50"
-              >
-                {saving && <Loader2 size={14} className="animate-spin" />}
-                Mark as {paid ? 'Pending' : 'Paid'}
-              </button>
-            </div>
-          )}
 
           {/* Payment section */}
-          <div className="flex flex-col gap-8">
-            <div className="flex justify-between items-end border-b-4 border-primary pb-4">
-              <h3 className="font-heading text-card-title text-primary uppercase">Registration Fee</h3>
-            </div>
+          {!paid && (
+            <div className="flex flex-col gap-8">
+              <div className="flex justify-between items-end border-b-4 border-primary pb-4">
+                <h3 className="font-heading text-card-title text-primary uppercase">Registration Fee</h3>
+              </div>
 
-            <div className="font-countdown text-[48px] leading-none font-bold text-primary tracking-tight">
-              {event.price != null ? `₹${event.price}` : 'TBA'}
-              <span className="font-body text-text-muted text-[20px] font-medium ml-1">/{event.isTeamEvent ? 'team' : 'entry'}</span>
-            </div>
-
-            {!paid && (
-              <>
-                <div className="flex flex-col gap-2">
-                  <label className="font-micro text-micro text-text-muted uppercase tracking-widest">Pay via UPI</label>
-                  <div className="border-2 border-primary p-4 flex justify-between items-center font-heading text-heading text-primary">
-                    <span className="tracking-wide">{UPI_ID}</span>
-                    <button onClick={handleCopyUpi} className="text-primary hover:opacity-70 transition-opacity" title="Copy UPI ID">
-                      {copied ? <CheckCircle2 size={20} /> : <Copy size={20} />}
-                    </button>
-                  </div>
-                </div>
-
-                {/* UPI ref submit — inline expand */}
-                {inlineState.type !== 'submit-upi' ? (
-                  <button
-                    onClick={() => openState({ type: 'submit-upi' })}
-                    className="w-full bg-primary text-bg-base font-button text-button uppercase py-4 hover:opacity-90 transition-opacity flex justify-center items-center gap-2 border-2 border-primary"
-                  >
-                    <ArrowRight size={18} /> Submit Transaction ID
-                  </button>
-                ) : (
-                  <div className="expand-in flex flex-col gap-4 border-l-2 border-primary pl-4">
-                    <label className="font-micro text-micro text-primary uppercase tracking-widest">Transaction / UTR Reference</label>
-                    <input
-                      type="text"
-                      value={upiRef}
-                      onChange={(e) => setUpiRef(e.target.value)}
-                      placeholder="e.g. 312345678901"
-                      className="bg-transparent border-b border-border-strong text-primary font-heading text-heading py-2 focus:outline-none focus:border-primary transition-all"
-                    />
-                    {error && <p className="font-body text-small text-text-secondary">{error}</p>}
-                    <div className="flex gap-3">
-                      <button onClick={closeState} className="px-4 py-2 border border-border-default text-text-secondary font-button text-button uppercase hover:opacity-70">Cancel</button>
-                      <button
-                        onClick={handleSubmitUpiRef}
-                        disabled={saving || !upiRef.trim()}
-                        className="flex-1 bg-primary text-bg-base font-button text-button uppercase py-3 hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
-                      >
-                        {saving && <Loader2 size={14} className="animate-spin" />} Submit
-                      </button>
-                    </div>
-                  </div>
+              <div className="font-countdown text-[48px] leading-none font-bold text-primary tracking-tight">
+                {event.price != null ? `₹${totalPrice}` : 'TBA'}
+                {event.isTeamEvent && (
+                  <span className="font-body text-text-muted text-[14px] font-medium block mt-2 animate-fade-in" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+                    (₹{event.price} per person × {totalPeopleCount} members)
+                  </span>
                 )}
-              </>
-            )}
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label className="font-micro text-micro text-text-muted uppercase tracking-widest">Pay via UPI</label>
+                <div className="border-2 border-primary p-4 flex justify-between items-center font-heading text-heading text-primary">
+                  <span className="tracking-wide">{payDetails.upiId}</span>
+                  <button onClick={handleCopyUpi} className="text-primary hover:opacity-70 transition-opacity" title="Copy UPI ID">
+                    {copied ? <CheckCircle2 size={20} /> : <Copy size={20} />}
+                  </button>
+                </div>
+              </div>
+
+              {/* QR Code Embed */}
+              <div className="flex flex-col items-center gap-2 mt-4 p-4 border border-dashed border-primary bg-[#121212]">
+                <span className="font-micro text-micro text-text-muted uppercase tracking-widest">Scan QR to Pay</span>
+                <img
+                  src={payDetails.qrCodeUrl || `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(`upi://pay?pa=${payDetails.upiId}&pn=SPECTRUM26&am=${totalPrice}&cu=INR`)}`}
+                  alt="Payment QR Code"
+                  className="w-48 h-48 border-2 border-primary object-contain"
+                />
+                <span style={{ fontSize: '10px', color: 'var(--color-text-muted)', fontFamily: 'Space Grotesk, sans-serif' }}>
+                  Double check the UPI ID before transferring.
+                </span>
+              </div>
+
+            </div>
+          )}
 
             {/* QR Entry Pass */}
             <div className={`border-2 ${paid ? 'border-primary' : 'border-dashed border-primary'} p-8 flex flex-col items-center justify-center gap-6 text-center min-h-[280px] relative overflow-hidden`}>
@@ -889,11 +866,75 @@ export function EventDetailPage() {
               ) : (
                 <>
                   <div className="w-16 h-16 border-2 border-primary bg-bg-base flex items-center justify-center relative z-10">
-                    <Lock size={32} className="text-primary" />
+                    {registration?.upiTransactionRef ? (
+                      <Clock size={32} className="text-primary animate-pulse" />
+                    ) : (
+                      <Lock size={32} className="text-primary" />
+                    )}
                   </div>
-                  <div className="relative z-10 flex flex-col gap-3 px-4 bg-bg-base p-4 border border-primary">
-                    <span className="font-heading text-card-title text-primary uppercase">Entry Pass Locked</span>
-                    <span className="font-body text-small text-text-muted">Generated upon payment verification.</span>
+                  <div className="relative z-10 flex flex-col gap-3 px-4 bg-bg-base p-4 border border-primary w-full max-w-[280px]">
+                    <span className="font-heading text-card-title text-primary uppercase">
+                      {registration?.upiTransactionRef ? 'Payment Pending' : 'Entry Pass Locked'}
+                    </span>
+                    <span className="font-body text-small text-text-muted">
+                      {registration?.upiTransactionRef 
+                        ? 'Admin is verifying your transaction. You can update details below.'
+                        : 'Generated upon payment verification.'}
+                    </span>
+
+                    {/* Submit form directly inside */}
+                    <div className="flex flex-col gap-4 border-t border-border-default pt-4 text-left w-full mt-2">
+                      <div className="flex flex-col gap-1">
+                        <label className="font-micro text-[10px] text-text-muted uppercase tracking-widest">Transaction / UTR ID</label>
+                        <input
+                          type="text"
+                          value={upiRef}
+                          onChange={(e) => setUpiRef(e.target.value)}
+                          placeholder="e.g. 312345678901"
+                          className="bg-transparent border-b border-border-strong text-primary font-mono text-small py-1.5 focus:outline-none focus:border-primary transition-all w-full"
+                        />
+                      </div>
+                      
+                      <div className="flex flex-col gap-1.5">
+                        <label className="font-micro text-[10px] text-text-muted uppercase tracking-widest">Payment Proof / Screenshot</label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileChange}
+                          className="text-[10px] text-text-secondary cursor-pointer w-full file:bg-primary file:text-bg-base file:border-none file:px-2 file:py-1 file:font-bold file:uppercase file:text-[9px] hover:file:opacity-85 file:cursor-pointer"
+                        />
+                        {imageLoading && <span className="text-[10px] text-text-muted animate-pulse">Processing...</span>}
+                        {screenshotBase64 && (
+                          <div className="relative w-20 h-20 border border-border-default mt-1 overflow-hidden bg-black/50">
+                            <img src={screenshotBase64} alt="Screenshot preview" className="w-full h-full object-cover" />
+                            <button 
+                              type="button" 
+                              onClick={() => setScreenshotBase64(null)}
+                              className="absolute top-0.5 right-0.5 bg-red-600 hover:bg-red-700 text-white rounded-full p-0.5 text-[8px] font-bold"
+                              style={{ width: '12px', height: '12px', display: 'flex', alignItems: 'center', justify: 'center' }}
+                            >
+                              X
+                            </button>
+                          </div>
+                        )}
+                        {registration?.paymentScreenshotUrl && !screenshotBase64 && (
+                          <div className="flex flex-col gap-1 mt-1">
+                            <span className="font-micro text-[9px] text-text-muted uppercase">Last Submitted Proof</span>
+                            <img src={registration.paymentScreenshotUrl} alt="Submitted proof" className="w-16 h-16 object-cover border border-border-default" />
+                          </div>
+                        )}
+                      </div>
+
+                      {error && <p className="font-body text-small text-text-secondary">{error}</p>}
+                      <button
+                        onClick={handleSubmitUpiRef}
+                        disabled={saving || !upiRef.trim() || imageLoading}
+                        className="bg-primary text-bg-base font-button text-micro uppercase py-2 hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2 font-bold w-full"
+                      >
+                        {saving && <Loader2 size={10} className="animate-spin" />}
+                        {registration?.upiTransactionRef ? 'Update Details' : 'Submit Details'}
+                      </button>
+                    </div>
                   </div>
                 </>
               )}
@@ -901,7 +942,6 @@ export function EventDetailPage() {
 
           </div>
         </div>
-      </div>
 
       {/* Security Alert Modal */}
       {showSecurityModal && (

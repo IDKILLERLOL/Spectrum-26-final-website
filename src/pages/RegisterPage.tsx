@@ -2,8 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Loader2, ArrowRight, Plus, Trash2 } from 'lucide-react';
 import { useAuth } from '../lib/useAuth';
-import { getEvent, createRegistration, getUser, updateUser, hasExistingRegistration } from '../lib/firestore';
+import { getEvent, createRegistration, getUser, updateUser, hasExistingRegistration, db, getEventDetails } from '../lib/firestore';
+import { collection, getDocs, query, where, getCountFromServer, doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import type { Event } from '../types';
+
+function hashPassword(password: string, email: string): string {
+  const str = `${email}::${password}`;
+  let hash = 5381;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) + hash + str.charCodeAt(i);
+    hash = hash & hash; // 32-bit
+  }
+  return (hash >>> 0).toString(16);
+}
 
 export function RegisterPage() {
   const { eventId } = useParams<{ eventId: string }>();
@@ -12,12 +23,13 @@ export function RegisterPage() {
 
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
-  
+
   // Leader / registrant state
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [college, setCollege] = useState('');
+  const [password, setPassword] = useState('');
   const [teamName, setTeamName] = useState('');
   
   // Team members state (for team events)
@@ -25,6 +37,9 @@ export function RegisterPage() {
   
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [regCount, setRegCount] = useState<number | null>(null);
+  const [supportPhone, setSupportPhone] = useState('+91 98765 43210');
+  const [supportEmail, setSupportEmail] = useState('spectrum.sbmp@gmail.com');
 
   // Load event details & pre-fill user profile if available
   useEffect(() => {
@@ -32,16 +47,29 @@ export function RegisterPage() {
 
     const loadData = async () => {
       try {
-        const ev = await getEvent(eventId);
+        // Fetch event & details in parallel to minimize load latency
+        const [ev, details] = await Promise.all([
+          getEvent(eventId),
+          getEventDetails()
+        ]);
+        
         setEvent(ev);
-
-        if (!user) {
-          navigate(`/login?redirect=register&eventId=${eventId}`, { replace: true });
-          return;
+        if (details) {
+          setSupportPhone(details.helplinePhone || '+91 98765 43210');
+          setSupportEmail(details.helplineEmail || 'spectrum.sbmp@gmail.com');
         }
 
-        if (user) {
-          const profile = await getUser(user.uid);
+        // Fetch registered persons count accurately using server aggregation (fast & cheap)
+        const countSnap = await getCountFromServer(query(collection(db, 'teamMembers'), where('status', '==', 'ACTIVE')));
+        setRegCount(countSnap.data().count);
+
+        // Skip authentication check and pre-fill if user is logged in
+        if (user && ev) {
+          const [profile, existing] = await Promise.all([
+            getUser(user.uid),
+            hasExistingRegistration(user.uid, ev.id)
+          ]);
+
           if (profile) {
             setName(profile.name || '');
             setEmail(profile.email || user.email || '');
@@ -49,15 +77,11 @@ export function RegisterPage() {
             setCollege(profile.college || '');
           }
 
-          // Check if user is already registered for this event
-          if (ev && user) {
-            const existing = await hasExistingRegistration(user.uid, ev.id);
-            if (existing) {
-              // Already registered — go straight to their pass
-              sessionStorage.setItem('spectrum26_active_registration_id', existing);
-              navigate('/events', { replace: true });
-              return;
-            }
+          if (existing) {
+            // Already registered — go straight to their pass
+            sessionStorage.setItem('spectrum26_active_registration_id', existing);
+            navigate(`/pass/${existing}`, { replace: true });
+            return;
           }
         }
       } catch (err) {
@@ -68,7 +92,7 @@ export function RegisterPage() {
     };
 
     loadData();
-  }, [eventId, user, navigate]);
+  }, [eventId, user, navigate, authLoading]);
 
   const handleAddMember = () => {
     if (event && members.length + 1 >= event.maxMembers) {
@@ -95,6 +119,11 @@ export function RegisterPage() {
     // Validate leader fields
     if (!name.trim() || !email.trim() || !phone.trim() || !college.trim()) {
       setError('All leader fields (including College Name) are required.');
+      return;
+    }
+
+    if (!user && !password.trim()) {
+      setError('Please create a password for your account.');
       return;
     }
 
@@ -156,43 +185,62 @@ export function RegisterPage() {
   };
 
   const completeRegistration = async () => {
-    if (!eventId || !event || !user) return;
+    if (!eventId || !event) return;
     setSubmitting(true);
     setError(null);
     try {
-      // Save leader details to their global user profile
-      await updateUser(user.uid, {
-        name: name.trim(),
-        phone: phone.trim(),
-        email: email.trim(),
-        college: college.trim(),
-      });
+      // Save leader details to their global user profile if authenticated
+      if (user) {
+        await updateUser(user.uid, {
+          name: name.trim(),
+          phone: phone.trim(),
+          email: email.trim(),
+          college: college.trim(),
+        });
+      }
+
+      const leaderUid = user ? user.uid : `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+      // If they are not logged in (guest), create their user document with the password hash!
+      if (!user) {
+        const userRef = doc(db, 'users', leaderUid);
+        const passHash = hashPassword(password.trim(), email.trim().toLowerCase());
+        await setDoc(userRef, {
+          email: email.trim().toLowerCase(),
+          name: name.trim(),
+          phone: phone.trim(),
+          college: college.trim(),
+          authMethod: 'otp', // So they login via email/password in LoginPage
+          passwordHash: passHash,
+          createdAt: serverTimestamp()
+        });
+      }
 
       // Create the event registration with members list
       const newReg = await createRegistration(
         event.id,
         {
-          uid: user.uid,
+          uid: leaderUid,
           name: name.trim(),
           email: email.trim(),
           phone: phone.trim(),
           college: college.trim(),
         },
-        user.email || email.trim(),
+        user?.email || email.trim(),
         event.isTeamEvent ? members : [],
         event.isTeamEvent ? teamName.trim() : undefined
       );
 
-      // Redirect directly to the Event Detail/Pass page
+      // Redirect directly to the Pass page
       sessionStorage.setItem('spectrum26_active_registration_id', newReg.id);
-      navigate('/events', { replace: true });
+      navigate(`/pass/${newReg.id}`, { replace: true });
     } catch (err: unknown) {
       console.error('[RegisterPage] Submit registration error:', err);
       const msg = (err as Error).message || '';
       if (msg.startsWith('ALREADY_REGISTERED:')) {
         const existingId = msg.replace('ALREADY_REGISTERED:', '');
         sessionStorage.setItem('spectrum26_active_registration_id', existingId);
-        navigate('/events', { replace: true });
+        navigate(`/pass/${existingId}`, { replace: true });
         return;
       }
       setError(msg || 'Failed to complete registration. Please try again.');
@@ -240,22 +288,28 @@ export function RegisterPage() {
         </div>
 
         <div
-          className="p-8 border flex flex-col gap-8"
+          className="p-8 flex flex-col gap-8 border border-border-default"
           style={{
             background: 'var(--color-bg-card)',
-            borderColor: 'var(--color-border-default)',
             borderRadius: '8px',
           }}
         >
-          <h2 className="text-card-title font-heading uppercase tracking-wide border-b border-border-default pb-3" style={{ color: 'var(--color-text-primary)' }}>
-            Registration Form
-          </h2>
+          <div className="flex justify-between items-center border-b border-border-default pb-3 flex-wrap gap-2">
+            <h2 className="text-card-title font-heading uppercase tracking-wide" style={{ color: 'var(--color-text-primary)' }}>
+              Registration Form
+            </h2>
+            {regCount !== null && (
+              <span className="comic-badge text-xs" style={{ padding: '4px 10px', fontSize: '11px', fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700 }}>
+                LIVE COUNTER: {regCount} PARTICIPANTS
+              </span>
+            )}
+          </div>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-8">
             {/* Team Name Input (for team events only, placed at the top) */}
             {event.isTeamEvent && (
               <div className="flex flex-col gap-6 pb-4 border-b border-border-default">
-                <h3 className="font-heading text-body text-primary uppercase border-b border-dashed border-border-subtle pb-2">
+                <h3 className="font-heading text-body text-primary uppercase pb-2">
                   Team Identification
                 </h3>
                 <div className="flex flex-col gap-2">
@@ -268,7 +322,7 @@ export function RegisterPage() {
                     onChange={(e) => setTeamName(e.target.value)}
                     placeholder="Enter your team name"
                     required
-                    className="bg-transparent border-b-2 border-border-strong text-primary font-heading text-heading py-2 focus:outline-none focus:border-primary transition-all placeholder:text-text-muted/40 w-full"
+                    className="bg-transparent border-b-2 border-border-strong text-primary font-body text-body py-2 focus:outline-none focus:border-primary transition-all placeholder:text-text-muted/40 w-full"
                   />
                 </div>
               </div>
@@ -276,7 +330,7 @@ export function RegisterPage() {
 
             {/* Leader / Registrant Section */}
             <div className="flex flex-col gap-6">
-              <h3 className="font-heading text-body text-primary uppercase border-b border-dashed border-border-subtle pb-2">
+              <h3 className="font-heading text-body text-primary uppercase pb-2">
                 Leader / Registrant Details
               </h3>
 
@@ -291,7 +345,7 @@ export function RegisterPage() {
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Enter your name"
                     required
-                    className="bg-transparent border-b-2 border-border-strong text-primary font-heading text-heading py-2 focus:outline-none focus:border-primary transition-all"
+                    className="bg-transparent border-b-2 border-border-strong text-primary font-body text-body py-2 focus:outline-none focus:border-primary transition-all"
                   />
                 </div>
 
@@ -305,7 +359,7 @@ export function RegisterPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@example.com"
                     required
-                    className="bg-transparent border-b-2 border-border-strong text-primary font-heading text-heading py-2 focus:outline-none focus:border-primary transition-all"
+                    className="bg-transparent border-b-2 border-border-strong text-primary font-body text-body py-2 focus:outline-none focus:border-primary transition-all"
                   />
                 </div>
 
@@ -319,7 +373,7 @@ export function RegisterPage() {
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="e.g. +91 98765 43210"
                     required
-                    className="bg-transparent border-b-2 border-border-strong text-primary font-heading text-heading py-2 focus:outline-none focus:border-primary transition-all"
+                    className="bg-transparent border-b-2 border-border-strong text-primary font-body text-body py-2 focus:outline-none focus:border-primary transition-all"
                   />
                 </div>
 
@@ -333,9 +387,25 @@ export function RegisterPage() {
                     onChange={(e) => setCollege(e.target.value)}
                     placeholder="e.g. Stanford University"
                     required
-                    className="bg-transparent border-b-2 border-border-strong text-primary font-heading text-heading py-2 focus:outline-none focus:border-primary transition-all"
+                    className="bg-transparent border-b-2 border-border-strong text-primary font-body text-body py-2 focus:outline-none focus:border-primary transition-all"
                   />
                 </div>
+
+                {!user && (
+                  <div className="flex flex-col gap-2">
+                    <label className="text-micro font-body uppercase tracking-widest" style={{ color: 'var(--color-text-muted)' }}>
+                      Create Account Password *
+                    </label>
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Min 6 characters recommended"
+                      required
+                      className="bg-transparent border-b-2 border-border-strong text-primary font-body text-body py-2 focus:outline-none focus:border-primary transition-all"
+                    />
+                  </div>
+                )}
               </div>
             </div>
 
@@ -467,6 +537,16 @@ export function RegisterPage() {
               )}
             </button>
           </form>
+
+          {/* Support Section */}
+          <div className="mt-4 pt-6 border-t border-border-default text-xs font-semibold text-center" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+            <p style={{ color: 'var(--color-text-muted)' }}>
+              Need help with registering?{' '}
+              <Link to="/contact" style={{ color: 'var(--color-text-primary)', textDecoration: 'underline' }}>
+                Contact Us.
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </main>

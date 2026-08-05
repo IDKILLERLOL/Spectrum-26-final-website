@@ -26,9 +26,11 @@ const EMPTY_FORM: EventFormData = {
   rulesUrl: null,
   minMembers: 1,
   maxMembers: 1,
+  roundDetails: [],
 };
 
 export function AdminEventsPage() {
+  console.log("[Mount] AdminEventsPage component loaded");
   const { adminEmail } = useAuth();
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
@@ -70,6 +72,7 @@ export function AdminEventsPage() {
       rulesUrl: event.rulesUrl,
       minMembers: event.minMembers,
       maxMembers: event.maxMembers,
+      roundDetails: event.roundDetails || [],
     });
     setError(null);
     setInlineState({ type: 'edit', eventId: event.id });
@@ -97,8 +100,8 @@ export function AdminEventsPage() {
         }
       }
       await createEvent(data, adminEmail ?? '');
-      await reload();
       closeState();
+      reload().catch(console.error);
     } catch (err: unknown) {
       setError((err as Error).message || 'Failed to create event.');
     } finally { setSaving(false); }
@@ -129,8 +132,8 @@ export function AdminEventsPage() {
         }
       }
       await updateEvent(eventId, patch, adminEmail ?? '');
-      await reload();
       closeState();
+      reload().catch(console.error);
     } catch (err: unknown) {
       setError((err as Error).message || 'Failed to update event.');
     } finally { setSaving(false); }
@@ -142,8 +145,8 @@ export function AdminEventsPage() {
     setSaving(true);
     try {
       await deleteEvent(eventId, adminEmail ?? '');
-      await reload();
       closeState();
+      reload().catch(console.error);
     } catch (err: unknown) {
       setError((err as Error).message || 'Cannot delete: teams are registered for this event.');
     } finally { setSaving(false); }
@@ -340,21 +343,26 @@ function EventFormFields({
         </select>
       </div>
 
-      {/* Team / Solo */}
+      {/* Team / Solo / Duo */}
       <div className="flex flex-col gap-2">
         <label className="font-micro text-micro text-text-muted uppercase tracking-widest flex items-center gap-2">
           Format {categoryLocked && <Lock size={10} />}
         </label>
         <select
-          value={form.isTeamEvent ? 'team' : 'solo'}
+          value={form.isTeamEvent ? (form.maxMembers === 2 ? 'duo' : 'team') : 'solo'}
           onChange={(e) => {
-            const isTeam = e.target.value === 'team';
-            setField('isTeamEvent', isTeam);
-            if (!isTeam) {
+            const val = e.target.value;
+            if (val === 'solo') {
+              setField('isTeamEvent', false);
               setField('minMembers', 1);
               setField('maxMembers', 1);
-            } else {
+            } else if (val === 'duo') {
+              setField('isTeamEvent', true);
               setField('minMembers', 2);
+              setField('maxMembers', 2);
+            } else {
+              setField('isTeamEvent', true);
+              setField('minMembers', 3);
               setField('maxMembers', 4);
             }
           }}
@@ -362,7 +370,8 @@ function EventFormFields({
           className="bg-bg-base border-b-2 border-border-strong text-primary font-heading text-heading py-2 focus:outline-none focus:border-primary transition-all disabled:opacity-40"
         >
           <option value="solo">Solo</option>
-          <option value="team">Team</option>
+          <option value="duo">Duo</option>
+          <option value="team">Team (3+)</option>
         </select>
       </div>
 
@@ -441,6 +450,18 @@ function EventFormFields({
           onChange={(e) => setField('rulesUrl', e.target.value || null)}
           placeholder="https://..."
           className="bg-transparent border-b-2 border-border-strong text-primary font-body text-body py-2 focus:outline-none focus:border-primary transition-all"
+        />
+      </div>
+
+      {/* Round Details */}
+      <div className="flex flex-col gap-2 md:col-span-2">
+        <label className="font-micro text-micro text-text-muted uppercase tracking-widest">Round Details / Sub-Events (one per line)</label>
+        <textarea
+          value={(form.roundDetails || []).join('\n')}
+          onChange={(e) => setField('roundDetails', e.target.value.split('\n').filter(line => line.trim() !== ''))}
+          rows={4}
+          placeholder="Sub-Event 1: Codopoly — CS topic board game..."
+          className="bg-transparent border border-border-strong text-primary font-body text-body p-3 focus:outline-none focus:border-primary transition-all resize-y"
         />
       </div>
 

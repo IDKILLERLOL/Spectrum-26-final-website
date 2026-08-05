@@ -22,25 +22,29 @@ export function PublicPassPage() {
   const queryParams = new URLSearchParams(window.location.search);
   const scannedMemberId = queryParams.get('memberId');
 
-  useEffect(() => {
+  const reload = async () => {
     if (!id) return;
+    try {
+      const reg = await getRegistration(id);
+      if (reg) {
+        setRegistration(reg);
+        setTxId(reg.upiTransactionRef || '');
+        setProofImage(reg.paymentProofUrl || reg.paymentScreenshotUrl || null);
+        const [mems, ev] = await Promise.all([
+          getActiveTeamMembers(reg.id),
+          getEvent(reg.eventId),
+        ]);
+        setMembers(mems);
+        setEvent(ev);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
     setLoading(true);
-    getRegistration(id)
-      .then(async (reg) => {
-        if (reg) {
-          setRegistration(reg);
-          setTxId(reg.upiTransactionRef || '');
-          setProofImage(reg.paymentProofUrl || null);
-          const [mems, ev] = await Promise.all([
-            getActiveTeamMembers(reg.id),
-            getEvent(reg.eventId),
-          ]);
-          setMembers(mems);
-          setEvent(ev);
-        }
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
+    reload().finally(() => setLoading(false));
   }, [id]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -52,7 +56,6 @@ export function PublicPassPage() {
       return;
     }
 
-    // Convert file to Base64
     const reader = new FileReader();
     reader.onload = () => {
       setProofImage(reader.result as string);
@@ -72,7 +75,7 @@ export function PublicPassPage() {
     setSuccessMsg(null);
     try {
       await submitUpiRef(registration.id, txId.trim(), 'participant', proofImage);
-      setRegistration((prev) => prev ? { ...prev, upiTransactionRef: txId.trim(), paymentProofUrl: proofImage } : null);
+      setRegistration((prev) => prev ? { ...prev, upiTransactionRef: txId.trim(), paymentProofUrl: proofImage, paymentScreenshotUrl: proofImage } : null);
       setSuccessMsg('Payment proof submitted successfully! Verification pending admin review.');
     } catch (err) {
       console.error('[PublicPassPage] Failed to submit payment proof:', err);
@@ -251,7 +254,7 @@ export function PublicPassPage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full bg-primary text-bg-base font-button text-button uppercase py-3 flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50"
+                  className="w-full bg-primary text-bg-base font-button text-button uppercase py-3 flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50 font-bold"
                 >
                   {submitting ? (
                     <>
@@ -295,4 +298,3 @@ export function PublicPassPage() {
     </main>
   );
 }
-

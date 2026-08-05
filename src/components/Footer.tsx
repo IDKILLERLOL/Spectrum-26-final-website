@@ -11,8 +11,8 @@ export function Footer() {
 
   return (
     <footer
-      className="relative z-10 max-w-7xl mx-auto w-[92%] mt-12 mb-8 comic-shadow flex flex-wrap justify-between items-center gap-6 p-6"
-      style={{ background: 'var(--panel-bg)' }}
+      className="relative z-10 max-w-7xl mx-auto w-[92%] mt-12 mb-8 flex flex-wrap justify-between items-center gap-6 py-6 border-t-2"
+      style={{ borderColor: 'var(--border-color)' }}
     >
       {/* Wordmark */}
       <div className="flex items-center gap-3">
@@ -68,6 +68,7 @@ export function Footer() {
           </Link>
         ))}
       </div>
+      </div>
 
       {/* Copyright */}
       <div
@@ -81,8 +82,7 @@ export function Footer() {
           letterSpacing: '0.04em',
         }}
       >
-        © 2026 SPECTRUM CO.<br />
-        DESIGNED IN RADIANT CRISIS FRAMEWORK.
+        © 2026 SPECTRUM CO.
       </div>
     </footer>
   );

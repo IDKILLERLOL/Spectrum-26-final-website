@@ -10,6 +10,7 @@ import { playSynthSound } from '../lib/audio';
 type RegWithEvent = Registration & { event: Event | null };
 
 export function RegistrationsPage() {
+  console.log("[Mount] RegistrationsPage component loaded");
   const { user } = useAuth();
   const navigate = useNavigate();
   const [items, setItems] = useState<RegWithEvent[]>([]);
@@ -134,7 +135,7 @@ export function RegistrationsPage() {
             onSelect={() => {
               playSynthSound('laser');
               sessionStorage.setItem('spectrum26_active_registration_id', item.id);
-              navigate('/events');
+              navigate('/event-dashboard');
             }}
           />
         ))}

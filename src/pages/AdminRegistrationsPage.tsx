@@ -18,6 +18,7 @@ type RowView = {
 };
 
 export function AdminRegistrationsPage() {
+  console.log("[Mount] AdminRegistrationsPage component loaded");
   const { adminEmail } = useAuth();
   const [rows, setRows] = useState<RowView[]>([]);
   const [loading, setLoading] = useState(true);
@@ -457,6 +458,18 @@ export function AdminRegistrationsPage() {
                         <span className="font-heading text-heading text-primary font-mono select-all">
                           {reg.upiTransactionRef ?? '(not submitted)'}
                         </span>
+                        {reg.paymentScreenshotUrl && (
+                          <div className="mt-2">
+                            <span className="font-micro text-[10px] text-text-muted uppercase tracking-widest block mb-1">Proof Screenshot</span>
+                            <a href={reg.paymentScreenshotUrl} target="_blank" rel="noopener noreferrer">
+                              <img 
+                                src={reg.paymentScreenshotUrl} 
+                                alt="Payment Proof" 
+                                className="w-24 h-24 border border-border-default object-cover cursor-pointer hover:opacity-85 transition-opacity" 
+                              />
+                            </a>
+                          </div>
+                        )}
                       </div>
 
                       <div className="flex flex-col gap-2">

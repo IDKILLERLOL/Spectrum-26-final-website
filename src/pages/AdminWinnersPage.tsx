@@ -19,6 +19,7 @@ type InlineState =
   | { type: 'select'; eventId: string; placement: 1 | 2 | 3 };
 
 export function AdminWinnersPage() {
+  console.log("[Mount] AdminWinnersPage component loaded");
   const { adminEmail } = useAuth();
   const [events, setEvents] = useState<Event[]>([]);
   const [winners, setWinnersMap] = useState<WinnersMap>(new Map());
