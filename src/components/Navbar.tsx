@@ -108,6 +108,7 @@ export function Navbar() {
           {navLink('/', 'Events')}
           {navLink('/schedule', 'Schedule')}
           {navLink('/winners', 'Winners')}
+          {navLink('/gallery', 'Gallery')}
           {user && hasRegistrations && navLink('/my-registrations', 'My Passes')}
         </div>
 
@@ -171,6 +172,7 @@ export function Navbar() {
           { to: '/', label: 'Events' },
           { to: '/schedule', label: 'Schedule' },
           { to: '/winners', label: 'Winners' },
+          { to: '/gallery', label: 'Gallery' },
           ...(user ? [{ to: '/my-registrations', label: 'My Passes' }] : []),
         ].map(({ to, label }) => (
           <Link

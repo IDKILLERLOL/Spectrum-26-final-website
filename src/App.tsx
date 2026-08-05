@@ -21,6 +21,7 @@ import { PublicPassPage } from './pages/PublicPassPage';
 import { AdminEditRegistrationPage } from './pages/AdminEditRegistrationPage';
 import { AdminCreateRegistrationPage } from './pages/AdminCreateRegistrationPage';
 import { WinnersPage } from './pages/WinnersPage';
+import { GalleryPage } from './pages/GalleryPage';
 import { AdminAccountsPage } from './pages/AdminAccountsPage';
 import { ScrollToTop } from './components/ScrollToTop';
 
@@ -66,6 +67,7 @@ export default function App() {
           <Route index element={<LandingPage />} />
           <Route path="schedule" element={<SchedulePage />} />
           <Route path="winners" element={<WinnersPage />} />
+          <Route path="gallery" element={<GalleryPage />} />
           <Route path="login" element={<LoginPage />} />
           <Route path="pass/:id" element={<PublicPassPage />} />
 

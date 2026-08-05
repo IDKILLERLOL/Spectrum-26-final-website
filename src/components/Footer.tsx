@@ -49,6 +49,7 @@ export function Footer() {
           { to: '/', label: 'Contact' },
           { to: '/schedule', label: 'Schedule' },
           { to: '/winners', label: 'Winners' },
+          { to: '/gallery', label: 'Gallery' },
         ].map(({ to, label }) => (
           <Link
             key={to}
