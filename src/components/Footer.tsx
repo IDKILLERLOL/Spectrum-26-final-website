@@ -46,7 +46,7 @@ export function Footer() {
       {/* Links */}
       <div className="flex gap-6" style={{ fontFamily: 'Bangers, cursive', fontSize: '20px', letterSpacing: '0.05em' }}>
         {[
-          { to: '/', label: 'Contact' },
+          { to: '/contact', label: 'Contact' },
           { to: '/schedule', label: 'Schedule' },
           { to: '/winners', label: 'Winners' },
           { to: '/gallery', label: 'Gallery' },

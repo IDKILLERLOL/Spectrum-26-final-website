@@ -144,6 +144,7 @@ export function Navbar() {
             {navLink('/schedule', 'Schedule')}
             {navLink('/winners', 'Winners')}
             {navLink('/gallery', 'Gallery')}
+            {navLink('/contact', 'Contact')}
             {user && hasRegistrations && navLink('/my-registrations', 'My Passes')}
           </div>
 
@@ -301,6 +302,7 @@ export function Navbar() {
           {navLink('/schedule', 'Schedule', () => setIsSidebarOpen(false))}
           {navLink('/winners', 'Winners', () => setIsSidebarOpen(false))}
           {navLink('/gallery', 'Gallery', () => setIsSidebarOpen(false))}
+          {navLink('/contact', 'Contact', () => setIsSidebarOpen(false))}
           {user && hasRegistrations && navLink('/my-registrations', 'My Passes', () => setIsSidebarOpen(false))}
         </div>
 
