@@ -75,7 +75,23 @@ export function ContactPage() {
                 <strong>Email:</strong> <a href={`mailto:${email}`} className="text-primary hover:opacity-75 transition-opacity" style={{ textDecoration: 'underline' }}>{email}</a>
               </li>
               <li>
-                <strong>Phone Support:</strong> <a href={`tel:${phone.replace(/\s+/g, '')}`} className="text-primary hover:opacity-75 transition-opacity" style={{ textDecoration: 'underline' }}>{phone}</a>
+                <strong>Phone Support:</strong>
+                <div className="flex flex-col gap-1 mt-1 font-mono text-small">
+                  {[
+                    '+91 86574 78886',
+                    '+91 90046 20948',
+                    '+91 90210 95204'
+                  ].map((pNum) => (
+                    <a
+                      key={pNum}
+                      href={`tel:${pNum.replace(/\s+/g, '')}`}
+                      className="text-primary hover:opacity-75 transition-opacity"
+                      style={{ textDecoration: 'underline' }}
+                    >
+                      {pNum}
+                    </a>
+                  ))}
+                </div>
               </li>
               <li>
                 <strong>Hours:</strong> 9:00 AM - 5:00 PM IST (Mon - Sat)
