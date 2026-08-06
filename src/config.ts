@@ -10,7 +10,7 @@ export const UPI_ID: string = import.meta.env.VITE_UPI_ID ?? '9021095204@postban
 
 /** Email address for the "Need help?" mailto button on event detail pages. */
 export const HELP_EMAIL: string =
-  import.meta.env.VITE_HELP_EMAIL ?? 'spectrum26help@example.com';
+  import.meta.env.VITE_HELP_EMAIL ?? 'spectrumsbmp@gmail.com';
 
 /**
  * Gmail address used as the "From" sender for all outgoing emails.

@@ -49,7 +49,7 @@ export function EventDetailPage() {
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [payDetails, setPayDetails] = useState({ upiId: UPI_ID, qrCodeUrl: '' });
-  const [supportEmail, setSupportEmail] = useState('spectrum.sbmp@gmail.com');
+  const [supportEmail, setSupportEmail] = useState('spectrumsbmp@gmail.com');
 
   // Input states declared at top to follow Rules of Hooks
   const [upiRef, setUpiRef] = useState('');

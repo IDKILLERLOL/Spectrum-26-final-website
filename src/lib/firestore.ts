@@ -1751,7 +1751,7 @@ export async function getEventDetails(): Promise<EventDetails> {
       countdownTarget: data.countdownTarget || '2026-09-30T09:00:00',
       helplinePhone: data.helplinePhone || '+91 86574 78886',
       helplinePhones: data.helplinePhones || ['+91 86574 78886', '+91 90046 20948', '+91 90210 95204'],
-      helplineEmail: data.helplineEmail || 'spectrum.sbmp@gmail.com',
+      helplineEmail: data.helplineEmail || 'spectrumsbmp@gmail.com',
     };
   }
   return {
@@ -1761,7 +1761,7 @@ export async function getEventDetails(): Promise<EventDetails> {
     countdownTarget: '2026-09-30T09:00:00',
     helplinePhone: '+91 86574 78886',
     helplinePhones: ['+91 86574 78886', '+91 90046 20948', '+91 90210 95204'],
-    helplineEmail: 'spectrum.sbmp@gmail.com',
+    helplineEmail: 'spectrumsbmp@gmail.com',
   };
 }
 
