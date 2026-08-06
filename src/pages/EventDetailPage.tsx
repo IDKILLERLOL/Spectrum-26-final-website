@@ -780,7 +780,7 @@ export function EventDetailPage() {
               <div className="flex flex-col gap-2">
                 <label className="font-micro text-micro text-text-muted uppercase tracking-widest">Pay via UPI</label>
                 <div className="border-2 border-primary p-4 flex justify-between items-center font-heading text-heading text-primary">
-                  <span className="tracking-wide">{payDetails.upiId}</span>
+                  <span className="tracking-wide lowercase">{payDetails.upiId}</span>
                   <button onClick={handleCopyUpi} className="text-primary hover:opacity-70 transition-opacity" title="Copy UPI ID">
                     {copied ? <CheckCircle2 size={20} /> : <Copy size={20} />}
                   </button>
