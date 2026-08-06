@@ -48,7 +48,7 @@ export function AdminSchedulePage() {
   const [savingDetails, setSavingDetails] = useState(false);
 
   const [paymentDetails, setPaymentDetails] = useState({
-    upiId: '9021095204',
+    upiId: '9021095204@postbank',
     qrCodeUrl: '',
   });
   const [savingPayments, setSavingPayments] = useState(false);

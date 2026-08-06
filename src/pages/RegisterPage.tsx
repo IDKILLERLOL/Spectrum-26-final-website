@@ -587,7 +587,7 @@ export function RegisterPage() {
               </div>
 
               <span className="font-micro text-micro uppercase tracking-widest text-text-muted">
-                UPI ID: <span className="text-primary font-mono font-bold select-all">9021095204</span>
+                UPI ID: <span className="text-primary font-mono font-bold select-all">9021095204@postbank</span>
               </span>
             </div>
 
