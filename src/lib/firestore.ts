@@ -123,7 +123,8 @@ function snapToRegistration(snap: DocumentSnapshot | QueryDocumentSnapshot): Reg
     leaderId: d.leaderId ?? '',
     feeStatus: d.feeStatus ?? 'PENDING',
     upiTransactionRef: d.upiTransactionRef ?? null,
-    paymentScreenshotUrl: d.paymentScreenshotUrl ?? null,
+    paymentProofUrl: d.paymentProofUrl ?? d.paymentScreenshotUrl ?? null,
+    paymentScreenshotUrl: d.paymentScreenshotUrl ?? d.paymentProofUrl ?? null,
     checkedIn: d.checkedIn ?? false,
     createdAt: tsToDate(d.createdAt),
     lastEditedBy: d.lastEditedBy ?? '',
@@ -1170,17 +1171,18 @@ export async function submitUpiRef(
   registrationId: string,
   upiTransactionRef: string,
   actorEmail: string,
-  paymentScreenshotUrl?: string | null
+  paymentProofUrl?: string | null
 ): Promise<void> {
-  const updates: any = {
+  const patch: Record<string, unknown> = {
     upiTransactionRef,
     lastEditedBy: actorEmail,
     lastEditedAt: serverTimestamp(),
   };
-  if (paymentScreenshotUrl !== undefined) {
-    updates.paymentScreenshotUrl = paymentScreenshotUrl;
+  if (paymentProofUrl !== undefined) {
+    patch.paymentProofUrl = paymentProofUrl;
+    patch.paymentScreenshotUrl = paymentProofUrl;
   }
-  await updateDoc(doc(db, 'registrations', registrationId), updates);
+  await updateDoc(doc(db, 'registrations', registrationId), patch);
   autoSyncToSheets().catch(console.error);
 }
 
@@ -1717,6 +1719,7 @@ export interface EventDetails {
   date: string;
   countdownTarget: string; // e.g. "2026-09-22T09:00:00"
   helplinePhone?: string;
+  helplinePhones?: string[];
   helplineEmail?: string;
 }
 
@@ -1730,7 +1733,8 @@ export async function getEventDetails(): Promise<EventDetails> {
       location: data.location || 'College Campus',
       date: data.date || 'September 30, 2026',
       countdownTarget: data.countdownTarget || '2026-09-30T09:00:00',
-      helplinePhone: data.helplinePhone || '+91 98765 43210',
+      helplinePhone: data.helplinePhone || '+91 86574 78886',
+      helplinePhones: data.helplinePhones || ['+91 86574 78886', '+91 90046 20948', '+91 90210 95204'],
       helplineEmail: data.helplineEmail || 'spectrum.sbmp@gmail.com',
     };
   }
@@ -1739,7 +1743,8 @@ export async function getEventDetails(): Promise<EventDetails> {
     location: 'College Campus',
     date: 'September 30, 2026',
     countdownTarget: '2026-09-30T09:00:00',
-    helplinePhone: '+91 98765 43210',
+    helplinePhone: '+91 86574 78886',
+    helplinePhones: ['+91 86574 78886', '+91 90046 20948', '+91 90210 95204'],
     helplineEmail: 'spectrum.sbmp@gmail.com',
   };
 }

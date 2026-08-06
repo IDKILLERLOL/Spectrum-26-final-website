@@ -22,6 +22,7 @@ import { PublicPassPage } from './pages/PublicPassPage';
 import { AdminEditRegistrationPage } from './pages/AdminEditRegistrationPage';
 import { AdminCreateRegistrationPage } from './pages/AdminCreateRegistrationPage';
 import { WinnersPage } from './pages/WinnersPage';
+import { GalleryPage } from './pages/GalleryPage';
 import { AdminAccountsPage } from './pages/AdminAccountsPage';
 import { ScrollToTop } from './components/ScrollToTop';
 import { ContactPage } from './pages/ContactPage';
@@ -95,6 +96,7 @@ export default function App() {
               <Route path="events" element={<EventsPage />} />
               <Route path="schedule" element={<SchedulePage />} />
               <Route path="winners" element={<WinnersPage />} />
+              <Route path="gallery" element={<GalleryPage />} />
               <Route path="login" element={<LoginPage />} />
               <Route path="contact" element={<ContactPage />} />
               <Route path="event/:id" element={<PublicEventDetailPage />} />

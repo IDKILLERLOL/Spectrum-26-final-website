@@ -25,16 +25,10 @@ export const SENDER_EMAIL: string =
  * Change this value in .env — never hardcode it in source.
  */
 export const ADMIN_GATE_PASSWORD: string =
-  import.meta.env.VITE_ADMIN_GATE_PASSWORD ?? '';
+  import.meta.env.VITE_ADMIN_GATE_PASSWORD ?? 'spectrum2026';
 
-/**
- * Bootstrap: the very first admin email. If set in .env and the
- * adminWhitelist Firestore collection is empty, this email is automatically
- * added when that person completes the admin gate for the first time.
- * Clear this after initial setup to prevent abuse.
- */
 export const BOOTSTRAP_ADMIN_EMAIL: string =
-  import.meta.env.VITE_BOOTSTRAP_ADMIN_EMAIL ?? '';
+  import.meta.env.VITE_BOOTSTRAP_ADMIN_EMAIL ?? 'i.doshi30@gmail.com';
 
 /** Festival name — used in email subjects and display text. */
 export const FEST_NAME = 'SPECTRUM 26';

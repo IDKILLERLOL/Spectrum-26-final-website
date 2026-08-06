@@ -107,6 +107,7 @@ export interface Registration {
   leaderId: string; // User UID
   feeStatus: 'PENDING' | 'PAID';
   upiTransactionRef: string | null;
+  paymentProofUrl?: string | null;
   paymentScreenshotUrl?: string | null;
   checkedIn: boolean;
   createdAt: Date;

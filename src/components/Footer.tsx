@@ -44,9 +44,30 @@ export function Footer() {
         </span>
       </div>
 
-      {/* Date display instead of links */}
-      <div style={{ fontFamily: 'Bangers, cursive', fontSize: '20px', letterSpacing: '0.05em', color: 'var(--color-text-primary)' }}>
-        {formattedDate}
+      {/* Links */}
+      <div className="flex gap-6" style={{ fontFamily: 'Bangers, cursive', fontSize: '20px', letterSpacing: '0.05em' }}>
+        {[
+          { to: '/contact', label: 'Contact' },
+          { to: '/schedule', label: 'Schedule' },
+          { to: '/winners', label: 'Winners' },
+          { to: '/gallery', label: 'Gallery' },
+        ].map(({ to, label }) => (
+          <Link
+            key={to}
+            to={to}
+            onClick={() => playSynthSound('click')}
+            style={{
+              color: 'var(--color-text-primary)',
+              textTransform: 'uppercase',
+              textDecoration: 'none',
+              transition: 'text-decoration 0.1s ease',
+            }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
+          >
+            {label}
+          </Link>
+        ))}
       </div>
 
       {/* Copyright */}

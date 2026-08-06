@@ -6,7 +6,6 @@ import { playSynthSound, setSoundEnabled } from '../lib/audio';
 import { Volume2, VolumeX, Sun, Moon, LogIn, LogOut, User, Menu, X } from 'lucide-react';
 
 export function Navbar() {
-  console.log("[Mount] Navbar component loaded");
   const location = useLocation();
   const { user, loading, logout } = useAuth();
   const [theme] = useState('dark');
@@ -92,7 +91,6 @@ export function Navbar() {
             className="flex flex-col justify-center items-center w-8 h-8 gap-1.5 focus:outline-none md:hidden relative z-[60]"
             aria-label="Toggle Navigation Menu"
           >
-            {/* Morphing Hamburger lines */}
             <span
               className="w-6 h-[3px] bg-primary transition-all duration-300 transform origin-left"
               style={{
@@ -121,7 +119,7 @@ export function Navbar() {
           <Link
             to="/"
             onClick={() => playSynthSound('click')}
-            style={{ display: 'inline-flex', items: 'center', textDecoration: 'none' }}
+            style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }}
           >
             <img
               src={theme === 'dark' ? '/LogoD.jpeg' : '/LogoL.jpeg'}
@@ -139,6 +137,7 @@ export function Navbar() {
             {navLink('/events', 'Events')}
             {navLink('/schedule', 'Schedule')}
             {navLink('/winners', 'Winners')}
+            {navLink('/gallery', 'Gallery')}
             {navLink('/contact', 'Contact')}
             {user && hasRegistrations && navLink('/my-registrations', 'My Passes')}
           </div>
@@ -273,7 +272,6 @@ export function Navbar() {
         </div>
       </nav>
 
-
       {/* Mobile Drawer Navigation Sidebar (slides in from left) */}
       <div
         className={`fixed inset-0 z-45 bg-black/50 backdrop-blur-sm transition-opacity duration-300 md:hidden ${
@@ -318,11 +316,11 @@ export function Navbar() {
           {navLink('/events', 'Events', () => setIsSidebarOpen(false))}
           {navLink('/schedule', 'Schedule', () => setIsSidebarOpen(false))}
           {navLink('/winners', 'Winners', () => setIsSidebarOpen(false))}
+          {navLink('/gallery', 'Gallery', () => setIsSidebarOpen(false))}
           {navLink('/contact', 'Contact', () => setIsSidebarOpen(false))}
           {user && hasRegistrations && navLink('/my-registrations', 'My Passes', () => setIsSidebarOpen(false))}
         </div>
 
-        {/* Sidebar bottom CTAs */}
         <div className="mt-auto flex flex-col gap-3 pt-4 border-t-2" style={{ borderColor: 'var(--border-color)' }}>
           <Link
             to="/events"
