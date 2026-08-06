@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Download, Search, ChevronDown, ChevronUp, Loader2, CheckCircle2, Clock, QrCode, Plus, Eye, EyeOff, Lock, RefreshCw } from 'lucide-react';
 import { useAuth } from '../lib/useAuth';
+import { getAccessToken, adminGoogleSignIn } from '../lib/auth';
 import {
   getAllRegistrations, getEvent, getActiveTeamMembers,
   updateFeeStatus, toggleCheckedIn, deleteRegistration, getEvents,
@@ -109,6 +110,23 @@ export function AdminRegistrationsPage() {
     return () => window.removeEventListener('spectrum26_reload_data', handleGlobalReload);
   }, [reload]);
 
+  const [hasGmailToken, setHasGmailToken] = useState(false);
+
+  useEffect(() => {
+    getAccessToken().then((t) => setHasGmailToken(!!t));
+  }, []);
+
+  const handleAuthorizeGmail = async () => {
+    try {
+      await adminGoogleSignIn();
+      setHasGmailToken(true);
+      alert('Gmail Authorized successfully! Confirmation email passes will now be dispatched automatically when payments are marked as PAID.');
+    } catch (err) {
+      console.error('Gmail Authorization error:', err);
+      alert('Google Sign-In failed or popup was closed. Please try again to enable email dispatch.');
+    }
+  };
+
   const handleToggleFee = async (row: RowView, e: React.MouseEvent) => {
     e.stopPropagation();
     const newStatus = row.reg.feeStatus === 'PAID' ? 'PENDING' : 'PAID';
@@ -117,7 +135,14 @@ export function AdminRegistrationsPage() {
       await updateFeeStatus(row.reg.id, newStatus, row.reg.upiTransactionRef, adminEmail ?? '');
       if (newStatus === 'PAID') {
         const emails = row.members.map((m) => m.email);
-        await notifyFeeStatusPaid(emails, row.event?.name ?? '', row.reg.id);
+        const emailResult = await notifyFeeStatusPaid(emails, row.event?.name ?? '', row.reg.id);
+        if (emailResult && !emailResult.success) {
+          if (emailResult.reason === 'NO_GMAIL_TOKEN') {
+            alert('Fee marked as PAID! Note: Gmail authorization is needed to dispatch entry pass emails. Click "Authorize Gmail for Emails" at the top of Admin Registrations to send emails.');
+          } else {
+            alert('Fee marked as PAID! Note: Gmail API dispatch encountered an error.');
+          }
+        }
       }
       await reload();
     } finally { setSaving(null); }
@@ -216,6 +241,17 @@ export function AdminRegistrationsPage() {
             >
               <Plus size={14} /> Add Registration
             </Link>
+            <button
+              onClick={handleAuthorizeGmail}
+              className={`flex items-center gap-2 font-button text-button uppercase border px-5 py-3 transition-colors ${
+                hasGmailToken
+                  ? 'border-green-500/50 text-green-400 hover:bg-green-500/10'
+                  : 'border-amber-500 text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 animate-pulse'
+              }`}
+              title="Click to authorize Google Gmail for sending payment confirmation email passes to participants"
+            >
+              <CheckCircle2 size={14} /> {hasGmailToken ? 'Gmail Authorized' : 'Authorize Gmail for Emails'}
+            </button>
             <button
               onClick={handleExport}
               className="flex items-center gap-2 font-button text-button uppercase border border-primary text-primary px-5 py-3 hover:bg-primary hover:text-bg-base transition-colors"
