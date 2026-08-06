@@ -1785,11 +1785,15 @@ export async function getPaymentDetails(): Promise<{ upiId: string; qrCodeUrl: s
   const ref = doc(db, 'systemConfig', 'paymentDetails');
   const snap = await getDoc(ref);
   if (snap.exists()) {
-    return snap.data() as { upiId: string; qrCodeUrl: string };
+    const data = snap.data() as { upiId: string; qrCodeUrl: string };
+    return {
+      upiId: data.upiId || 'spectrum26@upi',
+      qrCodeUrl: data.qrCodeUrl || '/payment-qr.jpg',
+    };
   }
   return {
     upiId: 'spectrum26@upi',
-    qrCodeUrl: '',
+    qrCodeUrl: '/payment-qr.jpg',
   };
 }
 

@@ -569,6 +569,28 @@ export function RegisterPage() {
               </div>
             )}
 
+            {/* Payment UPI & QR Code Section */}
+            <div className="flex flex-col gap-4 p-6 border-2 border-primary bg-bg-elevated/80 text-center items-center rounded-sm">
+              <span className="font-heading text-card-title text-primary uppercase tracking-wide">
+                Payment Instructions (Scan &amp; Pay)
+              </span>
+              <p className="font-body text-small text-text-secondary max-w-md leading-relaxed">
+                Scan the official UPI QR code below using any UPI app (GPay, PhonePe, Paytm) to pay the registration fee of <strong className="text-primary font-bold">₹{event.price}</strong>.
+              </p>
+
+              <div className="p-3 bg-white border-2 border-primary shadow-lg rounded-sm inline-block my-1">
+                <img
+                  src="/payment-qr.jpg"
+                  alt="Payment UPI QR Code"
+                  className="w-56 h-auto object-contain mx-auto"
+                />
+              </div>
+
+              <span className="font-micro text-micro uppercase tracking-widest text-text-muted">
+                UPI ID: <span className="text-primary font-mono font-bold select-all">spectrum26@upi</span>
+              </span>
+            </div>
+
             {error && (
               <div
                 className="p-3 border border-dashed text-small font-body text-center"
