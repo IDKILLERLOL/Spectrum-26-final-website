@@ -68,8 +68,12 @@ export function PublicPassPage() {
   const handleSubmitProof = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!registration) return;
-    if (!txId.trim() && !proofImage) {
-      alert('Please enter a Transaction ID or upload a screenshot.');
+    if (!txId.trim()) {
+      alert('Both fields are mandatory. Please enter your Transaction ID / UTR.');
+      return;
+    }
+    if (!proofImage) {
+      alert('Both fields are mandatory. Please upload your payment screenshot.');
       return;
     }
 
@@ -212,13 +216,14 @@ export function PublicPassPage() {
                 {/* Transaction ID Input */}
                 <div className="flex flex-col gap-1">
                   <label className="font-micro text-micro uppercase tracking-wider text-text-muted">
-                    Transaction ID / Ref (UTR)
+                    Transaction ID / Ref (UTR) *
                   </label>
                   <input
                     type="text"
                     value={txId}
                     onChange={(e) => setTxId(e.target.value)}
                     placeholder="e.g. 329182391024 or UPI/123456"
+                    required
                     className="w-full bg-bg-base border border-border-default px-3 py-2 text-body font-mono text-primary focus:outline-none focus:border-primary"
                   />
                 </div>
@@ -226,7 +231,7 @@ export function PublicPassPage() {
                 {/* Screenshot Uploader */}
                 <div className="flex flex-col gap-2">
                   <label className="font-micro text-micro uppercase tracking-wider text-text-muted">
-                    Payment Screenshot
+                    Payment Screenshot *
                   </label>
                   {proofImage ? (
                     <div className="relative border border-primary p-2 bg-bg-base flex flex-col items-center gap-2">

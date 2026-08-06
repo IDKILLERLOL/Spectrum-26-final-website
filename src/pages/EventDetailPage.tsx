@@ -302,7 +302,15 @@ export function EventDetailPage() {
 
   // ─── Submit UPI ref ─────────────────────────────────────────────────────────
   const handleSubmitUpiRef = async () => {
-    if (!upiRef.trim() || !registration) return;
+    if (!registration) return;
+    if (!upiRef.trim()) {
+      setError('Transaction ID / Ref is mandatory.');
+      return;
+    }
+    if (!screenshotBase64 && !registration.paymentScreenshotUrl) {
+      setError('Payment screenshot upload is mandatory.');
+      return;
+    }
     setSaving(true);
     try {
       await submitUpiRef(registration.id, upiRef.trim(), actorEmail, screenshotBase64);
