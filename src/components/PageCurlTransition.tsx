@@ -18,7 +18,13 @@ const PageCurlContext = createContext<PageCurlContextValue | null>(null);
 
 export function usePageCurl(): PageCurlContextValue {
   const ctx = useContext(PageCurlContext);
-  if (!ctx) throw new Error('usePageCurl must be inside PageCurlProvider');
+  if (!ctx) {
+    return {
+      startCurl: (_direction, route) => {
+        window.location.href = route;
+      },
+    };
+  }
   return ctx;
 }
 
