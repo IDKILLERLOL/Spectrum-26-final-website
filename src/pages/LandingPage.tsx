@@ -371,9 +371,11 @@ function ChooseFighter({ walkFactor }: { walkFactor: number }) {
         // No side sliding entrance transition
         const translateX = '0px';
 
-        // Add a bobbing movement bounce when active scroll is occurring
+        // Continuous gentle floating micro-animation (moving up/down by ~0.25rem)
         const isBobbing = walkFactor > 0.05 && walkFactor < 0.95;
-        const bounceStyle = isBobbing ? 'arcade-bob 0.4s infinite alternate' : 'none';
+        const bounceStyle = isBobbing
+          ? 'arcade-bob 0.4s infinite alternate'
+          : `gentle-float 2.4s ease-in-out infinite ${originalIdx * 0.4}s`;
 
         return (
           <div
