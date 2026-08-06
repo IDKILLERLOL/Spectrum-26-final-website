@@ -13,19 +13,19 @@ export interface SlideshowItem {
 export const SLIDESHOW_ITEMS: SlideshowItem[] = [
   {
     id: 'slide-1',
-    title: 'SPECTRUM 26 — Team & Crew Gathering',
+    title: 'SPECTRUM — Team & Crew Gathering',
     imageUrl: '/gallery/gallery_1.jpg',
     caption: 'Organizers, committee heads, and volunteers celebrating a successful festival kickoff.',
   },
   {
     id: 'slide-2',
-    title: 'SPECTRUM 26 — Main Stage Assembly',
+    title: 'SPECTRUM — Main Stage Assembly',
     imageUrl: '/gallery/gallery_2.jpg',
     caption: 'Full event team gathered in the main auditorium.',
   },
   {
     id: 'slide-3',
-    title: 'SPECTRUM 26 — Victory & Closing Moments',
+    title: 'SPECTRUM — Victory & Closing Moments',
     imageUrl: '/gallery/gallery_3.jpg',
     caption: 'Festival core committee posing for the official group photo.',
   },
@@ -107,7 +107,7 @@ export function GalleryPage() {
             gap: '6px',
           }}
         >
-          <Sparkles size={14} /> SPECTRUM 26 MEMORIES
+          <Sparkles size={14} /> SPECTRUM MEMORIES
         </span>
 
         <h1
@@ -131,7 +131,7 @@ export function GalleryPage() {
             maxWidth: '600px',
           }}
         >
-          Relive highlights and memorable team moments from Spectrum 26.
+          Relive highlights and memorable team moments from Spectrum.
         </p>
       </div>
 
