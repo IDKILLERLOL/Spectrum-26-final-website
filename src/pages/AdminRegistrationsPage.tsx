@@ -273,27 +273,27 @@ export function AdminRegistrationsPage() {
             {syncStatus}
           </div>
         )}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-          <div className="flex flex-col gap-1.5">
-            <label className="font-micro text-micro text-text-muted uppercase">Search</label>
-            <div className="flex items-center gap-3 border border-slate-800 px-4 py-2 bg-bg-card">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 items-end">
+          <div className="flex flex-col gap-1.5 min-w-0">
+            <label className="font-micro text-micro text-text-muted uppercase tracking-wider">Search</label>
+            <div className="flex items-center gap-2.5 border border-border-default px-3 bg-bg-card h-[42px] w-full min-w-0 focus-within:border-primary">
               <Search size={16} className="text-text-muted shrink-0" />
               <input
                 type="text"
                 placeholder="Search name, email, event..."
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
-                className="bg-transparent text-primary font-body text-body focus:outline-none flex-1 placeholder:text-text-muted text-small"
+                className="bg-transparent text-primary font-body text-small focus:outline-none flex-1 min-w-0 w-full placeholder:text-text-muted"
               />
             </div>
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label className="font-micro text-micro text-text-muted uppercase">Filter by Event</label>
+          <div className="flex flex-col gap-1.5 min-w-0">
+            <label className="font-micro text-micro text-text-muted uppercase tracking-wider">Filter by Event</label>
             <select
               value={selectedEventId}
               onChange={(e) => setSelectedEventId(e.target.value)}
-              className="bg-bg-card border border-border-default px-4 py-2 text-primary font-body text-small focus:outline-none focus:border-primary"
+              className="bg-bg-card border border-border-default px-3 h-[42px] text-primary font-body text-small focus:outline-none focus:border-primary w-full min-w-0 truncate"
             >
               <option value="all">All Events</option>
               {Array.from(new Map(rows.map(r => [r.event?.id, r.event])).values())
@@ -304,12 +304,12 @@ export function AdminRegistrationsPage() {
             </select>
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label className="font-micro text-micro text-text-muted uppercase">Payment Status</label>
+          <div className="flex flex-col gap-1.5 min-w-0">
+            <label className="font-micro text-micro text-text-muted uppercase tracking-wider">Payment Status</label>
             <select
               value={selectedPaymentStatus}
               onChange={(e) => setSelectedPaymentStatus(e.target.value)}
-              className="bg-bg-card border border-border-default px-4 py-2 text-primary font-body text-small focus:outline-none focus:border-primary"
+              className="bg-bg-card border border-border-default px-3 h-[42px] text-primary font-body text-small focus:outline-none focus:border-primary w-full min-w-0"
             >
               <option value="all">All Statuses</option>
               <option value="PAID">PAID</option>
@@ -317,12 +317,12 @@ export function AdminRegistrationsPage() {
             </select>
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label className="font-micro text-micro text-text-muted uppercase">Check-In Status</label>
+          <div className="flex flex-col gap-1.5 min-w-0">
+            <label className="font-micro text-micro text-text-muted uppercase tracking-wider">Check-In Status</label>
             <select
               value={selectedCheckInStatus}
               onChange={(e) => setSelectedCheckInStatus(e.target.value)}
-              className="bg-bg-card border border-border-default px-4 py-2 text-primary font-body text-small focus:outline-none focus:border-primary"
+              className="bg-bg-card border border-border-default px-3 h-[42px] text-primary font-body text-small focus:outline-none focus:border-primary w-full min-w-0"
             >
               <option value="all">All Statuses</option>
               <option value="checked-in">Checked In</option>
@@ -330,12 +330,12 @@ export function AdminRegistrationsPage() {
             </select>
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label className="font-micro text-micro text-text-muted uppercase">Sort By</label>
+          <div className="flex flex-col gap-1.5 min-w-0">
+            <label className="font-micro text-micro text-text-muted uppercase tracking-wider">Sort By</label>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="bg-bg-card border border-border-default px-4 py-2 text-primary font-body text-small focus:outline-none focus:border-primary"
+              className="bg-bg-card border border-border-default px-3 h-[42px] text-primary font-body text-small focus:outline-none focus:border-primary w-full min-w-0"
             >
               <option value="date-desc">Date (Newest First)</option>
               <option value="date-asc">Date (Oldest First)</option>
