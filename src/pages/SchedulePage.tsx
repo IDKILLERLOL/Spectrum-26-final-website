@@ -146,7 +146,11 @@ export function SchedulePage() {
     slots.reduce((map, slot) => {
       const key = `${slot.day}__${slot.date}`;
       if (!map.has(key)) map.set(key, { day: slot.day, date: slot.date, slots: [] });
-      map.get(key)!.slots.push(slot);
+      const currentSlots = map.get(key)!.slots;
+      const slotKey = `${slot.displayTime}__${slot.location}__${slot.title}`.toLowerCase();
+      if (!currentSlots.some(s => `${s.displayTime}__${s.location}__${s.title}`.toLowerCase() === slotKey)) {
+        currentSlots.push(slot);
+      }
       return map;
     }, new Map<string, { day: string; date: string; slots: ScheduleSlot[] }>())
   );

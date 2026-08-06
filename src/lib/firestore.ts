@@ -1463,6 +1463,22 @@ export async function getScheduleSlots(): Promise<ScheduleSlot[]> {
     }
   }
 
+  // Deduplicate slots by day, displayTime, location, and title
+  const seenKeys = new Set<string>();
+  const uniqueSlots: ScheduleSlot[] = [];
+  for (const slot of slots) {
+    const key = `${slot.day}__${slot.displayTime}__${slot.location}__${slot.title}`.toLowerCase();
+    if (!seenKeys.has(key)) {
+      seenKeys.add(key);
+      uniqueSlots.push(slot);
+    } else {
+      try {
+        deleteDoc(doc(db, 'schedule', slot.id)).catch(() => {});
+      } catch (e) {}
+    }
+  }
+  slots = uniqueSlots;
+
   slots.sort((a, b) => {
     if (a.day !== b.day) {
       return a.day.localeCompare(b.day);
