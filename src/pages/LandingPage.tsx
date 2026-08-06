@@ -665,11 +665,14 @@ function Countdown() {
           </div>
         ))}
       </div>
-      <button
+      <Link
+        to="/events"
         onClick={() => {
-          playSynthSound('laser');
-          startCurl('forward', '/events');
+          try { playSynthSound('laser'); } catch {}
+          try { startCurl('forward', '/events'); } catch {}
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
+        className="inline-flex items-center gap-2 cursor-pointer relative z-30"
         style={{
           background: 'transparent',
           color: '#ffffff',
@@ -683,14 +686,14 @@ function Countdown() {
           cursor: 'pointer',
         }}
         onMouseEnter={(e) => {
-          (e.currentTarget as HTMLButtonElement).style.color = 'var(--color-primary)';
+          (e.currentTarget as HTMLAnchorElement).style.color = 'var(--color-primary)';
         }}
         onMouseLeave={(e) => {
-          (e.currentTarget as HTMLButtonElement).style.color = '#ffffff';
+          (e.currentTarget as HTMLAnchorElement).style.color = '#ffffff';
         }}
       >
         › VIEW EVENTS
-      </button>
+      </Link>
     </div>
   );
 }
