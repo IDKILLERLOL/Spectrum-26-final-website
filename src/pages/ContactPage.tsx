@@ -10,7 +10,8 @@ export function ContactPage() {
     import('../lib/firestore').then(m => m.getEventDetails()).then(setDetails).catch(console.error);
   }, []);
 
-  const email = details?.helplineEmail || 'spectrumsbmp@gmail.com';
+  const rawEmail = details?.helplineEmail || 'spectrumsbmp@gmail.com';
+  const email = rawEmail === 'spectrum.sbmp@gmail.com' ? 'spectrumsbmp@gmail.com' : rawEmail;
   const phone = details?.helplinePhone || '+91 98765 43210';
   const locationText = details?.location || "SVKM's Shri Bhagubhai Mafatlal Polytechnic\nIrla, Vile Parle West, Mumbai, Maharashtra 400056";
 

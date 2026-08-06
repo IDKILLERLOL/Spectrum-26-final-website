@@ -1744,6 +1744,11 @@ export async function getEventDetails(): Promise<EventDetails> {
   const snap = await getDoc(ref);
   if (snap.exists()) {
     const data = snap.data();
+    const rawEmail = data.helplineEmail || 'spectrumsbmp@gmail.com';
+    const cleanEmail = rawEmail === 'spectrum.sbmp@gmail.com' ? 'spectrumsbmp@gmail.com' : rawEmail;
+    if (data.helplineEmail === 'spectrum.sbmp@gmail.com') {
+      setDoc(ref, { ...data, helplineEmail: 'spectrumsbmp@gmail.com' }, { merge: true }).catch(() => {});
+    }
     return {
       name: data.name || 'SPECTRUM 26',
       location: data.location || 'College Campus',
@@ -1751,7 +1756,7 @@ export async function getEventDetails(): Promise<EventDetails> {
       countdownTarget: data.countdownTarget || '2026-09-30T09:00:00',
       helplinePhone: data.helplinePhone || '+91 86574 78886',
       helplinePhones: data.helplinePhones || ['+91 86574 78886', '+91 90046 20948', '+91 90210 95204'],
-      helplineEmail: data.helplineEmail || 'spectrumsbmp@gmail.com',
+      helplineEmail: cleanEmail,
     };
   }
   return {
