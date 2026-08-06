@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { Eye, EyeOff, Loader2, CheckCircle2, Lock, ShieldAlert, Upload, Image as ImageIcon, X, Send } from 'lucide-react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { Eye, EyeOff, Loader2, CheckCircle2, Lock, ShieldAlert, Upload, Image as ImageIcon, X, Send, ArrowLeft } from 'lucide-react';
+import { playSynthSound } from '../lib/audio';
 import { getRegistration, getEvent, getActiveTeamMembers, submitUpiRef } from '../lib/firestore';
 import type { Registration, Event, TeamMember } from '../types';
 import { categoryLabel } from '../types';
 
 export function PublicPassPage() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [registration, setRegistration] = useState<Registration | null>(null);
   const [event, setEvent] = useState<Event | null>(null);
   const [members, setMembers] = useState<TeamMember[]>([]);
@@ -116,7 +118,20 @@ export function PublicPassPage() {
   const paid = registration.feeStatus === 'PAID';
 
   return (
-    <main className="w-full min-h-screen flex items-center justify-center bg-bg-base px-6 py-12">
+    <main className="w-full min-h-screen flex flex-col items-center justify-center bg-bg-base px-6 py-12 gap-6">
+      <div className="w-full max-w-lg">
+        <button
+          onClick={() => {
+            playSynthSound('click');
+            navigate(-1);
+          }}
+          className="inline-flex items-center gap-2 text-primary hover:opacity-75 transition-opacity font-heading text-heading uppercase w-fit bg-transparent border-none cursor-pointer p-0"
+          style={{ textDecoration: 'none' }}
+        >
+          <ArrowLeft size={20} /> Back
+        </button>
+      </div>
+
       <div className="w-full max-w-lg border border-border-default bg-bg-card flex flex-col shadow-2xl relative overflow-hidden">
         {/* Decorative corner tag */}
         <div className={`absolute top-0 right-0 px-6 py-2 font-micro text-micro uppercase tracking-widest text-bg-base font-bold ${paid ? 'bg-primary' : 'bg-red-500'}`}>

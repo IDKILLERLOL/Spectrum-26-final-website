@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Clock, CheckCircle2, ChevronRight } from 'lucide-react';
+import { Clock, CheckCircle2, ChevronRight, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../lib/useAuth';
 import { getMyRegistrations, getEvent } from '../lib/firestore';
 import type { Registration, Event } from '../types';
@@ -81,6 +81,18 @@ export function RegistrationsPage() {
 
   return (
     <main className="relative z-10 w-full min-h-screen flex flex-col py-8 max-w-7xl mx-auto gap-10 px-4 md:px-6">
+      {/* Back button */}
+      <button
+        onClick={() => {
+          playSynthSound('click');
+          navigate(-1);
+        }}
+        className="inline-flex items-center gap-2 text-primary hover:opacity-75 transition-opacity font-heading text-heading uppercase w-fit bg-transparent border-none cursor-pointer p-0"
+        style={{ textDecoration: 'none' }}
+      >
+        <ArrowLeft size={20} /> Back
+      </button>
+
       {/* Page header */}
       <header
         className="flex flex-col gap-4 pb-6"

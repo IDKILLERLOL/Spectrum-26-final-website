@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Loader2, ArrowRight, Plus, Trash2 } from 'lucide-react';
+import { Loader2, ArrowRight, Plus, Trash2, ArrowLeft } from 'lucide-react';
+import { playSynthSound } from '../lib/audio';
 import { useAuth } from '../lib/useAuth';
 import { getEvent, createRegistration, getUser, updateUser, hasExistingRegistration, db, getEventDetails } from '../lib/firestore';
 import { collection, getDocs, query, where, getCountFromServer, doc, setDoc, serverTimestamp } from 'firebase/firestore';
@@ -305,7 +306,19 @@ export function RegisterPage() {
       className="w-full min-h-screen flex flex-col items-center justify-center px-6 py-16"
       style={{ background: 'var(--color-bg-base)' }}
     >
-      <div className="w-full max-w-2xl flex flex-col gap-10">
+      <div className="w-full max-w-2xl flex flex-col gap-8">
+        {/* Back button */}
+        <button
+          onClick={() => {
+            playSynthSound('click');
+            navigate(-1);
+          }}
+          className="inline-flex items-center gap-2 text-primary hover:opacity-75 transition-opacity font-heading text-heading uppercase w-fit bg-transparent border-none cursor-pointer p-0"
+          style={{ textDecoration: 'none' }}
+        >
+          <ArrowLeft size={20} /> Back
+        </button>
+
         <div className="flex flex-col gap-3" style={{ position: 'relative' }}>
           {/* Character sprite — top-right corner of header (decorative) */}
           {spriteData && (
