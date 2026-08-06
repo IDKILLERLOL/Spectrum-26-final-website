@@ -18,8 +18,8 @@ const EVENT_BADGE: Record<string, string> = {
 
 const TECH_ROUND_DETAILS: Record<string, string[]> = {
   'Dual Debug': [
-    "Sub-Event 1: Codopoly — A 2v2v2v2 board game where topic tiles (DSA, Networks, OS, DBMS) are claimed by answering questions correctly, charging question taxes/penalties to opponents.",
-    "Sub-Event 2: Swap Challenge — Duos solve 3 coding problems in Round 1, strategize in a 5-min break, then swap places to solve their teammate's remaining unsolved challenges in Round 2.",
+    "Sub-Event 1: Swap Challenge — Duos solve 3 coding problems in Round 1, strategize in a 5-min break, then swap places to solve their teammate's remaining unsolved challenges in Round 2.",
+    "Sub-Event 2: Codopoly — A 2v2v2v2 board game where topic tiles (DSA, Networks, OS, DBMS) are claimed by answering questions correctly, charging question taxes/penalties to opponents.",
     "Sub-Event 3: Snakes & Ladders — Dodge snakes and climb ladders by opting into solving hard and extra-hard tech challenges on a shared digital board."
   ],
   'Singularity Strike': [

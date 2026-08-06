@@ -29,7 +29,7 @@ const EVENT_CHARACTER_MAP: Record<string, {
     character: 'max',
     panelNumber: '01',
     format: 'Duo Partners',
-    subEvents: ['Codopoly', 'Swap Challenge', 'Snakes & Ladders'],
+    subEvents: ['Swap Challenge', 'Codopoly', 'Snakes & Ladders'],
   },
   'tech-solo-1': {
     character: 'eleven',
