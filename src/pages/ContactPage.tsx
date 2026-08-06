@@ -80,16 +80,19 @@ export function ContactPage() {
                   {(details?.helplinePhones && details.helplinePhones.length > 0
                     ? details.helplinePhones
                     : ['+91 86574 78886', '+91 90046 20948', '+91 90210 95204']
-                  ).map((pNum: string) => (
-                    <a
-                      key={pNum}
-                      href={`tel:${pNum.replace(/\s+/g, '')}`}
-                      className="text-primary hover:opacity-75 transition-opacity"
-                      style={{ textDecoration: 'underline' }}
-                    >
-                      {pNum}
-                    </a>
-                  ))}
+                  ).map((pNum: string) => {
+                    const cleanPhone = pNum.replace(/[^\d+]/g, '');
+                    return (
+                      <a
+                        key={pNum}
+                        href={`tel:${cleanPhone}`}
+                        className="text-primary hover:opacity-75 transition-opacity"
+                        style={{ textDecoration: 'underline' }}
+                      >
+                        {pNum}
+                      </a>
+                    );
+                  })}
                 </div>
               </li>
               <li>
