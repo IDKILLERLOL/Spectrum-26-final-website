@@ -126,7 +126,7 @@ export function AdminWinnersPage() {
                   inlineState.placement === placement;
 
                 return (
-                  <div key={placement} className="border border-border-default" style={{ borderStyle: event.category === 'TECH' ? 'solid' : 'dashed' }}>
+                  <div key={placement} className="py-2" style={{ borderStyle: 'none' }}>
                     <div className="flex flex-wrap md:flex-nowrap items-center gap-6 p-4">
                       {/* Trophy */}
                       <div className="flex items-center gap-3 min-w-[80px]">

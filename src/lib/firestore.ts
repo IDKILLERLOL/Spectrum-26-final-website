@@ -110,6 +110,8 @@ function snapToEvent(snap: DocumentSnapshot | QueryDocumentSnapshot): Event {
     rulesUrl: d.rulesUrl ?? null,
     minMembers: d.minMembers ?? (isTeam ? 2 : 1),
     maxMembers: d.maxMembers ?? (isTeam ? 4 : 1),
+    oneLineDescription: d.oneLineDescription ?? '',
+    shortDescription: d.shortDescription ?? '',
   };
 }
 
@@ -603,6 +605,18 @@ export async function getEvents(): Promise<Event[]> {
   });
 
   return dbEvents;
+}
+
+/** Count active (non-removed) members registered for a given event. */
+export async function getActiveMemberCountForEvent(eventId: string): Promise<number> {
+  const snap = await getCountFromServer(
+    query(
+      collection(db, 'teamMembers'),
+      where('eventId', '==', eventId),
+      where('status', '==', 'ACTIVE')
+    )
+  );
+  return snap.data().count;
 }
 
 export async function getEvent(eventId: string): Promise<Event | null> {

@@ -89,13 +89,6 @@ export function Sidebar() {
             Reload Data
           </button>
           <button
-            onClick={handleToggleTheme}
-            className="flex items-center gap-3 px-4 py-2 w-full font-heading text-heading uppercase tracking-wide text-text-secondary hover:text-primary transition-colors"
-          >
-            {theme === 'light' ? <Moon size={17} /> : <Sun size={17} />}
-            Toggle Theme
-          </button>
-          <button
             onClick={handleLogout}
             className="flex items-center gap-3 px-4 py-2 w-full font-heading text-heading uppercase tracking-wide text-text-secondary hover:text-primary transition-colors"
           >
@@ -129,13 +122,6 @@ export function Sidebar() {
         >
           <RotateCw size={16} />
           Reload
-        </button>
-        <button
-          onClick={handleToggleTheme}
-          className="flex flex-col items-center gap-1 px-4 py-3 shrink-0 font-micro text-micro uppercase tracking-widest text-text-muted hover:text-primary transition-colors"
-        >
-          {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
-          Theme
         </button>
         <button
           onClick={handleLogout}

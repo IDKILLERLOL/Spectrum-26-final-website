@@ -124,16 +124,6 @@ export function AdminGatePage() {
       className="min-h-screen w-full flex flex-col items-center justify-center px-6 py-16 relative admin-theme"
       style={{ background: 'var(--color-bg-base)' }}
     >
-      {/* Floating theme toggle */}
-      <button
-        onClick={handleToggleTheme}
-        className="absolute top-6 right-6 p-3 border border-border-default rounded-full hover:border-primary transition-all active:scale-95"
-        style={{ color: 'var(--color-text-primary)' }}
-        aria-label="Toggle Theme"
-      >
-        {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
-      </button>
-
       <div className="w-full max-w-md flex flex-col gap-10">
         {/* Header */}
         <div className="flex flex-col gap-2">

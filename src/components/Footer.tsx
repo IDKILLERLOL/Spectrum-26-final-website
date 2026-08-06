@@ -10,10 +10,11 @@ export function Footer() {
   });
 
   return (
-    <footer
-      className="relative z-10 max-w-7xl mx-auto w-[92%] mt-12 mb-8 flex flex-wrap justify-between items-center gap-6 py-6 border-t-2"
-      style={{ borderColor: 'var(--border-color)' }}
-    >
+    <div className="w-full mt-12" style={{ backgroundColor: '#060b13' }}>
+      <footer
+        className="relative z-10 max-w-7xl mx-auto w-[92%] flex flex-wrap justify-between items-center gap-6 py-6"
+        style={{ background: 'transparent' }}
+      >
       {/* Wordmark */}
       <div className="flex items-center gap-3">
         <span
@@ -63,5 +64,6 @@ export function Footer() {
         © 2026 SPECTRUM CO.
       </div>
     </footer>
+    </div>
   );
 }

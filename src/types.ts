@@ -28,6 +28,8 @@ export interface Event {
   minMembers: number;
   maxMembers: number;
   roundDetails?: string[];
+  oneLineDescription?: string;
+  shortDescription?: string;
 }
 
 export const FALLBACK_EVENTS: Event[] = [
@@ -43,7 +45,9 @@ export const FALLBACK_EVENTS: Event[] = [
     price: 150,
     rulesUrl: null,
     minMembers: 2,
-    maxMembers: 2
+    maxMembers: 2,
+    oneLineDescription: "The ultimate duo coding face-off.",
+    shortDescription: "Battle in Codopoly, Swap Challenge, and Snakes & Ladders Challenges."
   },
   {
     id: "tech-solo-1",
@@ -57,7 +61,9 @@ export const FALLBACK_EVENTS: Event[] = [
     price: 50,
     rulesUrl: null,
     minMembers: 1,
-    maxMembers: 1
+    maxMembers: 1,
+    oneLineDescription: "The ultimate solo arena battle.",
+    shortDescription: "Conquer the grid, survive the buzzer, and rank in MCQ challenges."
   },
   {
     id: "non-tech-1",
@@ -71,7 +77,9 @@ export const FALLBACK_EVENTS: Event[] = [
     price: 800,
     rulesUrl: null,
     minMembers: 4,
-    maxMembers: 5
+    maxMembers: 5,
+    oneLineDescription: "Squad up. Drop in. Survive.",
+    shortDescription: "Tactical coordination and raw aiming skill in the battleground."
   },
   {
     id: "non-tech-3",
@@ -85,7 +93,9 @@ export const FALLBACK_EVENTS: Event[] = [
     price: 100,
     rulesUrl: null,
     minMembers: 1,
-    maxMembers: 1
+    maxMembers: 1,
+    oneLineDescription: "The ultimate digital pitch.",
+    shortDescription: "Bring tactical formations and flawless execution to the pitch."
   }
 ];
 

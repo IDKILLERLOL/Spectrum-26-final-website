@@ -1,0 +1,102 @@
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { Navbar } from './components/Navbar';
+import { Sidebar } from './components/Sidebar';
+import { Footer } from './components/Footer';
+import { RequireAuth } from './components/RequireAuth';
+import { RequireAdmin } from './components/RequireAdmin';
+import { LandingPage } from './pages/LandingPage';
+import { SchedulePage } from './pages/SchedulePage';
+import { LoginPage } from './pages/LoginPage';
+import { RegistrationsPage } from './pages/RegistrationsPage';
+import { EventDetailPage } from './pages/EventDetailPage';
+import { AdminGatePage } from './pages/AdminGatePage';
+import { RegisterPage } from './pages/RegisterPage';
+import { AdminEventsPage } from './pages/AdminEventsPage';
+import { AdminUsersPage } from './pages/AdminUsersPage';
+import { AdminWinnersPage } from './pages/AdminWinnersPage';
+import { AuditLogPage } from './pages/AuditLogPage';
+import { AdminRegistrationsPage } from './pages/AdminRegistrationsPage';
+import { AdminSchedulePage } from './pages/AdminSchedulePage';
+import { PublicPassPage } from './pages/PublicPassPage';
+import { AdminEditRegistrationPage } from './pages/AdminEditRegistrationPage';
+import { AdminCreateRegistrationPage } from './pages/AdminCreateRegistrationPage';
+import { WinnersPage } from './pages/WinnersPage';
+import { AdminAccountsPage } from './pages/AdminAccountsPage';
+import { ScrollToTop } from './components/ScrollToTop';
+
+
+function PublicLayout() {
+  return (
+    <div
+      className="min-h-screen w-full flex flex-col font-body"
+      style={{ background: 'var(--color-bg-base)', color: 'var(--color-text-primary)' }}
+    >
+      <Navbar />
+      <main className="flex-1 flex flex-col w-full relative">
+        <Outlet />
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
+function AdminLayout() {
+  return (
+    <div
+      className="min-h-screen w-full flex flex-col overflow-hidden font-body admin-theme"
+      style={{ background: 'var(--color-bg-base)', color: 'var(--color-text-primary)' }}
+    >
+      <div className="flex-1 flex overflow-hidden relative">
+        <Sidebar />
+        <main className="flex-1 flex flex-col relative overflow-y-auto">
+          <Outlet />
+        </main>
+      </div>
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <Router>
+      <ScrollToTop />
+      <Routes>
+        {/* Public routes */}
+        <Route path="/" element={<PublicLayout />}>
+          <Route index element={<LandingPage />} />
+          <Route path="schedule" element={<SchedulePage />} />
+          <Route path="winners" element={<WinnersPage />} />
+          <Route path="login" element={<LoginPage />} />
+          <Route path="pass/:id" element={<PublicPassPage />} />
+
+          {/* Participant routes — require login */}
+          <Route element={<RequireAuth />}>
+            <Route path="my-registrations" element={<RegistrationsPage />} />
+            <Route path="events" element={<EventDetailPage />} />
+            <Route path="register/:eventId" element={<RegisterPage />} />
+          </Route>
+
+        </Route>
+
+        {/* Admin gate (standalone, no sidebar) */}
+        <Route path="/admin" element={<AdminGatePage />} />
+
+        {/* Admin dashboard routes — require admin session */}
+        <Route path="/admin" element={<RequireAdmin />}>
+          <Route element={<AdminLayout />}>
+            <Route path="registrations" element={<AdminRegistrationsPage />} />
+            <Route path="registrations/new" element={<AdminCreateRegistrationPage />} />
+            <Route path="registrations/edit/:id" element={<AdminEditRegistrationPage />} />
+            <Route path="events" element={<AdminEventsPage />} />
+            <Route path="schedule" element={<AdminSchedulePage />} />
+            <Route path="winners" element={<AdminWinnersPage />} />
+            <Route path="users" element={<AdminUsersPage />} />
+            <Route path="accounts" element={<AdminAccountsPage />} />
+            <Route path="audit-log" element={<AuditLogPage />} />
+
+          </Route>
+        </Route>
+      </Routes>
+    </Router>
+  );
+}

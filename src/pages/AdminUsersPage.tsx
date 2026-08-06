@@ -128,7 +128,7 @@ export function AdminUsersPage() {
 
           return (
             <div key={entry.email}>
-              <div className="flex flex-wrap md:flex-nowrap items-center gap-6 py-5">
+              <div className="flex flex-wrap md:flex-nowrap items-center gap-6 py-5 px-6">
                 <div className="flex flex-col gap-1 flex-1">
                   <div className="flex items-center gap-3 flex-wrap">
                     <span className="font-heading text-heading text-primary">{entry.email}</span>

@@ -11,38 +11,38 @@
 ═══════════════════════════════════════════════════════════════ */
 
 @theme {
-  /* --- DARK MODE TOKENS (default) --- */
-  --color-bg-base:        #000000;
-  --color-bg-elevated:    #111111;
-  --color-bg-card:        #111111;
-  --color-bg-card-hover:  #1a1a1a;
+  /* --- DARK MODE TOKENS (Stranger Things: The Game Theme) --- */
+  --color-bg-base:        #060b13; /* Dark blue-black sky */
+  --color-bg-elevated:    #0e1626; /* Deep blue-grey panels */
+  --color-bg-card:        rgba(14, 22, 38, 0.85);
+  --color-bg-card-hover:  #142036;
 
-  --color-border-subtle:  rgba(255,255,255,0.20);
-  --color-border-default: rgba(255,255,255,0.55);
-  --color-border-strong:  #ffffff;
+  --color-border-subtle:  rgba(255,51,51,0.25);
+  --color-border-default: #ff3333; /* Retro neon red borders */
+  --color-border-strong:  #ff3333;
 
   --color-text-primary:   #ffffff;
-  --color-text-secondary: rgba(255,255,255,0.72);
-  --color-text-muted:     rgba(255,255,255,0.50);
+  --color-text-secondary: #b0bec5;
+  --color-text-muted:     #78909c;
   --color-text-disabled:  rgba(255,255,255,0.25);
 
-  --color-primary:        #ffffff;
-  --color-accent:         #ffffff;
-  --color-accent-glow:    rgba(255,255,255,0.15);
-  --color-hero-glow:      transparent;
+  --color-primary:        #ff3333; /* Neon red */
+  --color-accent:         #ff3333;
+  --color-accent-glow:    rgba(255,51,51,0.25);
+  --color-hero-glow:      rgba(255,51,51,0.15);
 
-  /* Comic-specific tokens */
-  --panel-bg:             #111111;
-  --border-color:         #ffffff;
+  /* Retro-game-specific tokens */
+  --panel-bg:             #0e1626;
+  --border-color:         #ff3333; /* Flat red border */
   --ink-color:            #ffffff;
-  --badge-bg:             #1a1a1a;
-  --btn-bg:               #ffffff;
-  --btn-text:             #000000;
-  --btn-border:           #000000;
-  --btn-shadow:           #ffffff;
-  --shadow-color:         rgba(255,255,255,0.15);
-  --halftone-color:       rgba(255,255,255,0.06);
-  --hatch-color:          #555555;
+  --badge-bg:             #142036;
+  --btn-bg:               #ff3333;
+  --btn-text:             #ffffff;
+  --btn-border:           #ffffff;
+  --btn-shadow:           #000000;
+  --shadow-color:         rgba(0,0,0,0.5);
+  --halftone-color:       rgba(255,51,51,0.04);
+  --hatch-color:          #2a3b50;
 
   /* Fonts */
   --font-hero:    'Bangers', cursive;
@@ -51,39 +51,40 @@
   --font-micro:   'Space Grotesk', sans-serif;
 }
 
-/* --- LIGHT MODE OVERRIDES --- */
+/* --- LIGHT MODE OVERRIDES (keeps the game aesthetic, just slightly brighter blue/red accents) --- */
 [data-theme="light"] {
-  --color-bg-base:        #ffffff;
-  --color-bg-elevated:    #ffffff;
-  --color-bg-card:        #ffffff;
-  --color-bg-card-hover:  #f3f4f6;
+  --color-bg-base:        #0e1626;
+  --color-bg-elevated:    #142036;
+  --color-bg-card:        rgba(20, 32, 54, 0.85);
+  --color-bg-card-hover:  #1d2d4c;
 
-  --color-border-subtle:  rgba(0,0,0,0.20);
-  --color-border-default: rgba(0,0,0,0.55);
-  --color-border-strong:  #000000;
+  --color-border-subtle:  rgba(255,51,51,0.35);
+  --color-border-default: #ff3333;
+  --color-border-strong:  #ff3333;
 
-  --color-text-primary:   #000000;
-  --color-text-secondary: rgba(0,0,0,0.72);
-  --color-text-muted:     rgba(0,0,0,0.50);
-  --color-text-disabled:  rgba(0,0,0,0.25);
+  --color-text-primary:   #ffffff;
+  --color-text-secondary: #cfd8dc;
+  --color-text-muted:     #90a4ae;
+  --color-text-disabled:  rgba(255,255,255,0.25);
 
-  --color-primary:        #000000;
-  --color-accent:         #000000;
-  --color-accent-glow:    rgba(0,0,0,0.12);
-  --color-hero-glow:      transparent;
+  --color-primary:        #ff3333;
+  --color-accent:         #ff3333;
+  --color-accent-glow:    rgba(255,51,51,0.3);
+  --color-hero-glow:      rgba(255,51,51,0.2);
 
-  --panel-bg:             #ffffff;
-  --border-color:         #000000;
-  --ink-color:            #000000;
-  --badge-bg:             #f3f4f6;
-  --btn-bg:               #000000;
+  --panel-bg:             #142036;
+  --border-color:         #ff3333;
+  --ink-color:            #ffffff;
+  --badge-bg:             #1d2d4c;
+  --btn-bg:               #ff3333;
   --btn-text:             #ffffff;
   --btn-border:           #ffffff;
   --btn-shadow:           #000000;
-  --shadow-color:         rgba(0,0,0,0.15);
-  --halftone-color:       rgba(0,0,0,0.06);
-  --hatch-color:          #cccccc;
+  --shadow-color:         rgba(0,0,0,0.5);
+  --halftone-color:       rgba(255,51,51,0.05);
+  --hatch-color:          #37474f;
 }
+
 
 /* ─── Base ─────────────────────────────────────────────────── */
 html { color-scheme: dark; }
@@ -100,11 +101,15 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  /* Ben-Day halftone dot background */
-  background-image: radial-gradient(var(--halftone-color) 15%, transparent 16%);
-  background-size: 16px 16px;
+  /* Global background image */
+  background-image: url(/backdrop.png);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
+
 
 /* ─── Typography class utilities ─────────────────────────────── */
 @utility font-hero    { font-family: 'Bangers', cursive; }
@@ -194,51 +199,54 @@ body {
   box-shadow: 8px 8px 0px var(--border-color);
 }
 
-/* ─── COMIC BORDER STYLES ────────────────────────────────────── */
-/* Thick hand-drawn irregular border */
+/* ─── COMIC BORDER STYLES (Flat Retro Arcade Bezel) ──────────── */
+/* Thick sharp border */
 .comic-border-thick {
-  border: 4px solid var(--border-color);
-  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+  border: 4.5px solid var(--border-color);
+  border-radius: 0 !important;
 }
 
-/* Medium hand-drawn irregular border */
+/* Medium sharp border */
 .comic-border-medium {
   border: 3px solid var(--border-color);
-  border-radius: 120px 10px 105px 10px/10px 105px 10px 120px;
+  border-radius: 0 !important;
 }
 
-/* Cel-shaded hard shadow (the main 3D comic effect) */
+/* Retro-game hard shadow */
 .comic-shadow {
-  border: 4px solid var(--border-color);
-  box-shadow: 8px 8px 0px var(--border-color);
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  border: 4.5px solid var(--border-color);
+  box-shadow: 6px 6px 0px var(--btn-shadow);
+  border-radius: 0 !important;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .comic-shadow:hover {
-  transform: translate(-4px, -4px);
-  box-shadow: 12px 12px 0px var(--border-color);
+  transform: translate(-3px, -3px);
+  box-shadow: 9px 9px 0px var(--btn-shadow);
 }
 
 .comic-shadow:active {
-  transform: translate(4px, 4px);
-  box-shadow: 4px 4px 0px var(--border-color);
+  transform: translate(3px, 3px);
+  box-shadow: 3px 3px 0px var(--btn-shadow);
 }
 
 .comic-shadow-sm {
   border: 3px solid var(--border-color);
-  box-shadow: 3px 3px 0px var(--border-color);
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  box-shadow: 3px 3px 0px var(--btn-shadow);
+  border-radius: 0 !important;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .comic-shadow-sm:hover {
   transform: translate(-1.5px, -1.5px);
-  box-shadow: 4.5px 4.5px 0px var(--border-color);
+  box-shadow: 4.5px 4.5px 0px var(--btn-shadow);
 }
 
 .comic-shadow-sm:active {
   transform: translate(1.5px, 1.5px);
-  box-shadow: 1.5px 1.5px 0px var(--border-color);
+  box-shadow: 1.5px 1.5px 0px var(--btn-shadow);
 }
+
 
 /* ─── COMIC BUTTONS ──────────────────────────────────────────── */
 .comic-btn {
@@ -431,3 +439,146 @@ body {
 [data-theme="light"] .bg-bg-card {
   background-color: #ffffff !important;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   UPSIDE DOWN ARCADE — SPRITE SYSTEM
+═══════════════════════════════════════════════════════════════ */
+
+/* Sprite red accent token — fixed, same in both themes */
+:root, [data-theme="light"] {
+  --color-sprite-red: #e63946;
+  /* RGB for outline color-switching */
+  --sprite-outline-rgb: 255, 255, 255;
+}
+[data-theme="light"] {
+  --sprite-outline-rgb: 0, 0, 0;
+}
+
+/* Staggered row color-in — fires per row via animation-delay: calc(var(--row-index) * 4ms) */
+@keyframes sprite-color-in {
+  from { opacity: 0; transform: scaleY(0); }
+  to   { opacity: 1; transform: scaleY(1); }
+}
+
+/* Accent cell pulse — starts after color-in completes */
+@keyframes accent-pulse {
+  0%, 100% { opacity: 0.85; }
+  50%       { opacity: 1; }
+}
+
+/* Idle micro-animation — slow bob on specific sprite cells */
+@keyframes sprite-idle-bob {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-1px); }
+}
+
+@keyframes sprite-idle-left {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-1px); }
+}
+
+/* ─── Fighter card animations ─────────────────────────────────── */
+@keyframes fighter-shake {
+  0%   { transform: translateX(0); }
+  15%  { transform: translateX(4px); }
+  30%  { transform: translateX(-4px); }
+  45%  { transform: translateX(3px); }
+  60%  { transform: translateX(-3px); }
+  75%  { transform: translateX(2px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes status-flash {
+  0%, 100% { opacity: 1; }
+  25%, 75%  { opacity: 0.3; }
+}
+
+/* ─── Fighter grid responsive ─────────────────────────────────── */
+.fighter-grid {
+  grid-template-columns: repeat(4, 1fr) !important;
+}
+
+@media (max-width: 1024px) {
+  .fighter-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .fighter-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ─── prefers-reduced-motion overrides ───────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .pixel-sprite * {
+    animation: none !important;
+    transition: none !important;
+  }
+  .fighter-card {
+    animation: none !important;
+  }
+  .max-error-popup {
+    animation: none !important;
+    transition: opacity 300ms ease !important;
+    transform: none !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   GLOBAL RETRO VIDEO GAME STYLING OVERRIDES
+═══════════════════════════════════════════════════════════════ */
+
+/* Remove all rounded corners across the site */
+* {
+  border-radius: 0px !important;
+}
+
+/* Red title neon text shadow (Stranger Things game style) */
+h1, h2, h3, .font-hero {
+  text-shadow: 2.5px 2.5px 0px #000000 !important;
+  color: #ffffff !important;
+}
+
+/* Retro game console form inputs - clean and sharp */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="password"],
+select,
+textarea {
+  border: 2px solid var(--border-color) !important;
+  background-color: rgba(10, 15, 30, 0.95) !important;
+  color: #ffffff !important;
+  font-family: 'Space Grotesk', monospace !important;
+  box-shadow: none !important;
+  padding: 10px 14px !important;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: 2.5px solid #ff3333 !important;
+  border-color: #ff3333 !important;
+}
+
+/* Custom Cards - Transparent gradient that decreases vertically from top to bottom */
+.bg-bg-card,
+[style*="background-color: var(--color-bg-card)"],
+[style*="background: var(--color-bg-card)"],
+.comic-border-thick,
+.comic-border-medium,
+.comic-shadow,
+.comic-shadow-sm,
+.border-border-default,
+.border-border-subtle,
+.border,
+.fighter-card {
+  background-color: transparent !important;
+  background: linear-gradient(to bottom, rgba(10, 15, 30, 0.85) 0%, rgba(10, 15, 30, 0) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: none !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+
+

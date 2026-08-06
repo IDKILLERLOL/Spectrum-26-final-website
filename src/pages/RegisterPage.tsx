@@ -5,6 +5,26 @@ import { useAuth } from '../lib/useAuth';
 import { getEvent, createRegistration, getUser, updateUser, hasExistingRegistration, db, getEventDetails } from '../lib/firestore';
 import { collection, getDocs, query, where, getCountFromServer, doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import type { Event } from '../types';
+import { PixelSprite } from '../components/PixelSprite';
+import { useMaxError } from '../contexts/MaxErrorContext';
+import { DUSTIN_MAP, DUSTIN_MAP_CELEBRATE, DUSTIN_PALETTE, DUSTIN_IDLE_REGION } from '../sprites/dustin';
+import { ELEVEN_MAP, ELEVEN_MAP_CELEBRATE, ELEVEN_PALETTE, ELEVEN_IDLE_REGION } from '../sprites/eleven';
+import { STEVE_MAP, STEVE_MAP_CELEBRATE, STEVE_PALETTE, STEVE_IDLE_REGION } from '../sprites/steve';
+import { LUCAS_MAP, LUCAS_MAP_CELEBRATE, LUCAS_PALETTE, LUCAS_IDLE_REGION } from '../sprites/lucas';
+import { MAX_MAP, MAX_MAP_CELEBRATE, MAX_PALETTE, MAX_IDLE_REGION } from '../sprites/max';
+
+const EVENT_SPRITE_MAP: Record<string, {
+  map: string[][];
+  celebrateMap: string[][];
+  palette: Record<string, string>;
+  idleRegion: { row: number; col: number }[];
+}> = {
+  'tech-duo-1':  { map: MAX_MAP,    celebrateMap: MAX_MAP_CELEBRATE,    palette: MAX_PALETTE,    idleRegion: MAX_IDLE_REGION    },
+  'tech-solo-1': { map: ELEVEN_MAP, celebrateMap: ELEVEN_MAP_CELEBRATE, palette: ELEVEN_PALETTE, idleRegion: ELEVEN_IDLE_REGION },
+  'non-tech-1':  { map: STEVE_MAP,  celebrateMap: STEVE_MAP_CELEBRATE,  palette: STEVE_PALETTE,  idleRegion: STEVE_IDLE_REGION  },
+  'non-tech-3':  { map: LUCAS_MAP,  celebrateMap: LUCAS_MAP_CELEBRATE,  palette: LUCAS_PALETTE,  idleRegion: LUCAS_IDLE_REGION  },
+};
+
 
 function hashPassword(password: string, email: string): string {
   const str = `${email}::${password}`;
@@ -38,8 +58,11 @@ export function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [regCount, setRegCount] = useState<number | null>(null);
+  const [celebrating, setCelebrating] = useState(false);
   const [supportPhone, setSupportPhone] = useState('+91 98765 43210');
   const [supportEmail, setSupportEmail] = useState('spectrum.sbmp@gmail.com');
+  const { showMaxError } = useMaxError();
+  const spriteData = eventId ? EVENT_SPRITE_MAP[eventId] : null;
 
   // Load event details & pre-fill user profile if available
   useEffect(() => {
@@ -97,6 +120,7 @@ export function RegisterPage() {
   const handleAddMember = () => {
     if (event && members.length + 1 >= event.maxMembers) {
       setError(`Cannot add more than ${event.maxMembers} members (including the leader).`);
+      showMaxError('team-full');
       return;
     }
     setMembers((m) => [...m, { name: '', email: '', phone: '', college: college }]);
@@ -136,10 +160,12 @@ export function RegisterPage() {
       const totalSize = members.length + 1;
       if (totalSize < event.minMembers) {
         setError(`This event requires a minimum of ${event.minMembers} team members (including the leader). Please add more teammates.`);
+        showMaxError('team-under');
         return;
       }
       if (totalSize > event.maxMembers) {
         setError(`This event allows a maximum of ${event.maxMembers} team members (including the leader). Please remove some teammates.`);
+        showMaxError('team-full');
         return;
       }
       for (let i = 0; i < members.length; i++) {
@@ -163,14 +189,17 @@ export function RegisterPage() {
 
         if (allNames.includes(mName)) {
           setError(`Duplicate member name: "${m.name}". Every team member must have a unique name.`);
+          showMaxError('generic');
           return;
         }
         if (allEmails.includes(mEmail)) {
           setError(`Duplicate email address: "${m.email}". Every team member must have a unique email.`);
+          showMaxError('duplicate-email');
           return;
         }
         if (mPhone && allPhones.includes(mPhone)) {
           setError(`Duplicate phone number: "${m.phone}". Every team member must have a unique phone number.`);
+          showMaxError('duplicate-phone');
           return;
         }
 
@@ -233,6 +262,9 @@ export function RegisterPage() {
 
       // Redirect directly to the Pass page
       sessionStorage.setItem('spectrum26_active_registration_id', newReg.id);
+      // Trigger celebrate pose for 1200ms
+      setCelebrating(true);
+      setTimeout(() => setCelebrating(false), 1200);
       navigate(`/pass/${newReg.id}`, { replace: true });
     } catch (err: unknown) {
       console.error('[RegisterPage] Submit registration error:', err);
@@ -274,7 +306,35 @@ export function RegisterPage() {
       style={{ background: 'var(--color-bg-base)' }}
     >
       <div className="w-full max-w-2xl flex flex-col gap-10">
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3" style={{ position: 'relative' }}>
+          {/* Character sprite — top-right corner of header (decorative) */}
+          {spriteData && (
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              right: 0,
+              opacity: 0.85,
+              pointerEvents: 'none',
+            }}>
+              <img
+                src={{
+                  'tech-duo-1': '/Max.png',
+                  'tech-solo-1': '/Eleven.png',
+                  'non-tech-1': '/steve.png',
+                  'non-tech-3': '/Lucas.png',
+                }[eventId || ''] || '/Max.png'}
+                alt="character"
+                style={{
+                  imageRendering: 'pixelated',
+                  width: 80,
+                  height: 100,
+                  objectFit: 'contain',
+                }}
+              />
+            </div>
+          )}
+
+
           <Link
             to="/"
             className="font-hero tracking-widest uppercase text-xl md:text-2xl hover:opacity-70 transition-opacity"

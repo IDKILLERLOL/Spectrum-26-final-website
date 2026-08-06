@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Clock, ShieldAlert } from 'lucide-react';
 import { getEvent } from '../lib/firestore';
 import type { Event } from '../types';
@@ -23,8 +23,10 @@ const TECH_ROUND_DETAILS: Record<string, string[]> = {
 export function PublicEventDetailPage() {
   console.log("[Mount] PublicEventDetailPage component loaded");
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showRounds, setShowRounds] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -51,7 +53,7 @@ export function PublicEventDetailPage() {
         <div className="text-center flex flex-col gap-4">
           <ShieldAlert size={48} className="mx-auto text-primary animate-bounce" />
           <p className="font-heading text-heading text-text-secondary uppercase tracking-widest">Event Not Found</p>
-          <Link to="/" className="font-button text-button text-primary border border-primary px-6 py-3 hover:bg-primary hover:text-bg-base transition-colors uppercase">Back to home</Link>
+          <button onClick={() => navigate(-1)} className="font-button text-button text-primary border border-primary px-6 py-3 hover:bg-primary hover:text-bg-base transition-colors uppercase cursor-pointer bg-transparent">Back</button>
         </div>
       </main>
     );
@@ -64,19 +66,21 @@ export function PublicEventDetailPage() {
 
   const roundsToRender = (event.roundDetails && event.roundDetails.length > 0)
     ? event.roundDetails
-    : TECH_ROUND_DETAILS[event.name];
+         : TECH_ROUND_DETAILS[event.name];
 
   return (
     <main className="relative z-10 w-full min-h-screen py-12 px-6 max-w-3xl mx-auto flex flex-col gap-10">
       {/* Back button */}
-      <Link
-        to="/events"
-        onClick={() => playSynthSound('click')}
-        className="inline-flex items-center gap-2 text-primary hover:opacity-75 transition-opacity font-heading text-heading uppercase w-fit"
+      <button
+        onClick={() => {
+          playSynthSound('click');
+          navigate(-1);
+        }}
+        className="inline-flex items-center gap-2 text-primary hover:opacity-75 transition-opacity font-heading text-heading uppercase w-fit bg-transparent border-none cursor-pointer p-0"
         style={{ textDecoration: 'none' }}
       >
-        <ArrowLeft size={20} /> Back to Events
-      </Link>
+        <ArrowLeft size={20} /> Back
+      </button>
 
       {/* Main card */}
       <motion.article
@@ -170,12 +174,37 @@ export function PublicEventDetailPage() {
         {/* Event expandable round details */}
         {roundsToRender && roundsToRender.length > 0 && (
           <div className="mb-8 pt-2 text-left" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-            <details className="group border border-border-default bg-bg-elevated p-4 cursor-pointer">
-              <summary className="font-heading text-heading text-primary uppercase flex justify-between items-center select-none">
-                <span>View Round-by-Round Mechanics</span>
-                <span className="transition-transform group-open:rotate-180">▼</span>
-              </summary>
-              <div className="mt-4 flex flex-col gap-3 font-body text-small text-text-secondary leading-relaxed cursor-default">
+            <button
+              onClick={() => {
+                playSynthSound('click');
+                setShowRounds(!showRounds);
+              }}
+              style={{
+                background: 'transparent',
+                border: '1.5px solid var(--color-primary)',
+                color: 'var(--color-primary)',
+                fontFamily: 'Space Grotesk, sans-serif',
+                fontSize: '13px',
+                fontWeight: 700,
+                padding: '8px 16px',
+                cursor: 'pointer',
+                textTransform: 'uppercase',
+                transition: 'all 0.15s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'var(--color-primary)';
+                e.currentTarget.style.color = '#ffffff';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = 'var(--color-primary)';
+              }}
+            >
+              {showRounds ? 'Hide Round-by-Round Details' : 'Show Round-by-Round Details'}
+            </button>
+
+            {showRounds && (
+              <div style={{ marginTop: '16px', padding: '16px', background: 'rgba(255, 255, 255, 0.05)', borderLeft: '3px solid var(--color-primary)' }} className="flex flex-col gap-3 font-body text-small text-text-secondary leading-relaxed">
                 {roundsToRender.map((round, idx) => (
                   <div key={idx} className="flex gap-2">
                     <span className="text-primary font-bold">•</span>
@@ -183,7 +212,7 @@ export function PublicEventDetailPage() {
                   </div>
                 ))}
               </div>
-            </details>
+            )}
           </div>
         )}
 

@@ -27,6 +27,8 @@ const EMPTY_FORM: EventFormData = {
   minMembers: 1,
   maxMembers: 1,
   roundDetails: [],
+  oneLineDescription: '',
+  shortDescription: '',
 };
 
 export function AdminEventsPage() {
@@ -73,6 +75,8 @@ export function AdminEventsPage() {
       minMembers: event.minMembers,
       maxMembers: event.maxMembers,
       roundDetails: event.roundDetails || [],
+      oneLineDescription: event.oneLineDescription || '',
+      shortDescription: event.shortDescription || '',
     });
     setError(null);
     setInlineState({ type: 'edit', eventId: event.id });
@@ -195,7 +199,7 @@ export function AdminEventsPage() {
         { label: 'NON-TECH EVENTS', evs: nonTechEvents },
       ].map(({ label, evs }) => (
         <div key={label} className="flex flex-col gap-2">
-          <h2 className="font-hero text-[22px] leading-none uppercase tracking-widest text-primary border-b border-border-default pb-3">
+          <h2 className="font-hero text-[22px] leading-none uppercase tracking-widest text-primary mb-1">
             {label}
           </h2>
 
@@ -209,7 +213,7 @@ export function AdminEventsPage() {
             const hasTeams = event.currentTeamCount > 0;
 
             return (
-              <div key={event.id} className="border border-border-default" style={{ borderStyle: event.category === 'TECH' ? 'solid' : 'dashed' }}>
+              <div key={event.id} className="py-2" style={{ borderStyle: 'none' }}>
                 {/* Event summary row */}
                 <div className="flex flex-wrap md:flex-nowrap items-center gap-4 p-4">
                   <div className="flex flex-col gap-1 flex-1 min-w-[200px]">
@@ -430,9 +434,33 @@ function EventFormFields({
         />
       </div>
 
+      {/* One Line Description */}
+      <div className="flex flex-col gap-2 md:col-span-2">
+        <label className="font-micro text-micro text-text-muted uppercase tracking-widest">One Line Description (home page, no hover)</label>
+        <input
+          type="text"
+          value={form.oneLineDescription || ''}
+          onChange={(e) => setField('oneLineDescription', e.target.value)}
+          placeholder="e.g. The ultimate duo coding face-off."
+          className="bg-transparent border-b-2 border-border-strong text-primary font-body text-body py-2 focus:outline-none focus:border-primary transition-all"
+        />
+      </div>
+
+      {/* Short Description */}
+      <div className="flex flex-col gap-2 md:col-span-2">
+        <label className="font-micro text-micro text-text-muted uppercase tracking-widest">Short Description (home page, hover)</label>
+        <textarea
+          value={form.shortDescription || ''}
+          onChange={(e) => setField('shortDescription', e.target.value)}
+          rows={2}
+          placeholder="e.g. Battle in Codopoly, Swap Challenge, and Snakes & Ladders Challenges."
+          className="bg-transparent border border-border-strong text-primary font-body text-body p-3 focus:outline-none focus:border-primary transition-all resize-none"
+        />
+      </div>
+
       {/* Description */}
       <div className="flex flex-col gap-2 md:col-span-2">
-        <label className="font-micro text-micro text-text-muted uppercase tracking-widest">Description</label>
+        <label className="font-micro text-micro text-text-muted uppercase tracking-widest">Long Description (details page)</label>
         <textarea
           value={form.description}
           onChange={(e) => setField('description', e.target.value)}

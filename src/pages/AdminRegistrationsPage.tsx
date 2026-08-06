@@ -211,7 +211,8 @@ export function AdminRegistrationsPage() {
           <div className="flex flex-wrap gap-4">
             <Link
               to="/admin/registrations/new"
-              className="flex items-center gap-2 font-button text-button uppercase bg-primary text-bg-base border border-primary px-5 py-3 hover:bg-transparent hover:text-primary transition-colors"
+              className="flex items-center gap-2 font-button text-button uppercase bg-primary border border-primary px-5 py-3 hover:bg-transparent hover:text-primary transition-colors"
+              style={{ color: '#ff3333' }}
             >
               <Plus size={14} /> Add Registration
             </Link>
@@ -239,7 +240,7 @@ export function AdminRegistrationsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
           <div className="flex flex-col gap-1.5">
             <label className="font-micro text-micro text-text-muted uppercase">Search</label>
-            <div className="flex items-center gap-3 border border-border-default px-4 py-2 bg-bg-card">
+            <div className="flex items-center gap-3 border border-slate-800 px-4 py-2 bg-bg-card">
               <Search size={16} className="text-text-muted shrink-0" />
               <input
                 type="text"
