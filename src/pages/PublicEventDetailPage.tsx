@@ -220,7 +220,7 @@ export function PublicEventDetailPage() {
         <div>
           {open ? (
             <Link
-              to={`/login?redirect=register&eventId=${event.id}`}
+              to={`/register/${event.id}`}
               onClick={() => playSynthSound('laser')}
               className="comic-btn text-center w-full block"
               style={{ fontSize: '24px', padding: '14px 28px', textDecoration: 'none' }}

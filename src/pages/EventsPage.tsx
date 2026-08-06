@@ -75,24 +75,7 @@ export function EventsPage() {
 
   // Initialize form state when an event is selected for registration
   const startRegistration = (event: Event) => {
-    if (!user) {
-      navigate(`/login?redirect=register&eventId=${event.id}`);
-      return;
-    }
-    setRegisteringEventId(event.id);
-    setRegName(user?.displayName || '');
-    setRegEmail(user?.email || '');
-    setRegPhone('');
-    setRegCollege('');
-    setRegTeamName('');
-    setRegError(null);
-    const count = (event.minMembers || 1) - 1;
-    setRegMembers(Array.from({ length: count > 0 ? count : 0 }, () => ({
-      name: '',
-      email: '',
-      phone: '',
-      college: '',
-    })));
+    navigate(`/register/${event.id}`);
   };
 
   const handleAddMember = (event: Event) => {
