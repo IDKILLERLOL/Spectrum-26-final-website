@@ -41,6 +41,7 @@ import type {
   ScheduleEventType,
 } from '../types';
 import { FALLBACK_EVENTS } from '../types';
+import { sendPaymentVerificationEmail } from './email';
 
 const getEnv = (key: string): string => {
   try {
@@ -1167,6 +1168,23 @@ export async function updateFeeStatus(
     timestamp: new Date(),
     ipAddress: null,
   });
+  
+  if (feeStatus === 'PAID' && before && before.feeStatus !== 'PAID') {
+    try {
+      const evSnap = await getDoc(doc(db, 'events', before.eventId));
+      const eventName = evSnap.exists() ? evSnap.data().name : 'Event';
+      
+      await sendPaymentVerificationEmail(
+        before.leader.email,
+        before.leader.name,
+        eventName,
+        registrationId
+      );
+    } catch (emailErr) {
+      console.warn('[email] Failed to send payment verification notice email:', emailErr);
+    }
+  }
+
   autoSyncToSheets().catch(console.error);
 }
 

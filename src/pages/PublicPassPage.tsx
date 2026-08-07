@@ -120,6 +120,7 @@ export function PublicPassPage() {
   }
 
   const paid = registration.feeStatus === 'PAID';
+  const hasSubmittedProof = !!(registration.upiTransactionRef || registration.paymentProofUrl || registration.paymentScreenshot || registration.paymentScreenshotUrl);
 
   return (
     <main className="w-full min-h-screen flex flex-col items-center justify-center bg-bg-base px-6 py-12 gap-6">
@@ -202,7 +203,7 @@ export function PublicPassPage() {
             </div>
 
             {/* Submission Form for Unpaid / Pending Verification Pass */}
-            {!paid && (
+            {!paid && !hasSubmittedProof && (
               <form onSubmit={handleSubmitProof} className="flex flex-col gap-4 p-5 border border-dashed border-border-strong bg-bg-elevated/40 rounded-sm">
                 <div className="flex flex-col gap-1">
                   <span className="font-heading text-card-title text-primary uppercase tracking-wide flex items-center gap-2">
@@ -287,6 +288,14 @@ export function PublicPassPage() {
                   )}
                 </button>
               </form>
+            )}
+
+            {!paid && hasSubmittedProof && (
+              <div className="p-5 border border-dashed border-border-default rounded flex flex-col gap-3 bg-bg-elevated/20">
+                <p className="text-xs font-semibold text-text-secondary leading-relaxed" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+                  ✓ Payment details submitted successfully. Our crew is verifying your payment (Ref: <span className="text-primary font-bold">{registration.upiTransactionRef}</span>). An email notification will be sent to <span className="text-primary font-bold">{registration.leader?.email || 'your email'}</span> as soon as verification is complete!
+                </p>
+              </div>
             )}
           </div>
         </div>

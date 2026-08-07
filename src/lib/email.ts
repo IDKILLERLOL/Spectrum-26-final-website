@@ -188,3 +188,30 @@ export async function sendWelcomeEmail(toEmail: string, name: string): Promise<v
     </div>`
   );
 }
+
+/** Notification email sent when payment is verified and pass is active. */
+export async function sendPaymentVerificationEmail(
+  toEmail: string,
+  name: string,
+  eventName: string,
+  passId: string
+): Promise<void> {
+  // Use a fallback URL if window is undefined (e.g. ssr/backend)
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://spectrum-sbmp.web.app';
+  const passUrl = `${origin}/pass/${passId}`;
+  await sendEmail(
+    toEmail,
+    `Payment Verified - Your ticket for ${eventName} is active!`,
+    `<div style="font-family:sans-serif;max-width:500px;margin:0 auto;border:1px solid #eee;padding:24px;border-radius:8px">
+      <h2 style="color:#ff3333;margin-top:0">${FEST_NAME} - Verification Success!</h2>
+      <p>Hello ${name || 'Competitor'},</p>
+      <p>Great news! Your payment for <strong>${eventName}</strong> has been verified by our crew.</p>
+      <p>Your entry ticket is now fully validated and activated for the event.</p>
+      <div style="margin:24px 0">
+        <a href="${passUrl}" style="background:#ff3333;color:#fff;padding:12px 24px;text-decoration:none;font-weight:bold;border-radius:4px;display:inline-block">View &amp; Download Pass</a>
+      </div>
+      <p style="font-size:12px;color:#666">Registration ID: #${passId}</p>
+      <p style="color:#666;font-size:13px;margin-top:24px">If you have any questions, contact us at ${SENDER_EMAIL}.</p>
+    </div>`
+  );
+}
