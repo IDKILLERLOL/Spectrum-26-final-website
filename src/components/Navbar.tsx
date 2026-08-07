@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../lib/useAuth';
 import { getMyRegistrations, getUser } from '../lib/firestore';
 import { playSynthSound, setSoundEnabled } from '../lib/audio';
-import { Volume2, VolumeX, Sun, Moon, LogIn, LogOut, User, Menu, X } from 'lucide-react';
+import { Volume2, VolumeX, Sun, Moon, LogIn, LogOut, User, Menu, X, Home, Calendar, Trophy, Mail, MoreHorizontal } from 'lucide-react';
 
 export function Navbar() {
   const location = useLocation();
@@ -77,18 +77,23 @@ export function Navbar() {
   return (
     <>
       <nav
-        className="sticky top-0 z-[100] mx-auto max-w-7xl w-[92%] p-4 flex justify-between items-center gap-4"
-        style={{ background: 'transparent', border: 'none', boxShadow: 'none' }}
+        className="sticky top-0 z-[100] w-full px-6 py-4 flex justify-between items-center gap-4 border-b"
+        style={{
+          background: 'rgba(6, 11, 25, 0.75)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          borderColor: 'rgba(255, 255, 255, 0.06)',
+        }}
       >
         {/* Left side: Mobile Menu Button & Brand Logo */}
         <div className="flex items-center gap-4">
-          {/* Hamburger Menu Toggle (top left) */}
+          {/* Hamburger Menu Toggle (hidden on mobile now since bottom nav handles it) */}
           <button
             onClick={() => {
               playSynthSound('click');
               setIsSidebarOpen(!isSidebarOpen);
             }}
-            className="flex flex-col justify-center items-center w-8 h-8 gap-1.5 focus:outline-none md:hidden relative z-[60]"
+            className="hidden flex-col justify-center items-center w-8 h-8 gap-1.5 focus:outline-none md:hidden relative z-[60]"
             aria-label="Toggle Navigation Menu"
           >
             <span
@@ -119,12 +124,12 @@ export function Navbar() {
           <Link
             to="/"
             onClick={() => playSynthSound('click')}
-            className="hidden sm:inline-flex items-center text-decoration-none"
+            className="inline-flex items-center text-decoration-none"
           >
             <img
               src="/new_logo.png"
               alt="SPECTRUM 26"
-              style={{ maxHeight: '70px', width: 'auto', objectFit: 'contain', display: 'block' }}
+              style={{ maxHeight: '42px', width: 'auto', objectFit: 'contain', display: 'block' }}
             />
           </Link>
         </div>
@@ -233,6 +238,74 @@ export function Navbar() {
           </Link>
         </div>
       </aside>
+
+      {/* Mobile Bottom Navigation Bar */}
+      <div 
+        className="md:hidden fixed bottom-0 left-0 right-0 z-[95] flex justify-around items-center py-2 px-2 border-t"
+        style={{
+          background: 'rgba(6, 11, 25, 0.85)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderColor: 'rgba(255, 255, 255, 0.08)',
+          paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)'
+        }}
+      >
+        {/* Schedule Slot */}
+        <Link 
+          to="/schedule" 
+          onClick={() => playSynthSound('click')}
+          className="flex flex-col items-center gap-0.5 text-center flex-1"
+          style={{ color: location.pathname === '/schedule' ? 'var(--color-primary)' : 'var(--color-text-muted)' }}
+        >
+          <Calendar size={20} />
+          <span style={{ fontSize: '10px', fontFamily: 'Space Grotesk, sans-serif', fontWeight: 600, letterSpacing: '0.04em' }}>SCHEDULE</span>
+        </Link>
+
+        {/* Events Slot */}
+        <Link 
+          to="/events" 
+          onClick={() => playSynthSound('click')}
+          className="flex flex-col items-center gap-0.5 text-center flex-1"
+          style={{ color: location.pathname === '/events' ? 'var(--color-primary)' : 'var(--color-text-muted)' }}
+        >
+          <Trophy size={20} />
+          <span style={{ fontSize: '10px', fontFamily: 'Space Grotesk, sans-serif', fontWeight: 600, letterSpacing: '0.04em' }}>EVENTS</span>
+        </Link>
+
+        {/* Home Slot (Center, highlighted) */}
+        <Link 
+          to="/" 
+          onClick={() => playSynthSound('click')}
+          className="flex flex-col items-center justify-center -mt-6 bg-primary rounded-full w-14 h-14 shadow-lg border-4 border-bg-base relative z-10"
+          style={{
+            borderColor: 'rgba(6, 11, 25, 1)',
+            boxShadow: '0 4px 15px rgba(255, 51, 51, 0.4)'
+          }}
+        >
+          <Home size={22} className="text-white" />
+        </Link>
+
+        {/* Contact Slot */}
+        <Link 
+          to="/contact" 
+          onClick={() => playSynthSound('click')}
+          className="flex flex-col items-center gap-0.5 text-center flex-1"
+          style={{ color: location.pathname === '/contact' ? 'var(--color-primary)' : 'var(--color-text-muted)' }}
+        >
+          <Mail size={20} />
+          <span style={{ fontSize: '10px', fontFamily: 'Space Grotesk, sans-serif', fontWeight: 600, letterSpacing: '0.04em' }}>CONTACT</span>
+        </Link>
+
+        {/* More Slot (Toggles drawer) */}
+        <button 
+          onClick={() => { playSynthSound('click'); setIsSidebarOpen(!isSidebarOpen); }}
+          className="flex flex-col items-center gap-0.5 text-center flex-1"
+          style={{ color: isSidebarOpen ? 'var(--color-primary)' : 'var(--color-text-muted)', background: 'none', border: 'none', padding: 0 }}
+        >
+          <MoreHorizontal size={20} />
+          <span style={{ fontSize: '10px', fontFamily: 'Space Grotesk, sans-serif', fontWeight: 600, letterSpacing: '0.04em' }}>MORE</span>
+        </button>
+      </div>
     </>
   );
 }

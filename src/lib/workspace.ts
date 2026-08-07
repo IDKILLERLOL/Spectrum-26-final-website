@@ -226,7 +226,7 @@ export async function syncRegistrationsToGoogleSheets(
   }
 
   // Clear universal values (starting at A2 to preserve headers/table columns)
-  const clearUniversalUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent("'All Registrations'")}!A2:Z50000:clear`;
+  const clearUniversalUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent("'All Registrations'!A2:Z50000")}:clear`;
   await fetch(clearUniversalUrl, {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${token}` }
@@ -301,7 +301,7 @@ export async function syncRegistrationsToGoogleSheets(
     }
 
     // Clear existing content in the sheet (starting at A2 to preserve headers/table columns)
-    const clearUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(`'${ev.name}'`)}!A2:Z50000:clear`;
+    const clearUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(`'${ev.name}'!A2:Z50000`)}:clear`;
     await fetch(clearUrl, {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${token}` }

@@ -293,13 +293,13 @@ export function AdminRegistrationsPage() {
             <select
               value={selectedEventId}
               onChange={(e) => setSelectedEventId(e.target.value)}
-              className="bg-bg-card border border-border-default px-3 h-[42px] text-primary font-body text-small focus:outline-none focus:border-primary w-full min-w-0 truncate"
+              className="bg-bg-card border border-white/10 px-3 h-[42px] text-white font-body text-small focus:outline-none focus:border-white/25 w-full min-w-0 truncate"
             >
-              <option value="all">All Events</option>
+              <option value="all" className="bg-black text-white">All Events</option>
               {Array.from(new Map(rows.map(r => [r.event?.id, r.event])).values())
                 .filter((ev): ev is Event => !!ev)
                 .map((ev) => (
-                  <option key={ev.id} value={ev.id}>{ev.name}</option>
+                  <option key={ev.id} value={ev.id} className="bg-black text-white">{ev.name}</option>
                 ))}
             </select>
           </div>
@@ -309,11 +309,11 @@ export function AdminRegistrationsPage() {
             <select
               value={selectedPaymentStatus}
               onChange={(e) => setSelectedPaymentStatus(e.target.value)}
-              className="bg-bg-card border border-border-default px-3 h-[42px] text-primary font-body text-small focus:outline-none focus:border-primary w-full min-w-0"
+              className="bg-bg-card border border-white/10 px-3 h-[42px] text-white font-body text-small focus:outline-none focus:border-white/25 w-full min-w-0"
             >
-              <option value="all">All Statuses</option>
-              <option value="PAID">PAID</option>
-              <option value="PENDING">PENDING</option>
+              <option value="all" className="bg-black text-white">All Statuses</option>
+              <option value="PAID" className="bg-black text-white">PAID</option>
+              <option value="PENDING" className="bg-black text-white">PENDING</option>
             </select>
           </div>
 
@@ -322,11 +322,11 @@ export function AdminRegistrationsPage() {
             <select
               value={selectedCheckInStatus}
               onChange={(e) => setSelectedCheckInStatus(e.target.value)}
-              className="bg-bg-card border border-border-default px-3 h-[42px] text-primary font-body text-small focus:outline-none focus:border-primary w-full min-w-0"
+              className="bg-bg-card border border-white/10 px-3 h-[42px] text-white font-body text-small focus:outline-none focus:border-white/25 w-full min-w-0"
             >
-              <option value="all">All Statuses</option>
-              <option value="checked-in">Checked In</option>
-              <option value="not-checked-in">Not Checked In</option>
+              <option value="all" className="bg-black text-white">All Statuses</option>
+              <option value="checked-in" className="bg-black text-white">Checked In</option>
+              <option value="not-checked-in" className="bg-black text-white">Not Checked In</option>
             </select>
           </div>
 
@@ -335,14 +335,14 @@ export function AdminRegistrationsPage() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="bg-bg-card border border-border-default px-3 h-[42px] text-primary font-body text-small focus:outline-none focus:border-primary w-full min-w-0"
+              className="bg-bg-card border border-white/10 px-3 h-[42px] text-white font-body text-small focus:outline-none focus:border-white/25 w-full min-w-0"
             >
-              <option value="date-desc">Date (Newest First)</option>
-              <option value="date-asc">Date (Oldest First)</option>
-              <option value="team-asc">Team Name (A-Z)</option>
-              <option value="team-desc">Team Name (Z-A)</option>
-              <option value="leader-asc">Leader Name (A-Z)</option>
-              <option value="leader-desc">Leader Name (Z-A)</option>
+              <option value="date-desc" className="bg-black text-white">Date (Newest First)</option>
+              <option value="date-asc" className="bg-black text-white">Date (Oldest First)</option>
+              <option value="team-asc" className="bg-black text-white">Team Name (A-Z)</option>
+              <option value="team-desc" className="bg-black text-white">Team Name (Z-A)</option>
+              <option value="leader-asc" className="bg-black text-white">Leader Name (A-Z)</option>
+              <option value="leader-desc" className="bg-black text-white">Leader Name (Z-A)</option>
             </select>
           </div>
         </div>
