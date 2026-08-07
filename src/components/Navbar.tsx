@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../lib/useAuth';
 import { getMyRegistrations, getUser } from '../lib/firestore';
 import { playSynthSound, setSoundEnabled } from '../lib/audio';
-import { Volume2, VolumeX, Sun, Moon, LogIn, LogOut, User, Menu, X, Home, Calendar, Trophy, Mail, MoreHorizontal } from 'lucide-react';
+import { Volume2, VolumeX, Sun, Moon, LogIn, LogOut, User, Menu, X, Home, Calendar, Trophy, Mail, MoreHorizontal, Award } from 'lucide-react';
 
 export function Navbar() {
   const location = useLocation();
