@@ -24,6 +24,7 @@ import { AdminCreateRegistrationPage } from './pages/AdminCreateRegistrationPage
 import { WinnersPage } from './pages/WinnersPage';
 import { GalleryPage } from './pages/GalleryPage';
 import { AdminAccountsPage } from './pages/AdminAccountsPage';
+import { AdminGlobalDetailsPage } from './pages/AdminGlobalDetailsPage';
 import { ScrollToTop } from './components/ScrollToTop';
 import { ContactPage } from './pages/ContactPage';
 import { PublicEventDetailPage } from './pages/PublicEventDetailPage';
@@ -126,6 +127,7 @@ export default function App() {
                 <Route path="winners" element={<AdminWinnersPage />} />
                 <Route path="users" element={<AdminUsersPage />} />
                 <Route path="accounts" element={<AdminAccountsPage />} />
+                <Route path="global-details" element={<AdminGlobalDetailsPage />} />
                 <Route path="audit-log" element={<AuditLogPage />} />
 
               </Route>

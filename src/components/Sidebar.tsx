@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutList, CalendarDays, CalendarClock, Trophy, Users, UserMinus, ScrollText, LogOut, Sun, Moon, RotateCw } from 'lucide-react';
+import { LayoutList, CalendarDays, CalendarClock, Trophy, Users, UserMinus, ScrollText, LogOut, Sun, Moon, RotateCw, Settings } from 'lucide-react';
 import { useAuth } from '../lib/useAuth';
 import { getTheme, toggleTheme as triggerToggleTheme } from '../lib/theme';
 
@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { to: '/admin/schedule',      label: 'Schedule',        Icon: CalendarClock },
   { to: '/admin/winners',       label: 'Winners',        Icon: Trophy },
   { to: '/admin/users',         label: 'Users',          Icon: Users },
+  { to: '/admin/global-details', label: 'Global Details', Icon: Settings },
   { to: '/admin/audit-log',     label: 'Audit Log',      Icon: ScrollText },
 ];
 

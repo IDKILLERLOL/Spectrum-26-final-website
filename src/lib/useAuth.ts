@@ -210,7 +210,7 @@ export function useAuth() {
     user,
     loading,
     isAdmin: adminSession !== null,
-    adminEmail: adminSession?.email ?? null,
+    adminEmail: adminSession?.email ?? user?.email ?? null,
     loginWithGoogle,
     setOtpUser,
     logout,

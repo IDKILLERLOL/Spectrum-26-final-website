@@ -103,10 +103,8 @@ export function AdminWinnersPage() {
           return (
             <div key={event.id} className="flex flex-col gap-4">
               {/* Event heading */}
-              <div className="flex items-center gap-4 border-b border-border-default pb-3">
-                <span className={`font-micro text-micro border px-2 py-0.5 text-primary uppercase tracking-widest ${
-                  event.category === 'TECH' ? 'border-primary' : 'border-dashed border-border-default'
-                }`}>
+              <div className="flex items-center gap-4 pb-2">
+                <span className="font-micro text-micro text-primary uppercase tracking-widest mr-1">
                   {categoryLabel(event.category)}
                 </span>
                 <h2 className="font-heading text-card-title text-primary uppercase">{event.name}</h2>
@@ -127,7 +125,7 @@ export function AdminWinnersPage() {
 
                 return (
                   <div key={placement} className="py-2" style={{ borderStyle: 'none' }}>
-                    <div className="flex flex-wrap md:flex-nowrap items-center gap-6 p-4">
+                    <div className="flex flex-wrap md:flex-nowrap items-center gap-6 p-4 border border-border-default rounded bg-bg-card hover:border-primary transition-all">
                       {/* Trophy */}
                       <div className="flex items-center gap-3 min-w-[80px]">
                         <Trophy size={18} className="text-primary opacity-70" />
