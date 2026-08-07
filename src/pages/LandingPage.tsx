@@ -113,38 +113,43 @@ export function LandingPage() {
   // walkFactor maps scroll position (from 0.8*windowHeight to 1.8*windowHeight) to a 0..1 progress value
   const walkFactor = Math.min(1, Math.max(0, (scrollY - windowHeight * 0.8) / (windowHeight || 800)));
 
+  // Check for mobile layout to disable problematic sticky scrolling on iOS
+  const isMobile = window.innerWidth < 768;
+
   return (
     <div className="relative w-full select-none" style={{ backgroundColor: 'transparent' }}>
       
-      {/* Section 1: Surface & Fighter Arena (occupies 300vh height to allow scrolling characters in phase 2) */}
-      <div style={{ position: 'relative', height: '300vh', width: '100%' }}>
+      {/* Section 1: Surface & Fighter Arena */}
+      {/* Disable 300vh height on mobile to allow normal document flow */}
+      <div style={{ position: 'relative', height: isMobile ? 'auto' : '300vh', width: '100%' }}>
         
         {/* Sticky viewport content container */}
         <div
           style={{
-            position: 'sticky',
+            position: isMobile ? 'relative' : 'sticky',
             top: 0,
             width: '100%',
-            height: '100vh',
+            height: isMobile ? 'auto' : '100vh',
+            minHeight: '100vh',
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'space-between',
-            padding: '40px 0 0 0',
-            overflow: 'clip',
+            justifyContent: isMobile ? 'flex-start' : 'space-between',
+            padding: isMobile ? '20px 0 0 0' : '40px 0 0 0',
+            overflow: isMobile ? 'visible' : 'clip',
           }}
         >
           {/* Hero text translating up and fading out as scroll progress builds */}
           <div
             style={{
-              position: 'absolute',
-              top: '40px',
+              position: isMobile ? 'relative' : 'absolute',
+              top: isMobile ? '0' : '40px',
               left: 0,
               right: 0,
-              transform: `translateY(${-scrollY * 0.8}px)`,
-              opacity: scrollY > 150 ? Math.max(0, 1 - (scrollY - 150) / 250) : 1,
+              transform: isMobile ? 'none' : `translateY(${-scrollY * 0.8}px)`,
+              opacity: isMobile ? 1 : (scrollY > 150 ? Math.max(0, 1 - (scrollY - 150) / 250) : 1),
               transition: 'transform 0.05s ease-out, opacity 0.1s ease-out',
               zIndex: 30,
-              pointerEvents: scrollY > 200 ? 'none' : 'auto',
+              pointerEvents: (scrollY > 200 && !isMobile) ? 'none' : 'auto',
             }}
           >
             <Hero />
@@ -292,19 +297,19 @@ function ChooseFighter({ walkFactor }: { walkFactor: number }) {
       style={{
         display: 'flex',
         flexDirection: isMobile ? 'column' : 'row',
-        justifyContent: 'space-around',
+        justifyContent: isMobile ? 'flex-start' : 'space-around',
         alignItems: isMobile ? 'center' : 'flex-end',
-        flexWrap: 'wrap',
-        gap: isMobile ? '280px' : '16px',
+        flexWrap: isMobile ? 'nowrap' : 'wrap',
+        gap: isMobile ? '80px' : '16px',
         maxWidth: '1100px',
         margin: 'auto auto 0 auto',
         width: '92%',
         zIndex: 10,
         position: 'relative',
         minHeight: '480px',
-        paddingTop: isMobile ? '120px' : '260px',
-        paddingBottom: isMobile ? '160px' : '0px',
-        opacity: walkFactor,
+        paddingTop: isMobile ? '60px' : '260px',
+        paddingBottom: isMobile ? '80px' : '0px',
+        opacity: isMobile ? 1 : walkFactor,
         transition: 'opacity 0.2s ease-out',
       }}
     >
@@ -727,16 +732,14 @@ function VenueContact() {
           href="https://maps.app.goo.gl/jS54o8EKGNT7gRHS6"
           target="_blank"
           rel="noopener noreferrer"
-          className="overflow-hidden h-[300px] relative block cursor-pointer group"
+          className="relative block cursor-pointer group"
           title="Click to open in Google Maps"
-          style={{ border: '2px solid var(--color-primary)' }}
+          style={{ border: '2px solid var(--color-primary)', height: '300px', width: '100%', overflow: 'hidden' }}
         >
           <iframe
             title="SVKM's Shri Bhagubhai Mafatlal Polytechnic Location"
             src="https://maps.google.com/maps?q=SVKM's%20Shri%20Bhagubhai%20Mafatlal%20Polytechnic&t=&z=16&ie=UTF8&iwloc=&output=embed"
-            width="100%"
-            height="100%"
-            style={{ border: 0, pointerEvents: 'none' }}
+            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0, pointerEvents: 'none' }}
             allowFullScreen
             loading="lazy"
           />
