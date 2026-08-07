@@ -103,11 +103,14 @@ export function AdminWinnersPage() {
           return (
             <div key={event.id} className="flex flex-col gap-4">
               {/* Event heading */}
-              <div className="flex items-center gap-4 pb-2">
-                <span className="font-micro text-micro text-primary uppercase tracking-widest mr-1">
+              <div className="flex items-center gap-4 pb-2" style={{ border: 'none' }}>
+                <span
+                  className="font-micro text-micro uppercase tracking-widest mr-2"
+                  style={{ color: '#ff3333', background: 'transparent', border: 'none', padding: 0 }}
+                >
                   {categoryLabel(event.category)}
                 </span>
-                <h2 className="font-heading text-card-title text-primary uppercase">{event.name}</h2>
+                <h2 className="font-heading text-card-title text-primary uppercase" style={{ margin: 0 }}>{event.name}</h2>
                 <span className="font-micro text-micro text-text-muted uppercase">
                   {eventRegs.length} team(s)
                 </span>

@@ -237,7 +237,7 @@ export function AdminRegistrationsPage() {
             <Link
               to="/admin/registrations/new"
               className="flex items-center gap-2 font-button text-button uppercase bg-primary border border-primary px-5 py-3 hover:bg-transparent hover:text-primary transition-colors"
-              style={{ color: '#ff3333' }}
+              style={{ color: '#ffffff' }}
             >
               <Plus size={14} /> Add Registration
             </Link>

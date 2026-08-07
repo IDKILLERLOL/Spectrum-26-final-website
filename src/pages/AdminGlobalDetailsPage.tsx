@@ -211,7 +211,7 @@ export function AdminGlobalDetailsPage() {
           <button
             onClick={handleSaveEventDetails}
             disabled={savingDetails}
-            className="self-start font-button text-button px-6 py-2 border border-primary bg-primary text-bg-base hover:bg-transparent hover:text-primary transition-colors disabled:opacity-50 mt-4"
+            className="self-start font-button text-button px-6 py-2 bg-primary border border-primary text-white hover:bg-white hover:text-primary hover:border-white transition-colors disabled:opacity-50 mt-4"
           >
             {savingDetails ? 'Saving...' : 'Save Global Details'}
           </button>
@@ -247,7 +247,7 @@ export function AdminGlobalDetailsPage() {
           <button
             onClick={handleSavePaymentDetails}
             disabled={savingPayments}
-            className="self-start font-button text-button px-6 py-2 border border-primary bg-primary text-bg-base hover:bg-transparent hover:text-primary transition-colors disabled:opacity-50 mt-4"
+            className="self-start font-button text-button px-6 py-2 bg-primary border border-primary text-white hover:bg-white hover:text-primary hover:border-white transition-colors disabled:opacity-50 mt-4"
           >
             {savingPayments ? 'Saving...' : 'Save Payment Details'}
           </button>
