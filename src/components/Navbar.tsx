@@ -241,9 +241,14 @@ export function Navbar() {
 
       {/* Mobile Bottom Navigation Bar */}
       <div 
-        className="md:hidden fixed bottom-0 left-0 right-0 z-[95] flex justify-around items-center py-2 px-2 border-t"
+        className="md:hidden flex justify-around items-center py-2 px-2 border-t"
         style={{
-          background: 'rgba(6, 11, 25, 0.85)',
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: 9999,
+          background: 'rgba(6, 11, 25, 0.92)',
           backdropFilter: 'blur(20px)',
           WebkitBackdropFilter: 'blur(20px)',
           borderColor: 'rgba(255, 255, 255, 0.08)',
