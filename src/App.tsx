@@ -56,7 +56,7 @@ function PublicLayout() {
         />
       )}
       <Navbar />
-      <main className="flex-1 flex flex-col w-full relative">
+      <main className="flex-1 flex flex-col w-full relative pb-20 md:pb-0">
         <Outlet />
       </main>
       {!isHome && <Footer />}

@@ -252,7 +252,9 @@ export function Navbar() {
           backdropFilter: 'blur(20px)',
           WebkitBackdropFilter: 'blur(20px)',
           borderColor: 'rgba(255, 255, 255, 0.08)',
-          paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)'
+          paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)',
+          transform: 'translate3d(0, 0, 0)',
+          WebkitTransform: 'translate3d(0, 0, 0)'
         }}
       >
         {/* Schedule Slot */}
