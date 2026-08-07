@@ -115,7 +115,7 @@ export function AdminEditRegistrationPage() {
     setSaving('delete');
     try {
       await deleteRegistration(registration.id, event.id, adminEmail ?? '');
-      navigate('/admin/registrations');
+      navigate('/supercore/registrations');
     } catch {
       setError('Failed to delete registration.');
       setSaving(null);
@@ -305,7 +305,7 @@ export function AdminEditRegistrationPage() {
       <main className="flex flex-col gap-6 items-center justify-center py-20 px-6 max-w-md mx-auto">
         <ShieldAlert size={48} className="text-red-500" />
         <h2 className="font-heading text-card-title text-primary uppercase">Pass Not Found</h2>
-        <Link to="/admin/registrations" className="font-button text-button text-primary border border-primary px-6 py-3 hover:bg-primary hover:text-bg-base transition-colors uppercase">
+        <Link to="/supercore/registrations" className="font-button text-button text-primary border border-primary px-6 py-3 hover:bg-primary hover:text-bg-base transition-colors uppercase">
           Back to list
         </Link>
       </main>
@@ -316,7 +316,7 @@ export function AdminEditRegistrationPage() {
     <main className="flex flex-col gap-8 py-8 px-6 max-w-7xl mx-auto w-full">
       {/* Header */}
       <div className="border-b-2 border-primary pb-6 flex flex-col gap-4">
-        <Link to="/admin/registrations" className="inline-flex items-center gap-2 text-primary hover:opacity-75 uppercase font-heading text-small">
+        <Link to="/supercore/registrations" className="inline-flex items-center gap-2 text-primary hover:opacity-75 uppercase font-heading text-small">
           <ArrowLeft size={16} /> Back to Registrations
         </Link>
         <h1 className="font-hero text-[36px] md:text-[44px] leading-none uppercase tracking-widest text-primary mt-2">

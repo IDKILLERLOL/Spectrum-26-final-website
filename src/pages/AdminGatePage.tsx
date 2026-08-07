@@ -22,7 +22,7 @@ export function AdminGatePage() {
 
   // If already admin, skip gate
   useEffect(() => {
-    if (isAdmin) navigate('/admin/registrations', { replace: true });
+    if (isAdmin) navigate('/supercore/registrations', { replace: true });
   }, [isAdmin, navigate]);
 
   const [step, setStep] = useState<GateStep>('password');
@@ -99,7 +99,7 @@ export function AdminGatePage() {
     try {
       const result = await adminLoginWithGoogle();
       if (result.ok) {
-        navigate('/admin/registrations', { replace: true });
+        navigate('/supercore/registrations', { replace: true });
       } else {
         setError(result.error);
         if (result.error.includes('not an authorised admin')) setStep('password');

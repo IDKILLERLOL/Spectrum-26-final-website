@@ -5,14 +5,14 @@ import { useAuth } from '../lib/useAuth';
 import { getTheme, toggleTheme as triggerToggleTheme } from '../lib/theme';
 
 const NAV_ITEMS = [
-  { to: '/admin/registrations', label: 'Registrations', Icon: LayoutList },
-  { to: '/admin/accounts',      label: 'Accounts',       Icon: UserMinus },
-  { to: '/admin/events',        label: 'Events',         Icon: CalendarDays },
-  { to: '/admin/schedule',      label: 'Schedule',        Icon: CalendarClock },
-  { to: '/admin/winners',       label: 'Winners',        Icon: Trophy },
-  { to: '/admin/users',         label: 'Users',          Icon: Users },
-  { to: '/admin/global-details', label: 'Global Details', Icon: Settings },
-  { to: '/admin/audit-log',     label: 'Audit Log',      Icon: ScrollText },
+  { to: '/supercore/registrations', label: 'Registrations', Icon: LayoutList },
+  { to: '/supercore/accounts',      label: 'Accounts',       Icon: UserMinus },
+  { to: '/supercore/events',        label: 'Events',         Icon: CalendarDays },
+  { to: '/supercore/schedule',      label: 'Schedule',        Icon: CalendarClock },
+  { to: '/supercore/winners',       label: 'Winners',        Icon: Trophy },
+  { to: '/supercore/users',         label: 'Users',          Icon: Users },
+  { to: '/supercore/global-details', label: 'Global Details', Icon: Settings },
+  { to: '/supercore/audit-log',     label: 'Audit Log',      Icon: ScrollText },
 ];
 
 
@@ -31,7 +31,7 @@ export function Sidebar() {
 
   const handleLogout = async () => {
     await adminLogout();
-    navigate('/admin');
+    navigate('/supercore');
   };
 
   const handleReload = () => {

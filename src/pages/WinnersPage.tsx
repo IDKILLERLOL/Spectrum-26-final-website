@@ -24,7 +24,7 @@ function ContenderRoster({ contenders }: { contenders: CompetingTeam[] }) {
   return (
     <div className="flex flex-col gap-3">
       <h3
-        className="text-primary uppercase flex items-center gap-2 border-b border-border-subtle pb-2"
+        className="text-primary uppercase flex items-center gap-2 pb-2"
         style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '18px', fontWeight: 700, letterSpacing: '0.04em' }}
       >
         <Users size={14} /> ROSTER
@@ -251,7 +251,9 @@ export function WinnersPage() {
                   {/* 2nd Place (Silver) */}
                   <div className="flex flex-col items-center flex-1">
                     <div className="text-center mb-2 px-1 w-full truncate" style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '11px', fontWeight: 700 }}>
-                      <span className="text-primary">{resolveTeamName(second) ?? 'TBA'}</span>
+                      <span className={second ? "text-primary" : "text-gray-400"} style={{ color: second ? undefined : '#9ca3af' }}>
+                        {resolveTeamName(second) ?? 'TBA'}
+                      </span>
                     </div>
                     <div
                       className="w-full text-center flex flex-col justify-center items-center relative"
@@ -289,7 +291,9 @@ export function WinnersPage() {
                   {/* 3rd Place (Bronze) */}
                   <div className="flex flex-col items-center flex-1">
                     <div className="text-center mb-2 px-1 w-full truncate" style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '11px', fontWeight: 700 }}>
-                      <span className="text-primary">{resolveTeamName(third) ?? 'TBA'}</span>
+                      <span className={third ? "text-primary" : "text-amber-700"} style={{ color: third ? undefined : '#cd7f32' }}>
+                        {resolveTeamName(third) ?? 'TBA'}
+                      </span>
                     </div>
                     <div
                       className="w-full text-center flex flex-col justify-center items-center relative"
@@ -308,7 +312,7 @@ export function WinnersPage() {
               </div>
 
               {/* Right Column: Contender list */}
-              <div className="lg:col-span-3 flex flex-col justify-between border-t lg:border-t-0 lg:border-l border-border-subtle pt-6 lg:pt-0 lg:pl-6">
+              <div className="lg:col-span-3 flex flex-col justify-between pt-6 lg:pt-0 lg:pl-6">
                 <ContenderRoster contenders={contenders} />
               </div>
             </div>

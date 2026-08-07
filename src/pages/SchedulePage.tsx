@@ -211,22 +211,15 @@ export function SchedulePage() {
             margin: '0 auto',
           }}
         >
-          The timeline for {eventDetails.name}. All times are IST. Events may be subject to slight modifications.
+          The timeline for {eventDetails.name}. All times are IST.
         </p>
       </header>
 
       {loading ? (
-        <div className="flex flex-col gap-14">
-          {[1, 2].map((d) => (
-            <section key={d}>
-              <div className="skeleton h-10 w-48 mb-8" />
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {[1, 2, 3].map((i) => <ScheduleCardSkeleton key={i} />)}
-              </div>
-            </section>
-          ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {[1, 2, 3].map((i) => <ScheduleCardSkeleton key={i} />)}
         </div>
-      ) : days.length === 0 ? (
+      ) : slots.length === 0 ? (
         <div className="flex flex-col items-center gap-6 py-24 text-center">
           <div
             className="comic-badge"
@@ -245,67 +238,16 @@ export function SchedulePage() {
           </p>
         </div>
       ) : (
-        <div className="flex flex-col gap-10 animate-fade-in">
-          {/* Day selection pagination tabs */}
-          {days.length > 1 && (
-            <div className="flex flex-wrap justify-center gap-6 mb-8 border-b-2 border-primary/20 pb-8">
-              {days.map(([key, { day }], idx) => {
-                const isActive = idx === activeDayIndex;
-                return (
-                  <button
-                    key={key}
-                    onClick={() => {
-                      playSynthSound('click');
-                      setActiveDayIndex(idx);
-                    }}
-                    className={`comic-border-thick px-6 py-2 font-heading text-heading transition-all duration-100 ${
-                      isActive
-                        ? 'bg-primary text-bg-base -translate-y-1'
-                        : 'bg-transparent text-text-primary hover:bg-primary/10'
-                    }`}
-                    style={{
-                      fontFamily: 'Bangers, cursive',
-                      fontSize: '22px',
-                      letterSpacing: '0.06em',
-                      textTransform: 'uppercase',
-                      boxShadow: isActive ? '6px 6px 0px var(--border-color)' : '4px 4px 0px var(--border-color)',
-                      transform: isActive ? 'rotate(-1deg) translateY(-4px)' : 'none',
-                    }}
-                  >
-                    {day}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-
-          {currentDay && (() => {
-            const [key, { day, slots: daySlots }] = currentDay as [string, { day: string; date: string; slots: ScheduleSlot[] }];
-            return (
-              <section key={key}>
-                <div
-                  className="flex items-baseline gap-4 mb-8 pb-4"
-                  style={{ borderBottom: '4px solid var(--border-color)' }}
-                >
-                  <h2
-                    style={{
-                      fontFamily: 'Bangers, cursive',
-                      fontSize: 'clamp(28px, 4vw, 44px)',
-                      letterSpacing: '0.05em',
-                      textTransform: 'uppercase',
-                      color: 'var(--color-text-primary)',
-                      lineHeight: 1,
-                    }}
-                  >
-                    {day}
-                  </h2>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {daySlots.map((slot) => <ScheduleCard key={slot.id} slot={slot} />)}
-                </div>
-              </section>
-            );
-          })()}
+        <div className="animate-fade-in">
+          <div 
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-h-[650px] overflow-y-auto pr-3 py-2"
+            style={{
+              scrollbarWidth: 'thin',
+              scrollbarColor: 'var(--color-primary) rgba(255,255,255,0.05)'
+            }}
+          >
+            {slots.map((slot) => <ScheduleCard key={slot.id} slot={slot} />)}
+          </div>
         </div>
       )}
     </main>

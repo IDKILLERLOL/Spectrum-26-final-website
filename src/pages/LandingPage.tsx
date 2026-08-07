@@ -328,7 +328,7 @@ function ChooseFighter({ isMobile, walkFactor }: { isMobile: boolean; walkFactor
             <div
               style={{
                 position: isMobile ? 'relative' : 'absolute',
-                bottom: isMobile ? 'auto' : '242px',
+                bottom: isMobile ? 'auto' : '254px',
                 left: isMobile ? 'auto' : '50%',
                 transform: isMobile ? 'none' : 'translateX(-50%)',
                 width: '100%',

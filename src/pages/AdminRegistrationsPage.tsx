@@ -235,7 +235,7 @@ export function AdminRegistrationsPage() {
           <h1 className="font-hero text-[40px] leading-none uppercase tracking-widest text-primary">Registrations</h1>
           <div className="flex flex-wrap gap-4">
             <Link
-              to="/admin/registrations/new"
+              to="/supercore/registrations/new"
               className="flex items-center gap-2 font-button text-button uppercase bg-primary border border-primary px-5 py-3 hover:bg-transparent hover:text-primary transition-colors"
               style={{ color: '#ffffff' }}
             >
@@ -541,7 +541,7 @@ export function AdminRegistrationsPage() {
                       {/* Edit button — navigate to the event detail page */}
                       <div className="flex gap-4 self-end h-[96px] items-end ml-auto">
                         <Link
-                          to={`/admin/registrations/edit/${reg.id}`}
+                          to={`/supercore/registrations/edit/${reg.id}`}
                           className="font-button text-button uppercase border border-primary text-primary px-5 py-3 hover:bg-primary hover:text-bg-base transition-colors"
                         >
                           Edit Team →

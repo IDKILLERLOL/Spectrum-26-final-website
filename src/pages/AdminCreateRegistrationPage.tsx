@@ -182,7 +182,7 @@ export function AdminCreateRegistrationPage() {
 
       setSuccess('Registration created successfully! Redirecting...');
       setTimeout(() => {
-        navigate('/admin/registrations');
+        navigate('/supercore/registrations');
       }, 1500);
     } catch (err: any) {
       console.error('[AdminCreateRegistration] Creation error:', err);
@@ -214,7 +214,7 @@ export function AdminCreateRegistrationPage() {
       {/* Back button & Header */}
       <div className="flex flex-col gap-4 border-b-2 border-primary pb-6">
         <Link
-          to="/admin/registrations"
+          to="/supercore/registrations"
           className="flex items-center gap-2 font-button text-small text-text-secondary hover:text-primary transition-colors uppercase"
         >
           <ArrowLeft size={14} /> Back to registrations

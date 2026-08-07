@@ -16,7 +16,7 @@ export function RequireAdmin() {
   }
 
   if (!isAdmin) {
-    return <Navigate to="/admin" replace />;
+    return <Navigate to="/supercore" replace />;
   }
 
   return <Outlet />;

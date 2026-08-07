@@ -104,10 +104,10 @@ export default function App() {
             </Route>
 
             {/* Admin gate (standalone, no sidebar) */}
-            <Route path="/admin" element={<AdminGatePage />} />
+            <Route path="/supercore" element={<AdminGatePage />} />
 
             {/* Admin dashboard routes — require admin session */}
-            <Route path="/admin" element={<RequireAdmin />}>
+            <Route path="/supercore" element={<RequireAdmin />}>
               <Route element={<AdminLayout />}>
                 <Route path="registrations" element={<AdminRegistrationsPage />} />
                 <Route path="registrations/new" element={<AdminCreateRegistrationPage />} />
