@@ -196,16 +196,10 @@ export function Navbar() {
           transform: isSidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
         }}
       >
-        <div className="flex justify-between items-center border-b border-border-default pb-4">
+        <div className="flex justify-between items-center pb-4">
           <span style={{ fontFamily: 'Bangers, cursive', fontSize: '24px', letterSpacing: '0.05em', color: 'var(--color-text-primary)' }}>
             NAVIGATION
           </span>
-          <button
-            onClick={() => setIsSidebarOpen(false)}
-            className="text-text-secondary hover:text-primary transition-colors p-1"
-          >
-            <X size={20} />
-          </button>
         </div>
 
         <div className="flex flex-col gap-6 align-left text-left">
