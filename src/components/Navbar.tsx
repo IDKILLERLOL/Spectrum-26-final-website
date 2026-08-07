@@ -119,7 +119,7 @@ export function Navbar() {
           <Link
             to="/"
             onClick={() => playSynthSound('click')}
-            style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }}
+            className="hidden sm:inline-flex items-center text-decoration-none"
           >
             <img
               src="/new_logo.png"
@@ -281,24 +281,15 @@ export function Navbar() {
       />
 
       <aside
-        className="fixed inset-y-0 left-0 z-50 w-[280px] border-r-4 p-8 flex flex-col gap-8 transition-transform duration-300 ease-in-out md:hidden mobile-red-drawer"
+        className="fixed inset-y-0 left-0 z-50 w-[280px] border-r-4 p-8 flex flex-col gap-8 transition-transform duration-300 ease-in-out md:hidden backdrop-blur-md"
         style={{
-          background: '#ff3333',
-          borderColor: '#000000',
-          color: '#ffffff',
+          background: 'rgba(14, 22, 38, 0.95)',
+          borderColor: 'var(--border-color)',
+          color: 'var(--color-text-primary)',
+          backdropFilter: 'blur(16px)',
           transform: isSidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
         }}
       >
-        <style dangerouslySetInnerHTML={{ __html: `
-          .mobile-red-drawer a,
-          .mobile-red-drawer span,
-          .mobile-red-drawer button {
-            color: #ffffff !important;
-          }
-          .mobile-red-drawer svg {
-            stroke: #ffffff !important;
-          }
-        ` }} />
         <div className="flex justify-between items-center border-b border-border-default pb-4">
           <span style={{ fontFamily: 'Bangers, cursive', fontSize: '24px', letterSpacing: '0.05em', color: 'var(--color-text-primary)' }}>
             NAVIGATION

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Loader2, ArrowRight, Plus, Trash2 } from 'lucide-react';
+import { Loader2, ArrowRight, Plus, Trash2, ArrowLeft } from 'lucide-react';
+import { playSynthSound } from '../lib/audio';
 import { useAuth } from '../lib/useAuth';
 import { getEvent, createRegistration, getUser, updateUser, hasExistingRegistration, db, getEventDetails } from '../lib/firestore';
 import { collection, getDocs, query, where, getCountFromServer, doc, setDoc, serverTimestamp } from 'firebase/firestore';
@@ -26,16 +27,6 @@ const EVENT_SPRITE_MAP: Record<string, {
 };
 
 
-function hashPassword(password: string, email: string): string {
-  const str = `${email}::${password}`;
-  let hash = 5381;
-  for (let i = 0; i < str.length; i++) {
-    hash = (hash << 5) + hash + str.charCodeAt(i);
-    hash = hash & hash; // 32-bit
-  }
-  return (hash >>> 0).toString(16);
-}
-
 export function RegisterPage() {
   const { eventId } = useParams<{ eventId: string }>();
   const navigate = useNavigate();
@@ -49,7 +40,6 @@ export function RegisterPage() {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [college, setCollege] = useState('');
-  const [password, setPassword] = useState('');
   const [teamName, setTeamName] = useState('');
 
   // Payment states
@@ -190,11 +180,6 @@ export function RegisterPage() {
       return;
     }
 
-    if (!user && !password.trim()) {
-      setError('Please create a password for your account.');
-      return;
-    }
-
     // Validate team members if team event
     if (event.isTeamEvent) {
       if (!teamName.trim()) {
@@ -286,17 +271,15 @@ export function RegisterPage() {
 
       const leaderUid = user ? user.uid : `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-      // If they are not logged in (guest), create their user document with the password hash!
+      // If they are not logged in (guest), create their user document
       if (!user) {
         const userRef = doc(db, 'users', leaderUid);
-        const passHash = hashPassword(password.trim(), email.trim().toLowerCase());
         await setDoc(userRef, {
           email: email.trim().toLowerCase(),
           name: name.trim(),
           phone: phone.trim(),
           college: college.trim(),
-          authMethod: 'otp', // So they login via email/password in LoginPage
-          passwordHash: passHash,
+          authMethod: 'guest',
           createdAt: serverTimestamp()
         });
       }
@@ -373,7 +356,19 @@ export function RegisterPage() {
       className="w-full min-h-screen flex flex-col items-center justify-center px-6 py-16"
       style={{ background: 'var(--color-bg-base)' }}
     >
-      <div className="w-full max-w-2xl flex flex-col gap-10">
+      <div className="w-full max-w-2xl flex flex-col gap-8">
+        {/* Back button */}
+        <button
+          onClick={() => {
+            playSynthSound('click');
+            navigate(-1);
+          }}
+          className="inline-flex items-center gap-2 text-primary hover:opacity-75 transition-opacity font-heading text-heading uppercase w-fit bg-transparent border-none cursor-pointer p-0"
+          style={{ textDecoration: 'none' }}
+        >
+          <ArrowLeft size={20} /> Back
+        </button>
+
         <div className="flex flex-col gap-3" style={{ position: 'relative' }}>
           {/* Character sprite — top-right corner of header (decorative) */}
           {spriteData && (
@@ -518,22 +513,6 @@ export function RegisterPage() {
                     className="bg-transparent border-b-2 border-border-strong text-primary font-body text-body py-2 focus:outline-none focus:border-primary transition-all"
                   />
                 </div>
-
-                {!user && (
-                  <div className="flex flex-col gap-2">
-                    <label className="text-micro font-body uppercase tracking-widest" style={{ color: 'var(--color-text-muted)' }}>
-                      Create Account Password *
-                    </label>
-                    <input
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Min 6 characters recommended"
-                      required
-                      className="bg-transparent border-b-2 border-border-strong text-primary font-body text-body py-2 focus:outline-none focus:border-primary transition-all"
-                    />
-                  </div>
-                )}
               </div>
             </div>
 
@@ -682,6 +661,28 @@ export function RegisterPage() {
                 )}
               </div>
             )}
+
+            {/* Payment UPI & QR Code Section */}
+            <div className="flex flex-col gap-4 p-6 border-2 border-primary bg-bg-elevated/80 text-center items-center rounded-sm">
+              <span className="font-heading text-card-title text-primary uppercase tracking-wide">
+                Payment Instructions (Scan &amp; Pay)
+              </span>
+              <p className="font-body text-small text-text-secondary max-w-md leading-relaxed">
+                Scan the official UPI QR code below using any UPI app (GPay, PhonePe, Paytm) to pay the registration fee of <strong className="text-primary font-bold">₹{event.price}</strong>.
+              </p>
+
+              <div className="p-3 bg-white border-2 border-primary shadow-lg rounded-sm inline-block my-1">
+                <img
+                  src="/payment-qr.jpg"
+                  alt="Payment UPI QR Code"
+                  className="w-56 h-auto object-contain mx-auto"
+                />
+              </div>
+
+              <span className="font-micro text-micro tracking-widest text-text-muted">
+                UPI ID: <span className="text-primary font-mono font-bold select-all lowercase">9021095204@postbank</span>
+              </span>
+            </div>
 
             {error && (
               <div

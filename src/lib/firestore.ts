@@ -1466,6 +1466,22 @@ export async function getScheduleSlots(): Promise<ScheduleSlot[]> {
     }
   }
 
+  // Deduplicate slots by day, displayTime, location, and title
+  const seenKeys = new Set<string>();
+  const uniqueSlots: ScheduleSlot[] = [];
+  for (const slot of slots) {
+    const key = `${slot.day}__${slot.displayTime}__${slot.location}__${slot.title}`.toLowerCase();
+    if (!seenKeys.has(key)) {
+      seenKeys.add(key);
+      uniqueSlots.push(slot);
+    } else {
+      try {
+        deleteDoc(doc(db, 'schedule', slot.id)).catch(() => {});
+      } catch (e) {}
+    }
+  }
+  slots = uniqueSlots;
+
   slots.sort((a, b) => {
     if (a.day !== b.day) {
       return a.day.localeCompare(b.day);
@@ -1731,6 +1747,11 @@ export async function getEventDetails(): Promise<EventDetails> {
   const snap = await getDoc(ref);
   if (snap.exists()) {
     const data = snap.data();
+    const rawEmail = data.helplineEmail || 'spectrumsbmp@gmail.com';
+    const cleanEmail = rawEmail === 'spectrum.sbmp@gmail.com' ? 'spectrumsbmp@gmail.com' : rawEmail;
+    if (data.helplineEmail === 'spectrum.sbmp@gmail.com') {
+      setDoc(ref, { ...data, helplineEmail: 'spectrumsbmp@gmail.com' }, { merge: true }).catch(() => {});
+    }
     return {
       name: data.name || 'SPECTRUM 26',
       location: data.location || 'College Campus',
@@ -1738,7 +1759,7 @@ export async function getEventDetails(): Promise<EventDetails> {
       countdownTarget: data.countdownTarget || '2026-09-30T09:00:00',
       helplinePhone: data.helplinePhone || '+91 86574 78886',
       helplinePhones: data.helplinePhones || ['+91 86574 78886', '+91 90046 20948', '+91 90210 95204'],
-      helplineEmail: data.helplineEmail || 'spectrum.sbmp@gmail.com',
+      helplineEmail: cleanEmail,
     };
   }
   return {
@@ -1748,7 +1769,7 @@ export async function getEventDetails(): Promise<EventDetails> {
     countdownTarget: '2026-09-30T09:00:00',
     helplinePhone: '+91 86574 78886',
     helplinePhones: ['+91 86574 78886', '+91 90046 20948', '+91 90210 95204'],
-    helplineEmail: 'spectrum.sbmp@gmail.com',
+    helplineEmail: 'spectrumsbmp@gmail.com',
   };
 }
 
@@ -1772,11 +1793,15 @@ export async function getPaymentDetails(): Promise<{ upiId: string; qrCodeUrl: s
   const ref = doc(db, 'systemConfig', 'paymentDetails');
   const snap = await getDoc(ref);
   if (snap.exists()) {
-    return snap.data() as { upiId: string; qrCodeUrl: string };
+    const data = snap.data() as { upiId: string; qrCodeUrl: string };
+    return {
+      upiId: data.upiId || '9021095204@postbank',
+      qrCodeUrl: data.qrCodeUrl || '/payment-qr.jpg',
+    };
   }
   return {
-    upiId: 'spectrum26@upi',
-    qrCodeUrl: '',
+    upiId: '9021095204@postbank',
+    qrCodeUrl: '/payment-qr.jpg',
   };
 }
 

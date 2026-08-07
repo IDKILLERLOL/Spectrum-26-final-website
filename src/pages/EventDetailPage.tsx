@@ -49,7 +49,7 @@ export function EventDetailPage() {
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [payDetails, setPayDetails] = useState({ upiId: UPI_ID, qrCodeUrl: '' });
-  const [supportEmail, setSupportEmail] = useState('spectrum.sbmp@gmail.com');
+  const [supportEmail, setSupportEmail] = useState('spectrumsbmp@gmail.com');
 
   // Input states declared at top to follow Rules of Hooks
   const [upiRef, setUpiRef] = useState('');
@@ -302,7 +302,15 @@ export function EventDetailPage() {
 
   // ─── Submit UPI ref ─────────────────────────────────────────────────────────
   const handleSubmitUpiRef = async () => {
-    if (!upiRef.trim() || !registration) return;
+    if (!registration) return;
+    if (!upiRef.trim()) {
+      setError('Transaction ID / Ref is mandatory.');
+      return;
+    }
+    if (!screenshotBase64 && !registration.paymentScreenshotUrl) {
+      setError('Payment screenshot upload is mandatory.');
+      return;
+    }
     setSaving(true);
     try {
       await submitUpiRef(registration.id, upiRef.trim(), actorEmail, screenshotBase64);
@@ -780,7 +788,7 @@ export function EventDetailPage() {
               <div className="flex flex-col gap-2">
                 <label className="font-micro text-micro text-text-muted uppercase tracking-widest">Pay via UPI</label>
                 <div className="border-2 border-primary p-4 flex justify-between items-center font-heading text-heading text-primary">
-                  <span className="tracking-wide">{payDetails.upiId}</span>
+                  <span className="tracking-wide lowercase">{payDetails.upiId}</span>
                   <button onClick={handleCopyUpi} className="text-primary hover:opacity-70 transition-opacity" title="Copy UPI ID">
                     {copied ? <CheckCircle2 size={20} /> : <Copy size={20} />}
                   </button>

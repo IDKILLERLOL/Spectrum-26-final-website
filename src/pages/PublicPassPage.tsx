@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { Eye, EyeOff, Loader2, CheckCircle2, Lock, ShieldAlert, Upload, Image as ImageIcon, X, Send } from 'lucide-react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { Eye, EyeOff, Loader2, CheckCircle2, Lock, ShieldAlert, Upload, Image as ImageIcon, X, Send, ArrowLeft } from 'lucide-react';
+import { playSynthSound } from '../lib/audio';
 import { getRegistration, getEvent, getActiveTeamMembers, submitUpiRef } from '../lib/firestore';
 import type { Registration, Event, TeamMember } from '../types';
 import { categoryLabel } from '../types';
 
 export function PublicPassPage() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [registration, setRegistration] = useState<Registration | null>(null);
   const [event, setEvent] = useState<Event | null>(null);
   const [members, setMembers] = useState<TeamMember[]>([]);
@@ -66,8 +68,12 @@ export function PublicPassPage() {
   const handleSubmitProof = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!registration) return;
-    if (!txId.trim() && !proofImage) {
-      alert('Please enter a Transaction ID or upload a screenshot.');
+    if (!txId.trim()) {
+      alert('Both fields are mandatory. Please enter your Transaction ID / UTR.');
+      return;
+    }
+    if (!proofImage) {
+      alert('Both fields are mandatory. Please upload your payment screenshot.');
       return;
     }
 
@@ -116,7 +122,20 @@ export function PublicPassPage() {
   const paid = registration.feeStatus === 'PAID';
 
   return (
-    <main className="w-full min-h-screen flex items-center justify-center bg-bg-base px-6 py-12">
+    <main className="w-full min-h-screen flex flex-col items-center justify-center bg-bg-base px-6 py-12 gap-6">
+      <div className="w-full max-w-lg">
+        <button
+          onClick={() => {
+            playSynthSound('click');
+            navigate(-1);
+          }}
+          className="inline-flex items-center gap-2 text-primary hover:opacity-75 transition-opacity font-heading text-heading uppercase w-fit bg-transparent border-none cursor-pointer p-0"
+          style={{ textDecoration: 'none' }}
+        >
+          <ArrowLeft size={20} /> Back
+        </button>
+      </div>
+
       <div className="w-full max-w-lg border border-border-default bg-bg-card flex flex-col shadow-2xl relative overflow-hidden">
         {/* Decorative corner tag */}
         <div className={`absolute top-0 right-0 px-6 py-2 font-micro text-micro uppercase tracking-widest text-bg-base font-bold ${paid ? 'bg-primary' : 'bg-red-500'}`}>
@@ -197,13 +216,14 @@ export function PublicPassPage() {
                 {/* Transaction ID Input */}
                 <div className="flex flex-col gap-1">
                   <label className="font-micro text-micro uppercase tracking-wider text-text-muted">
-                    Transaction ID / Ref (UTR)
+                    Transaction ID / Ref (UTR) *
                   </label>
                   <input
                     type="text"
                     value={txId}
                     onChange={(e) => setTxId(e.target.value)}
                     placeholder="e.g. 329182391024 or UPI/123456"
+                    required
                     className="w-full bg-bg-base border border-border-default px-3 py-2 text-body font-mono text-primary focus:outline-none focus:border-primary"
                   />
                 </div>
@@ -211,7 +231,7 @@ export function PublicPassPage() {
                 {/* Screenshot Uploader */}
                 <div className="flex flex-col gap-2">
                   <label className="font-micro text-micro uppercase tracking-wider text-text-muted">
-                    Payment Screenshot
+                    Payment Screenshot *
                   </label>
                   {proofImage ? (
                     <div className="relative border border-primary p-2 bg-bg-base flex flex-col items-center gap-2">

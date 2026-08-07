@@ -43,12 +43,12 @@ export function AdminSchedulePage() {
     date: 'September 30, 2026',
     countdownTarget: '2026-09-30T09:00:00',
     helplinePhone: '+91 98765 43210',
-    helplineEmail: 'spectrum.sbmp@gmail.com',
+    helplineEmail: 'spectrumsbmp@gmail.com',
   });
   const [savingDetails, setSavingDetails] = useState(false);
 
   const [paymentDetails, setPaymentDetails] = useState({
-    upiId: 'spectrum26@upi',
+    upiId: '9021095204@postbank',
     qrCodeUrl: '',
   });
   const [savingPayments, setSavingPayments] = useState(false);

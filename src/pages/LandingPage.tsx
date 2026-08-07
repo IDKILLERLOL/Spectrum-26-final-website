@@ -29,7 +29,7 @@ const EVENT_CHARACTER_MAP: Record<string, {
     character: 'max',
     panelNumber: '01',
     format: 'Duo Partners',
-    subEvents: ['Codopoly', 'Swap Challenge', 'Snakes & Ladders'],
+    subEvents: ['Swap Challenge', 'Codopoly', 'Snakes & Ladders'],
   },
   'tech-solo-1': {
     character: 'eleven',
@@ -143,8 +143,8 @@ export function LandingPage() {
               transform: `translateY(${-scrollY * 0.8}px)`,
               opacity: scrollY > 150 ? Math.max(0, 1 - (scrollY - 150) / 250) : 1,
               transition: 'transform 0.05s ease-out, opacity 0.1s ease-out',
-              zIndex: 5,
-              pointerEvents: 'none',
+              zIndex: 30,
+              pointerEvents: scrollY > 200 ? 'none' : 'auto',
             }}
           >
             <Hero />
@@ -618,32 +618,39 @@ function Countdown() {
           </div>
         ))}
       </div>
-      <button
-        onClick={() => {
-          playSynthSound('laser');
-          startCurl('forward', '/events');
+      <Link
+        to="/events"
+        onClick={(e) => {
+          e.stopPropagation();
+          try { playSynthSound('laser'); } catch {}
+          try { startCurl('forward', '/events'); } catch {}
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
+        className="inline-flex items-center gap-2 cursor-pointer relative z-50 pointer-events-auto"
         style={{
-          background: 'transparent',
+          background: 'var(--color-primary)',
           color: '#ffffff',
           fontFamily: 'Bangers, cursive',
-          fontSize: '24px',
+          fontSize: '22px',
+          padding: '8px 24px',
           letterSpacing: '0.08em',
           textDecoration: 'none',
-          border: 'none',
-          boxShadow: 'none',
-          transition: 'color 0.15s ease',
+          border: '2px solid #ffffff',
+          boxShadow: '0 0 12px rgba(255, 51, 51, 0.5)',
+          transition: 'all 0.15s ease',
           cursor: 'pointer',
+          marginTop: '8px',
+          pointerEvents: 'auto',
         }}
         onMouseEnter={(e) => {
-          (e.currentTarget as HTMLButtonElement).style.color = 'var(--color-primary)';
+          (e.currentTarget as HTMLAnchorElement).style.transform = 'scale(1.05)';
         }}
         onMouseLeave={(e) => {
-          (e.currentTarget as HTMLButtonElement).style.color = '#ffffff';
+          (e.currentTarget as HTMLAnchorElement).style.transform = 'scale(1)';
         }}
       >
-        › VIEW EVENTS
-      </button>
+        VIEW ALL EVENTS →
+      </Link>
     </div>
   );
 }

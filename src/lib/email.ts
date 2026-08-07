@@ -8,11 +8,11 @@ import { clearSystemGmailToken } from './firestore';
 import { SENDER_EMAIL, FEST_NAME } from '../config';
 
 /** Core send function — uses the Gmail API with the cached OAuth token. */
-export async function sendEmail(to: string, subject: string, htmlBody: string): Promise<void> {
+export async function sendEmail(to: string, subject: string, htmlBody: string): Promise<boolean> {
   const token = await getAccessToken();
   if (!token) {
     console.warn('[email] No OAuth token available — email not sent to:', to);
-    return;
+    return false;
   }
 
   const message = [
@@ -47,9 +47,12 @@ export async function sendEmail(to: string, subject: string, htmlBody: string): 
         setCachedGmailToken(null);
         await clearSystemGmailToken();
       }
+      return false;
     }
+    return true;
   } catch (err) {
     console.warn('[email] Failed to fetch or send via Gmail API:', err);
+    return false;
   }
 }
 
@@ -122,12 +125,18 @@ export async function notifyFeeStatusPaid(
   recipients: string[],
   eventName: string,
   registrationId: string
-): Promise<void> {
+): Promise<{ success: boolean; dispatchedCount: number; reason?: string }> {
+  const token = await getAccessToken();
+  if (!token) {
+    return { success: false, dispatchedCount: 0, reason: 'NO_GMAIL_TOKEN' };
+  }
+
   const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5173';
   const isLocal = origin.includes('localhost') || origin.includes('127.0.0.1');
   const qrData = isLocal ? registrationId : `${origin}/pass/${registrationId}`;
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrData)}`;
-  await Promise.allSettled(
+
+  const results = await Promise.allSettled(
     recipients.map((to) =>
       sendEmail(
         to,
@@ -139,6 +148,12 @@ export async function notifyFeeStatusPaid(
       )
     )
   );
+
+  const successfulSends = results.filter(r => r.status === 'fulfilled' && r.value === true).length;
+  if (successfulSends === 0) {
+    return { success: false, dispatchedCount: 0, reason: 'GMAIL_API_FAILED' };
+  }
+  return { success: true, dispatchedCount: successfulSends };
 }
 
 /** Old + new email change notices. */

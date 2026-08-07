@@ -10,7 +10,8 @@ export function ContactPage() {
     import('../lib/firestore').then(m => m.getEventDetails()).then(setDetails).catch(console.error);
   }, []);
 
-  const email = details?.helplineEmail || 'spectrum.sbmp@gmail.com';
+  const rawEmail = details?.helplineEmail || 'spectrumsbmp@gmail.com';
+  const email = rawEmail === 'spectrum.sbmp@gmail.com' ? 'spectrumsbmp@gmail.com' : rawEmail;
   const phone = details?.helplinePhone || '+91 98765 43210';
   const locationText = details?.location || "SVKM's Shri Bhagubhai Mafatlal Polytechnic\nIrla, Vile Parle West, Mumbai, Maharashtra 400056";
 
@@ -80,16 +81,19 @@ export function ContactPage() {
                   {(details?.helplinePhones && details.helplinePhones.length > 0
                     ? details.helplinePhones
                     : ['+91 86574 78886', '+91 90046 20948', '+91 90210 95204']
-                  ).map((pNum: string) => (
-                    <a
-                      key={pNum}
-                      href={`tel:${pNum.replace(/\s+/g, '')}`}
-                      className="text-primary hover:opacity-75 transition-opacity"
-                      style={{ textDecoration: 'underline' }}
-                    >
-                      {pNum}
-                    </a>
-                  ))}
+                  ).map((pNum: string) => {
+                    const cleanPhone = pNum.replace(/[^\d+]/g, '');
+                    return (
+                      <a
+                        key={pNum}
+                        href={`tel:${cleanPhone}`}
+                        className="text-primary hover:opacity-75 transition-opacity"
+                        style={{ textDecoration: 'underline' }}
+                      >
+                        {pNum}
+                      </a>
+                    );
+                  })}
                 </div>
               </li>
               <li>

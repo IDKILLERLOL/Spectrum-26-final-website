@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Download, Search, ChevronDown, ChevronUp, Loader2, CheckCircle2, Clock, QrCode, Plus, Eye, EyeOff, Lock, RefreshCw } from 'lucide-react';
 import { useAuth } from '../lib/useAuth';
+import { getAccessToken, adminGoogleSignIn } from '../lib/auth';
 import {
   getAllRegistrations, getEvent, getActiveTeamMembers,
   updateFeeStatus, toggleCheckedIn, deleteRegistration, getEvents,
@@ -109,6 +110,23 @@ export function AdminRegistrationsPage() {
     return () => window.removeEventListener('spectrum26_reload_data', handleGlobalReload);
   }, [reload]);
 
+  const [hasGmailToken, setHasGmailToken] = useState(false);
+
+  useEffect(() => {
+    getAccessToken().then((t) => setHasGmailToken(!!t));
+  }, []);
+
+  const handleAuthorizeGmail = async () => {
+    try {
+      await adminGoogleSignIn();
+      setHasGmailToken(true);
+      alert('Gmail Authorized successfully! Confirmation email passes will now be dispatched automatically when payments are marked as PAID.');
+    } catch (err) {
+      console.error('Gmail Authorization error:', err);
+      alert('Google Sign-In failed or popup was closed. Please try again to enable email dispatch.');
+    }
+  };
+
   const handleToggleFee = async (row: RowView, e: React.MouseEvent) => {
     e.stopPropagation();
     const newStatus = row.reg.feeStatus === 'PAID' ? 'PENDING' : 'PAID';
@@ -117,7 +135,14 @@ export function AdminRegistrationsPage() {
       await updateFeeStatus(row.reg.id, newStatus, row.reg.upiTransactionRef, adminEmail ?? '');
       if (newStatus === 'PAID') {
         const emails = row.members.map((m) => m.email);
-        await notifyFeeStatusPaid(emails, row.event?.name ?? '', row.reg.id);
+        const emailResult = await notifyFeeStatusPaid(emails, row.event?.name ?? '', row.reg.id);
+        if (emailResult && !emailResult.success) {
+          if (emailResult.reason === 'NO_GMAIL_TOKEN') {
+            alert('Fee marked as PAID! Note: Gmail authorization is needed to dispatch entry pass emails. Click "Authorize Gmail for Emails" at the top of Admin Registrations to send emails.');
+          } else {
+            alert('Fee marked as PAID! Note: Gmail API dispatch encountered an error.');
+          }
+        }
       }
       await reload();
     } finally { setSaving(null); }
@@ -217,6 +242,17 @@ export function AdminRegistrationsPage() {
               <Plus size={14} /> Add Registration
             </Link>
             <button
+              onClick={handleAuthorizeGmail}
+              className={`flex items-center gap-2 font-button text-button uppercase border px-5 py-3 transition-colors ${
+                hasGmailToken
+                  ? 'border-green-500/50 text-green-400 hover:bg-green-500/10'
+                  : 'border-amber-500 text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 animate-pulse'
+              }`}
+              title="Click to authorize Google Gmail for sending payment confirmation email passes to participants"
+            >
+              <CheckCircle2 size={14} /> {hasGmailToken ? 'Gmail Authorized' : 'Authorize Gmail for Emails'}
+            </button>
+            <button
               onClick={handleExport}
               className="flex items-center gap-2 font-button text-button uppercase border border-primary text-primary px-5 py-3 hover:bg-primary hover:text-bg-base transition-colors"
             >
@@ -237,27 +273,27 @@ export function AdminRegistrationsPage() {
             {syncStatus}
           </div>
         )}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-          <div className="flex flex-col gap-1.5">
-            <label className="font-micro text-micro text-text-muted uppercase">Search</label>
-            <div className="flex items-center gap-3 border border-slate-800 px-4 py-2 bg-bg-card">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 items-end">
+          <div className="flex flex-col gap-1.5 min-w-0">
+            <label className="font-micro text-micro text-text-muted uppercase tracking-wider">Search</label>
+            <div className="flex items-center gap-2.5 border border-border-default px-3 bg-bg-card h-[42px] w-full min-w-0 focus-within:border-primary">
               <Search size={16} className="text-text-muted shrink-0" />
               <input
                 type="text"
                 placeholder="Search name, email, event..."
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
-                className="bg-transparent text-primary font-body text-body focus:outline-none flex-1 placeholder:text-text-muted text-small"
+                className="bg-transparent text-primary font-body text-small focus:outline-none flex-1 min-w-0 w-full placeholder:text-text-muted"
               />
             </div>
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label className="font-micro text-micro text-text-muted uppercase">Filter by Event</label>
+          <div className="flex flex-col gap-1.5 min-w-0">
+            <label className="font-micro text-micro text-text-muted uppercase tracking-wider">Filter by Event</label>
             <select
               value={selectedEventId}
               onChange={(e) => setSelectedEventId(e.target.value)}
-              className="bg-bg-card border border-border-default px-4 py-2 text-primary font-body text-small focus:outline-none focus:border-primary"
+              className="bg-bg-card border border-border-default px-3 h-[42px] text-primary font-body text-small focus:outline-none focus:border-primary w-full min-w-0 truncate"
             >
               <option value="all">All Events</option>
               {Array.from(new Map(rows.map(r => [r.event?.id, r.event])).values())
@@ -268,12 +304,12 @@ export function AdminRegistrationsPage() {
             </select>
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label className="font-micro text-micro text-text-muted uppercase">Payment Status</label>
+          <div className="flex flex-col gap-1.5 min-w-0">
+            <label className="font-micro text-micro text-text-muted uppercase tracking-wider">Payment Status</label>
             <select
               value={selectedPaymentStatus}
               onChange={(e) => setSelectedPaymentStatus(e.target.value)}
-              className="bg-bg-card border border-border-default px-4 py-2 text-primary font-body text-small focus:outline-none focus:border-primary"
+              className="bg-bg-card border border-border-default px-3 h-[42px] text-primary font-body text-small focus:outline-none focus:border-primary w-full min-w-0"
             >
               <option value="all">All Statuses</option>
               <option value="PAID">PAID</option>
@@ -281,12 +317,12 @@ export function AdminRegistrationsPage() {
             </select>
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label className="font-micro text-micro text-text-muted uppercase">Check-In Status</label>
+          <div className="flex flex-col gap-1.5 min-w-0">
+            <label className="font-micro text-micro text-text-muted uppercase tracking-wider">Check-In Status</label>
             <select
               value={selectedCheckInStatus}
               onChange={(e) => setSelectedCheckInStatus(e.target.value)}
-              className="bg-bg-card border border-border-default px-4 py-2 text-primary font-body text-small focus:outline-none focus:border-primary"
+              className="bg-bg-card border border-border-default px-3 h-[42px] text-primary font-body text-small focus:outline-none focus:border-primary w-full min-w-0"
             >
               <option value="all">All Statuses</option>
               <option value="checked-in">Checked In</option>
@@ -294,12 +330,12 @@ export function AdminRegistrationsPage() {
             </select>
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label className="font-micro text-micro text-text-muted uppercase">Sort By</label>
+          <div className="flex flex-col gap-1.5 min-w-0">
+            <label className="font-micro text-micro text-text-muted uppercase tracking-wider">Sort By</label>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="bg-bg-card border border-border-default px-4 py-2 text-primary font-body text-small focus:outline-none focus:border-primary"
+              className="bg-bg-card border border-border-default px-3 h-[42px] text-primary font-body text-small focus:outline-none focus:border-primary w-full min-w-0"
             >
               <option value="date-desc">Date (Newest First)</option>
               <option value="date-asc">Date (Oldest First)</option>
