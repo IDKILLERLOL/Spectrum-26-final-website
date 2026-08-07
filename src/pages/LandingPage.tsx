@@ -283,20 +283,20 @@ function ChooseFighter({ isMobile, walkFactor }: { isMobile: boolean; walkFactor
   return (
     <div
       style={{
-        display: 'flex',
-        flexDirection: isMobile ? 'column' : 'row',
-        justifyContent: isMobile ? 'flex-start' : 'space-around',
-        alignItems: isMobile ? 'center' : 'flex-end',
-        flexWrap: isMobile ? 'nowrap' : 'wrap',
-        gap: isMobile ? '80px' : '16px',
+        display: isMobile ? 'grid' : 'flex',
+        gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'none',
+        flexDirection: isMobile ? undefined : 'row',
+        justifyContent: 'space-around',
+        alignItems: isMobile ? 'start' : 'flex-end',
+        gap: isMobile ? '20px 12px' : '16px',
         maxWidth: '1100px',
         margin: 'auto auto 0 auto',
         width: '92%',
         zIndex: 10,
         position: 'relative',
         minHeight: '480px',
-        paddingTop: isMobile ? '60px' : '260px',
-        paddingBottom: isMobile ? '80px' : '0px',
+        paddingTop: isMobile ? '40px' : '260px',
+        paddingBottom: isMobile ? '60px' : '0px',
         opacity: isMobile ? 1 : walkFactor,
         transition: 'opacity 0.2s ease-out',
       }}
@@ -317,11 +317,11 @@ function ChooseFighter({ isMobile, walkFactor }: { isMobile: boolean; walkFactor
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              width: isMobile ? '100%' : '23%',
-              minWidth: isMobile ? '280px' : '200px',
+              width: '100%',
+              minWidth: isMobile ? 'auto' : '200px',
               cursor: 'pointer',
               transition: 'transform 0.15s ease-out, opacity 0.2s ease-out',
-              transform: isColumnActive ? 'scale(1.05) translateY(-4px)' : 'scale(0.95)',
+              transform: isColumnActive ? 'scale(1.02) translateY(-2px)' : 'scale(0.95)',
             }}
           >
             {/* 1. Details Box above head - anchored at bottom to expand upwards (positioned relatively in flow on mobile) */}
@@ -331,14 +331,15 @@ function ChooseFighter({ isMobile, walkFactor }: { isMobile: boolean; walkFactor
                 bottom: isMobile ? 'auto' : '242px',
                 left: isMobile ? 'auto' : '50%',
                 transform: isMobile ? 'none' : 'translateX(-50%)',
-                width: '240px',
-                height: isColumnActive ? '270px' : '95px',
+                width: '100%',
+                maxWidth: '240px',
+                height: isMobile ? '210px' : (isColumnActive ? '270px' : '95px'),
                 background: 'linear-gradient(to bottom, rgba(10, 15, 30, 0.92) 0%, rgba(10, 15, 30, 0.3) 100%)',
                 backdropFilter: 'blur(8px)',
                 WebkitBackdropFilter: 'blur(8px)',
                 border: isColumnActive ? '1.5px solid rgba(255, 51, 51, 0.5)' : '1px solid rgba(255, 255, 255, 0.15)',
                 boxShadow: isColumnActive ? '0 0 15px rgba(255, 51, 51, 0.3)' : 'none',
-                padding: isColumnActive ? '14px 16px' : '10px 12px',
+                padding: isMobile ? '8px 10px' : (isColumnActive ? '14px 16px' : '10px 12px'),
                 fontFamily: 'Space Grotesk, sans-serif',
                 transition: 'all 0.25s cubic-bezier(0.19, 1, 0.22, 1)',
                 display: 'flex',
@@ -346,37 +347,37 @@ function ChooseFighter({ isMobile, walkFactor }: { isMobile: boolean; walkFactor
                 justifyContent: 'space-between',
                 overflow: 'hidden',
                 zIndex: isColumnActive ? 50 : 10,
-                marginBottom: isMobile ? '20px' : '0px',
+                marginBottom: isMobile ? '12px' : '0px',
               }}
             >
               {isColumnActive ? (
                 /* Expanded Detail Mode */
                 <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between', textAlign: 'left' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? 3 : 6 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                      <span style={{ fontFamily: 'Bangers, cursive', fontSize: '22px', color: 'var(--color-primary)', letterSpacing: '0.04em' }}>
+                      <span style={{ fontFamily: 'Bangers, cursive', fontSize: isMobile ? '16px' : '22px', color: 'var(--color-primary)', letterSpacing: '0.04em' }}>
                         {f.name}
                       </span>
-                      <span style={{ fontSize: '11px', color: 'var(--color-text-muted)', fontWeight: 600 }}>
+                      <span style={{ fontSize: isMobile ? '9px' : '11px', color: 'var(--color-text-muted)', fontWeight: 600 }}>
                         {f.enlistedCount} ENLISTED
                       </span>
                     </div>
-                    <div style={{ fontSize: '13.5px', color: 'var(--color-text-secondary)', lineHeight: 1.4, maxHeight: '85px', overflow: 'hidden' }}>
+                    <div style={{ fontSize: isMobile ? '11px' : '13.5px', color: 'var(--color-text-secondary)', lineHeight: isMobile ? 1.25 : 1.4, maxHeight: isMobile ? '55px' : '85px', overflow: 'hidden' }}>
                       {events.find(e => e.id === f.id)?.shortDescription || events.find(e => e.id === f.id)?.description}
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4, borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 8 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? 2 : 4, borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: isMobile ? 4 : 8 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: isMobile ? '10px' : '12px' }}>
                       <span style={{ color: 'var(--color-text-muted)' }}>FORMAT:</span>
                       <span style={{ fontWeight: 700, color: '#ffffff' }}>{f.format}</span>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: isMobile ? '10px' : '12px' }}>
                       <span style={{ color: 'var(--color-text-muted)' }}>FEE:</span>
                       <span style={{ fontWeight: 700, color: 'var(--color-primary)' }}>{f.entryFee}</span>
                     </div>
 
-                    <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+                    <div style={{ display: 'flex', gap: '6px', marginTop: isMobile ? '6px' : '10px' }}>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -388,9 +389,9 @@ function ChooseFighter({ isMobile, walkFactor }: { isMobile: boolean; walkFactor
                           background: 'transparent',
                           border: '1px solid rgba(255, 255, 255, 0.3)',
                           color: '#ffffff',
-                          fontSize: '11px',
+                          fontSize: isMobile ? '9px' : '11px',
                           fontWeight: 700,
-                          padding: '8px 0',
+                          padding: isMobile ? '6px 0' : '8px 0',
                           cursor: 'pointer',
                           textTransform: 'uppercase',
                         }}
@@ -408,9 +409,9 @@ function ChooseFighter({ isMobile, walkFactor }: { isMobile: boolean; walkFactor
                           background: 'var(--color-primary)',
                           border: '1px solid var(--color-primary)',
                           color: '#ffffff',
-                          fontSize: '11px',
+                          fontSize: isMobile ? '9px' : '11px',
                           fontWeight: 700,
-                          padding: '8px 0',
+                          padding: isMobile ? '6px 0' : '8px 0',
                           cursor: 'pointer',
                           textTransform: 'uppercase',
                         }}
@@ -451,11 +452,11 @@ function ChooseFighter({ isMobile, walkFactor }: { isMobile: boolean; walkFactor
               <span
                 style={{
                   fontFamily: 'Bangers, cursive',
-                  fontSize: 18,
+                  fontSize: isMobile ? 14 : 18,
                   color: isColumnActive ? 'var(--color-primary)' : 'var(--color-text-muted)',
                   letterSpacing: '0.08em',
                   textTransform: 'uppercase',
-                  marginBottom: 8,
+                  marginBottom: isMobile ? 4 : 8,
                   zIndex: 1,
                   textShadow: 'none',
                   animation: isColumnActive ? 'arcade-blink 1.2s infinite' : 'none',
@@ -483,8 +484,8 @@ function ChooseFighter({ isMobile, walkFactor }: { isMobile: boolean; walkFactor
                   alt={char.name}
                   style={{
                     imageRendering: 'pixelated',
-                    width: 170,
-                    height: 210,
+                    width: isMobile ? 110 : 170,
+                    height: isMobile ? 135 : 210,
                     objectFit: 'contain',
                     filter: isColumnActive
                       ? 'drop-shadow(0 0 12px rgba(255,51,51,0.9)) brightness(1.1)'
