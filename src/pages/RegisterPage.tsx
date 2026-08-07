@@ -51,6 +51,50 @@ export function RegisterPage() {
   const [college, setCollege] = useState('');
   const [password, setPassword] = useState('');
   const [teamName, setTeamName] = useState('');
+
+  // Payment states
+  const [upiTransactionRef, setUpiTransactionRef] = useState('');
+  const [paymentScreenshot, setPaymentScreenshot] = useState('');
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Screenshot file is too large. Please upload an image under 5MB.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const maxDim = 800;
+        let width = img.width;
+        let height = img.height;
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+
+        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
+        setPaymentScreenshot(compressedBase64);
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
   
   // Team members state (for team events)
   const [members, setMembers] = useState<{ name: string; email: string; phone: string; college: string }[]>([]);
@@ -218,6 +262,18 @@ export function RegisterPage() {
     setSubmitting(true);
     setError(null);
     try {
+      // Validate payment info
+      if (!upiTransactionRef.trim()) {
+        setError('UPI Transaction ID is required for verification.');
+        setSubmitting(false);
+        return;
+      }
+      if (!paymentScreenshot) {
+        setError('Please upload a screenshot of your payment receipt.');
+        setSubmitting(false);
+        return;
+      }
+
       // Save leader details to their global user profile if authenticated
       if (user) {
         await updateUser(user.uid, {
@@ -257,15 +313,27 @@ export function RegisterPage() {
         },
         user?.email || email.trim(),
         event.isTeamEvent ? members : [],
-        event.isTeamEvent ? teamName.trim() : undefined
+        event.isTeamEvent ? teamName.trim() : undefined,
+        upiTransactionRef.trim(),
+        paymentScreenshot
       );
 
-      // Redirect directly to the Pass page
-      sessionStorage.setItem('spectrum26_active_registration_id', newReg.id);
-      // Trigger celebrate pose for 1200ms
-      setCelebrating(true);
-      setTimeout(() => setCelebrating(false), 1200);
-      navigate(`/pass/${newReg.id}`, { replace: true });
+      if (user) {
+        // Redirect directly to the Pass page if logged in
+        sessionStorage.setItem('spectrum26_active_registration_id', newReg.id);
+        // Trigger celebrate pose for 1200ms
+        setCelebrating(true);
+        setTimeout(() => setCelebrating(false), 1200);
+        navigate(`/pass/${newReg.id}`, { replace: true });
+      } else {
+        // Guest registration: DO NOT auto sign in! Redirect to login page
+        navigate('/login', {
+          state: {
+            message: 'Registration submitted successfully! Our crew will verify your payment details shortly. Please login using the password you created to view your pass.',
+            email: email.trim()
+          }
+        });
+      }
     } catch (err: unknown) {
       console.error('[RegisterPage] Submit registration error:', err);
       const msg = (err as Error).message || '';
@@ -466,6 +534,52 @@ export function RegisterPage() {
                     />
                   </div>
                 )}
+              </div>
+            </div>
+
+            {/* Payment Verification Section */}
+            <div className="flex flex-col gap-6 pt-6 border-t border-border-default">
+              <h3 className="font-heading text-body text-primary uppercase pb-2">
+                Payment Verification
+              </h3>
+              <div className="p-4 border border-dashed border-border-default rounded flex flex-col gap-3" style={{ background: 'var(--panel-bg)' }}>
+                <p className="text-xs font-semibold text-text-secondary leading-relaxed" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+                  Please pay the registration fee of <span className="text-primary font-bold">{event.price !== null ? `₹${event.price}` : 'TBA'}</span> to UPI ID: <span className="text-primary font-bold">spectrum.sbmp@okaxis</span> or scan the QR code at the registration desk. Enter your UPI transaction reference number and upload the screenshot of the payment receipt.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex flex-col gap-2">
+                  <label className="text-micro font-body uppercase tracking-widest text-text-muted">
+                    UPI Transaction ID / Ref No. *
+                  </label>
+                  <input
+                    type="text"
+                    value={upiTransactionRef}
+                    onChange={(e) => setUpiTransactionRef(e.target.value)}
+                    placeholder="12-digit UPI reference number"
+                    required
+                    className="bg-transparent border-b-2 border-border-strong text-primary font-body text-body py-2 focus:outline-none focus:border-primary transition-all placeholder:text-text-muted/40 w-full"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <label className="text-micro font-body uppercase tracking-widest text-text-muted">
+                    Payment Receipt Screenshot *
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    required
+                    className="bg-transparent text-primary font-body text-body py-2 focus:outline-none focus:border-primary transition-all text-xs"
+                  />
+                  {paymentScreenshot && (
+                    <span className="text-[11px] text-green-500 font-semibold" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+                      ✓ Screenshot loaded & compressed
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
 

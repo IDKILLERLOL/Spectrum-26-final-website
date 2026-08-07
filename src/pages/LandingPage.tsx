@@ -285,95 +285,33 @@ function ChooseFighter({ walkFactor }: { walkFactor: number }) {
 
   const [activeCharacterIdx, setActiveCharacterIdx] = useState<number | null>(null);
 
-  const listToRender = isMobile ? [fighters[mobileIdx]] : fighters;
+  const listToRender = fighters;
 
   return (
     <div
       style={{
         display: 'flex',
+        flexDirection: isMobile ? 'column' : 'row',
         justifyContent: 'space-around',
-        alignItems: 'flex-end',
+        alignItems: isMobile ? 'center' : 'flex-end',
         flexWrap: 'wrap',
-        gap: 16,
+        gap: isMobile ? '280px' : '16px',
         maxWidth: '1100px',
         margin: 'auto auto 0 auto',
         width: '92%',
         zIndex: 10,
         position: 'relative',
         minHeight: '480px',
-        paddingTop: '260px',
-        paddingBottom: '0px',
+        paddingTop: isMobile ? '120px' : '260px',
+        paddingBottom: isMobile ? '160px' : '0px',
         opacity: walkFactor,
         transition: 'opacity 0.2s ease-out',
       }}
     >
-      {/* Mobile chevron navigation arrows */}
-      {isMobile && (
-        <>
-          <button
-            onClick={() => setMobileIdx(prev => (prev === 0 ? fighters.length - 1 : prev - 1))}
-            style={{
-              position: 'absolute',
-              left: '10px',
-              bottom: '120px',
-              background: 'rgba(255, 51, 51, 0.9)',
-              border: '2px solid #ffffff',
-              color: '#ffffff',
-              fontFamily: 'Bangers, cursive',
-              fontSize: '28px',
-              width: '44px',
-              height: '44px',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              zIndex: 60,
-              boxShadow: '0px 0px 8px rgba(0,0,0,0.6)',
-              padding: 0,
-            }}
-          >
-            ‹
-          </button>
-          <button
-            onClick={() => setMobileIdx(prev => (prev === fighters.length - 1 ? 0 : prev + 1))}
-            style={{
-              position: 'absolute',
-              right: '10px',
-              bottom: '120px',
-              background: 'rgba(255, 51, 51, 0.9)',
-              border: '2px solid #ffffff',
-              color: '#ffffff',
-              fontFamily: 'Bangers, cursive',
-              fontSize: '28px',
-              width: '44px',
-              height: '44px',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              zIndex: 60,
-              boxShadow: '0px 0px 8px rgba(0,0,0,0.6)',
-              padding: 0,
-            }}
-          >
-            ›
-          </button>
-        </>
-      )}
-
       {listToRender.map((f) => {
         const originalIdx = fighters.findIndex(item => item.id === f.id);
         const char = GAME_CHARACTER_DATA[f.character];
         const isColumnActive = isMobile ? true : activeCharacterIdx === originalIdx;
-
-        // No side sliding entrance transition
-        const translateX = '0px';
-
-        // Add a bobbing movement bounce when active scroll is occurring
-        const isBobbing = walkFactor > 0.05 && walkFactor < 0.95;
-        const bounceStyle = isBobbing ? 'arcade-bob 0.4s infinite alternate' : 'none';
 
         return (
           <div
@@ -386,12 +324,11 @@ function ChooseFighter({ walkFactor }: { walkFactor: number }) {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              width: '23%',
-              minWidth: '200px',
+              width: isMobile ? '100%' : '23%',
+              minWidth: isMobile ? '280px' : '200px',
               cursor: 'pointer',
               transition: 'transform 0.15s ease-out, opacity 0.2s ease-out',
-              transform: translateX === '0px' && isColumnActive ? 'scale(1.05) translateY(-4px)' : `translateX(${translateX}) scale(0.95)`,
-              animation: bounceStyle,
+              transform: isColumnActive ? 'scale(1.05) translateY(-4px)' : 'scale(0.95)',
             }}
           >
             {/* 1. Details Box above head - anchored at bottom to expand upwards */}
@@ -401,10 +338,11 @@ function ChooseFighter({ walkFactor }: { walkFactor: number }) {
                 bottom: '242px',
                 left: '50%',
                 transform: 'translateX(-50%)',
-                width: '280px',
+                width: '240px',
                 height: isColumnActive ? '270px' : '95px',
                 background: 'linear-gradient(to bottom, rgba(10, 15, 30, 0.92) 0%, rgba(10, 15, 30, 0.3) 100%)',
                 backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
                 border: isColumnActive ? '1.5px solid rgba(255, 51, 51, 0.5)' : '1px solid rgba(255, 255, 255, 0.15)',
                 boxShadow: isColumnActive ? '0 0 15px rgba(255, 51, 51, 0.3)' : 'none',
                 padding: isColumnActive ? '14px 16px' : '10px 12px',
@@ -504,51 +442,63 @@ function ChooseFighter({ walkFactor }: { walkFactor: number }) {
               )}
             </div>
 
-            {/* 2. Character Name tag above head */}
-            <span
-              style={{
-                fontFamily: 'Bangers, cursive',
-                fontSize: 18,
-                color: isColumnActive ? 'var(--color-primary)' : 'var(--color-text-muted)',
-                letterSpacing: '0.08em',
-                textTransform: 'uppercase',
-                marginBottom: 8,
-                zIndex: 1,
-                textShadow: 'none',
-                animation: isColumnActive ? 'arcade-blink 1.2s infinite' : 'none',
-                transition: 'opacity 0.4s ease-out',
-              }}
-            >
-              {isColumnActive ? `› ${char.name} ‹` : char.name}
-            </span>
-
-            {/* 3. Mapped PNG image render - triggers hover activation */}
+            {/* Float container wrapper around name tag & sprite image */}
             <div
-              onMouseEnter={() => {
-                if (!isMobile) setActiveCharacterIdx(originalIdx);
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                animation: 'character-idle-float 1.2s steps(2) infinite',
+                animationDelay: `${originalIdx * 0.25}s`,
+                width: '100%',
               }}
-              style={{ position: 'relative', zIndex: 1 }}
             >
-              <img
-                src={{
-                  dustin: '/Dustin.png',
-                  eleven: '/Eleven.png',
-                  steve: '/steve.png',
-                  lucas: '/Lucas.png',
-                  max: '/Max.png',
-                }[f.character]}
-                alt={char.name}
+              {/* 2. Character Name tag above head */}
+              <span
                 style={{
-                  imageRendering: 'pixelated',
-                  width: 170,
-                  height: 210,
-                  objectFit: 'contain',
-                  filter: isColumnActive
-                    ? 'drop-shadow(0 0 12px rgba(255,51,51,0.9)) brightness(1.1)'
-                    : 'brightness(0.75)',
-                  transition: 'all 0.15s ease',
+                  fontFamily: 'Bangers, cursive',
+                  fontSize: 18,
+                  color: isColumnActive ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  marginBottom: 8,
+                  zIndex: 1,
+                  textShadow: 'none',
+                  animation: isColumnActive ? 'arcade-blink 1.2s infinite' : 'none',
+                  transition: 'opacity 0.4s ease-out',
                 }}
-              />
+              >
+                {isColumnActive ? `› ${char.name} ‹` : char.name}
+              </span>
+
+              {/* 3. Mapped PNG image render - triggers hover activation */}
+              <div
+                onMouseEnter={() => {
+                  if (!isMobile) setActiveCharacterIdx(originalIdx);
+                }}
+                style={{ position: 'relative', zIndex: 1 }}
+              >
+                <img
+                  src={{
+                    dustin: '/Dustin.png',
+                    eleven: '/Eleven.png',
+                    steve: '/steve.png',
+                    lucas: '/Lucas.png',
+                    max: '/Max.png',
+                  }[f.character]}
+                  alt={char.name}
+                  style={{
+                    imageRendering: 'pixelated',
+                    width: 170,
+                    height: 210,
+                    objectFit: 'contain',
+                    filter: isColumnActive
+                      ? 'drop-shadow(0 0 12px rgba(255,51,51,0.9)) brightness(1.1)'
+                      : 'brightness(0.75)',
+                    transition: 'all 0.15s ease',
+                  }}
+                />
+              </div>
             </div>
           </div>
         );
@@ -558,15 +508,18 @@ function ChooseFighter({ walkFactor }: { walkFactor: number }) {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.4; }
         }
-          .arcade-hud {
-            grid-template-columns: 1fr !important;
-            gap: 16px !important;
-          }
-          .arcade-hud > div:last-child {
-            padding-left: 0 !important;
-            border-top: 1px dashed rgba(255,255,255,0.15) !important;
-            padding-top: 12px !important;
-          }
+        @keyframes character-idle-float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-0.25rem); }
+        }
+        .arcade-hud {
+          grid-template-columns: 1fr !important;
+          gap: 16px !important;
+        }
+        .arcade-hud > div:last-child {
+          padding-left: 0 !important;
+          border-top: 1px dashed rgba(255,255,255,0.15) !important;
+          padding-top: 12px !important;
         }
       ` }} />
     </div>

@@ -51,38 +51,57 @@
   --font-micro:   'Space Grotesk', sans-serif;
 }
 
-/* --- LIGHT MODE OVERRIDES (keeps the game aesthetic, just slightly brighter blue/red accents) --- */
+/* --- LIGHT MODE OVERRIDES (keeps dark mode theme to guarantee only dark mode colors exist) --- */
 [data-theme="light"] {
-  --color-bg-base:        #0e1626;
-  --color-bg-elevated:    #142036;
-  --color-bg-card:        rgba(20, 32, 54, 0.85);
-  --color-bg-card-hover:  #1d2d4c;
+  --color-bg-base:        #060b13;
+  --color-bg-elevated:    #0e1626;
+  --color-bg-card:        rgba(14, 22, 38, 0.85);
+  --color-bg-card-hover:  #142036;
 
-  --color-border-subtle:  rgba(255,51,51,0.35);
+  --color-border-subtle:  rgba(255,51,51,0.25);
   --color-border-default: #ff3333;
   --color-border-strong:  #ff3333;
 
   --color-text-primary:   #ffffff;
-  --color-text-secondary: #cfd8dc;
-  --color-text-muted:     #90a4ae;
+  --color-text-secondary: #b0bec5;
+  --color-text-muted:     #78909c;
   --color-text-disabled:  rgba(255,255,255,0.25);
 
   --color-primary:        #ff3333;
   --color-accent:         #ff3333;
-  --color-accent-glow:    rgba(255,51,51,0.3);
-  --color-hero-glow:      rgba(255,51,51,0.2);
+  --color-accent-glow:    rgba(255,51,51,0.25);
+  --color-hero-glow:      rgba(255,51,51,0.15);
 
-  --panel-bg:             #142036;
+  --panel-bg:             #0e1626;
   --border-color:         #ff3333;
   --ink-color:            #ffffff;
-  --badge-bg:             #1d2d4c;
+  --badge-bg:             #142036;
   --btn-bg:               #ff3333;
   --btn-text:             #ffffff;
   --btn-border:           #ffffff;
   --btn-shadow:           #000000;
   --shadow-color:         rgba(0,0,0,0.5);
-  --halftone-color:       rgba(255,51,51,0.05);
-  --hatch-color:          #37474f;
+  --halftone-color:       rgba(255,51,51,0.04);
+  --hatch-color:          #2a3b50;
+}
+
+/* --- ADMIN THEME CUSTOM RED COLORIZATION --- */
+.admin-theme {
+  --color-bg-base:        #150505 !important; /* Red-black terminal base */
+  --color-bg-elevated:    #220a0a !important; /* Dark red elevated panels */
+  --color-bg-card:        rgba(34, 10, 10, 0.95) !important;
+  --color-bg-card-hover:  #361212 !important;
+
+  --color-border-subtle:  rgba(255, 51, 51, 0.4) !important;
+  --color-border-default: #ff3333 !important;
+  --color-border-strong:  #ff6666 !important;
+
+  --panel-bg:             #220a0a !important;
+  --badge-bg:             #361212 !important;
+  --btn-bg:               #ff3333 !important;
+  --btn-text:             #ffffff !important;
+  
+  background-color: #150505 !important;
 }
 
 

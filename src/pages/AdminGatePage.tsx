@@ -11,8 +11,7 @@ type GateStep = 'password' | 'google';
 export function AdminGatePage() {
   console.log("[Mount] AdminGatePage component loaded");
   const navigate = useNavigate();
-  const { isAdmin, verifyAdminPassword, adminLoginWithGoogle, adminBypassGoogle } = useAuth();
-  const [showBypass, setShowBypass] = useState(false);
+  const { isAdmin, verifyAdminPassword, adminLoginWithGoogle } = useAuth();
   const [theme, setTheme] = useState(getTheme);
 
   const handleToggleTheme = useCallback(() => {
@@ -103,20 +102,13 @@ export function AdminGatePage() {
         navigate('/admin/registrations', { replace: true });
       } else {
         setError(result.error);
-        setShowBypass(true); // Offer bypass if sign in fails or is blocked
         if (result.error.includes('not an authorised admin')) setStep('password');
       }
     } catch {
-      setError('Google Sign-In failed. Try using the bypass below.');
-      setShowBypass(true);
+      setError('Google Sign-In failed.');
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleBypassSubmit = () => {
-    adminBypassGoogle('i.doshi30@gmail.com');
-    navigate('/admin/registrations', { replace: true });
   };
 
   return (
@@ -266,14 +258,6 @@ export function AdminGatePage() {
                   Continue with Google
                 </button>
 
-                {showBypass && (
-                  <button
-                    onClick={handleBypassSubmit}
-                    className="w-full flex items-center justify-center py-3 border border-dashed border-primary text-primary font-button text-[12px] uppercase hover:bg-primary/5 transition-colors"
-                  >
-                    Bypass Google Authentication (Tier restriction fallback)
-                  </button>
-                )}
 
                 <button
                   onClick={() => { setStep('password'); setError(null); }}

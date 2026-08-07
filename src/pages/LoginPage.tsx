@@ -34,6 +34,15 @@ export function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const stateMsg = location.state?.message;
+  const stateEmail = location.state?.email;
+
+  useEffect(() => {
+    if (stateEmail) {
+      setEmail(stateEmail);
+    }
+  }, [stateEmail]);
+
   // --- Routing Logic ---
   const handleStep6Routing = async (uid: string, userEmail?: string) => {
     if (redirectIntent === 'register' && targetEventId) {
@@ -193,6 +202,20 @@ export function LoginPage() {
               Authenticate Account
             </h2>
           </div>
+
+          {stateMsg && (
+            <div
+              className="p-3 border border-dashed text-xs font-semibold text-center leading-relaxed"
+              style={{
+                borderColor: '#10b981',
+                color: '#10b981',
+                background: 'rgba(16, 185, 129, 0.05)',
+                fontFamily: 'Space Grotesk, sans-serif'
+              }}
+            >
+              {stateMsg}
+            </div>
+          )}
 
           <div className="flex flex-col gap-8">
             {/* Google Sign In */}

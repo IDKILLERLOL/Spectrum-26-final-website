@@ -195,13 +195,6 @@ export function useAuth() {
     }
   }, []);
 
-  const adminBypassGoogle = useCallback((email: string) => {
-    verifiedThisSession = true;
-    const session: AdminSession = { email };
-    storeAdminSession(session);
-    setAdminSession(session);
-  }, []);
-
   const adminLogout = useCallback(async () => {
     try {
       await firebaseLogout();
@@ -223,7 +216,6 @@ export function useAuth() {
     logout,
     verifyAdminPassword,
     adminLoginWithGoogle,
-    adminBypassGoogle,
     adminLogout,
     getAccessToken,
     auth,

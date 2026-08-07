@@ -788,7 +788,9 @@ export async function createRegistration(
   leader: { uid: string; name: string; email: string; phone: string; college?: string },
   actorEmail: string,
   members: { name: string; email: string; phone: string; college?: string }[] = [],
-  teamName?: string
+  teamName?: string,
+  upiTransactionRef?: string,
+  paymentScreenshot?: string
 ): Promise<Registration> {
   // Duplicate registration guard: check if user is already registered as leader
   const existing = await hasExistingRegistration(leader.uid, eventId);
@@ -811,7 +813,8 @@ export async function createRegistration(
       eventId,
       leaderId: leader.uid,
       feeStatus: 'PENDING',
-      upiTransactionRef: null,
+      upiTransactionRef: upiTransactionRef || null,
+      paymentScreenshot: paymentScreenshot || null,
       checkedIn: false,
       createdAt: serverTimestamp(),
       lastEditedBy: leader.uid,
