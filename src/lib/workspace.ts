@@ -124,6 +124,13 @@ export async function syncRegistrationsToGoogleSheets(
   const token = await getAccessToken();
   if (!token) throw new Error("Not authenticated");
 
+  const sanitizeUrl = (u: string) => {
+    if (!u) return '';
+    if (u.startsWith('data:')) return '[Base64 Image Data]';
+    if (u.length > 2000) return '[Image Data Too Large]';
+    return u;
+  };
+
   // 1. Fetch spreadsheet info to check existing sheets
   const getUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}`;
   const getRes = await fetch(getUrl, {
@@ -188,7 +195,7 @@ export async function syncRegistrationsToGoogleSheets(
 
     const eventName = event ? event.name : 'Unknown Event';
     const displayName = reg.teamName || (leader ? leader.name : 'Anonymous');
-    const proofUrl = reg.paymentProofUrl || reg.paymentScreenshotUrl || '';
+    const proofUrl = sanitizeUrl(reg.paymentProofUrl || reg.paymentScreenshotUrl || '');
 
     // Add leader row
     universalRows.push([
@@ -294,7 +301,7 @@ export async function syncRegistrationsToGoogleSheets(
           m.college || '',
           reg.feeStatus,
           reg.upiTransactionRef || '',
-          reg.paymentProofUrl || reg.paymentScreenshotUrl || '',
+          sanitizeUrl(reg.paymentProofUrl || reg.paymentScreenshotUrl || ''),
           reg.checkedIn ? 'Yes' : 'No',
           reg.createdAt ? new Date(reg.createdAt).toLocaleString() : ''
         ]);

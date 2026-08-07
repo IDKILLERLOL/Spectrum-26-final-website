@@ -219,28 +219,7 @@ export function Navbar() {
             <span>GALLERY</span>
           </Link>
 
-          {/* Account Profile / Login */}
-          {user ? (
-            <Link
-              to="/profile"
-              onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
-              className="flex items-center gap-3 px-3 py-2 text-white hover:text-primary hover:bg-white/5 transition-all"
-              style={{ textDecoration: 'none', fontFamily: 'Space Grotesk, sans-serif', fontSize: '12px', fontWeight: 600 }}
-            >
-              <User size={14} className="text-primary" />
-              <span>MY PROFILE</span>
-            </Link>
-          ) : (
-            <Link
-              to="/login"
-              onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
-              className="flex items-center gap-3 px-3 py-2 text-white hover:text-primary hover:bg-white/5 transition-all"
-              style={{ textDecoration: 'none', fontFamily: 'Space Grotesk, sans-serif', fontSize: '12px', fontWeight: 600 }}
-            >
-              <LogIn size={14} className="text-primary" />
-              <span>LOGIN</span>
-            </Link>
-          )}
+
 
           {/* Supercore (Admin) */}
           {dbUser?.role === 'ADMIN' && (
