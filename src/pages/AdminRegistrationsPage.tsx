@@ -276,7 +276,7 @@ export function AdminRegistrationsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 items-end">
           <div className="flex flex-col gap-1.5 min-w-0">
             <label className="font-micro text-micro text-text-muted uppercase tracking-wider">Search</label>
-            <div className="flex items-center gap-2.5 border border-border-default px-3 bg-bg-card h-[42px] w-full min-w-0 focus-within:border-primary">
+            <div className="flex items-center gap-2.5 border border-white/10 px-3 bg-bg-card h-[42px] w-full min-w-0 focus-within:border-white/25">
               <Search size={16} className="text-text-muted shrink-0" />
               <input
                 type="text"

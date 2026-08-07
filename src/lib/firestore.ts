@@ -609,16 +609,28 @@ export async function getEvents(): Promise<Event[]> {
   return dbEvents;
 }
 
-/** Count active (non-removed) members registered for a given event. */
 export async function getActiveMemberCountForEvent(eventId: string): Promise<number> {
-  const snap = await getCountFromServer(
-    query(
-      collection(db, 'teamMembers'),
-      where('eventId', '==', eventId),
-      where('status', '==', 'ACTIVE')
-    )
-  );
-  return snap.data().count;
+  try {
+    const regsSnap = await getDocs(
+      query(collection(db, 'registrations'), where('eventId', '==', eventId))
+    );
+    const regIds = regsSnap.docs.map(doc => doc.id);
+    if (regIds.length === 0) return 0;
+    
+    const memsSnap = await getDocs(collection(db, 'teamMembers'));
+    let count = 0;
+    for (const doc of memsSnap.docs) {
+      const data = doc.data();
+      const status = data.status ?? 'ACTIVE';
+      if (status === 'ACTIVE' && regIds.includes(data.registrationId)) {
+        count++;
+      }
+    }
+    return count;
+  } catch (err) {
+    console.error("Failed to load active member count for event", err);
+    return 0;
+  }
 }
 
 export async function getEvent(eventId: string): Promise<Event | null> {
@@ -1016,11 +1028,12 @@ export async function getActiveTeamMembers(registrationId: string): Promise<Team
   const snap = await getDocs(
     query(
       collection(db, 'teamMembers'),
-      where('registrationId', '==', registrationId),
-      where('status', '==', 'ACTIVE')
+      where('registrationId', '==', registrationId)
     )
   );
-  const members = snap.docs.map(snapToTeamMember);
+  const members = snap.docs
+    .map(snapToTeamMember)
+    .filter(m => m.status === 'ACTIVE');
   members.sort((a, b) => a.addedAt.getTime() - b.addedAt.getTime());
   return members;
 }

@@ -226,7 +226,7 @@ export async function syncRegistrationsToGoogleSheets(
   }
 
   // Clear universal values (starting at A2 to preserve headers/table columns)
-  const clearUniversalUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent("All Registrations")}!A2:Z50000:clear`;
+  const clearUniversalUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent("'All Registrations'")}!A2:Z50000:clear`;
   await fetch(clearUniversalUrl, {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${token}` }
@@ -235,7 +235,7 @@ export async function syncRegistrationsToGoogleSheets(
   // Update universal values (excluding headers, starting at A2)
   const dataRows = universalRows.slice(1);
   if (dataRows.length > 0) {
-    const updateUniversalUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent("All Registrations")}!A2:L?valueInputOption=USER_ENTERED`;
+    const updateUniversalUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent("'All Registrations'!A2:L")}?valueInputOption=USER_ENTERED`;
     const updateUniversalRes = await fetch(updateUniversalUrl, {
       method: 'PUT',
       headers: {
@@ -243,7 +243,7 @@ export async function syncRegistrationsToGoogleSheets(
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        range: `${"All Registrations"}!A2:L`,
+        range: "'All Registrations'!A2:L",
         majorDimension: "ROWS",
         values: dataRows
       })
@@ -255,7 +255,7 @@ export async function syncRegistrationsToGoogleSheets(
 
   // Also write header to A1 to ensure headers are populated if empty (ignores failures if headers are locked)
   const headerRow = [universalRows[0]];
-  const updateHeaderUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent("All Registrations")}!A1:L1?valueInputOption=USER_ENTERED`;
+  const updateHeaderUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent("'All Registrations'!A1:L1")}?valueInputOption=USER_ENTERED`;
   await fetch(updateHeaderUrl, {
     method: 'PUT',
     headers: {
@@ -301,7 +301,7 @@ export async function syncRegistrationsToGoogleSheets(
     }
 
     // Clear existing content in the sheet (starting at A2 to preserve headers/table columns)
-    const clearUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(ev.name)}!A2:Z50000:clear`;
+    const clearUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(`'${ev.name}'`)}!A2:Z50000:clear`;
     await fetch(clearUrl, {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${token}` }
@@ -310,7 +310,7 @@ export async function syncRegistrationsToGoogleSheets(
     // Update values (excluding headers, starting at A2)
     const eventDataRows = rows.slice(1);
     if (eventDataRows.length > 0) {
-      const updateUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(ev.name)}!A2:K?valueInputOption=USER_ENTERED`;
+      const updateUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(`'${ev.name}'!A2:K`)}?valueInputOption=USER_ENTERED`;
       const updateRes = await fetch(updateUrl, {
         method: 'PUT',
         headers: {
@@ -318,7 +318,7 @@ export async function syncRegistrationsToGoogleSheets(
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          range: `${ev.name}!A2:K`,
+          range: `'${ev.name}'!A2:K`,
           majorDimension: "ROWS",
           values: eventDataRows
         })
@@ -330,7 +330,7 @@ export async function syncRegistrationsToGoogleSheets(
 
     // Also write header to A1 to ensure headers are populated if empty (ignores failures if headers are locked)
     const eventHeaderRow = [rows[0]];
-    const updateEventHeaderUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(ev.name)}!A1:K1?valueInputOption=USER_ENTERED`;
+    const updateEventHeaderUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(`'${ev.name}'!A1:K1`)}?valueInputOption=USER_ENTERED`;
     await fetch(updateEventHeaderUrl, {
       method: 'PUT',
       headers: {
@@ -339,6 +339,99 @@ export async function syncRegistrationsToGoogleSheets(
       },
       body: JSON.stringify({ values: eventHeaderRow })
     });
+  }
+
+  // 5. Format worksheets as Tables (Freeze row 1, set bold header formatting, enable basic filters, auto-resize columns)
+  try {
+    const getUrl2 = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}`;
+    const getRes2 = await fetch(getUrl2, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (getRes2.ok) {
+      const updatedSheetData = await getRes2.json();
+      const allSheets = updatedSheetData.sheets || [];
+      const formatRequests: any[] = [];
+      
+      for (const sheet of allSheets) {
+        const sheetId = sheet.properties.sheetId;
+        const title = sheet.properties.title;
+        if (!allowedTitles.includes(title)) continue;
+        
+        const numCols = title === "All Registrations" ? 12 : 11;
+        
+        // A. Freeze first row
+        formatRequests.push({
+          updateSheetProperties: {
+            properties: {
+              sheetId,
+              gridProperties: { frozenRowCount: 1 }
+            },
+            fields: "gridProperties.frozenRowCount"
+          }
+        });
+
+        // B. Format header row: bold, light gray background
+        formatRequests.push({
+          repeatCell: {
+            range: {
+              sheetId,
+              startRowIndex: 0,
+              endRowIndex: 1,
+              startColumnIndex: 0,
+              endColumnIndex: numCols
+            },
+            cell: {
+              userEnteredFormat: {
+                backgroundColor: { red: 0.95, green: 0.95, blue: 0.95 },
+                textFormat: { bold: true }
+              }
+            },
+            fields: "userEnteredFormat(backgroundColor,textFormat.bold)"
+          }
+        });
+
+        // C. Set basic filter for columns
+        formatRequests.push({
+          setBasicFilter: {
+            filter: {
+              range: {
+                sheetId,
+                startRowIndex: 0,
+                endRowIndex: 50000,
+                startColumnIndex: 0,
+                endColumnIndex: numCols
+              }
+            }
+          }
+        });
+
+        // D. Auto-resize columns
+        formatRequests.push({
+          autoResizeDimensions: {
+            dimensions: {
+              sheetId,
+              dimension: "COLUMNS",
+              startIndex: 0,
+              endIndex: numCols
+            }
+          }
+        });
+      }
+
+      if (formatRequests.length > 0) {
+        const batchUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`;
+        await fetch(batchUrl, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ requests: formatRequests })
+        });
+      }
+    }
+  } catch (err) {
+    console.error("Failed to apply formatting styling to Google Sheets", err);
   }
 }
 

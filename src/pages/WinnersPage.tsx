@@ -213,12 +213,12 @@ export function WinnersPage() {
               style={{ background: 'var(--panel-bg)' }}
             >
               {/* Event category indicator tag */}
-              <div className="absolute top-0 right-0 px-4 py-1.5 font-micro text-micro uppercase tracking-widest bg-primary text-bg-base font-bold">
+              <div className="absolute -top-[1px] -right-[1px] px-4 py-1.5 font-micro text-micro uppercase tracking-widest bg-primary text-bg-base font-bold z-10">
                 {categoryLabel(event.category)}
               </div>
 
               {/* Left Column: Event details */}
-              <div className="lg:col-span-4 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-border-subtle pb-6 lg:pb-0 lg:pr-6">
+              <div className="lg:col-span-4 flex flex-col justify-between pb-6 lg:pb-0 lg:pr-6">
                 <div className="flex flex-col gap-3">
                   <span className="font-micro text-micro text-text-muted uppercase tracking-widest">
                     {isSolo ? 'Solo Arena' : isDuo ? 'Duo Partners' : 'Squad Battle'}

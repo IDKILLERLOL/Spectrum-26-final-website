@@ -58,14 +58,18 @@ export function EventsPage() {
       .catch(console.error)
       .finally(() => setLoading(false));
 
-    getDocs(query(collection(db, 'teamMembers'), where('status', '==', 'ACTIVE')))
+    getDocs(collection(db, 'teamMembers'))
       .then(async (memsSnap) => {
         const regsSnap = await getDocs(collection(db, 'registrations'));
         const regToEventMap = new Map<string, string>();
         for (const doc of regsSnap.docs) regToEventMap.set(doc.id, doc.data().eventId);
         const counts: Record<string, number> = {};
         for (const doc of memsSnap.docs) {
-          const evId = regToEventMap.get(doc.data().registrationId);
+          const mData = doc.data();
+          const status = mData.status ?? 'ACTIVE';
+          if (status !== 'ACTIVE') continue;
+          
+          const evId = regToEventMap.get(mData.registrationId);
           if (evId) counts[evId] = (counts[evId] || 0) + 1;
         }
         setParticipantCounts(counts);
