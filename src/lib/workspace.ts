@@ -251,49 +251,22 @@ export async function syncRegistrationsToGoogleSheets(
 
     for (const reg of evRegs) {
       const regMembers = teamMembers.filter(m => m.registrationId === reg.id && m.status === 'ACTIVE');
-      const maxRows = ev.maxMembers || 1;
+      
+      // Sort regMembers so that LEADER is always at the top of the team list
+      const sortedMembers = [...regMembers].sort((a, b) => {
+        if (a.role === 'LEADER') return -1;
+        if (b.role === 'LEADER') return 1;
+        return 0;
+      });
 
-      if (maxRows > 1) {
-        const leader = regMembers.find(m => m.role === 'LEADER');
-        const normalMembers = regMembers.filter(m => m.role === 'MEMBER');
-
-        // Dynamically create exactly maxRows rows per team
-        for (let i = 0; i < maxRows; i++) {
-          if (i === 0) {
-            rows.push([
-              reg.teamName || `Team-${reg.id.substring(0, 6)}`,
-              'LEADER',
-              leader ? leader.name : '',
-              leader ? leader.email : '',
-              leader ? leader.phone : '',
-              leader ? (leader.college || '') : '',
-              reg.feeStatus,
-              reg.checkedIn ? 'Yes' : 'No'
-            ]);
-          } else {
-            const m = normalMembers[i - 1];
-            rows.push([
-              reg.teamName || `Team-${reg.id.substring(0, 6)}`,
-              `MEMBER`,
-              m ? m.name : '',
-              m ? m.email : '',
-              m ? m.phone : '',
-              m ? (m.college || '') : '',
-              reg.feeStatus,
-              reg.checkedIn ? 'Yes' : 'No'
-            ]);
-          }
-        }
-      } else {
-        // Exactly 1 row per team for solo events
-        const leader = regMembers.find(m => m.role === 'LEADER') || regMembers[0];
+      for (const m of sortedMembers) {
         rows.push([
           reg.teamName || `Team-${reg.id.substring(0, 6)}`,
-          'LEADER',
-          leader ? leader.name : '',
-          leader ? leader.email : '',
-          leader ? leader.phone : '',
-          leader ? (leader.college || '') : '',
+          m.role || 'MEMBER',
+          m.name || '',
+          m.email || '',
+          m.phone || '',
+          m.college || '',
           reg.feeStatus,
           reg.checkedIn ? 'Yes' : 'No'
         ]);
