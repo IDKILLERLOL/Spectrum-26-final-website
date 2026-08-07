@@ -177,7 +177,7 @@ export async function syncRegistrationsToGoogleSheets(
 
   // 3. Populate "All Registrations" sheet
   const universalRows: any[][] = [
-    ['Event Name', 'Team/Leader Name', 'Role', 'Name', 'Email', 'Phone', 'College', 'Fee Status', 'Checked In', 'Registered At']
+    ['Event Name', 'Team/Leader Name', 'Role', 'Name', 'Email', 'Phone', 'College', 'Fee Status', 'Transaction ID / Ref', 'Payment Screenshot', 'Checked In', 'Registered At']
   ];
 
   for (const reg of registrations) {
@@ -188,6 +188,7 @@ export async function syncRegistrationsToGoogleSheets(
 
     const eventName = event ? event.name : 'Unknown Event';
     const displayName = reg.teamName || (leader ? leader.name : 'Anonymous');
+    const proofUrl = reg.paymentProofUrl || reg.paymentScreenshotUrl || '';
 
     // Add leader row
     universalRows.push([
@@ -199,6 +200,8 @@ export async function syncRegistrationsToGoogleSheets(
       leader ? leader.phone : '',
       leader ? (leader.college || '') : '',
       reg.feeStatus,
+      reg.upiTransactionRef || '',
+      proofUrl,
       reg.checkedIn ? 'Yes' : 'No',
       reg.createdAt ? new Date(reg.createdAt).toLocaleString() : ''
     ]);
@@ -214,6 +217,8 @@ export async function syncRegistrationsToGoogleSheets(
         m.phone,
         m.college || '',
         reg.feeStatus,
+        reg.upiTransactionRef || '',
+        proofUrl,
         reg.checkedIn ? 'Yes' : 'No',
         reg.createdAt ? new Date(reg.createdAt).toLocaleString() : ''
       ]);
@@ -246,7 +251,7 @@ export async function syncRegistrationsToGoogleSheets(
     const evRegs = registrations.filter(r => r.eventId === ev.id);
     
     const rows: any[][] = [
-      ['Team Name', 'Role', 'Name', 'Email', 'Phone', 'College', 'Fee Status', 'Checked In']
+      ['Team Name', 'Role', 'Name', 'Email', 'Phone', 'College', 'Fee Status', 'Transaction ID / Ref', 'Payment Screenshot', 'Checked In']
     ];
 
     for (const reg of evRegs) {
@@ -268,6 +273,8 @@ export async function syncRegistrationsToGoogleSheets(
           m.phone || '',
           m.college || '',
           reg.feeStatus,
+          reg.upiTransactionRef || '',
+          reg.paymentProofUrl || reg.paymentScreenshotUrl || '',
           reg.checkedIn ? 'Yes' : 'No'
         ]);
       }
