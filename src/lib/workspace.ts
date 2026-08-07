@@ -399,6 +399,25 @@ export async function syncRegistrationsToGoogleSheets(
           }
         });
 
+        // B2. Apply table grid lines (borders)
+        formatRequests.push({
+          updateBorders: {
+            range: {
+              sheetId,
+              startRowIndex: 0,
+              endRowIndex: 1000,
+              startColumnIndex: 0,
+              endColumnIndex: numCols
+            },
+            top: { style: "SOLID", color: { red: 0.8, green: 0.8, blue: 0.8 } },
+            bottom: { style: "SOLID", color: { red: 0.8, green: 0.8, blue: 0.8 } },
+            left: { style: "SOLID", color: { red: 0.8, green: 0.8, blue: 0.8 } },
+            right: { style: "SOLID", color: { red: 0.8, green: 0.8, blue: 0.8 } },
+            innerHorizontal: { style: "SOLID", color: { red: 0.8, green: 0.8, blue: 0.8 } },
+            innerVertical: { style: "SOLID", color: { red: 0.8, green: 0.8, blue: 0.8 } }
+          }
+        });
+
         // C. Set basic filter for columns
         formatRequests.push({
           setBasicFilter: {
