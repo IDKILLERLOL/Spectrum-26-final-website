@@ -139,104 +139,10 @@ export function Navbar() {
             {navLink('/winners', 'Winners')}
             {navLink('/gallery', 'Gallery')}
             {navLink('/contact', 'Contact')}
-            {user && hasRegistrations && navLink('/my-registrations', 'My Passes')}
           </div>
 
           {/* Controls */}
           <div className="flex items-center gap-3">
-            {/* User Account / Auth */}
-            {!loading && (
-              user ? (
-                <div className="relative">
-                  <button
-                    onClick={() => { playSynthSound('click'); setShowUserCard(!showUserCard); }}
-                    style={{
-                      fontSize: '20px',
-                      padding: '6px 0',
-                      background: 'transparent',
-                      border: 'none',
-                      boxShadow: 'none',
-                      color: 'var(--color-text-primary)',
-                      fontFamily: 'Bangers, cursive',
-                      letterSpacing: '0.05em',
-                      cursor: 'pointer',
-                    }}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLButtonElement).style.color = 'var(--color-primary)';
-                      (e.currentTarget as HTMLButtonElement).style.textShadow = '0 0 10px rgba(255, 51, 51, 0.8)';
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLButtonElement).style.color = 'var(--color-text-primary)';
-                      (e.currentTarget as HTMLButtonElement).style.textShadow = 'none';
-                    }}
-                  >
-                    <User size={13} className="mr-1 inline" />
-                    <span className="hidden md:inline">{dbUser?.name || user.displayName || 'AGENT'}</span>
-                  </button>
-
-                  {showUserCard && (
-                    <>
-                      <div className="fixed inset-0 z-40" onClick={() => setShowUserCard(false)} />
-                      <div
-                        className="absolute right-0 top-full mt-3 z-50 flex flex-col gap-3 min-w-[260px] p-5"
-                        style={{ background: 'rgba(10, 15, 30, 0.95)', border: '2.5px solid var(--color-primary)', boxShadow: '6px 6px 0px #000' }}
-                      >
-                        <h4
-                          style={{
-                            fontFamily: 'Bangers, cursive',
-                            fontSize: '20px',
-                            letterSpacing: '0.06em',
-                            textTransform: 'uppercase',
-                            color: 'var(--color-text-primary)',
-                            borderBottom: '2.5px solid var(--color-primary)',
-                            paddingBottom: '8px',
-                            marginBottom: '4px',
-                          }}
-                        >
-                          YOUR ACCOUNT
-                        </h4>
-                        <div className="flex flex-col gap-2" style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '13px', fontWeight: 500 }}>
-                          {[
-                            { label: 'NAME', value: dbUser?.name || user.displayName || 'User' },
-                            ...((dbUser?.email || user.email) ? [{ label: 'EMAIL', value: dbUser?.email || user.email }] : []),
-                            ...((dbUser?.phone || user.phoneNumber) ? [{ label: 'PHONE', value: dbUser?.phone || user.phoneNumber }] : []),
-                            ...(dbUser?.college ? [{ label: 'COLLEGE', value: dbUser.college }] : []),
-                          ].map(({ label, value }) => (
-                            <div key={label}>
-                              <div style={{ fontSize: '9px', letterSpacing: '0.12em', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', marginBottom: '2px' }}>{label}</div>
-                              <div style={{ color: 'var(--color-text-primary)' }}>{value}</div>
-                            </div>
-                          ))}
-                        </div>
-                        <button
-                          onClick={() => { setShowUserCard(false); playSynthSound('laser'); logout(); }}
-                          className="w-full"
-                          style={{
-                            fontSize: '18px',
-                            padding: '8px 0',
-                            marginTop: '4px',
-                            background: 'transparent',
-                            border: 'none',
-                            color: 'var(--color-text-primary)',
-                            fontFamily: 'Bangers, cursive',
-                            cursor: 'pointer',
-                            textAlign: 'left',
-                          }}
-                          onMouseEnter={(e) => {
-                            (e.currentTarget as HTMLButtonElement).style.color = 'var(--color-primary)';
-                          }}
-                          onMouseLeave={(e) => {
-                            (e.currentTarget as HTMLButtonElement).style.color = 'var(--color-text-primary)';
-                          }}
-                        >
-                          <LogOut size={13} className="mr-1 inline" /> LOG OUT //
-                        </button>
-                      </div>
-                    </>
-                  )}
-                </div>
-              ) : null
-            )}
 
             {/* REGISTER Button (far right) */}
             <Link

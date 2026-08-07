@@ -7,9 +7,6 @@ import { RequireAdmin } from './components/RequireAdmin';
 import { LandingPage } from './pages/LandingPage';
 import { EventsPage } from './pages/EventsPage';
 import { SchedulePage } from './pages/SchedulePage';
-import { LoginPage } from './pages/LoginPage';
-import { RegistrationsPage } from './pages/RegistrationsPage';
-import { EventDetailPage } from './pages/EventDetailPage';
 import { AdminGatePage } from './pages/AdminGatePage';
 import { RegisterPage } from './pages/RegisterPage';
 import { AdminEventsPage } from './pages/AdminEventsPage';
@@ -98,18 +95,11 @@ export default function App() {
               <Route path="schedule" element={<SchedulePage />} />
               <Route path="winners" element={<WinnersPage />} />
               <Route path="gallery" element={<GalleryPage />} />
-              <Route path="login" element={<LoginPage />} />
               <Route path="contact" element={<ContactPage />} />
               <Route path="event/:id" element={<PublicEventDetailPage />} />
               <Route path="registrations" element={<PublicRegistrationsPage />} />
               <Route path="pass/:id" element={<PublicPassPage />} />
               <Route path="register/:eventId" element={<RegisterPage />} />
-
-              {/* Participant routes — require login */}
-              <Route element={<RequireAuth />}>
-                <Route path="my-registrations" element={<RegistrationsPage />} />
-                <Route path="event-dashboard" element={<EventDetailPage />} />
-              </Route>
 
             </Route>
 

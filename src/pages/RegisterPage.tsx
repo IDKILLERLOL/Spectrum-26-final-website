@@ -301,22 +301,10 @@ export function RegisterPage() {
         paymentScreenshot
       );
 
-      if (user) {
-        // Redirect directly to the Pass page if logged in
-        sessionStorage.setItem('spectrum26_active_registration_id', newReg.id);
-        // Trigger celebrate pose for 1200ms
-        setCelebrating(true);
-        setTimeout(() => setCelebrating(false), 1200);
-        navigate(`/pass/${newReg.id}`, { replace: true });
-      } else {
-        // Guest registration: DO NOT auto sign in! Redirect to login page
-        navigate('/login', {
-          state: {
-            message: 'Registration submitted successfully! Our crew will verify your payment details shortly. Please login using the password you created to view your pass.',
-            email: email.trim()
-          }
-        });
-      }
+      sessionStorage.setItem('spectrum26_active_registration_id', newReg.id);
+      setCelebrating(true);
+      setTimeout(() => setCelebrating(false), 1200);
+      navigate(`/pass/${newReg.id}`, { replace: true });
     } catch (err: unknown) {
       console.error('[RegisterPage] Submit registration error:', err);
       const msg = (err as Error).message || '';
