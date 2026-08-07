@@ -251,13 +251,14 @@ export async function syncRegistrationsToGoogleSheets(
 
     for (const reg of evRegs) {
       const regMembers = teamMembers.filter(m => m.registrationId === reg.id && m.status === 'ACTIVE');
+      const maxRows = ev.maxMembers || 1;
 
-      if (ev.isTeamEvent) {
+      if (maxRows > 1) {
         const leader = regMembers.find(m => m.role === 'LEADER');
         const normalMembers = regMembers.filter(m => m.role === 'MEMBER');
 
-        // Exactly 4 rows per team for team events
-        for (let i = 0; i < 4; i++) {
+        // Dynamically create exactly maxRows rows per team
+        for (let i = 0; i < maxRows; i++) {
           if (i === 0) {
             rows.push([
               reg.teamName || `Team-${reg.id.substring(0, 6)}`,
