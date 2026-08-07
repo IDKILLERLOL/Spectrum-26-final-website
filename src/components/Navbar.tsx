@@ -216,16 +216,18 @@ export function Navbar() {
           <Link
             to="/events"
             onClick={() => { setIsSidebarOpen(false); playSynthSound('laser'); }}
-            className="comic-shadow-sm flex items-center justify-center gap-2"
             style={{
-              background: 'var(--color-text-primary)',
-              color: 'var(--color-bg-base)',
+              background: 'transparent',
+              color: 'var(--color-primary)',
               fontFamily: 'Bangers, cursive',
-              fontSize: '18px',
-              padding: '8px 16px',
-              letterSpacing: '0.04em',
+              fontSize: '20px',
+              padding: '10px 16px',
+              letterSpacing: '0.05em',
               textDecoration: 'none',
-              border: '2px solid var(--color-bg-base)',
+              border: '2px solid var(--color-primary)',
+              textAlign: 'center',
+              display: 'block',
+              width: '100%',
             }}
           >
             REGISTER
