@@ -235,14 +235,18 @@ export async function syncRegistrationsToGoogleSheets(
   // Update universal values (excluding headers, starting at A2)
   const dataRows = universalRows.slice(1);
   if (dataRows.length > 0) {
-    const updateUniversalUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent("All Registrations")}!A2?valueInputOption=USER_ENTERED`;
+    const updateUniversalUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent("All Registrations")}!A2:L?valueInputOption=USER_ENTERED`;
     const updateUniversalRes = await fetch(updateUniversalUrl, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ values: dataRows })
+      body: JSON.stringify({
+        range: `${"All Registrations"}!A2:L`,
+        majorDimension: "ROWS",
+        values: dataRows
+      })
     });
     if (!updateUniversalRes.ok) {
       console.error("Failed to sync universal worksheet data", await updateUniversalRes.json());
@@ -306,14 +310,18 @@ export async function syncRegistrationsToGoogleSheets(
     // Update values (excluding headers, starting at A2)
     const eventDataRows = rows.slice(1);
     if (eventDataRows.length > 0) {
-      const updateUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(ev.name)}!A2?valueInputOption=USER_ENTERED`;
+      const updateUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(ev.name)}!A2:K?valueInputOption=USER_ENTERED`;
       const updateRes = await fetch(updateUrl, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ values: eventDataRows })
+        body: JSON.stringify({
+          range: `${ev.name}!A2:K`,
+          majorDimension: "ROWS",
+          values: eventDataRows
+        })
       });
       if (!updateRes.ok) {
         console.error(`Failed to sync worksheet data for event: ${ev.name}`, await updateRes.json());
