@@ -336,13 +336,13 @@ function ChooseFighter({ walkFactor }: { walkFactor: number }) {
               transform: isColumnActive ? 'scale(1.05) translateY(-4px)' : 'scale(0.95)',
             }}
           >
-            {/* 1. Details Box above head - anchored at bottom to expand upwards */}
+            {/* 1. Details Box above head - anchored at bottom to expand upwards (positioned relatively in flow on mobile) */}
             <div
               style={{
-                position: 'absolute',
-                bottom: '242px',
-                left: '50%',
-                transform: 'translateX(-50%)',
+                position: isMobile ? 'relative' : 'absolute',
+                bottom: isMobile ? 'auto' : '242px',
+                left: isMobile ? 'auto' : '50%',
+                transform: isMobile ? 'none' : 'translateX(-50%)',
                 width: '240px',
                 height: isColumnActive ? '270px' : '95px',
                 background: 'linear-gradient(to bottom, rgba(10, 15, 30, 0.92) 0%, rgba(10, 15, 30, 0.3) 100%)',
@@ -358,6 +358,7 @@ function ChooseFighter({ walkFactor }: { walkFactor: number }) {
                 justifyContent: 'space-between',
                 overflow: 'hidden',
                 zIndex: isColumnActive ? 50 : 10,
+                marginBottom: isMobile ? '20px' : '0px',
               }}
             >
               {isColumnActive ? (
