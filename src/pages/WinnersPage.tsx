@@ -28,12 +28,6 @@ function ContenderRoster({ contenders }: { contenders: CompetingTeam[] }) {
         style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '18px', fontWeight: 700, letterSpacing: '0.04em' }}
       >
         <Users size={14} /> ROSTER
-        <span
-          className="ml-auto comic-badge"
-          style={{ fontSize: '10px', padding: '6px 12px', fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, textShadow: 'none' }}
-        >
-          {contenders.length} REGISTERED
-        </span>
       </h3>
 
       {contenders.length === 0 ? (

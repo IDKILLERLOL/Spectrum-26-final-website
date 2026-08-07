@@ -119,6 +119,7 @@
   color-scheme: dark !important;
   background-color: #000000 !important;
   color: #ffffff !important;
+  padding: 0 12px !important;
 }
 .admin-theme select option {
   background-color: #000000 !important;
