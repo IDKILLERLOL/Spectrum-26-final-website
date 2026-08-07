@@ -232,19 +232,34 @@ export async function syncRegistrationsToGoogleSheets(
     headers: { 'Authorization': `Bearer ${token}` }
   });
 
-  // Update universal values
-  const updateUniversalUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent("All Registrations")}!A1?valueInputOption=USER_ENTERED`;
-  const updateUniversalRes = await fetch(updateUniversalUrl, {
+  // Update universal values (excluding headers, starting at A2)
+  const dataRows = universalRows.slice(1);
+  if (dataRows.length > 0) {
+    const updateUniversalUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent("All Registrations")}!A2?valueInputOption=USER_ENTERED`;
+    const updateUniversalRes = await fetch(updateUniversalUrl, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ values: dataRows })
+    });
+    if (!updateUniversalRes.ok) {
+      console.error("Failed to sync universal worksheet data", await updateUniversalRes.json());
+    }
+  }
+
+  // Also write header to A1 to ensure headers are populated if empty (ignores failures if headers are locked)
+  const headerRow = [universalRows[0]];
+  const updateHeaderUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent("All Registrations")}!A1:L1?valueInputOption=USER_ENTERED`;
+  await fetch(updateHeaderUrl, {
     method: 'PUT',
     headers: {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ values: universalRows })
+    body: JSON.stringify({ values: headerRow })
   });
-  if (!updateUniversalRes.ok) {
-    console.error("Failed to sync universal worksheet", await updateUniversalRes.json());
-  }
 
   // 4. Populate each event sheet with teams
   for (const ev of events) {
@@ -288,19 +303,34 @@ export async function syncRegistrationsToGoogleSheets(
       headers: { 'Authorization': `Bearer ${token}` }
     });
 
-    // Update values
-    const updateUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(ev.name)}!A1?valueInputOption=USER_ENTERED`;
-    const updateRes = await fetch(updateUrl, {
+    // Update values (excluding headers, starting at A2)
+    const eventDataRows = rows.slice(1);
+    if (eventDataRows.length > 0) {
+      const updateUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(ev.name)}!A2?valueInputOption=USER_ENTERED`;
+      const updateRes = await fetch(updateUrl, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ values: eventDataRows })
+      });
+      if (!updateRes.ok) {
+        console.error(`Failed to sync worksheet data for event: ${ev.name}`, await updateRes.json());
+      }
+    }
+
+    // Also write header to A1 to ensure headers are populated if empty (ignores failures if headers are locked)
+    const eventHeaderRow = [rows[0]];
+    const updateEventHeaderUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(ev.name)}!A1:K1?valueInputOption=USER_ENTERED`;
+    await fetch(updateEventHeaderUrl, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ values: rows })
+      body: JSON.stringify({ values: eventHeaderRow })
     });
-    if (!updateRes.ok) {
-      console.error(`Failed to sync worksheet for event: ${ev.name}`, await updateRes.json());
-    }
   }
 }
 
