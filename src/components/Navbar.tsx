@@ -209,7 +209,6 @@ export function Navbar() {
           {navLink('/winners', 'Winners', () => setIsSidebarOpen(false))}
           {navLink('/gallery', 'Gallery', () => setIsSidebarOpen(false))}
           {navLink('/contact', 'Contact', () => setIsSidebarOpen(false))}
-          {user && hasRegistrations && navLink('/my-registrations', 'My Passes', () => setIsSidebarOpen(false))}
         </div>
 
         <div className="mt-auto flex flex-col gap-3 pt-4 border-t-2" style={{ borderColor: 'var(--border-color)' }}>

@@ -89,11 +89,11 @@ function eventToFighter(event: Event, enlistedCount: number): FighterEvent | nul
     subEvents: meta.subEvents,
   };
 }
-
 export function LandingPage() {
   const [scrollY, setScrollY] = useState(0);
   const [windowHeight, setWindowHeight] = useState(800);
   const { startCurl } = usePageCurl();
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   useEffect(() => {
     setWindowHeight(window.innerHeight);
@@ -102,6 +102,7 @@ export function LandingPage() {
     };
     const handleResize = () => {
       setWindowHeight(window.innerHeight);
+      setIsMobile(window.innerWidth < 768);
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('resize', handleResize);
@@ -112,9 +113,6 @@ export function LandingPage() {
   }, []);
   // walkFactor maps scroll position (from 0.8*windowHeight to 1.8*windowHeight) to a 0..1 progress value
   const walkFactor = Math.min(1, Math.max(0, (scrollY - windowHeight * 0.8) / (windowHeight || 800)));
-
-  // Check for mobile layout to disable problematic sticky scrolling on iOS
-  const isMobile = window.innerWidth < 768;
 
   return (
     <div className="relative w-full select-none" style={{ backgroundColor: 'transparent' }}>
@@ -156,7 +154,7 @@ export function LandingPage() {
           </div>
 
           {/* Fighter Character Selection Screen */}
-          <ChooseFighter walkFactor={walkFactor} />
+          <ChooseFighter isMobile={isMobile} walkFactor={walkFactor} />
         </div>
       </div>
 
@@ -222,24 +220,14 @@ const GAME_CHARACTER_DATA: Record<EventCharacter, {
 };
 
 
-function ChooseFighter({ walkFactor }: { walkFactor: number }) {
+function ChooseFighter({ isMobile, walkFactor }: { isMobile: boolean; walkFactor: number }) {
   const [events, setEvents] = useState<Event[]>(FALLBACK_EVENTS);
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [selectedIdx, setSelectedIdx] = useState<number>(0);
   const { startCurl } = usePageCurl();
   const [shake, setShake] = useState(false);
 
-  // Responsive state
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [mobileIdx, setMobileIdx] = useState(0);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   useEffect(() => {
     // Load events from Firestore
@@ -534,7 +522,7 @@ function ChooseFighter({ walkFactor }: { walkFactor: number }) {
 
 function Hero() {
   return (
-    <header className="relative z-10 max-w-5xl mx-auto w-[92%] mt-36 text-center">
+    <header className="relative z-10 max-w-5xl mx-auto w-[92%] mt-16 sm:mt-36 text-center">
       {/* Crosshatch decoration behind hero */}
       <div
         className="absolute inset-0 hatch-pattern pointer-events-none"
