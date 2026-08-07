@@ -30,7 +30,7 @@ function ContenderRoster({ contenders }: { contenders: CompetingTeam[] }) {
         <Users size={14} /> ROSTER
         <span
           className="ml-auto comic-badge"
-          style={{ fontSize: '10px', padding: '2px 8px', fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700 }}
+          style={{ fontSize: '10px', padding: '2px 8px', fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, textShadow: 'none' }}
         >
           {contenders.length} REGISTERED
         </span>
@@ -156,8 +156,11 @@ export function WinnersPage() {
       >
         <div className="absolute inset-0 hatch-pattern pointer-events-none" style={{ opacity: 0.15 }} />
         <span
-          className="comic-badge inline-flex items-center gap-1.5"
+          className="comic-badge"
           style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
             fontFamily: 'Bangers, cursive',
             fontSize: '13px',
             padding: '3px 12px',
@@ -165,9 +168,10 @@ export function WinnersPage() {
             color: 'var(--color-bg-base)',
             width: 'fit-content',
             transform: 'rotate(1deg)',
+            textShadow: 'none'
           }}
         >
-          <Sparkles size={12} /> THE CHAMPIONS
+          <Sparkles size={12} className="shrink-0" /> THE CHAMPIONS
         </span>
         <h1
           style={{
@@ -231,10 +235,10 @@ export function WinnersPage() {
                   </p>
                 </div>
                 <div className="mt-6 flex flex-wrap gap-2">
-                  <span className="comic-badge text-xs" style={{ padding: '3px 8px' }}>
+                  <span className="comic-badge text-xs" style={{ padding: '3px 8px', textShadow: 'none' }}>
                     Fee: ₹{event.price}
                   </span>
-                  <span className="comic-badge text-xs" style={{ padding: '3px 8px' }}>
+                  <span className="comic-badge text-xs" style={{ padding: '3px 8px', textShadow: 'none' }}>
                     Size: {event.maxMembers === 1 ? '1 Player' : `${event.minMembers}-${event.maxMembers} Players`}
                   </span>
                 </div>

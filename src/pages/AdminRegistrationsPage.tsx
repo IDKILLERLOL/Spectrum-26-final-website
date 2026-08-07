@@ -5,7 +5,7 @@ import { useAuth } from '../lib/useAuth';
 import { getAccessToken, adminGoogleSignIn } from '../lib/auth';
 import {
   getAllRegistrations, getEvent, getActiveTeamMembers,
-  updateFeeStatus, toggleCheckedIn, deleteRegistration, getEvents,
+  updateFeeStatus, toggleCheckedIn, deleteRegistration, getEvents, deleteSystemSpreadsheetId,
 } from '../lib/firestore';
 import { notifyFeeStatusPaid } from '../lib/email';
 import { getOrCreateRegistrationSheet, syncRegistrationsToGoogleSheets } from '../lib/workspace';
@@ -28,6 +28,13 @@ export function AdminRegistrationsPage() {
   const [saving, setSaving] = useState<string | null>(null);
   const [syncing, setSyncing] = useState(false);
   const [syncStatus, setSyncStatus] = useState<string | null>(null);
+  const [currentSheetId, setCurrentSheetId] = useState<string | null>(null);
+
+  useEffect(() => {
+    import('../lib/firestore').then(({ getSystemSpreadsheetId }) => {
+      getSystemSpreadsheetId().then(id => setCurrentSheetId(id));
+    });
+  }, []);
   const [revealedCredentials, setRevealedCredentials] = useState<Record<string, boolean>>({});
   const [revealedMembers, setRevealedMembers] = useState<Record<string, boolean>>({});
   const [idPopupContent, setIdPopupContent] = useState<string | null>(null);
@@ -208,10 +215,26 @@ export function AdminRegistrationsPage() {
       const teamMembers = rows.flatMap(r => r.members);
 
       await syncRegistrationsToGoogleSheets(sheetId, allEvents, registrations, teamMembers);
+      setCurrentSheetId(sheetId);
       setSyncStatus('Sync to Google Sheets successful! Data updated.');
     } catch (err: any) {
       console.error(err);
       setSyncStatus(`Sync failed: ${err.message || err.toString()}`);
+    } finally {
+      setSyncing(false);
+    }
+  };
+  const handleResetSheet = async () => {
+    if (!window.confirm('WARNING: This will reset the linked Google Sheet ID. The next time you click "Sync to Google Sheets", a brand new spreadsheet will be created. Use this if the current sheet belongs to an expired user account or is not receiving updates. Continue?')) return;
+    setSyncing(true);
+    setSyncStatus(null);
+    try {
+      await deleteSystemSpreadsheetId();
+      setCurrentSheetId(null);
+      setSyncStatus('Spreadsheet link reset. Click "Sync to Google Sheets" to generate a new spreadsheet.');
+    } catch (err: any) {
+      console.error(err);
+      setSyncStatus(`Reset failed: ${err.message || err.toString()}`);
     } finally {
       setSyncing(false);
     }
@@ -266,6 +289,25 @@ export function AdminRegistrationsPage() {
               {syncing ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
               Sync to Google Sheets
             </button>
+            {currentSheetId && (
+              <>
+                <a
+                  href={`https://docs.google.com/spreadsheets/d/${currentSheetId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 font-button text-button uppercase border border-green-500/50 text-green-400 px-5 py-3 hover:bg-green-500/10 transition-colors"
+                >
+                  Open Google Sheet
+                </a>
+                <button
+                  onClick={handleResetSheet}
+                  disabled={syncing}
+                  className="flex items-center gap-2 font-button text-button uppercase border border-red-500/50 text-red-400 px-5 py-3 hover:bg-red-500/10 disabled:opacity-50 transition-colors"
+                >
+                  Reset Sheets Link
+                </button>
+              </>
+            )}
           </div>
         </div>
         {syncStatus && (
@@ -293,7 +335,8 @@ export function AdminRegistrationsPage() {
             <select
               value={selectedEventId}
               onChange={(e) => setSelectedEventId(e.target.value)}
-              className="bg-bg-card border border-white/10 px-3 h-[42px] text-white font-body text-small focus:outline-none focus:border-white/25 w-full min-w-0 truncate"
+              className="border border-white/10 px-3 h-[42px] font-body text-small focus:outline-none focus:border-white/25 w-full min-w-0 truncate"
+              style={{ backgroundColor: '#060b19', color: '#ffffff' }}
             >
               <option value="all" className="bg-black text-white">All Events</option>
               {Array.from(new Map(rows.map(r => [r.event?.id, r.event])).values())
@@ -309,7 +352,8 @@ export function AdminRegistrationsPage() {
             <select
               value={selectedPaymentStatus}
               onChange={(e) => setSelectedPaymentStatus(e.target.value)}
-              className="bg-bg-card border border-white/10 px-3 h-[42px] text-white font-body text-small focus:outline-none focus:border-white/25 w-full min-w-0"
+              className="border border-white/10 px-3 h-[42px] font-body text-small focus:outline-none focus:border-white/25 w-full min-w-0"
+              style={{ backgroundColor: '#060b19', color: '#ffffff' }}
             >
               <option value="all" className="bg-black text-white">All Statuses</option>
               <option value="PAID" className="bg-black text-white">PAID</option>
@@ -322,7 +366,8 @@ export function AdminRegistrationsPage() {
             <select
               value={selectedCheckInStatus}
               onChange={(e) => setSelectedCheckInStatus(e.target.value)}
-              className="bg-bg-card border border-white/10 px-3 h-[42px] text-white font-body text-small focus:outline-none focus:border-white/25 w-full min-w-0"
+              className="border border-white/10 px-3 h-[42px] font-body text-small focus:outline-none focus:border-white/25 w-full min-w-0"
+              style={{ backgroundColor: '#060b19', color: '#ffffff' }}
             >
               <option value="all" className="bg-black text-white">All Statuses</option>
               <option value="checked-in" className="bg-black text-white">Checked In</option>
@@ -335,7 +380,8 @@ export function AdminRegistrationsPage() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="bg-bg-card border border-white/10 px-3 h-[42px] text-white font-body text-small focus:outline-none focus:border-white/25 w-full min-w-0"
+              className="border border-white/10 px-3 h-[42px] font-body text-small focus:outline-none focus:border-white/25 w-full min-w-0"
+              style={{ backgroundColor: '#060b19', color: '#ffffff' }}
             >
               <option value="date-desc" className="bg-black text-white">Date (Newest First)</option>
               <option value="date-asc" className="bg-black text-white">Date (Oldest First)</option>

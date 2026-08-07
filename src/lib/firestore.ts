@@ -1745,6 +1745,15 @@ export async function saveSystemSpreadsheetId(spreadsheetId: string): Promise<vo
   }
 }
 
+export async function deleteSystemSpreadsheetId(): Promise<void> {
+  try {
+    await deleteDoc(doc(db, 'systemConfig', 'googleSheets'));
+    localStorage.removeItem('spectrum_sheet_id');
+  } catch (err) {
+    console.error('Error deleting system spreadsheet ID:', err);
+  }
+}
+
 export async function autoSyncToSheets(): Promise<void> {
   try {
     const sheetId = await getSystemSpreadsheetId();

@@ -22,6 +22,7 @@ import { WinnersPage } from './pages/WinnersPage';
 import { GalleryPage } from './pages/GalleryPage';
 import { AdminAccountsPage } from './pages/AdminAccountsPage';
 import { AdminGlobalDetailsPage } from './pages/AdminGlobalDetailsPage';
+import { SponsorsPage } from './pages/SponsorsPage';
 import { ScrollToTop } from './components/ScrollToTop';
 import { ContactPage } from './pages/ContactPage';
 import { PublicEventDetailPage } from './pages/PublicEventDetailPage';
@@ -100,6 +101,7 @@ export default function App() {
               <Route path="registrations" element={<PublicRegistrationsPage />} />
               <Route path="pass/:id" element={<PublicPassPage />} />
               <Route path="register/:eventId" element={<RegisterPage />} />
+              <Route path="sponsors" element={<SponsorsPage />} />
 
             </Route>
 

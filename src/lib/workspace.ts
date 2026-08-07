@@ -243,13 +243,14 @@ export async function syncRegistrationsToGoogleSheets(
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        range: "'All Registrations'!A2:L",
         majorDimension: "ROWS",
         values: dataRows
       })
     });
     if (!updateUniversalRes.ok) {
-      console.error("Failed to sync universal worksheet data", await updateUniversalRes.json());
+      const errDetail = await updateUniversalRes.json().catch(() => ({}));
+      console.error("Failed to sync universal worksheet data", errDetail);
+      throw new Error(`Google Sheets API Error (All Registrations): ${errDetail.error?.message || JSON.stringify(errDetail) || updateUniversalRes.statusText}`);
     }
   }
 
@@ -318,13 +319,14 @@ export async function syncRegistrationsToGoogleSheets(
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          range: `'${ev.name}'!A2:K`,
           majorDimension: "ROWS",
           values: eventDataRows
         })
       });
       if (!updateRes.ok) {
-        console.error(`Failed to sync worksheet data for event: ${ev.name}`, await updateRes.json());
+        const errDetail = await updateRes.json().catch(() => ({}));
+        console.error(`Failed to sync worksheet data for event: ${ev.name}`, errDetail);
+        throw new Error(`Google Sheets API Error (${ev.name}): ${errDetail.error?.message || JSON.stringify(errDetail) || updateRes.statusText}`);
       }
     }
 

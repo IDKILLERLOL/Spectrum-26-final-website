@@ -14,8 +14,8 @@ export function Navbar() {
   const [dbUser, setDbUser] = useState<any | null>(null);
   const [sfxOn, setSfxOn] = useState(true);
   
-  // Mobile Sidebar State
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  // Mobile More Pop-up Menu State
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
 
   useEffect(() => {
     if (!user) { setDbUser(null); return; }
@@ -76,13 +76,14 @@ export function Navbar() {
 
   return (
     <>
+    <div className="sticky top-4 z-[100] w-full flex justify-center pointer-events-none">
       <nav
-        className="sticky top-0 z-[100] w-full px-6 py-4 flex justify-between items-center gap-4 border-b"
+        className="pointer-events-auto max-w-5xl w-[88%] py-3.5 px-8 flex justify-between items-center gap-6 border"
         style={{
           background: 'rgba(6, 11, 25, 0.75)',
           backdropFilter: 'blur(12px)',
           WebkitBackdropFilter: 'blur(12px)',
-          borderColor: 'rgba(255, 255, 255, 0.06)',
+          borderColor: 'rgba(255, 255, 255, 0.08)',
         }}
       >
         {/* Left side: Mobile Menu Button & Brand Logo */}
@@ -91,7 +92,7 @@ export function Navbar() {
           <button
             onClick={() => {
               playSynthSound('click');
-              setIsSidebarOpen(!isSidebarOpen);
+              setShowMoreMenu(!showMoreMenu);
             }}
             className="hidden flex-col justify-center items-center w-8 h-8 gap-1.5 focus:outline-none md:hidden relative z-[60]"
             aria-label="Toggle Navigation Menu"
@@ -99,22 +100,22 @@ export function Navbar() {
             <span
               className="w-6 h-[3px] bg-primary transition-all duration-300 transform origin-left"
               style={{
-                transform: isSidebarOpen ? 'rotate(45deg) translate(2px, -2px)' : 'none',
+                transform: showMoreMenu ? 'rotate(45deg) translate(2px, -2px)' : 'none',
                 backgroundColor: 'var(--color-text-primary)'
               }}
             />
             <span
               className="w-6 h-[3px] bg-primary transition-all duration-300"
               style={{
-                opacity: isSidebarOpen ? 0 : 1,
-                transform: isSidebarOpen ? 'scale(0)' : 'none',
+                opacity: showMoreMenu ? 0 : 1,
+                transform: showMoreMenu ? 'scale(0)' : 'none',
                 backgroundColor: 'var(--color-text-primary)'
               }}
             />
             <span
               className="w-6 h-[3px] bg-primary transition-all duration-300 transform origin-left"
               style={{
-                transform: isSidebarOpen ? 'rotate(-45deg) translate(2px, 2px)' : 'none',
+                transform: showMoreMenu ? 'rotate(-45deg) translate(2px, 2px)' : 'none',
                 backgroundColor: 'var(--color-text-primary)'
               }}
             />
@@ -182,62 +183,79 @@ export function Navbar() {
           </div>
         </div>
       </nav>
+    </div>
 
-      {/* Mobile Drawer Navigation Sidebar (slides in from left) */}
-      <div
-        className={`fixed inset-0 z-45 bg-black/50 backdrop-blur-sm transition-opacity duration-300 md:hidden ${
-          isSidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        }`}
-        onClick={() => setIsSidebarOpen(false)}
-      />
-
-      <aside
-        className="fixed inset-y-0 left-0 z-50 w-[280px] border-r-4 p-8 flex flex-col gap-8 transition-transform duration-300 ease-in-out md:hidden backdrop-blur-md"
-        style={{
-          background: 'rgba(14, 22, 38, 0.95)',
-          borderColor: 'var(--border-color)',
-          color: 'var(--color-text-primary)',
-          backdropFilter: 'blur(16px)',
-          transform: isSidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
-        }}
-      >
-        <div className="flex justify-between items-center pb-4">
-          <span style={{ fontFamily: 'Bangers, cursive', fontSize: '24px', letterSpacing: '0.05em', color: 'var(--color-text-primary)' }}>
-            NAVIGATION
-          </span>
-        </div>
-
-        <div className="flex flex-col gap-6 align-left text-left">
-          {navLink('/', 'Home', () => setIsSidebarOpen(false))}
-          {navLink('/events', 'Events', () => setIsSidebarOpen(false))}
-          {navLink('/schedule', 'Schedule', () => setIsSidebarOpen(false))}
-          {navLink('/winners', 'Winners', () => setIsSidebarOpen(false))}
-          {navLink('/gallery', 'Gallery', () => setIsSidebarOpen(false))}
-          {navLink('/contact', 'Contact', () => setIsSidebarOpen(false))}
-        </div>
-
-        <div className="mt-auto flex flex-col gap-3 pt-4 border-t-2" style={{ borderColor: 'var(--border-color)' }}>
+      {/* Mobile More Pop-up Menu */}
+      {showMoreMenu && (
+        <div 
+          className="md:hidden fixed bottom-[72px] right-4 z-[9999] flex flex-col gap-1 p-2 border shadow-2xl"
+          style={{
+            background: 'rgba(10, 15, 30, 0.98)',
+            backdropFilter: 'blur(24px)',
+            WebkitBackdropFilter: 'blur(24px)',
+            borderColor: 'rgba(255, 255, 255, 0.1)',
+            minWidth: '160px'
+          }}
+        >
+          {/* Winners Link */}
           <Link
-            to="/events"
-            onClick={() => { setIsSidebarOpen(false); playSynthSound('laser'); }}
-            style={{
-              background: 'transparent',
-              color: 'var(--color-primary)',
-              fontFamily: 'Bangers, cursive',
-              fontSize: '20px',
-              padding: '10px 16px',
-              letterSpacing: '0.05em',
-              textDecoration: 'none',
-              border: '2px solid var(--color-primary)',
-              textAlign: 'center',
-              display: 'block',
-              width: '100%',
-            }}
+            to="/winners"
+            onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
+            className="flex items-center gap-3 px-3 py-2 text-white hover:text-primary hover:bg-white/5 transition-all"
+            style={{ textDecoration: 'none', fontFamily: 'Space Grotesk, sans-serif', fontSize: '12px', fontWeight: 600 }}
           >
-            REGISTER
+            <Trophy size={14} className="text-primary" />
+            <span>WINNERS</span>
           </Link>
+
+          {/* Gallery Link */}
+          <Link
+            to="/gallery"
+            onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
+            className="flex items-center gap-3 px-3 py-2 text-white hover:text-primary hover:bg-white/5 transition-all"
+            style={{ textDecoration: 'none', fontFamily: 'Space Grotesk, sans-serif', fontSize: '12px', fontWeight: 600 }}
+          >
+            <Award size={14} className="text-primary" />
+            <span>GALLERY</span>
+          </Link>
+
+          {/* Account Profile / Login */}
+          {user ? (
+            <Link
+              to="/profile"
+              onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
+              className="flex items-center gap-3 px-3 py-2 text-white hover:text-primary hover:bg-white/5 transition-all"
+              style={{ textDecoration: 'none', fontFamily: 'Space Grotesk, sans-serif', fontSize: '12px', fontWeight: 600 }}
+            >
+              <User size={14} className="text-primary" />
+              <span>MY PROFILE</span>
+            </Link>
+          ) : (
+            <Link
+              to="/login"
+              onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
+              className="flex items-center gap-3 px-3 py-2 text-white hover:text-primary hover:bg-white/5 transition-all"
+              style={{ textDecoration: 'none', fontFamily: 'Space Grotesk, sans-serif', fontSize: '12px', fontWeight: 600 }}
+            >
+              <LogIn size={14} className="text-primary" />
+              <span>LOGIN</span>
+            </Link>
+          )}
+
+          {/* Supercore (Admin) */}
+          {dbUser?.role === 'ADMIN' && (
+            <Link
+              to="/supercore"
+              onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
+              className="flex items-center gap-3 px-3 py-2 text-white hover:text-primary hover:bg-white/5 transition-all border-t border-white/10 mt-1 pt-1.5"
+              style={{ textDecoration: 'none', fontFamily: 'Space Grotesk, sans-serif', fontSize: '12px', fontWeight: 600 }}
+            >
+              <Menu size={14} className="text-primary" />
+              <span>SUPERCORE</span>
+            </Link>
+          )}
         </div>
-      </aside>
+      )}
 
       {/* Mobile Bottom Navigation Bar */}
       <div 
@@ -260,7 +278,7 @@ export function Navbar() {
         {/* Schedule Slot */}
         <Link 
           to="/schedule" 
-          onClick={() => playSynthSound('click')}
+          onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
           className="flex flex-col items-center gap-0.5 text-center flex-1"
           style={{ color: location.pathname === '/schedule' ? 'var(--color-primary)' : 'var(--color-text-muted)' }}
         >
@@ -271,7 +289,7 @@ export function Navbar() {
         {/* Events Slot */}
         <Link 
           to="/events" 
-          onClick={() => playSynthSound('click')}
+          onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
           className="flex flex-col items-center gap-0.5 text-center flex-1"
           style={{ color: location.pathname === '/events' ? 'var(--color-primary)' : 'var(--color-text-muted)' }}
         >
@@ -282,7 +300,7 @@ export function Navbar() {
         {/* Home Slot (Center, highlighted) */}
         <Link 
           to="/" 
-          onClick={() => playSynthSound('click')}
+          onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
           className="flex flex-col items-center justify-center -mt-6 bg-primary rounded-full w-14 h-14 shadow-lg border-4 border-bg-base relative z-10"
           style={{
             borderColor: 'rgba(6, 11, 25, 1)',
@@ -295,7 +313,7 @@ export function Navbar() {
         {/* Contact Slot */}
         <Link 
           to="/contact" 
-          onClick={() => playSynthSound('click')}
+          onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
           className="flex flex-col items-center gap-0.5 text-center flex-1"
           style={{ color: location.pathname === '/contact' ? 'var(--color-primary)' : 'var(--color-text-muted)' }}
         >
@@ -303,11 +321,11 @@ export function Navbar() {
           <span style={{ fontSize: '10px', fontFamily: 'Space Grotesk, sans-serif', fontWeight: 600, letterSpacing: '0.04em' }}>CONTACT</span>
         </Link>
 
-        {/* More Slot (Toggles drawer) */}
+        {/* More Slot (Toggles pop-up) */}
         <button 
-          onClick={() => { playSynthSound('click'); setIsSidebarOpen(!isSidebarOpen); }}
+          onClick={() => { playSynthSound('click'); setShowMoreMenu(!showMoreMenu); }}
           className="flex flex-col items-center gap-0.5 text-center flex-1"
-          style={{ color: isSidebarOpen ? 'var(--color-primary)' : 'var(--color-text-muted)', background: 'none', border: 'none', padding: 0 }}
+          style={{ color: showMoreMenu ? 'var(--color-primary)' : 'var(--color-text-muted)', background: 'none', border: 'none', padding: 0 }}
         >
           <MoreHorizontal size={20} />
           <span style={{ fontSize: '10px', fontFamily: 'Space Grotesk, sans-serif', fontWeight: 600, letterSpacing: '0.04em' }}>MORE</span>
