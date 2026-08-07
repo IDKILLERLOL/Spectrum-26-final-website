@@ -30,7 +30,7 @@ function ContenderRoster({ contenders }: { contenders: CompetingTeam[] }) {
         <Users size={14} /> ROSTER
         <span
           className="ml-auto comic-badge"
-          style={{ fontSize: '10px', padding: '2px 8px', fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, textShadow: 'none' }}
+          style={{ fontSize: '10px', padding: '6px 12px', fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, textShadow: 'none' }}
         >
           {contenders.length} REGISTERED
         </span>
@@ -235,10 +235,10 @@ export function WinnersPage() {
                   </p>
                 </div>
                 <div className="mt-6 flex flex-wrap gap-2">
-                  <span className="comic-badge text-xs" style={{ padding: '3px 8px', textShadow: 'none' }}>
+                  <span className="comic-badge text-xs" style={{ padding: '6px 12px', textShadow: 'none' }}>
                     Fee: ₹{event.price}
                   </span>
-                  <span className="comic-badge text-xs" style={{ padding: '3px 8px', textShadow: 'none' }}>
+                  <span className="comic-badge text-xs" style={{ padding: '6px 12px', textShadow: 'none' }}>
                     Size: {event.maxMembers === 1 ? '1 Player' : `${event.minMembers}-${event.maxMembers} Players`}
                   </span>
                 </div>

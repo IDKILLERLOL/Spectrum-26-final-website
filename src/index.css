@@ -393,6 +393,7 @@ body::before {
   background: var(--badge-bg);
   box-shadow: 2px 2px 0px var(--border-color);
   display: inline-block;
+  padding: 5px 12px;
 }
 
 /* ─── CROSSHATCH SHADING ─────────────────────────────────────── */
