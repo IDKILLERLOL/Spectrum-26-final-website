@@ -239,52 +239,44 @@ function ArchCard({ data, event, onSelect }: { data: typeof ARCH_CARDS_DATA[0]; 
   return (
     <div
       onClick={onSelect}
-      className={`group cursor-pointer relative flex flex-col items-center p-2.5 sm:p-3.5 rounded-t-full rounded-b-lg border-2 bg-gradient-to-b ${data.bgGradient} transition-all duration-300 hover:scale-[1.03] shadow-lg hover:shadow-2xl overflow-hidden`}
-      style={{
-        borderColor: data.color,
-        boxShadow: `0 0 24px ${data.glowColor}`,
-      }}
+      className="group cursor-pointer relative flex flex-col items-center w-full transition-all duration-300 hover:-translate-y-1.5"
     >
-      {/* Archway Character Artwork Display Area */}
-      <div className="relative w-full aspect-[4/5] rounded-t-full overflow-hidden bg-black flex items-center justify-center border border-white/10 group-hover:border-white/30 transition-colors my-1">
+      {/* Archway Image - Fills full card space seamlessly */}
+      <div className="relative w-full aspect-[4/7] sm:aspect-[4/7.2] overflow-hidden flex items-center justify-center">
         <div
-          className="w-full h-full transition-transform duration-500 group-hover:scale-105"
+          className="w-full h-full transition-transform duration-300 group-hover:scale-105"
           style={{
-            backgroundImage: "url('/archways_spritesheet.jpg')",
+            backgroundImage: "url('/archways_seamless.png')",
             backgroundSize: '400% 100%',
             backgroundPosition: data.bgPos,
             backgroundRepeat: 'no-repeat',
+            filter: `drop-shadow(0 0 16px ${data.glowColor})`,
           }}
-        />
-        {/* Neon Floor Aura */}
-        <div
-          className="absolute bottom-1 w-20 h-4 rounded-full blur-md opacity-60 group-hover:opacity-100 transition-opacity pointer-events-none"
-          style={{ backgroundColor: data.color }}
         />
       </div>
 
-      {/* Details Footer */}
-      <div className="w-full flex flex-col gap-1 text-center mt-2">
+      {/* Details Footer - Seamlessly Below Archway */}
+      <div className="w-full flex flex-col gap-1 text-center mt-1">
         <h3
-          className="font-pixel text-xs sm:text-sm font-bold truncate"
+          className="font-pixel text-xs sm:text-sm font-bold truncate drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
           style={{ color: data.color }}
         >
           {data.title}
         </h3>
         <p className="font-body text-[11px] text-text-secondary line-clamp-1 leading-tight">{data.desc}</p>
 
-        <div className="mt-2 pt-2 border-t border-white/10 flex flex-col gap-0.5 items-center">
+        <div className="mt-1 flex flex-col gap-0.5 items-center">
           <span className="font-pixel text-[9px] text-text-muted uppercase flex items-center gap-1">
             <span>👤</span> {data.format}
           </span>
-          <span className="font-pixel text-xs font-bold text-white" style={{ color: data.color }}>
+          <span className="font-pixel text-xs font-bold" style={{ color: data.color }}>
             {data.price}
           </span>
         </div>
 
-        {/* Down Indicator Arrow */}
-        <span className="font-pixel text-xs mt-1 animate-bounce" style={{ color: data.color }}>
-          ▼
+        {/* Animated Chevron Arrow */}
+        <span className="font-pixel text-[10px] mt-0.5 animate-bounce" style={{ color: data.color }}>
+          vv
         </span>
       </div>
     </div>
