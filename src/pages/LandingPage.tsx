@@ -27,6 +27,7 @@ const ARCH_CARDS_DATA = [
     glowColor: 'rgba(0, 255, 102, 0.4)',
     bgGradient: 'from-green-950/40 via-bg-card to-bg-card',
     bgPos: '0% 0%',
+    customImage: '/green.png',
   },
   {
     id: 'tech-solo-1',
@@ -40,6 +41,7 @@ const ARCH_CARDS_DATA = [
     glowColor: 'rgba(168, 85, 247, 0.4)',
     bgGradient: 'from-purple-950/40 via-bg-card to-bg-card',
     bgPos: '33.333% 0%',
+    customImage: '/purple.png',
   },
   {
     id: 'non-tech-1',
@@ -53,6 +55,7 @@ const ARCH_CARDS_DATA = [
     glowColor: 'rgba(245, 158, 11, 0.4)',
     bgGradient: 'from-amber-950/40 via-bg-card to-bg-card',
     bgPos: '66.666% 0%',
+    customImage: '/orange.png',
   },
   {
     id: 'non-tech-3',
@@ -66,6 +69,7 @@ const ARCH_CARDS_DATA = [
     glowColor: 'rgba(59, 130, 246, 0.4)',
     bgGradient: 'from-blue-950/40 via-bg-card to-bg-card',
     bgPos: '100% 0%',
+    customImage: '/blue.png',
   },
 ];
 
