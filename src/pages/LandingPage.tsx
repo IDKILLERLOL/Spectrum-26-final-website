@@ -117,10 +117,14 @@ export function LandingPage() {
               </span>
             </div>
 
-            {/* Subtitle */}
-            <div className="flex flex-col gap-1 text-text-secondary font-body text-sm sm:text-base leading-relaxed max-w-md">
-              <p className="font-semibold text-white">The ultimate tech and gaming showdown.</p>
-              <p className="text-text-muted">Code. Compete. Conquer.</p>
+            {/* Subtitle with Lively Pixelated Fonts */}
+            <div className="flex flex-col gap-2 max-w-md my-1">
+              <p className="font-pixel text-xs sm:text-sm text-red-400 font-bold leading-snug tracking-wide drop-shadow-[0_0_12px_rgba(255,51,51,0.6)]">
+                The ultimate tech and gaming showdown.
+              </p>
+              <p className="font-silkscreen text-[11px] sm:text-xs text-white uppercase tracking-[0.2em] font-semibold drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]">
+                Code. Compete. Conquer.
+              </p>
             </div>
 
             {/* Hero CTAs */}
@@ -259,7 +263,7 @@ function ArchCard({ data, event, onSelect }: { data: typeof ARCH_CARDS_DATA[0]; 
       {/* Details Footer - Seamlessly Below Archway */}
       <div className="w-full flex flex-col gap-1 text-center mt-1">
         <h3
-          className="font-pixel text-xs sm:text-sm font-bold truncate drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
+          className="font-pixel text-[11px] sm:text-xs font-bold leading-tight tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
           style={{ color: data.color }}
         >
           {data.title}
