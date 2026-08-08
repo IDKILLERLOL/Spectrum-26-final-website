@@ -194,11 +194,12 @@ body::before {
   left: 0; 
   width: 100vw; 
   height: 100vh;
-  background-image: url(/backdrop.png);
+  background-image: url(/cave.jpeg);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   z-index: -1;
+  opacity: 0.25;
 }
 
 
