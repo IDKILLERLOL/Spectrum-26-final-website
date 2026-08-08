@@ -104,11 +104,12 @@ export function Navbar() {
           </Link>
 
           {/* Desktop nav menu */}
-          <div className="hidden lg:flex gap-7 items-center">
+          <div className="hidden lg:flex gap-5 items-center">
             {navLink('/', 'HOME')}
             {navLink('/events', 'EVENTS')}
             {navLink('/schedule', 'SCHEDULE')}
             {navLink('/winners', 'WINNERS')}
+            {navLink('/sponsors', 'SPONSORS')}
             {navLink('/gallery', 'GALLERY')}
             {navLink('/contact', 'CONTACT')}
           </div>
@@ -200,6 +201,22 @@ export function Navbar() {
           >
             <Award size={14} className="text-red-500" />
             <span>WINNERS</span>
+          </Link>
+          <Link
+            to="/sponsors"
+            onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
+            className="flex items-center gap-3 px-3 py-2.5 text-white hover:text-red-400 hover:bg-white/5 rounded transition-all font-pixel text-xs"
+          >
+            <Award size={14} className="text-red-500" />
+            <span>SPONSORS</span>
+          </Link>
+          <Link
+            to="/gallery"
+            onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
+            className="flex items-center gap-3 px-3 py-2.5 text-white hover:text-red-400 hover:bg-white/5 rounded transition-all font-pixel text-xs"
+          >
+            <Award size={14} className="text-red-500" />
+            <span>GALLERY</span>
           </Link>
           <Link
             to="/contact"
