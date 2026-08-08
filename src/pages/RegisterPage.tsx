@@ -369,11 +369,11 @@ export function RegisterPage() {
             }}>
               <img
                 src={{
-                  'tech-duo-1': '/Max.png',
-                  'tech-solo-1': '/Eleven.png',
-                  'non-tech-1': '/steve.png',
-                  'non-tech-3': '/Lucas.png',
-                }[eventId || ''] || '/Max.png'}
+                  'tech-duo-1': '/green.png',
+                  'tech-solo-1': '/purple.png',
+                  'non-tech-1': '/orange.png',
+                  'non-tech-3': '/blue.png',
+                }[eventId || ''] || '/green.png'}
                 alt="character"
                 style={{
                   imageRendering: 'pixelated',

@@ -134,11 +134,11 @@ export function MaxErrorPopup() {
         <div style={{ marginBottom: 0, flexShrink: 0, paddingBottom: 0 }}>
           <img
             src={{
-              max: '/Max.png',
-              eleven: '/Eleven.png',
-              steve: '/steve.png',
-              lucas: '/Lucas.png',
-            }[character] || '/Max.png'}
+              max: '/green.png',
+              eleven: '/purple.png',
+              steve: '/orange.png',
+              lucas: '/blue.png',
+            }[character] || '/green.png'}
             alt={character}
             style={{
               imageRendering: 'pixelated',
