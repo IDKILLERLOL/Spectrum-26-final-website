@@ -108,7 +108,7 @@ export function Navbar() {
             {navLink('/', 'HOME')}
             {navLink('/events', 'EVENTS')}
             {navLink('/schedule', 'SCHEDULE')}
-            {navLink('/winners', 'SPONSORS')}
+            {navLink('/winners', 'WINNERS')}
             {navLink('/gallery', 'GALLERY')}
             {navLink('/contact', 'CONTACT')}
           </div>
@@ -199,7 +199,7 @@ export function Navbar() {
             className="flex items-center gap-3 px-3 py-2.5 text-white hover:text-red-400 hover:bg-white/5 rounded transition-all font-pixel text-xs"
           >
             <Award size={14} className="text-red-500" />
-            <span>SPONSORS</span>
+            <span>WINNERS</span>
           </Link>
           <Link
             to="/contact"
@@ -278,7 +278,7 @@ export function Navbar() {
             className={`flex flex-col items-center gap-1 ${location.pathname === '/winners' ? 'text-red-500' : 'text-text-muted hover:text-white'}`}
           >
             <Trophy size={18} />
-            <span className="font-pixel text-[9px]">SPONSORS</span>
+            <span className="font-pixel text-[9px]">WINNERS</span>
           </Link>
 
           <Link
