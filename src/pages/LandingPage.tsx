@@ -32,7 +32,7 @@ const ARCH_CARDS_DATA = [
     id: 'tech-solo-1',
     panelNumber: '02',
     icon: '🧠',
-    title: '02 SINGULARITY STRIKE',
+    title: '02 CODE CLASH',
     desc: 'Solo arena battle.',
     format: 'INDIVIDUAL',
     price: '₹50',

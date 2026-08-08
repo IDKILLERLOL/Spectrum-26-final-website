@@ -51,7 +51,7 @@ export const FALLBACK_EVENTS: Event[] = [
   },
   {
     id: "tech-solo-1",
-    name: "Singularity Strike",
+    name: "Code Clash",
     category: "TECH",
     description: "The ultimate solo arena battle. Conquer the grid, survive the buzzer, and rank in the MCQ challenges.",
     isTeamEvent: false,

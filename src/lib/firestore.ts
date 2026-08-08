@@ -1446,7 +1446,7 @@ const FALLBACK_SCHEDULE = [
     sortTime: "14:00",
     displayTime: "2:00 PM - 5:00 PM",
     location: "CSE Lab Block",
-    title: "Singularity Strike",
+    title: "Code Clash",
     type: "TECH",
     sortOrder: 4
   },

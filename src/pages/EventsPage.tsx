@@ -13,7 +13,7 @@ const EVENT_BADGE: Record<string, string> = {
   'BGMI': 'RED ZONE',
   'FC 26': 'GOAL!',
   'Dual Debug': 'TECH',
-  'Singularity Strike': 'TECH'
+  'Code Clash': 'TECH'
 };
 
 const TECH_ROUND_DETAILS: Record<string, string[]> = {
@@ -22,7 +22,7 @@ const TECH_ROUND_DETAILS: Record<string, string[]> = {
     "Sub-Event 2: Codopoly — A 2v2v2v2 board game where topic tiles (DSA, Networks, OS, DBMS) are claimed by answering questions correctly, charging question taxes/penalties to opponents.",
     "Sub-Event 3: Snakes & Ladders — Dodge snakes and climb ladders by opting into solving hard and extra-hard tech challenges on a shared digital board."
   ],
-  'Singularity Strike': [
+  'Code Clash': [
     "Sub-Event 1: MCQ Round — Rapid-fire multiple-choice tournament where speed and accuracy determine scoring as timers tick down.",
     "Sub-Event 2: Bingo — 4-5 players play on a shared CS topic grid, claiming cells and winning points, aiming to complete a line first.",
     "Sub-Event 3: Buzzer Round — Solo battle featuring 31 questions of escalating difficulty using a fastest-finger-buzzer system with wrong answer penalties."
