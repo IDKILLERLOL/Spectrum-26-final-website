@@ -116,7 +116,7 @@ export function GalleryPage() {
 
   const variants = {
     enter: (dir: number) => ({
-      x: dir > 0 ? 300 : -300,
+      x: dir > 0 ? 120 : -120,
       opacity: 0,
     }),
     center: {
@@ -124,7 +124,7 @@ export function GalleryPage() {
       opacity: 1,
     },
     exit: (dir: number) => ({
-      x: dir < 0 ? 300 : -300,
+      x: dir < 0 ? 120 : -120,
       opacity: 0,
     }),
   };
@@ -158,22 +158,21 @@ export function GalleryPage() {
             fontSize: 'clamp(40px, 8vw, 80px)',
             lineHeight: 0.95,
             letterSpacing: '0.04em',
-            textTransform: 'uppercase',
             color: 'var(--color-text-primary)',
-            transform: 'skewX(-4deg)',
+            textShadow: '3px 3px 0px rgba(0,0,0,0.4)',
           }}
         >
-          FESTIVAL GALLERY
+          GALLERY
         </h1>
         <p
           style={{
             fontFamily: 'Space Grotesk, sans-serif',
-            fontSize: '15px',
-            color: 'var(--color-text-muted)',
-            maxWidth: '600px',
+            fontSize: '16px',
+            color: 'var(--color-text-secondary)',
+            maxWidth: '560px',
           }}
         >
-          Relive highlights and memorable team moments from Spectrum.
+          Relive the energy, competition, and memorable moments from SPECTRUM festival events.
         </p>
       </div>
 
@@ -197,7 +196,7 @@ export function GalleryPage() {
               initial="enter"
               animate="center"
               exit="exit"
-              transition={{ duration: 0.35, ease: 'easeInOut' }}
+              transition={{ duration: 0.75, ease: [0.25, 1, 0.5, 1] }}
               className="w-full h-full object-contain select-none"
             />
           </AnimatePresence>
@@ -371,43 +370,59 @@ export function GalleryPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/95 backdrop-blur-md"
+            transition={{ duration: 0.4 }}
+            className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/98 backdrop-blur-xl"
             onClick={() => setIsFullscreen(false)}
           >
             <button
               onClick={() => setIsFullscreen(false)}
-              className="absolute top-6 right-6 p-3 text-white border-2 border-white/40 hover:border-white hover:bg-white/10 rounded-full transition-all z-50"
+              className="absolute top-6 right-6 p-3 text-white border-2 border-white/40 hover:border-white hover:bg-white/10 rounded-full transition-all z-[100000]"
+              aria-label="Close Fullscreen View"
             >
               <X size={24} />
             </button>
 
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handlePrev();
-              }}
-              className="absolute left-6 top-1/2 -translate-y-1/2 p-3 text-white border-2 border-white/40 hover:border-white hover:bg-white/10 rounded-full transition-all z-50"
-            >
-              <ChevronLeft size={28} />
-            </button>
+            {items.length > 1 && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlePrev();
+                }}
+                className="absolute left-6 top-1/2 -translate-y-1/2 p-3 text-white border-2 border-white/40 hover:border-white hover:bg-white/10 rounded-full transition-all z-[100000]"
+                aria-label="Previous Photo"
+              >
+                <ChevronLeft size={28} />
+              </button>
+            )}
 
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleNext();
-              }}
-              className="absolute right-6 top-1/2 -translate-y-1/2 p-3 text-white border-2 border-white/40 hover:border-white hover:bg-white/10 rounded-full transition-all z-50"
-            >
-              <ChevronRight size={28} />
-            </button>
+            {items.length > 1 && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleNext();
+                }}
+                className="absolute right-6 top-1/2 -translate-y-1/2 p-3 text-white border-2 border-white/40 hover:border-white hover:bg-white/10 rounded-full transition-all z-[100000]"
+                aria-label="Next Photo"
+              >
+                <ChevronRight size={28} />
+              </button>
+            )}
 
-            <div className="max-w-5xl max-h-[90vh] flex flex-col items-center gap-4" onClick={(e) => e.stopPropagation()}>
-              <img
-                src={currentItem.imageUrl}
-                alt={currentItem.title}
-                className="max-h-[80vh] w-auto object-contain border-2 border-white/20"
-              />
-              <span className="font-hero text-xl text-white uppercase tracking-wider">{currentItem.title}</span>
+            <div className="max-w-6xl max-h-[92vh] flex flex-col items-center gap-4" onClick={(e) => e.stopPropagation()}>
+              <AnimatePresence mode="wait" custom={direction}>
+                <motion.img
+                  key={currentItem.id}
+                  src={currentItem.imageUrl}
+                  alt={currentItem.title}
+                  custom={direction}
+                  initial={{ opacity: 0, scale: 0.97 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 1.03 }}
+                  transition={{ duration: 0.75, ease: [0.25, 1, 0.5, 1] }}
+                  className="max-h-[82vh] w-auto object-contain border-2 border-white/20 select-none shadow-2xl rounded-sm"
+                />
+              </AnimatePresence>
+              <span className="font-hero text-xl text-white uppercase tracking-wider text-center px-4">{currentItem.title}</span>
             </div>
           </motion.div>
         )}
