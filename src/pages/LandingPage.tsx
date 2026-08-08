@@ -26,10 +26,7 @@ const ARCH_CARDS_DATA = [
     color: '#00ff66',
     glowColor: 'rgba(0, 255, 102, 0.4)',
     bgGradient: 'from-green-950/40 via-bg-card to-bg-card',
-    character: 'max',
-    spriteMap: MAX_MAP,
-    spritePalette: MAX_PALETTE,
-    idleRegion: MAX_IDLE_REGION,
+    bgPos: '0% 0%',
   },
   {
     id: 'tech-solo-1',
@@ -42,10 +39,7 @@ const ARCH_CARDS_DATA = [
     color: '#a855f7',
     glowColor: 'rgba(168, 85, 247, 0.4)',
     bgGradient: 'from-purple-950/40 via-bg-card to-bg-card',
-    character: 'eleven',
-    spriteMap: ELEVEN_MAP,
-    spritePalette: ELEVEN_PALETTE,
-    idleRegion: ELEVEN_IDLE_REGION,
+    bgPos: '33.333% 0%',
   },
   {
     id: 'non-tech-1',
@@ -58,10 +52,7 @@ const ARCH_CARDS_DATA = [
     color: '#f59e0b',
     glowColor: 'rgba(245, 158, 11, 0.4)',
     bgGradient: 'from-amber-950/40 via-bg-card to-bg-card',
-    character: 'steve',
-    spriteMap: STEVE_MAP,
-    spritePalette: STEVE_PALETTE,
-    idleRegion: STEVE_IDLE_REGION,
+    bgPos: '66.666% 0%',
   },
   {
     id: 'non-tech-3',
@@ -74,10 +65,7 @@ const ARCH_CARDS_DATA = [
     color: '#3b82f6',
     glowColor: 'rgba(59, 130, 246, 0.4)',
     bgGradient: 'from-blue-950/40 via-bg-card to-bg-card',
-    character: 'lucas',
-    spriteMap: LUCAS_MAP,
-    spritePalette: LUCAS_PALETTE,
-    idleRegion: LUCAS_IDLE_REGION,
+    bgPos: '100% 0%',
   },
 ];
 
@@ -251,37 +239,26 @@ function ArchCard({ data, event, onSelect }: { data: typeof ARCH_CARDS_DATA[0]; 
   return (
     <div
       onClick={onSelect}
-      className={`group cursor-pointer relative flex flex-col items-center p-3 sm:p-4 rounded-t-full rounded-b-lg border-2 bg-gradient-to-b ${data.bgGradient} transition-all duration-300 hover:scale-[1.03] shadow-lg hover:shadow-2xl overflow-hidden`}
+      className={`group cursor-pointer relative flex flex-col items-center p-2.5 sm:p-3.5 rounded-t-full rounded-b-lg border-2 bg-gradient-to-b ${data.bgGradient} transition-all duration-300 hover:scale-[1.03] shadow-lg hover:shadow-2xl overflow-hidden`}
       style={{
         borderColor: data.color,
-        boxShadow: `0 0 20px ${data.glowColor}`,
+        boxShadow: `0 0 24px ${data.glowColor}`,
       }}
     >
-      {/* Top Archway Badge */}
-      <div
-        className="flex items-center gap-1.5 px-3 py-1 rounded-full font-pixel text-[10px] tracking-wider mb-3 text-white border"
-        style={{
-          backgroundColor: 'rgba(0, 0, 0, 0.7)',
-          borderColor: data.color,
-          color: data.color,
-        }}
-      >
-        <span>{data.panelNumber}</span>
-        <span>{data.icon}</span>
-      </div>
-
-      {/* Sprite Container inside Glowing Arch */}
-      <div className="relative w-full aspect-square max-h-[160px] sm:max-h-[180px] flex items-center justify-center my-2 rounded-t-full bg-black/40 border border-white/10 group-hover:border-white/30 transition-colors overflow-hidden">
-        <PixelSprite
-          map={data.spriteMap}
-          palette={data.spritePalette}
-          size="lg"
-          animate={true}
-          idleRegion={data.idleRegion}
+      {/* Archway Character Artwork Display Area */}
+      <div className="relative w-full aspect-[4/5] rounded-t-full overflow-hidden bg-black flex items-center justify-center border border-white/10 group-hover:border-white/30 transition-colors my-1">
+        <div
+          className="w-full h-full transition-transform duration-500 group-hover:scale-105"
+          style={{
+            backgroundImage: "url('/archways_spritesheet.jpg')",
+            backgroundSize: '400% 100%',
+            backgroundPosition: data.bgPos,
+            backgroundRepeat: 'no-repeat',
+          }}
         />
         {/* Neon Floor Aura */}
         <div
-          className="absolute bottom-1 w-20 h-4 rounded-full blur-sm opacity-60 group-hover:opacity-100 transition-opacity"
+          className="absolute bottom-1 w-20 h-4 rounded-full blur-md opacity-60 group-hover:opacity-100 transition-opacity pointer-events-none"
           style={{ backgroundColor: data.color }}
         />
       </div>
