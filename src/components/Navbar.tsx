@@ -49,15 +49,15 @@ export function Navbar() {
         if (onClickExtra) onClickExtra();
       }}
       style={{
-        fontFamily: 'Bangers, cursive',
-        fontSize: '20px',
+        fontFamily: "'Press Start 2P', monospace",
+        fontSize: '9px',
         letterSpacing: '0.05em',
         textTransform: 'uppercase',
         color: 'var(--color-text-primary)',
         textDecoration: isActive(to) ? 'underline' : 'none',
         textDecorationStyle: isActive(to) ? 'solid' : undefined,
-        textDecorationThickness: isActive(to) ? '3px' : undefined,
-        textUnderlineOffset: '4px',
+        textDecorationThickness: isActive(to) ? '2px' : undefined,
+        textUnderlineOffset: '6px',
       }}
       onMouseEnter={(e) => {
         (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline';
