@@ -61,6 +61,12 @@
   font-family: 'Silkscreen', monospace;
 }
 
+.pixel-crisp {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  image-rendering: -webkit-optimize-contrast;
+}
+
 /* --- LIGHT MODE OVERRIDES (keeps dark mode theme to guarantee only dark mode colors exist) --- */
 [data-theme="light"] {
   --color-bg-base:        #060b13;

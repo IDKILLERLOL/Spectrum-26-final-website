@@ -241,16 +241,17 @@ function ArchCard({ data, event, onSelect }: { data: typeof ARCH_CARDS_DATA[0]; 
       onClick={onSelect}
       className="group cursor-pointer relative flex flex-col items-center w-full transition-all duration-300 hover:-translate-y-1.5"
     >
-      {/* Archway Image - Fills full card space seamlessly */}
-      <div className="relative w-full aspect-[4/7] sm:aspect-[4/7.2] overflow-hidden flex items-center justify-center">
+      {/* Archway Image - Ultra-crisp HD pixel rendering & glowing neon aura */}
+      <div className="relative w-full aspect-[4/6.8] sm:aspect-[4/7] overflow-hidden flex items-center justify-center">
         <div
-          className="w-full h-full transition-transform duration-300 group-hover:scale-105"
+          className="w-full h-full transition-transform duration-300 group-hover:scale-105 transform-gpu pixel-crisp"
           style={{
             backgroundImage: "url('/archways_seamless.png')",
             backgroundSize: '400% 100%',
             backgroundPosition: data.bgPos,
             backgroundRepeat: 'no-repeat',
-            filter: `drop-shadow(0 0 16px ${data.glowColor})`,
+            imageRendering: 'pixelated',
+            filter: `drop-shadow(0 0 20px ${data.glowColor}) contrast(1.18) brightness(1.1) saturate(1.25)`,
           }}
         />
       </div>
