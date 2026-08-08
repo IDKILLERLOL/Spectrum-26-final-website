@@ -76,7 +76,7 @@ export function Navbar() {
 
   return (
     <>
-      <div className="sticky top-4 z-[100] w-full flex justify-center pointer-events-none px-3">
+      <div className="fixed top-4 z-[100] w-full flex justify-center pointer-events-none px-3">
         <nav
           className="pointer-events-auto max-w-6xl w-full py-3.5 px-6 flex justify-between items-center gap-6 border rounded-sm"
           style={{
