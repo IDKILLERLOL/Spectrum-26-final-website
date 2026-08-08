@@ -187,7 +187,20 @@ body {
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-
+body::before {
+  content: "";
+  position: fixed;
+  top: 0; 
+  left: 0; 
+  width: 100vw; 
+  height: 100vh;
+  background-image: url(/cave.jpeg);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: -1;
+  opacity: 0.25;
+}
 
 
 /* ─── Typography class utilities ─────────────────────────────── */

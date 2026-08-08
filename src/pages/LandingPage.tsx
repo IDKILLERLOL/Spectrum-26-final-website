@@ -85,19 +85,8 @@ export function LandingPage() {
   }, []);
 
   return (
-    <div className="relative w-full min-h-screen text-white select-none pb-36 sm:pb-24 lg:pb-16 bg-[#040812] overflow-x-hidden">
-      {/* Background Castle & Red Lightning Hero Banner */}
-      <div className="absolute -top-36 left-0 right-0 h-[750px] sm:h-[900px] lg:h-[1100px] overflow-hidden pointer-events-none z-0">
-        <div
-          className="w-full h-full opacity-40 bg-cover bg-top"
-          style={{
-            backgroundImage: 'url(/cave.jpeg)',
-            maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%)',
-            WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%)',
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-red-950/30 via-transparent to-[#040812]" />
-      </div>
+    <div className="relative w-full min-h-screen text-white select-none pb-36 sm:pb-24 lg:pb-16 bg-transparent overflow-x-hidden">
+
 
       <div className="relative z-10 max-w-7xl mx-auto px-3.5 sm:px-6 pt-12 sm:pt-24 flex flex-col gap-16 sm:gap-28">
 
