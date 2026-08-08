@@ -47,6 +47,30 @@ export const SLIDESHOW_ITEMS: SlideshowItem[] = [
     imageUrl: '/gallery/gaming_desk.jpg',
     caption: 'Gamers going head-to-head in the intense console esports event.',
   },
+  {
+    id: 'slide-7',
+    title: 'SPECTRUM 4.0 — Photo Booth & Inauguration',
+    imageUrl: '/gallery/photo_booth.jpg',
+    caption: 'Faculty members, dignitaries, and event heads posing at the SPECTRUM 4.0 photo frame.',
+  },
+  {
+    id: 'slide-8',
+    title: 'SPECTRUM — Department Dignitaries & Faculty',
+    imageUrl: '/gallery/faculty_hallway_1.jpg',
+    caption: 'Faculty and department heads gathered under the binary code festival decorations.',
+  },
+  {
+    id: 'slide-9',
+    title: 'SPECTRUM — Organizers & Faculty Reception',
+    imageUrl: '/gallery/faculty_hallway_2.jpg',
+    caption: 'Faculty mentors, event coordinators, and core leads gathered in the main department corridor.',
+  },
+  {
+    id: 'slide-10',
+    title: 'SPECTRUM — Codopoly Championship Arena',
+    imageUrl: '/gallery/codopoly_arena.jpg',
+    caption: 'Faculty members and participants observing the intense Codopoly tournament match.',
+  },
 ];
 
 export function GalleryPage() {
