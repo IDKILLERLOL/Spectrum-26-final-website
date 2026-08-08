@@ -243,15 +243,9 @@ function ArchCard({ data, event, onSelect }: { data: typeof ARCH_CARDS_DATA[0]; 
   return (
     <div
       onClick={onSelect}
-      className="group cursor-pointer relative flex flex-col items-center w-full transition-all duration-300 hover:-translate-y-2"
+      className="group cursor-pointer relative flex flex-col items-center w-full transition-all duration-300 hover:-translate-y-1.5"
     >
-      {/* Background Neon Aura Pulse */}
-      <div
-        className="absolute top-4 inset-x-2 bottom-16 rounded-t-full blur-2xl opacity-40 group-hover:opacity-80 transition-opacity pointer-events-none"
-        style={{ backgroundColor: data.color }}
-      />
-
-      {/* Archway Image - Ultra HD Crisp & Multi-Layered Neon Glow */}
+      {/* Archway Image - Ultra HD Crisp with Subtle Glow */}
       <div className="relative w-full aspect-[4/6.4] min-h-[240px] sm:min-h-[290px] overflow-hidden flex items-center justify-center z-10">
         <div
           className="w-full h-full transition-transform duration-500 group-hover:scale-105 transform-gpu pixel-crisp"
@@ -261,18 +255,18 @@ function ArchCard({ data, event, onSelect }: { data: typeof ARCH_CARDS_DATA[0]; 
             backgroundPosition: data.bgPos,
             backgroundRepeat: 'no-repeat',
             imageRendering: 'pixelated',
-            filter: `drop-shadow(0 0 12px ${data.color}) drop-shadow(0 0 30px ${data.color}) contrast(1.22) brightness(1.14) saturate(1.35)`,
+            filter: `drop-shadow(0 0 8px ${data.color}) contrast(1.15) brightness(1.08) saturate(1.2)`,
           }}
         />
       </div>
 
-      {/* Details Footer - Below Archway with Neon Text Glow */}
+      {/* Details Footer - Below Archway */}
       <div className="w-full flex flex-col gap-1 text-center mt-1 z-10">
         <h3
           className="font-pixel text-[11px] sm:text-xs font-bold leading-tight tracking-wide"
           style={{
             color: data.color,
-            textShadow: `0 0 10px ${data.color}, 0 2px 4px rgba(0,0,0,0.9)`,
+            textShadow: '0 2px 4px rgba(0, 0, 0, 0.9)',
           }}
         >
           {data.title}
@@ -287,7 +281,6 @@ function ArchCard({ data, event, onSelect }: { data: typeof ARCH_CARDS_DATA[0]; 
             className="font-pixel text-xs font-bold"
             style={{
               color: data.color,
-              textShadow: `0 0 8px ${data.color}`,
             }}
           >
             {data.price}
@@ -299,7 +292,6 @@ function ArchCard({ data, event, onSelect }: { data: typeof ARCH_CARDS_DATA[0]; 
           className="font-pixel text-[10px] mt-0.5 animate-bounce"
           style={{
             color: data.color,
-            textShadow: `0 0 8px ${data.color}`,
           }}
         >
           vv
