@@ -87,7 +87,7 @@ export function LandingPage() {
   return (
     <div className="relative w-full min-h-screen text-white select-none pb-36 sm:pb-24 lg:pb-16 bg-[#040812] overflow-x-hidden">
       {/* Background Castle & Red Lightning Hero Banner */}
-      <div className="absolute top-0 left-0 right-0 h-[550px] sm:h-[650px] lg:h-[800px] overflow-hidden pointer-events-none z-0">
+      <div className="absolute -top-12 left-0 right-0 h-[600px] sm:h-[750px] lg:h-[900px] overflow-hidden pointer-events-none z-0">
         <div
           className="w-full h-full opacity-40 bg-cover bg-top"
           style={{
@@ -99,22 +99,22 @@ export function LandingPage() {
         <div className="absolute inset-0 bg-gradient-to-b from-red-950/30 via-transparent to-[#040812]" />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-3.5 sm:px-6 pt-4 sm:pt-10 flex flex-col gap-6 sm:gap-10">
+      <div className="relative z-10 max-w-7xl mx-auto px-3.5 sm:px-6 pt-12 sm:pt-24 flex flex-col gap-16 sm:gap-28">
 
         {/* Centered Hero Top Header: Title, Countdown Timer & High-Attention CTA Buttons */}
-        <div className="flex flex-col items-center text-center gap-4 sm:gap-6 pt-2 max-w-4xl mx-auto">
+        <div className="flex flex-col items-center text-center gap-6 sm:gap-10 pt-4 max-w-4xl mx-auto">
           {/* Main Pixel Title */}
           <h1 className="font-pixel text-4xl sm:text-7xl lg:text-8xl text-white tracking-wider leading-none drop-shadow-[0_4px_16px_rgba(0,0,0,0.9)] flex items-center justify-center gap-3 sm:gap-5 flex-wrap">
             SPECTRUM <span className="text-red-600 drop-shadow-[0_0_25px_rgba(255,51,51,0.9)]">5.0</span>
           </h1>
 
           {/* Centered High-Attention Countdown Box */}
-          <div className="w-full max-w-md my-1">
+          <div className="w-full max-w-md my-4">
             <CountdownBox />
           </div>
 
           {/* Centered High-Attention Hero CTAs */}
-          <div className="flex items-center justify-center gap-3 sm:gap-5 flex-wrap w-full mt-1">
+          <div className="flex items-center justify-center gap-3 sm:gap-5 flex-wrap w-full mt-2">
             <Link
               to="/events"
               onClick={() => playSynthSound('laser')}
@@ -126,7 +126,7 @@ export function LandingPage() {
         </div>
 
         {/* 4 Neon Archway Event Cards Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-5 items-stretch mt-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-8 items-stretch mt-12">
           {ARCH_CARDS_DATA.map((card) => {
             const matchingEvent = events.find(e => e.id === card.id);
             return (
