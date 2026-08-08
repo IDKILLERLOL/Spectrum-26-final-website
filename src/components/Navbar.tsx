@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../lib/useAuth';
 import { getMyRegistrations, getUser } from '../lib/firestore';
 import { playSynthSound, setSoundEnabled } from '../lib/audio';
-import { Volume2, VolumeX, Sun, Moon, LogIn, LogOut, User, Menu, X, Home, Calendar, Trophy, Mail, MoreHorizontal, Award } from 'lucide-react';
+import { Volume2, VolumeX, Sun, Moon, LogIn, LogOut, User, Menu, X, Home, Calendar, Trophy, Mail, MoreHorizontal, Award, Instagram, Gamepad2, Terminal } from 'lucide-react';
 
 export function Navbar() {
   const location = useLocation();
@@ -94,7 +94,7 @@ export function Navbar() {
             className="flex items-center gap-2.5 text-decoration-none group"
           >
             <div className="w-8 h-8 rounded bg-gradient-to-br from-red-600 to-red-950 flex items-center justify-center border border-red-500/50 shadow-[0_0_12px_rgba(255,51,51,0.5)]">
-              <span className="text-red-400 font-bold text-sm">😈</span>
+              <Terminal className="text-red-400" size={16} />
             </div>
             <div className="flex flex-col">
               <span className="font-pixel text-base sm:text-lg tracking-wider text-white group-hover:text-red-400 transition-colors flex items-center gap-1.5">
@@ -123,7 +123,7 @@ export function Navbar() {
               className="w-9 h-9 rounded bg-white/5 border border-white/10 flex items-center justify-center text-text-secondary hover:text-white hover:border-red-500/50 transition-colors"
               aria-label="Instagram"
             >
-              <span className="text-xs font-mono">📷</span>
+              <Instagram size={15} />
             </a>
             <a
               href="https://discord.com"
@@ -132,7 +132,7 @@ export function Navbar() {
               className="w-9 h-9 rounded bg-white/5 border border-white/10 flex items-center justify-center text-text-secondary hover:text-white hover:border-red-500/50 transition-colors"
               aria-label="Discord"
             >
-              <span className="text-xs font-mono">🎮</span>
+              <Gamepad2 size={15} />
             </a>
 
             <Link
@@ -276,7 +276,7 @@ export function Navbar() {
             onClick={() => playSynthSound('click')}
             className={`flex flex-col items-center gap-1 ${location.pathname === '/events' ? 'text-red-500' : 'text-text-muted hover:text-white'}`}
           >
-            <span className="text-sm">⚔️</span>
+            <Gamepad2 size={18} />
             <span className="font-pixel text-[9px]">EVENTS</span>
           </Link>
 
