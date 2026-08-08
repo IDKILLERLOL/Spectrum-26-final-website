@@ -444,7 +444,7 @@ function ChooseFighter({ isMobile, walkFactor }: { isMobile: boolean; walkFactor
                 flexDirection: 'column',
                 alignItems: 'center',
                 animation: 'character-idle-float 1.2s steps(2) infinite',
-                animationDelay: `${originalIdx * 0.25}s`,
+                animationDelay: `${originalIdx % 2 === 0 ? '0s' : '-0.6s'}`,
                 width: '100%',
               }}
             >
