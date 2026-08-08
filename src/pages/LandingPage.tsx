@@ -96,80 +96,69 @@ export function LandingPage() {
 
       <div className="relative z-10 max-w-7xl mx-auto px-3.5 sm:px-6 pt-4 sm:pt-10 flex flex-col gap-6 sm:gap-10">
 
-        {/* Hero Top Grid: Title & Countdown (Left) + 4 Archway Cards (Right) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
+        {/* Centered Hero Top Header: Title, Countdown Timer & High-Attention CTA Buttons */}
+        <div className="flex flex-col items-center text-center gap-4 sm:gap-6 pt-2 max-w-4xl mx-auto">
+          {/* Tagline Badge */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-red-950/80 border border-red-500/50 text-red-400 font-pixel text-[9px] sm:text-xs tracking-wider uppercase shadow-[0_0_15px_rgba(255,51,51,0.35)]">
+            <span>☠</span> 4 EVENTS. 1 ULTIMATE BATTLE.
+          </div>
 
-          {/* Left Column: Title, Subtitle, CTA & Countdown */}
-          <div className="lg:col-span-5 flex flex-col gap-4 sm:gap-6 pt-1">
+          {/* Main Pixel Title */}
+          <h1 className="font-pixel text-4xl sm:text-7xl lg:text-8xl text-white tracking-wider leading-none drop-shadow-[0_4px_16px_rgba(0,0,0,0.9)] flex items-center justify-center gap-3 sm:gap-5 flex-wrap">
+            SPECTRUM <span className="text-red-600 drop-shadow-[0_0_25px_rgba(255,51,51,0.9)]">5.0</span>
+          </h1>
+
+          {/* Subtitle with Pixelated Fonts */}
+          <div className="flex flex-col gap-1.5 max-w-lg">
+            <p className="font-pixel text-xs sm:text-base text-red-400 font-bold leading-snug tracking-wide drop-shadow-[0_0_12px_rgba(255,51,51,0.6)]">
+              The ultimate tech and gaming showdown.
+            </p>
+            <p className="font-silkscreen text-[10px] sm:text-xs text-white uppercase tracking-[0.2em] font-semibold drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]">
+              Code. Compete. Conquer.
+            </p>
+          </div>
+
+          {/* Centered High-Attention Countdown Box */}
+          <div className="w-full max-w-md my-1">
+            <CountdownBox />
+          </div>
+
+          {/* Centered High-Attention Hero CTAs */}
+          <div className="flex items-center justify-center gap-3 sm:gap-5 flex-wrap w-full mt-1">
+            <Link
+              to="/events"
+              onClick={() => playSynthSound('laser')}
+              className="px-6 py-3 sm:px-8 sm:py-4 rounded-md bg-gradient-to-r from-red-700 via-red-600 to-red-700 hover:from-red-600 hover:to-red-600 text-white font-pixel text-xs sm:text-sm uppercase tracking-wider border border-red-400/60 shadow-[0_0_25px_rgba(255,51,51,0.7)] hover:shadow-[0_0_35px_rgba(255,51,51,1)] transition-all flex items-center gap-2 sm:gap-2.5 font-bold active:scale-95"
+            >
+              <span>🏆</span> EXPLORE EVENTS <span>→</span>
+            </Link>
             
-            {/* Tagline Badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-950/70 border border-red-500/40 text-red-400 font-pixel text-[9px] sm:text-[10px] tracking-wider uppercase w-fit shadow-[0_0_15px_rgba(255,51,51,0.3)]">
-              <span>☠</span> 4 EVENTS. 1 ULTIMATE BATTLE.
-            </div>
-
-            {/* Main Pixel Title */}
-            <div className="flex flex-col gap-0.5 sm:gap-1">
-              <h1 className="font-pixel text-3xl sm:text-6xl lg:text-5xl xl:text-6xl text-white tracking-wider leading-none drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
-                SPECTRUM
-              </h1>
-              <span className="font-pixel text-3xl sm:text-6xl lg:text-5xl xl:text-6xl text-red-600 tracking-wider leading-none drop-shadow-[0_0_20px_rgba(255,51,51,0.8)]">
-                5.0
-              </span>
-            </div>
-
-            {/* Subtitle with Lively Pixelated Fonts */}
-            <div className="flex flex-col gap-1.5 max-w-md my-0.5">
-              <p className="font-pixel text-[11px] sm:text-sm text-red-400 font-bold leading-snug tracking-wide drop-shadow-[0_0_12px_rgba(255,51,51,0.6)]">
-                The ultimate tech and gaming showdown.
-              </p>
-              <p className="font-silkscreen text-[10px] sm:text-xs text-white uppercase tracking-[0.15em] font-semibold drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]">
-                Code. Compete. Conquer.
-              </p>
-            </div>
-
-            {/* Hero CTAs */}
-            <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
-              <Link
-                to="/events"
-                onClick={() => playSynthSound('laser')}
-                className="px-4 py-2.5 sm:px-6 sm:py-3 rounded-md bg-gradient-to-r from-red-700 via-red-600 to-red-700 hover:from-red-600 hover:to-red-600 text-white font-pixel text-[10px] sm:text-xs uppercase tracking-wider border border-red-400/50 shadow-[0_0_20px_rgba(255,51,51,0.6)] hover:shadow-[0_0_30px_rgba(255,51,51,0.9)] transition-all flex items-center gap-1.5 sm:gap-2 font-bold active:scale-95"
-              >
-                <span>🏆</span> EXPLORE EVENTS <span>→</span>
-              </Link>
-              
-              <Link
-                to="/schedule"
-                onClick={() => playSynthSound('click')}
-                className="px-4 py-2.5 sm:px-6 sm:py-3 rounded-md bg-bg-card hover:bg-white/10 text-white font-pixel text-[10px] sm:text-xs uppercase tracking-wider border border-white/20 hover:border-white/40 transition-all flex items-center gap-1.5 sm:gap-2 active:scale-95"
-              >
-                HOW IT WORKS <span className="text-red-500 text-[10px] sm:text-xs">▶</span>
-              </Link>
-            </div>
-
-            {/* Cyberpunk Red Countdown Box */}
-            <div className="mt-1">
-              <CountdownBox />
-            </div>
+            <Link
+              to="/schedule"
+              onClick={() => playSynthSound('click')}
+              className="px-5 py-3 sm:px-7 sm:py-4 rounded-md bg-bg-card hover:bg-white/10 text-white font-pixel text-xs sm:text-sm uppercase tracking-wider border border-white/25 hover:border-white/50 transition-all flex items-center gap-2 active:scale-95"
+            >
+              HOW IT WORKS <span className="text-red-500 text-xs sm:text-sm">▶</span>
+            </Link>
           </div>
+        </div>
 
-          {/* Right Column: 4 Neon Archway Cards Grid */}
-          <div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4 items-stretch">
-            {ARCH_CARDS_DATA.map((card) => {
-              const matchingEvent = events.find(e => e.id === card.id);
-              return (
-                <ArchCard
-                  key={card.id}
-                  data={card}
-                  event={matchingEvent}
-                  onSelect={() => {
-                    playSynthSound('laser');
-                    startCurl('forward', `/event/${card.id}`);
-                  }}
-                />
-              );
-            })}
-          </div>
-
+        {/* 4 Neon Archway Event Cards Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-5 items-stretch mt-4">
+          {ARCH_CARDS_DATA.map((card) => {
+            const matchingEvent = events.find(e => e.id === card.id);
+            return (
+              <ArchCard
+                key={card.id}
+                data={card}
+                event={matchingEvent}
+                onSelect={() => {
+                  playSynthSound('laser');
+                  startCurl('forward', `/event/${card.id}`);
+                }}
+              />
+            );
+          })}
         </div>
 
         {/* Bottom Feature Cards Row */}
