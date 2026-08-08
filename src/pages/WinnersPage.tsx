@@ -155,9 +155,9 @@ export function WinnersPage() {
             display: 'inline-flex',
             alignItems: 'center',
             gap: '6px',
-            fontFamily: 'Bangers, cursive',
-            fontSize: '13px',
-            padding: '3px 12px',
+            fontFamily: "'Press Start 2P', monospace",
+            fontSize: '11px',
+            padding: '4px 12px',
             background: 'var(--color-text-primary)',
             color: 'var(--color-bg-base)',
             width: 'fit-content',
@@ -169,9 +169,9 @@ export function WinnersPage() {
         </span>
         <h1
           style={{
-            fontFamily: 'Bangers, cursive',
-            fontSize: 'clamp(50px, 9vw, 84px)',
-            lineHeight: 0.9,
+            fontFamily: "'Press Start 2P', monospace",
+            fontSize: 'clamp(28px, 6vw, 54px)',
+            lineHeight: 1.1,
             letterSpacing: '0.04em',
             textTransform: 'uppercase',
             color: 'var(--color-text-primary)',
@@ -245,7 +245,7 @@ export function WinnersPage() {
                 </h3>
 
                 {/* Physical Podium Layout */}
-                <div className="flex items-end justify-center gap-2 pt-6 h-[200px]" style={{ fontFamily: 'Bangers, cursive', userSelect: 'none' }}>
+                <div className="flex items-end justify-center gap-2 pt-6 h-[200px]" style={{ fontFamily: "'Press Start 2P', monospace", userSelect: 'none', fontSize: '10px' }}>
                   {/* 2nd Place (Silver) */}
                   <div className="flex flex-col items-center flex-1">
                     <div className="text-center mb-2 px-1 w-full truncate" style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '11px', fontWeight: 700 }}>

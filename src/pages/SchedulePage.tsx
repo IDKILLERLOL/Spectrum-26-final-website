@@ -64,10 +64,10 @@ function ScheduleCard({ slot }: { slot: ScheduleSlot }) {
           <span
             className="comic-badge"
             style={{
-              fontFamily: 'Bangers, cursive',
-              fontSize: '14px',
+              fontFamily: "'Press Start 2P', monospace",
+              fontSize: '11px',
               letterSpacing: '0.08em',
-              padding: '2px 12px',
+              padding: '4px 12px',
               background: cfg.fill ? 'var(--color-text-primary)' : 'var(--badge-bg)',
               color: cfg.fill ? 'var(--color-bg-base)' : 'var(--color-text-primary)',
               border: '2px solid var(--border-color)',
@@ -81,12 +81,12 @@ function ScheduleCard({ slot }: { slot: ScheduleSlot }) {
         {/* Title */}
         <h3
           style={{
-            fontFamily: 'Bangers, cursive',
-            fontSize: '26px',
+            fontFamily: "'Press Start 2P', monospace",
+            fontSize: '16px',
             letterSpacing: '0.04em',
             textTransform: 'uppercase',
             color: 'var(--color-text-primary)',
-            lineHeight: 1.1,
+            lineHeight: 1.2,
           }}
         >
           {slot.title}
@@ -176,9 +176,9 @@ export function SchedulePage() {
         <div
           className="comic-badge inline-block mb-4"
           style={{
-            padding: '4px 16px',
-            fontSize: '14px',
-            fontFamily: 'Bangers, cursive',
+            padding: '6px 16px',
+            fontSize: '11px',
+            fontFamily: "'Press Start 2P', monospace",
             background: 'var(--color-text-primary)',
             color: 'var(--color-bg-base)',
             transform: 'rotate(-1.5deg)',
@@ -188,9 +188,9 @@ export function SchedulePage() {
         </div>
         <h1
           style={{
-            fontFamily: 'Bangers, cursive',
-            fontSize: 'clamp(56px, 10vw, 120px)',
-            lineHeight: 0.95,
+            fontFamily: "'Press Start 2P', monospace",
+            fontSize: 'clamp(28px, 6vw, 54px)',
+            lineHeight: 1.1,
             letterSpacing: '0.04em',
             textTransform: 'uppercase',
             color: 'var(--color-text-primary)',
@@ -224,9 +224,9 @@ export function SchedulePage() {
           <div
             className="comic-badge"
             style={{
-              fontFamily: 'Bangers, cursive',
-              fontSize: '40px',
-              padding: '8px 24px',
+              fontFamily: "'Press Start 2P', monospace",
+              fontSize: '24px',
+              padding: '12px 24px',
               transform: 'rotate(-2deg)',
               color: 'var(--color-text-primary)',
             }}

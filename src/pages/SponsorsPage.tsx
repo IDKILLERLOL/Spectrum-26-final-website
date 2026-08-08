@@ -54,9 +54,9 @@ export function SponsorsPage() {
             display: 'inline-flex',
             alignItems: 'center',
             gap: '6px',
-            fontFamily: 'Bangers, cursive',
-            fontSize: '13px',
-            padding: '3px 12px',
+            fontFamily: "'Press Start 2P', monospace",
+            fontSize: '11px',
+            padding: '4px 12px',
             background: 'var(--color-text-primary)',
             color: 'var(--color-bg-base)',
             width: 'fit-content',
@@ -68,9 +68,9 @@ export function SponsorsPage() {
         </span>
         <h1
           style={{
-            fontFamily: 'Bangers, cursive',
-            fontSize: 'clamp(50px, 9vw, 84px)',
-            lineHeight: 0.9,
+            fontFamily: "'Press Start 2P', monospace",
+            fontSize: 'clamp(28px, 6vw, 54px)',
+            lineHeight: 1.1,
             letterSpacing: '0.04em',
             textTransform: 'uppercase',
             color: 'var(--color-text-primary)',
@@ -96,7 +96,7 @@ export function SponsorsPage() {
             <div className="flex justify-between items-start mb-4">
               <h2 
                 className="font-hero text-2xl uppercase tracking-wide text-primary leading-tight flex-1 mr-2"
-                style={{ fontFamily: 'Bangers, cursive', textShadow: 'none' }}
+                style={{ fontFamily: "'Press Start 2P', monospace", textShadow: 'none', fontSize: '14px' }}
               >
                 {s.name}
               </h2>

@@ -212,7 +212,7 @@ export function EventsPage() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <h3 style={{ fontFamily: 'Bangers, cursive', fontSize: '32px', color: 'var(--color-text-primary)' }}>
+                  <h3 style={{ fontFamily: "'Press Start 2P', monospace", fontSize: '20px', color: 'var(--color-text-primary)' }}>
                     {e.name}
                   </h3>
                   <p style={{ fontFamily: 'Space Grotesk, sans-serif', color: 'var(--color-text-secondary)', fontSize: '14px' }}>
@@ -499,7 +499,7 @@ export function EventsPage() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <h3 style={{ fontFamily: 'Bangers, cursive', fontSize: '32px', color: 'var(--color-text-primary)' }}>
+                  <h3 style={{ fontFamily: "'Press Start 2P', monospace", fontSize: '20px', color: 'var(--color-text-primary)' }}>
                     {e.name}
                   </h3>
                   <p style={{ fontFamily: 'Space Grotesk, sans-serif', color: 'var(--color-text-secondary)', fontSize: '14px' }}>

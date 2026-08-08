@@ -32,9 +32,9 @@ export function ContactPage() {
         <span
           className="comic-badge inline-block"
           style={{
-            fontFamily: 'Bangers, cursive',
-            fontSize: '13px',
-            padding: '3px 12px',
+            fontFamily: "'Press Start 2P', monospace",
+            fontSize: '11px',
+            padding: '4px 12px',
             background: 'var(--color-text-primary)',
             color: 'var(--color-bg-base)',
             width: 'fit-content',
@@ -45,9 +45,9 @@ export function ContactPage() {
         </span>
         <h1
           style={{
-            fontFamily: 'Bangers, cursive',
-            fontSize: 'clamp(44px, 8vw, 72px)',
-            lineHeight: 0.95,
+            fontFamily: "'Press Start 2P', monospace",
+            fontSize: 'clamp(28px, 6vw, 54px)',
+            lineHeight: 1.1,
             letterSpacing: '0.04em',
             textTransform: 'uppercase',
             color: 'var(--color-text-primary)',
@@ -65,7 +65,7 @@ export function ContactPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
         <div className="p-6 comic-border-thick flex flex-col gap-6" style={{ background: 'var(--panel-bg)' }}>
           <div>
-            <h3 style={{ fontFamily: 'Bangers, cursive', fontSize: '24px', letterSpacing: '0.04em', color: 'var(--color-text-primary)', textTransform: 'uppercase', marginBottom: '8px' }}>
+            <h3 style={{ fontFamily: "'Press Start 2P', monospace", fontSize: '16px', letterSpacing: '0.04em', color: 'var(--color-text-primary)', textTransform: 'uppercase', marginBottom: '8px' }}>
               REGISTRATION DESK
             </h3>
             <p style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '15px', color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
@@ -103,7 +103,7 @@ export function ContactPage() {
           </div>
 
           <div style={{ borderTop: '2px solid var(--border-color)', paddingTop: '16px' }}>
-            <h3 style={{ fontFamily: 'Bangers, cursive', fontSize: '20px', letterSpacing: '0.04em', color: 'var(--color-text-primary)', textTransform: 'uppercase', marginBottom: '8px' }}>
+            <h3 style={{ fontFamily: "'Press Start 2P', monospace", fontSize: '14px', letterSpacing: '0.04em', color: 'var(--color-text-primary)', textTransform: 'uppercase', marginBottom: '8px' }}>
               VENUE DETAILS
             </h3>
             <p style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '14px', color: 'var(--color-text-secondary)', lineHeight: 1.5, whiteSpace: 'pre-line' }}>

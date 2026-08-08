@@ -116,9 +116,9 @@ export function PublicEventDetailPage() {
         {/* Title */}
         <h1
           style={{
-            fontFamily: 'Bangers, cursive',
-            fontSize: 'clamp(44px, 8vw, 64px)',
-            lineHeight: 1.0,
+            fontFamily: "'Press Start 2P', monospace",
+            fontSize: 'clamp(24px, 5vw, 44px)',
+            lineHeight: 1.1,
             letterSpacing: '0.04em',
             textTransform: 'uppercase',
             color: 'var(--color-text-primary)',

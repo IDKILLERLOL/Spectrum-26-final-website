@@ -62,9 +62,9 @@ export function PublicRegistrationsPage() {
         <span
           className="comic-badge inline-block"
           style={{
-            fontFamily: 'Bangers, cursive',
-            fontSize: '13px',
-            padding: '3px 12px',
+            fontFamily: "'Press Start 2P', monospace",
+            fontSize: '11px',
+            padding: '4px 12px',
             background: 'var(--color-text-primary)',
             color: 'var(--color-bg-base)',
             width: 'fit-content',
@@ -75,9 +75,9 @@ export function PublicRegistrationsPage() {
         </span>
         <h1
           style={{
-            fontFamily: 'Bangers, cursive',
-            fontSize: 'clamp(44px, 8vw, 72px)',
-            lineHeight: 0.95,
+            fontFamily: "'Press Start 2P', monospace",
+            fontSize: 'clamp(28px, 6vw, 54px)',
+            lineHeight: 1.1,
             letterSpacing: '0.04em',
             textTransform: 'uppercase',
             color: 'var(--color-text-primary)',
@@ -154,7 +154,7 @@ export function PublicRegistrationsPage() {
                       {reg.feeStatus}
                     </span>
                   </div>
-                  <h3 style={{ fontFamily: 'Bangers, cursive', fontSize: '24px', letterSpacing: '0.04em', color: 'var(--color-text-primary)', textTransform: 'uppercase', marginBottom: '4px' }}>
+                  <h3 style={{ fontFamily: "'Press Start 2P', monospace", fontSize: '16px', letterSpacing: '0.04em', color: 'var(--color-text-primary)', textTransform: 'uppercase', marginBottom: '4px' }}>
                     {reg.teamName || 'Solo Competitor'}
                   </h3>
                 </div>

@@ -154,9 +154,9 @@ export function GalleryPage() {
 
         <h1
           style={{
-            fontFamily: 'Bangers, cursive',
-            fontSize: 'clamp(40px, 8vw, 80px)',
-            lineHeight: 0.95,
+            fontFamily: "'Press Start 2P', monospace",
+            fontSize: 'clamp(24px, 5vw, 54px)',
+            lineHeight: 1.1,
             letterSpacing: '0.04em',
             color: 'var(--color-text-primary)',
             textShadow: '3px 3px 0px rgba(0,0,0,0.4)',
@@ -263,8 +263,8 @@ export function GalleryPage() {
           <div className="flex flex-col gap-1">
             <h3
               style={{
-                fontFamily: 'Bangers, cursive',
-                fontSize: '26px',
+                fontFamily: "'Press Start 2P', monospace",
+                fontSize: '16px',
                 letterSpacing: '0.04em',
                 color: 'var(--color-text-primary)',
                 textTransform: 'uppercase',
@@ -311,8 +311,8 @@ export function GalleryPage() {
       <div className="flex flex-col gap-4 mt-2">
         <h4
           style={{
-            fontFamily: 'Bangers, cursive',
-            fontSize: '22px',
+            fontFamily: "'Press Start 2P', monospace",
+            fontSize: '14px',
             letterSpacing: '0.05em',
             textTransform: 'uppercase',
             color: 'var(--color-text-primary)',
@@ -347,8 +347,8 @@ export function GalleryPage() {
                 <div className="p-3">
                   <span
                     style={{
-                      fontFamily: 'Bangers, cursive',
-                      fontSize: '18px',
+                      fontFamily: "'Press Start 2P', monospace",
+                      fontSize: '12px',
                       color: 'var(--color-text-primary)',
                       display: 'block',
                       textTransform: 'uppercase',
