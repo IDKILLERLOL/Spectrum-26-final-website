@@ -36,10 +36,11 @@ const ARCH_CARDS_DATA = [
     desc: 'Solo arena battle.',
     format: 'INDIVIDUAL',
     price: '₹50',
-    color: '#a855f7',
-    glowColor: 'rgba(168, 85, 247, 0.4)',
-    bgGradient: 'from-purple-950/40 via-bg-card to-bg-card',
+    color: '#00ffff',
+    glowColor: 'rgba(0, 255, 255, 0.4)',
+    bgGradient: 'from-cyan-950/40 via-bg-card to-bg-card',
     bgPos: '33.333% 0%',
+    customImage: '/fortnite_pedestal_character.jpg',
   },
   {
     id: 'non-tech-1',
@@ -236,17 +237,28 @@ function ArchCard({ data, event, onSelect }: { data: typeof ARCH_CARDS_DATA[0]; 
     >
       {/* Archway Image - Ultra HD Crisp with Subtle Glow */}
       <div className="relative w-full aspect-[4/6] sm:aspect-[4/6.4] min-h-[190px] sm:min-h-[290px] overflow-hidden flex items-center justify-center z-10">
-        <div
-          className="w-full h-full transition-transform duration-500 group-hover:scale-105 transform-gpu pixel-crisp"
-          style={{
-            backgroundImage: "url('/archways_seamless.png')",
-            backgroundSize: '400% 100%',
-            backgroundPosition: data.bgPos,
-            backgroundRepeat: 'no-repeat',
-            imageRendering: 'pixelated',
-            filter: `drop-shadow(0 0 8px ${data.color}) contrast(1.15) brightness(1.08) saturate(1.2)`,
-          }}
-        />
+        {data.customImage ? (
+          <img
+            src={data.customImage}
+            alt={data.title}
+            className="w-full h-full object-contain rounded-t-full transition-transform duration-500 group-hover:scale-105 pixel-crisp"
+            style={{
+              filter: `drop-shadow(0 0 10px ${data.color}) contrast(1.15) brightness(1.08)`,
+            }}
+          />
+        ) : (
+          <div
+            className="w-full h-full transition-transform duration-500 group-hover:scale-105 transform-gpu pixel-crisp"
+            style={{
+              backgroundImage: "url('/archways_seamless.png')",
+              backgroundSize: '400% 100%',
+              backgroundPosition: data.bgPos,
+              backgroundRepeat: 'no-repeat',
+              imageRendering: 'pixelated',
+              filter: `drop-shadow(0 0 8px ${data.color}) contrast(1.15) brightness(1.08) saturate(1.2)`,
+            }}
+          />
+        )}
       </div>
 
       {/* Details Footer - Below Archway */}
