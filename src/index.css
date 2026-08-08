@@ -623,10 +623,7 @@ body::before {
    GLOBAL RETRO VIDEO GAME STYLING OVERRIDES
 ═══════════════════════════════════════════════════════════════ */
 
-/* Remove all rounded corners across the site */
-* {
-  border-radius: 0px !important;
-}
+
 
 /* Red title neon text shadow (Stranger Things game style) */
 h1, h2, h3, h4, h5, h6, .font-hero, .font-pixel, .font-heading, .font-section, .font-action {
