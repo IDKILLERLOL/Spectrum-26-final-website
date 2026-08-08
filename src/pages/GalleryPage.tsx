@@ -17,6 +17,36 @@ export const SLIDESHOW_ITEMS: SlideshowItem[] = [
     imageUrl: '/gallery/gallery_1.jpg',
     caption: 'Organizers, committee heads, and volunteers celebrating a successful festival kickoff.',
   },
+  {
+    id: 'slide-2',
+    title: 'SPECTRUM — Code Clash Challenge',
+    imageUrl: '/gallery/code_clash.jpg',
+    caption: 'Participants locked in deep focus during the high-stakes Code Clash lab session.',
+  },
+  {
+    id: 'slide-3',
+    title: 'SPECTRUM — Executive Leads & Heads',
+    imageUrl: '/gallery/spectrum_heads.jpg',
+    caption: 'President, Vice President, and Committee Heads showcasing their official SPECTRUM team hoodies.',
+  },
+  {
+    id: 'slide-4',
+    title: 'SPECTRUM — Wall of Handprints Banner',
+    imageUrl: '/gallery/spectrum_wall_banner.jpg',
+    caption: 'The iconic SPECTRUM 4.0 handprint art mural celebrating unity and festival spirit.',
+  },
+  {
+    id: 'slide-5',
+    title: 'SPECTRUM — Codopoly Board Game Face-Off',
+    imageUrl: '/gallery/codopoly_session.jpg',
+    caption: 'Teams competing strategically in the CS topic board game Codopoly.',
+  },
+  {
+    id: 'slide-6',
+    title: 'SPECTRUM — Esports & Console Battle',
+    imageUrl: '/gallery/gaming_desk.jpg',
+    caption: 'Gamers going head-to-head in the intense console esports event.',
+  },
 ];
 
 export function GalleryPage() {
