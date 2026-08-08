@@ -138,9 +138,9 @@ export function Navbar() {
             <Link
               to="/events"
               onClick={() => playSynthSound('laser')}
-              className="px-5 py-2.5 rounded bg-gradient-to-r from-red-700 via-red-600 to-red-700 hover:from-red-600 hover:to-red-600 text-white font-pixel text-xs uppercase tracking-wider border border-red-400/50 shadow-[0_0_15px_rgba(255,51,51,0.5)] hover:shadow-[0_0_25px_rgba(255,51,51,0.8)] transition-all flex items-center gap-1.5 font-bold"
+              className="px-5 py-2.5 rounded bg-white/5 border border-white/20 hover:border-red-500 hover:text-red-400 text-white font-pixel text-[9px] uppercase tracking-wider transition-all flex items-center gap-1.5 font-bold shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:shadow-[0_0_20px_rgba(255,51,51,0.25)]"
             >
-              REGISTER NOW <span className="text-sm">→</span>
+              REGISTER NOW <span className="text-xs">→</span>
             </Link>
           </div>
 
@@ -246,7 +246,7 @@ export function Navbar() {
         <Link
           to="/events"
           onClick={() => playSynthSound('laser')}
-          className="pointer-events-auto px-6 py-2.5 rounded-full bg-gradient-to-r from-red-700 via-red-600 to-red-700 text-white font-pixel text-xs uppercase tracking-wider border border-red-400/60 shadow-[0_0_20px_rgba(255,51,51,0.8)] flex items-center justify-center gap-2 font-bold active:scale-95 transition-transform"
+          className="pointer-events-auto px-6 py-2.5 rounded-full bg-white/5 border border-white/20 hover:border-red-500 hover:text-red-400 text-white font-pixel text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 font-bold active:scale-95 transition-transform shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:shadow-[0_0_20px_rgba(255,51,51,0.25)]"
         >
           <span>★</span> REGISTER NOW <span>→ ★</span>
         </Link>

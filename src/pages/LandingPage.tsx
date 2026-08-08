@@ -87,7 +87,7 @@ export function LandingPage() {
   return (
     <div className="relative w-full min-h-screen text-white select-none pb-36 sm:pb-24 lg:pb-16 bg-[#040812] overflow-x-hidden">
       {/* Background Castle & Red Lightning Hero Banner */}
-      <div className="absolute -top-12 left-0 right-0 h-[600px] sm:h-[750px] lg:h-[900px] overflow-hidden pointer-events-none z-0">
+      <div className="absolute -top-36 left-0 right-0 h-[750px] sm:h-[900px] lg:h-[1100px] overflow-hidden pointer-events-none z-0">
         <div
           className="w-full h-full opacity-40 bg-cover bg-top"
           style={{
@@ -118,7 +118,7 @@ export function LandingPage() {
             <Link
               to="/events"
               onClick={() => playSynthSound('laser')}
-              className="px-6 py-3 sm:px-8 sm:py-4 rounded-md bg-gradient-to-r from-red-700 via-red-600 to-red-700 hover:from-red-600 hover:to-red-600 text-white font-pixel text-xs sm:text-sm uppercase tracking-wider border border-red-400/60 shadow-[0_0_25px_rgba(255,51,51,0.7)] hover:shadow-[0_0_35px_rgba(255,51,51,1)] transition-all flex items-center gap-2 sm:gap-2.5 font-bold active:scale-95"
+              className="px-6 py-3 sm:px-8 sm:py-4 rounded-md bg-white/5 border border-white/20 hover:border-red-500 hover:text-red-400 text-white font-pixel text-xs sm:text-sm uppercase tracking-wider transition-all flex items-center gap-2 sm:gap-2.5 font-bold active:scale-95 shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:shadow-[0_0_20px_rgba(255,51,51,0.25)]"
             >
               <Trophy size={16} /> EXPLORE EVENTS <span>→</span>
             </Link>
