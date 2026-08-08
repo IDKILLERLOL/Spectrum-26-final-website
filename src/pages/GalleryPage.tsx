@@ -17,18 +17,6 @@ export const SLIDESHOW_ITEMS: SlideshowItem[] = [
     imageUrl: '/gallery/gallery_1.jpg',
     caption: 'Organizers, committee heads, and volunteers celebrating a successful festival kickoff.',
   },
-  {
-    id: 'slide-2',
-    title: 'SPECTRUM — Main Stage Assembly',
-    imageUrl: '/gallery/gallery_2.jpg',
-    caption: 'Full event team gathered in the main auditorium.',
-  },
-  {
-    id: 'slide-3',
-    title: 'SPECTRUM — Victory & Closing Moments',
-    imageUrl: '/gallery/gallery_3.jpg',
-    caption: 'Festival core committee posing for the official group photo.',
-  },
 ];
 
 export function GalleryPage() {
@@ -161,36 +149,42 @@ export function GalleryPage() {
           </AnimatePresence>
 
           {/* Left Arrow */}
-          <button
-            onClick={handlePrev}
-            className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-black/60 hover:bg-black text-white border-2 border-white/40 hover:border-white rounded-full transition-all z-20"
-            aria-label="Previous Slide"
-          >
-            <ChevronLeft size={24} />
-          </button>
+          {items.length > 1 && (
+            <button
+              onClick={handlePrev}
+              className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-black/60 hover:bg-black text-white border-2 border-white/40 hover:border-white rounded-full transition-all z-20"
+              aria-label="Previous Slide"
+            >
+              <ChevronLeft size={24} />
+            </button>
+          )}
 
           {/* Right Arrow */}
-          <button
-            onClick={handleNext}
-            className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-black/60 hover:bg-black text-white border-2 border-white/40 hover:border-white rounded-full transition-all z-20"
-            aria-label="Next Slide"
-          >
-            <ChevronRight size={24} />
-          </button>
+          {items.length > 1 && (
+            <button
+              onClick={handleNext}
+              className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-black/60 hover:bg-black text-white border-2 border-white/40 hover:border-white rounded-full transition-all z-20"
+              aria-label="Next Slide"
+            >
+              <ChevronRight size={24} />
+            </button>
+          )}
 
           {/* Top Controls Overlay */}
           <div className="absolute top-4 right-4 flex items-center gap-3 z-20">
             {/* AutoPlay Toggle */}
-            <button
-              onClick={() => {
-                playSynthSound('click');
-                setIsPlaying((prev) => !prev);
-              }}
-              className="px-3 py-1.5 bg-black/70 hover:bg-black border border-white/40 text-white font-button text-micro uppercase tracking-wider flex items-center gap-1.5 transition-all"
-            >
-              {isPlaying ? <Pause size={13} /> : <Play size={13} />}
-              {isPlaying ? 'Pause' : 'Autoplay'}
-            </button>
+            {items.length > 1 && (
+              <button
+                onClick={() => {
+                  playSynthSound('click');
+                  setIsPlaying((prev) => !prev);
+                }}
+                className="px-3 py-1.5 bg-black/70 hover:bg-black border border-white/40 text-white font-button text-micro uppercase tracking-wider flex items-center gap-1.5 transition-all"
+              >
+                {isPlaying ? <Pause size={13} /> : <Play size={13} />}
+                {isPlaying ? 'Pause' : 'Autoplay'}
+              </button>
+            )}
 
             {/* Fullscreen Button */}
             <button
