@@ -80,59 +80,59 @@ export function LandingPage() {
   }, []);
 
   return (
-    <div className="relative w-full min-h-screen text-white select-none pb-24 lg:pb-16 bg-[#040812]">
+    <div className="relative w-full min-h-screen text-white select-none pb-36 sm:pb-24 lg:pb-16 bg-[#040812] overflow-x-hidden">
       {/* Background Castle & Red Lightning Hero Banner */}
-      <div className="absolute top-0 left-0 right-0 h-[650px] lg:h-[800px] overflow-hidden pointer-events-none z-0">
+      <div className="absolute top-0 left-0 right-0 h-[550px] sm:h-[650px] lg:h-[800px] overflow-hidden pointer-events-none z-0">
         <div
-          className="w-full h-full opacity-45 bg-cover bg-top"
+          className="w-full h-full opacity-40 bg-cover bg-top"
           style={{
             backgroundImage: 'url(/cave.jpeg)',
-            maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%)',
-            WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%)',
+            maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%)',
+            WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%)',
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-red-950/30 via-transparent to-[#040812]" />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10 flex flex-col gap-10">
+      <div className="relative z-10 max-w-7xl mx-auto px-3.5 sm:px-6 pt-4 sm:pt-10 flex flex-col gap-6 sm:gap-10">
 
         {/* Hero Top Grid: Title & Countdown (Left) + 4 Archway Cards (Right) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
 
           {/* Left Column: Title, Subtitle, CTA & Countdown */}
-          <div className="lg:col-span-5 flex flex-col gap-6 pt-2">
+          <div className="lg:col-span-5 flex flex-col gap-4 sm:gap-6 pt-1">
             
             {/* Tagline Badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-950/70 border border-red-500/40 text-red-400 font-pixel text-[10px] tracking-wider uppercase w-fit shadow-[0_0_15px_rgba(255,51,51,0.3)]">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-950/70 border border-red-500/40 text-red-400 font-pixel text-[9px] sm:text-[10px] tracking-wider uppercase w-fit shadow-[0_0_15px_rgba(255,51,51,0.3)]">
               <span>☠</span> 4 EVENTS. 1 ULTIMATE BATTLE.
             </div>
 
             {/* Main Pixel Title */}
-            <div className="flex flex-col gap-1">
-              <h1 className="font-pixel text-4xl sm:text-6xl lg:text-5xl xl:text-6xl text-white tracking-wider leading-none drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
+            <div className="flex flex-col gap-0.5 sm:gap-1">
+              <h1 className="font-pixel text-3xl sm:text-6xl lg:text-5xl xl:text-6xl text-white tracking-wider leading-none drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
                 SPECTRUM
               </h1>
-              <span className="font-pixel text-4xl sm:text-6xl lg:text-5xl xl:text-6xl text-red-600 tracking-wider leading-none drop-shadow-[0_0_20px_rgba(255,51,51,0.8)]">
+              <span className="font-pixel text-3xl sm:text-6xl lg:text-5xl xl:text-6xl text-red-600 tracking-wider leading-none drop-shadow-[0_0_20px_rgba(255,51,51,0.8)]">
                 5.0
               </span>
             </div>
 
             {/* Subtitle with Lively Pixelated Fonts */}
-            <div className="flex flex-col gap-2 max-w-md my-1">
-              <p className="font-pixel text-xs sm:text-sm text-red-400 font-bold leading-snug tracking-wide drop-shadow-[0_0_12px_rgba(255,51,51,0.6)]">
+            <div className="flex flex-col gap-1.5 max-w-md my-0.5">
+              <p className="font-pixel text-[11px] sm:text-sm text-red-400 font-bold leading-snug tracking-wide drop-shadow-[0_0_12px_rgba(255,51,51,0.6)]">
                 The ultimate tech and gaming showdown.
               </p>
-              <p className="font-silkscreen text-[11px] sm:text-xs text-white uppercase tracking-[0.2em] font-semibold drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]">
+              <p className="font-silkscreen text-[10px] sm:text-xs text-white uppercase tracking-[0.15em] font-semibold drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]">
                 Code. Compete. Conquer.
               </p>
             </div>
 
             {/* Hero CTAs */}
-            <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
               <Link
                 to="/events"
                 onClick={() => playSynthSound('laser')}
-                className="px-6 py-3 rounded-md bg-gradient-to-r from-red-700 via-red-600 to-red-700 hover:from-red-600 hover:to-red-600 text-white font-pixel text-xs uppercase tracking-wider border border-red-400/50 shadow-[0_0_20px_rgba(255,51,51,0.6)] hover:shadow-[0_0_30px_rgba(255,51,51,0.9)] transition-all flex items-center gap-2 font-bold active:scale-95"
+                className="px-4 py-2.5 sm:px-6 sm:py-3 rounded-md bg-gradient-to-r from-red-700 via-red-600 to-red-700 hover:from-red-600 hover:to-red-600 text-white font-pixel text-[10px] sm:text-xs uppercase tracking-wider border border-red-400/50 shadow-[0_0_20px_rgba(255,51,51,0.6)] hover:shadow-[0_0_30px_rgba(255,51,51,0.9)] transition-all flex items-center gap-1.5 sm:gap-2 font-bold active:scale-95"
               >
                 <span>🏆</span> EXPLORE EVENTS <span>→</span>
               </Link>
@@ -140,20 +140,20 @@ export function LandingPage() {
               <Link
                 to="/schedule"
                 onClick={() => playSynthSound('click')}
-                className="px-6 py-3 rounded-md bg-bg-card hover:bg-white/10 text-white font-pixel text-xs uppercase tracking-wider border border-white/20 hover:border-white/40 transition-all flex items-center gap-2 active:scale-95"
+                className="px-4 py-2.5 sm:px-6 sm:py-3 rounded-md bg-bg-card hover:bg-white/10 text-white font-pixel text-[10px] sm:text-xs uppercase tracking-wider border border-white/20 hover:border-white/40 transition-all flex items-center gap-1.5 sm:gap-2 active:scale-95"
               >
-                HOW IT WORKS <span className="text-red-500 text-xs">▶</span>
+                HOW IT WORKS <span className="text-red-500 text-[10px] sm:text-xs">▶</span>
               </Link>
             </div>
 
             {/* Cyberpunk Red Countdown Box */}
-            <div className="mt-2">
+            <div className="mt-1">
               <CountdownBox />
             </div>
           </div>
 
           {/* Right Column: 4 Neon Archway Cards Grid */}
-          <div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 items-stretch">
+          <div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4 items-stretch">
             {ARCH_CARDS_DATA.map((card) => {
               const matchingEvent = events.find(e => e.id === card.id);
               return (
@@ -193,35 +193,35 @@ function CountdownBox() {
   }, []);
 
   return (
-    <div className="relative border border-red-600/60 bg-black/80 p-4 sm:p-5 rounded-lg shadow-[0_0_25px_rgba(255,51,51,0.25)] flex flex-col items-center gap-3">
+    <div className="relative border border-red-600/60 bg-black/80 p-3 sm:p-5 rounded-lg shadow-[0_0_25px_rgba(255,51,51,0.25)] flex flex-col items-center gap-2 sm:gap-3">
       {/* Corner Ticks */}
       <div className="absolute top-1 left-1 w-2 h-2 border-t-2 border-l-2 border-red-500" />
       <div className="absolute top-1 right-1 w-2 h-2 border-t-2 border-r-2 border-red-500" />
       <div className="absolute bottom-1 left-1 w-2 h-2 border-b-2 border-l-2 border-red-500" />
       <div className="absolute bottom-1 right-1 w-2 h-2 border-b-2 border-r-2 border-red-500" />
 
-      <span className="font-pixel text-[10px] sm:text-xs text-red-500 uppercase tracking-widest flex items-center gap-2">
-        <span className="w-6 h-[1px] bg-red-600/50" />
+      <span className="font-pixel text-[9px] sm:text-xs text-red-500 uppercase tracking-widest flex items-center gap-2">
+        <span className="w-4 sm:w-6 h-[1px] bg-red-600/50" />
         THE BATTLE BEGINS IN
-        <span className="w-6 h-[1px] bg-red-600/50" />
+        <span className="w-4 sm:w-6 h-[1px] bg-red-600/50" />
       </span>
 
-      <div className="grid grid-cols-4 gap-3 sm:gap-5 text-center w-full max-w-sm">
+      <div className="grid grid-cols-4 gap-2 sm:gap-5 text-center w-full max-w-sm">
         <div>
-          <span className="font-pixel text-2xl sm:text-3xl text-white block">{String(time.days).padStart(2, '0')}</span>
-          <span className="font-pixel text-[9px] text-text-muted uppercase">DAYS</span>
+          <span className="font-pixel text-xl sm:text-3xl text-white block">{String(time.days).padStart(2, '0')}</span>
+          <span className="font-pixel text-[8px] sm:text-[9px] text-text-muted uppercase">DAYS</span>
         </div>
         <div>
-          <span className="font-pixel text-2xl sm:text-3xl text-white block">{String(time.hours).padStart(2, '0')}</span>
-          <span className="font-pixel text-[9px] text-text-muted uppercase">HRS</span>
+          <span className="font-pixel text-xl sm:text-3xl text-white block">{String(time.hours).padStart(2, '0')}</span>
+          <span className="font-pixel text-[8px] sm:text-[9px] text-text-muted uppercase">HRS</span>
         </div>
         <div>
-          <span className="font-pixel text-2xl sm:text-3xl text-white block">{String(time.minutes).padStart(2, '0')}</span>
-          <span className="font-pixel text-[9px] text-text-muted uppercase">MINS</span>
+          <span className="font-pixel text-xl sm:text-3xl text-white block">{String(time.minutes).padStart(2, '0')}</span>
+          <span className="font-pixel text-[8px] sm:text-[9px] text-text-muted uppercase">MINS</span>
         </div>
         <div>
-          <span className="font-pixel text-2xl sm:text-3xl text-white block">{String(time.seconds).padStart(2, '0')}</span>
-          <span className="font-pixel text-[9px] text-text-muted uppercase">SECS</span>
+          <span className="font-pixel text-xl sm:text-3xl text-white block">{String(time.seconds).padStart(2, '0')}</span>
+          <span className="font-pixel text-[8px] sm:text-[9px] text-text-muted uppercase">SECS</span>
         </div>
       </div>
     </div>
@@ -246,7 +246,7 @@ function ArchCard({ data, event, onSelect }: { data: typeof ARCH_CARDS_DATA[0]; 
       className="group cursor-pointer relative flex flex-col items-center w-full transition-all duration-300 hover:-translate-y-1.5"
     >
       {/* Archway Image - Ultra HD Crisp with Subtle Glow */}
-      <div className="relative w-full aspect-[4/6.4] min-h-[240px] sm:min-h-[290px] overflow-hidden flex items-center justify-center z-10">
+      <div className="relative w-full aspect-[4/6] sm:aspect-[4/6.4] min-h-[190px] sm:min-h-[290px] overflow-hidden flex items-center justify-center z-10">
         <div
           className="w-full h-full transition-transform duration-500 group-hover:scale-105 transform-gpu pixel-crisp"
           style={{
