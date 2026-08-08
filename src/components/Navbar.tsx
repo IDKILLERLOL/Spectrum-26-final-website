@@ -76,239 +76,220 @@ export function Navbar() {
 
   return (
     <>
-    <div className="sticky top-4 z-[100] w-full flex justify-center pointer-events-none">
-      <nav
-        className="pointer-events-auto max-w-5xl w-[88%] py-3.5 px-8 flex justify-between items-center gap-6 border"
-        style={{
-          background: 'rgba(6, 11, 25, 0.75)',
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
-          borderColor: 'rgba(255, 255, 255, 0.08)',
-        }}
-      >
-        {/* Left side: Mobile Menu Button & Brand Logo */}
-        <div className="flex items-center gap-4">
-          {/* Hamburger Menu Toggle (hidden on mobile now since bottom nav handles it) */}
+      <div className="sticky top-4 z-[100] w-full flex justify-center pointer-events-none px-3">
+        <nav
+          className="pointer-events-auto max-w-6xl w-full py-3.5 px-6 flex justify-between items-center gap-6 border rounded-sm"
+          style={{
+            background: 'rgba(8, 12, 22, 0.88)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            borderColor: 'rgba(255, 51, 51, 0.3)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+          }}
+        >
+          {/* Left side: Brand Logo with Horns emblem & 8-bit title */}
+          <Link
+            to="/"
+            onClick={() => playSynthSound('click')}
+            className="flex items-center gap-2.5 text-decoration-none group"
+          >
+            <div className="w-8 h-8 rounded bg-gradient-to-br from-red-600 to-red-950 flex items-center justify-center border border-red-500/50 shadow-[0_0_12px_rgba(255,51,51,0.5)]">
+              <span className="text-red-400 font-bold text-sm">😈</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="font-pixel text-base sm:text-lg tracking-wider text-white group-hover:text-red-400 transition-colors flex items-center gap-1.5">
+                SPECTRUM <span className="text-red-500 font-pixel">5.0</span>
+              </span>
+            </div>
+          </Link>
+
+          {/* Desktop nav menu */}
+          <div className="hidden lg:flex gap-7 items-center">
+            {navLink('/', 'HOME')}
+            {navLink('/events', 'EVENTS')}
+            {navLink('/schedule', 'SCHEDULE')}
+            {navLink('/winners', 'SPONSORS')}
+            {navLink('/gallery', 'GALLERY')}
+            {navLink('/contact', 'CONTACT')}
+          </div>
+
+          {/* Right side: Social icons & Register Button */}
+          <div className="hidden lg:flex items-center gap-4">
+            <a
+              href="https://instagram.com"
+              target="_blank"
+              rel="noreferrer"
+              className="w-9 h-9 rounded bg-white/5 border border-white/10 flex items-center justify-center text-text-secondary hover:text-white hover:border-red-500/50 transition-colors"
+              aria-label="Instagram"
+            >
+              <span className="text-xs font-mono">📷</span>
+            </a>
+            <a
+              href="https://discord.com"
+              target="_blank"
+              rel="noreferrer"
+              className="w-9 h-9 rounded bg-white/5 border border-white/10 flex items-center justify-center text-text-secondary hover:text-white hover:border-red-500/50 transition-colors"
+              aria-label="Discord"
+            >
+              <span className="text-xs font-mono">🎮</span>
+            </a>
+
+            <Link
+              to="/events"
+              onClick={() => playSynthSound('laser')}
+              className="px-5 py-2.5 rounded bg-gradient-to-r from-red-700 via-red-600 to-red-700 hover:from-red-600 hover:to-red-600 text-white font-pixel text-xs uppercase tracking-wider border border-red-400/50 shadow-[0_0_15px_rgba(255,51,51,0.5)] hover:shadow-[0_0_25px_rgba(255,51,51,0.8)] transition-all flex items-center gap-1.5 font-bold"
+            >
+              REGISTER NOW <span className="text-sm">→</span>
+            </Link>
+          </div>
+
+          {/* Mobile Menu Hamburger Toggle Button */}
           <button
             onClick={() => {
               playSynthSound('click');
               setShowMoreMenu(!showMoreMenu);
             }}
-            className="hidden flex-col justify-center items-center w-8 h-8 gap-1.5 focus:outline-none md:hidden relative z-[60]"
+            className="lg:hidden flex flex-col justify-center items-center w-10 h-10 border border-white/20 rounded bg-white/5 text-white"
             aria-label="Toggle Navigation Menu"
           >
-            <span
-              className="w-6 h-[3px] bg-primary transition-all duration-300 transform origin-left"
-              style={{
-                transform: showMoreMenu ? 'rotate(45deg) translate(2px, -2px)' : 'none',
-                backgroundColor: 'var(--color-text-primary)'
-              }}
-            />
-            <span
-              className="w-6 h-[3px] bg-primary transition-all duration-300"
-              style={{
-                opacity: showMoreMenu ? 0 : 1,
-                transform: showMoreMenu ? 'scale(0)' : 'none',
-                backgroundColor: 'var(--color-text-primary)'
-              }}
-            />
-            <span
-              className="w-6 h-[3px] bg-primary transition-all duration-300 transform origin-left"
-              style={{
-                transform: showMoreMenu ? 'rotate(-45deg) translate(2px, 2px)' : 'none',
-                backgroundColor: 'var(--color-text-primary)'
-              }}
-            />
+            <Menu size={20} />
           </button>
+        </nav>
+      </div>
 
-          {/* Wordmark Logo */}
-          <Link
-            to="/"
-            onClick={() => playSynthSound('click')}
-            className="inline-flex items-center text-decoration-none"
-          >
-            <img
-              src="/new_logo.png"
-              alt="SPECTRUM 26"
-              style={{ maxHeight: '42px', width: 'auto', objectFit: 'contain', display: 'block' }}
-            />
-          </Link>
-        </div>
-
-        {/* Right side: desktop links + controls */}
-        <div className="flex items-center gap-6">
-          {/* Desktop nav menu */}
-          <div className="hidden md:flex gap-6 items-center">
-            {navLink('/', 'Home')}
-            {navLink('/events', 'Events')}
-            {navLink('/schedule', 'Schedule')}
-            {navLink('/winners', 'Winners')}
-            {navLink('/gallery', 'Gallery')}
-            {navLink('/contact', 'Contact')}
-          </div>
-
-          {/* Controls */}
-          <div className="flex items-center gap-3">
-
-            {/* REGISTER Button (far right) */}
-            <Link
-              to="/events"
-              onClick={() => playSynthSound('laser')}
-              className="hidden md:flex"
-              style={{
-                background: 'transparent',
-                color: 'var(--color-text-primary)',
-                fontFamily: 'Bangers, cursive',
-                fontSize: '20px',
-                padding: '6px 0',
-                alignItems: 'center',
-                gap: '8px',
-                letterSpacing: '0.05em',
-                cursor: 'pointer',
-                textDecoration: 'none',
-                border: 'none',
-                boxShadow: 'none',
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLAnchorElement).style.color = 'var(--color-primary)';
-                (e.currentTarget as HTMLAnchorElement).style.textShadow = '0 0 10px rgba(255, 51, 51, 0.8)';
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLAnchorElement).style.color = 'var(--color-text-primary)';
-                (e.currentTarget as HTMLAnchorElement).style.textShadow = 'none';
-              }}
-            >
-              REGISTER
-            </Link>
-          </div>
-        </div>
-      </nav>
-    </div>
-
-      {/* Mobile More Pop-up Menu */}
+      {/* Mobile Pop-up Menu */}
       {showMoreMenu && (
-        <div 
-          className="md:hidden fixed bottom-[72px] right-4 z-[9999] flex flex-col gap-1 p-2 border shadow-2xl"
+        <div
+          className="lg:hidden fixed bottom-24 right-4 z-[9999] flex flex-col gap-1 p-3 border rounded-lg shadow-2xl"
           style={{
-            background: 'rgba(10, 15, 30, 0.98)',
+            background: 'rgba(8, 12, 22, 0.98)',
             backdropFilter: 'blur(24px)',
             WebkitBackdropFilter: 'blur(24px)',
-            borderColor: 'rgba(255, 255, 255, 0.1)',
-            minWidth: '160px'
+            borderColor: 'rgba(255, 51, 51, 0.4)',
+            minWidth: '200px',
           }}
         >
-          {/* Winners Link */}
+          <Link
+            to="/"
+            onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
+            className="flex items-center gap-3 px-3 py-2.5 text-white hover:text-red-400 hover:bg-white/5 rounded transition-all font-pixel text-xs"
+          >
+            <Home size={14} className="text-red-500" />
+            <span>HOME</span>
+          </Link>
+          <Link
+            to="/events"
+            onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
+            className="flex items-center gap-3 px-3 py-2.5 text-white hover:text-red-400 hover:bg-white/5 rounded transition-all font-pixel text-xs"
+          >
+            <Trophy size={14} className="text-red-500" />
+            <span>EVENTS</span>
+          </Link>
+          <Link
+            to="/schedule"
+            onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
+            className="flex items-center gap-3 px-3 py-2.5 text-white hover:text-red-400 hover:bg-white/5 rounded transition-all font-pixel text-xs"
+          >
+            <Calendar size={14} className="text-red-500" />
+            <span>SCHEDULE</span>
+          </Link>
           <Link
             to="/winners"
             onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
-            className="flex items-center gap-3 px-3 py-2 text-white hover:text-primary hover:bg-white/5 transition-all"
-            style={{ textDecoration: 'none', fontFamily: 'Space Grotesk, sans-serif', fontSize: '12px', fontWeight: 600 }}
+            className="flex items-center gap-3 px-3 py-2.5 text-white hover:text-red-400 hover:bg-white/5 rounded transition-all font-pixel text-xs"
           >
-            <Trophy size={14} className="text-primary" />
-            <span>WINNERS</span>
+            <Award size={14} className="text-red-500" />
+            <span>SPONSORS</span>
           </Link>
-
-          {/* Gallery Link */}
           <Link
-            to="/gallery"
+            to="/contact"
             onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
-            className="flex items-center gap-3 px-3 py-2 text-white hover:text-primary hover:bg-white/5 transition-all"
-            style={{ textDecoration: 'none', fontFamily: 'Space Grotesk, sans-serif', fontSize: '12px', fontWeight: 600 }}
+            className="flex items-center gap-3 px-3 py-2.5 text-white hover:text-red-400 hover:bg-white/5 rounded transition-all font-pixel text-xs"
           >
-            <Award size={14} className="text-primary" />
-            <span>GALLERY</span>
+            <Mail size={14} className="text-red-500" />
+            <span>CONTACT</span>
           </Link>
 
-
-
-          {/* Supercore (Admin) */}
           {dbUser?.role === 'ADMIN' && (
             <Link
               to="/supercore"
               onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
-              className="flex items-center gap-3 px-3 py-2 text-white hover:text-primary hover:bg-white/5 transition-all border-t border-white/10 mt-1 pt-1.5"
-              style={{ textDecoration: 'none', fontFamily: 'Space Grotesk, sans-serif', fontSize: '12px', fontWeight: 600 }}
+              className="flex items-center gap-3 px-3 py-2 text-white hover:text-red-400 hover:bg-white/5 rounded transition-all border-t border-white/10 mt-1 pt-2 font-pixel text-xs"
             >
-              <Menu size={14} className="text-primary" />
+              <Menu size={14} className="text-red-500" />
               <span>SUPERCORE</span>
             </Link>
           )}
         </div>
       )}
 
-      {/* Mobile Bottom Navigation Bar */}
-      <div 
-        className="md:hidden flex justify-around items-center py-2 px-2 border-t"
-        style={{
-          position: 'fixed',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          zIndex: 9999,
-          background: 'rgba(6, 11, 25, 0.92)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          borderColor: 'rgba(255, 255, 255, 0.08)',
-          paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)',
-          transform: 'translate3d(0, 0, 0)',
-          WebkitTransform: 'translate3d(0, 0, 0)'
-        }}
-      >
-        {/* Schedule Slot */}
-        <Link 
-          to="/schedule" 
-          onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
-          className="flex flex-col items-center gap-0.5 text-center flex-1"
-          style={{ color: location.pathname === '/schedule' ? 'var(--color-primary)' : 'var(--color-text-muted)' }}
+      {/* Mobile Floating Bottom Dock */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[9990] flex flex-col items-center gap-2 pb-3 px-4 pointer-events-none">
+        {/* Floating REGISTER NOW Button */}
+        <Link
+          to="/events"
+          onClick={() => playSynthSound('laser')}
+          className="pointer-events-auto px-6 py-2.5 rounded-full bg-gradient-to-r from-red-700 via-red-600 to-red-700 text-white font-pixel text-xs uppercase tracking-wider border border-red-400/60 shadow-[0_0_20px_rgba(255,51,51,0.8)] flex items-center justify-center gap-2 font-bold active:scale-95 transition-transform"
         >
-          <Calendar size={20} />
-          <span style={{ fontSize: '10px', fontFamily: 'Space Grotesk, sans-serif', fontWeight: 600, letterSpacing: '0.04em' }}>SCHEDULE</span>
+          <span>★</span> REGISTER NOW <span>→ ★</span>
         </Link>
 
-        {/* Events Slot */}
-        <Link 
-          to="/events" 
-          onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
-          className="flex flex-col items-center gap-0.5 text-center flex-1"
-          style={{ color: location.pathname === '/events' ? 'var(--color-primary)' : 'var(--color-text-muted)' }}
-        >
-          <Trophy size={20} />
-          <span style={{ fontSize: '10px', fontFamily: 'Space Grotesk, sans-serif', fontWeight: 600, letterSpacing: '0.04em' }}>EVENTS</span>
-        </Link>
-
-        {/* Home Slot (Center, highlighted) */}
-        <Link 
-          to="/" 
-          onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
-          className="flex flex-col items-center justify-center -mt-6 bg-primary rounded-full w-14 h-14 shadow-lg border-4 border-bg-base relative z-10"
+        {/* Glassmorphic Nav Bar */}
+        <div
+          className="pointer-events-auto w-full max-w-md py-2.5 px-4 flex justify-between items-center rounded-2xl border"
           style={{
-            borderColor: 'rgba(6, 11, 25, 1)',
-            boxShadow: '0 4px 15px rgba(255, 51, 51, 0.4)'
+            background: 'rgba(8, 12, 22, 0.95)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            borderColor: 'rgba(255, 51, 51, 0.25)',
+            boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.8)',
           }}
         >
-          <Home size={22} className="text-white" />
-        </Link>
+          <Link
+            to="/"
+            onClick={() => playSynthSound('click')}
+            className={`flex flex-col items-center gap-1 ${location.pathname === '/' ? 'text-red-500' : 'text-text-muted hover:text-white'}`}
+          >
+            <Home size={18} />
+            <span className="font-pixel text-[9px]">HOME</span>
+          </Link>
 
-        {/* Contact Slot */}
-        <Link 
-          to="/contact" 
-          onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
-          className="flex flex-col items-center gap-0.5 text-center flex-1"
-          style={{ color: location.pathname === '/contact' ? 'var(--color-primary)' : 'var(--color-text-muted)' }}
-        >
-          <Mail size={20} />
-          <span style={{ fontSize: '10px', fontFamily: 'Space Grotesk, sans-serif', fontWeight: 600, letterSpacing: '0.04em' }}>CONTACT</span>
-        </Link>
+          <Link
+            to="/events"
+            onClick={() => playSynthSound('click')}
+            className={`flex flex-col items-center gap-1 ${location.pathname === '/events' ? 'text-red-500' : 'text-text-muted hover:text-white'}`}
+          >
+            <span className="text-sm">⚔️</span>
+            <span className="font-pixel text-[9px]">EVENTS</span>
+          </Link>
 
-        {/* More Slot (Toggles pop-up) */}
-        <button 
-          onClick={() => { playSynthSound('click'); setShowMoreMenu(!showMoreMenu); }}
-          className="flex flex-col items-center gap-0.5 text-center flex-1"
-          style={{ color: showMoreMenu ? 'var(--color-primary)' : 'var(--color-text-muted)', background: 'none', border: 'none', padding: 0 }}
-        >
-          <MoreHorizontal size={20} />
-          <span style={{ fontSize: '10px', fontFamily: 'Space Grotesk, sans-serif', fontWeight: 600, letterSpacing: '0.04em' }}>MORE</span>
-        </button>
+          <Link
+            to="/schedule"
+            onClick={() => playSynthSound('click')}
+            className={`flex flex-col items-center gap-1 ${location.pathname === '/schedule' ? 'text-red-500' : 'text-text-muted hover:text-white'}`}
+          >
+            <Calendar size={18} />
+            <span className="font-pixel text-[9px]">SCHEDULE</span>
+          </Link>
+
+          <Link
+            to="/winners"
+            onClick={() => playSynthSound('click')}
+            className={`flex flex-col items-center gap-1 ${location.pathname === '/winners' ? 'text-red-500' : 'text-text-muted hover:text-white'}`}
+          >
+            <Trophy size={18} />
+            <span className="font-pixel text-[9px]">SPONSORS</span>
+          </Link>
+
+          <Link
+            to="/contact"
+            onClick={() => playSynthSound('click')}
+            className={`flex flex-col items-center gap-1 ${location.pathname === '/contact' ? 'text-red-500' : 'text-text-muted hover:text-white'}`}
+          >
+            <Mail size={18} />
+            <span className="font-pixel text-[9px]">CONTACT</span>
+          </Link>
+        </div>
       </div>
     </>
   );

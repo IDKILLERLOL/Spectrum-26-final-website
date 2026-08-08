@@ -49,6 +49,16 @@
   --font-heading: 'Bangers', cursive;
   --font-body:    'Space Grotesk', sans-serif;
   --font-micro:   'Space Grotesk', sans-serif;
+  --font-pixel:   'Press Start 2P', monospace;
+  --font-silkscreen: 'Silkscreen', monospace;
+}
+
+.font-pixel {
+  font-family: 'Press Start 2P', monospace;
+}
+
+.font-silkscreen {
+  font-family: 'Silkscreen', monospace;
 }
 
 /* --- LIGHT MODE OVERRIDES (keeps dark mode theme to guarantee only dark mode colors exist) --- */
