@@ -168,31 +168,34 @@ export function RegisterPage() {
           {step === 1 && (
             <div className="flex flex-col gap-4">
               <h3 className="text-heading uppercase border-b border-border pb-2">PERSONAL CLEARANCE</h3>
-              <div>
-                <label>FULL NAME</label>
+              <div className="form-group">
+                <label className="form-label">FULL NAME</label>
                 <input
                   type="text"
                   placeholder="Enter full name"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
+                  className="form-input"
                 />
               </div>
-              <div>
-                <label>EMAIL ADDRESS</label>
+              <div className="form-group">
+                <label className="form-label">EMAIL ADDRESS</label>
                 <input
                   type="email"
                   placeholder="Enter email address"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  className="form-input"
                 />
               </div>
-              <div>
-                <label>TELEPHONE CONTACT</label>
+              <div className="form-group">
+                <label className="form-label">TELEPHONE CONTACT</label>
                 <input
                   type="tel"
                   placeholder="Enter phone number"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
+                  className="form-input"
                 />
               </div>
             </div>
@@ -226,18 +229,19 @@ export function RegisterPage() {
           {step === 3 && (
             <div className="flex flex-col gap-4">
               <h3 className="text-heading uppercase border-b border-border pb-2">GUILD DETAILS</h3>
-              <div>
-                <label>COLLEGE NAME</label>
+              <div className="form-group">
+                <label className="form-label">COLLEGE NAME</label>
                 <input
                   type="text"
                   placeholder="Enter college name"
                   value={collegeName}
                   onChange={(e) => setCollegeName(e.target.value)}
+                  className="form-input"
                 />
               </div>
-              <div>
-                <label>YEAR OF STUDY</label>
-                <select value={yearOfStudy} onChange={(e) => setYearOfStudy(e.target.value)}>
+              <div className="form-group">
+                <label className="form-label">YEAR OF STUDY</label>
+                <select value={yearOfStudy} onChange={(e) => setYearOfStudy(e.target.value)} className="form-input">
                   <option value="FY">First Year (FY)</option>
                   <option value="SY">Second Year (SY)</option>
                   <option value="TY">Third Year (TY)</option>
@@ -248,22 +252,24 @@ export function RegisterPage() {
               {/* Conditional Team fields */}
               {(selectedEvent?.type.toLowerCase().includes('team') || selectedEvent?.type.toLowerCase().includes('duo')) && (
                 <>
-                  <div>
-                    <label>CREW/TEAM NAME</label>
+                  <div className="form-group">
+                    <label className="form-label">CREW/TEAM NAME</label>
                     <input
                       type="text"
                       placeholder="Enter team name"
                       value={teamName}
                       onChange={(e) => setTeamName(e.target.value)}
+                      className="form-input"
                     />
                   </div>
-                  <div>
-                    <label>PARTNER FULL NAME</label>
+                  <div className="form-group">
+                    <label className="form-label">PARTNER FULL NAME</label>
                     <input
                       type="text"
                       placeholder="Enter partner name"
                       value={partnerName}
                       onChange={(e) => setPartnerName(e.target.value)}
+                      className="form-input"
                     />
                   </div>
                 </>
@@ -272,17 +278,18 @@ export function RegisterPage() {
               {/* Conditional Squad fields (BGMI) */}
               {selectedEvent?.type.toLowerCase().includes('squad') && (
                 <>
-                  <div>
-                    <label>SQUAD NAME</label>
+                  <div className="form-group">
+                    <label className="form-label">SQUAD NAME</label>
                     <input
                       type="text"
                       placeholder="Enter squad name"
                       value={teamName}
                       onChange={(e) => setTeamName(e.target.value)}
+                      className="form-input"
                     />
                   </div>
-                  <div>
-                    <label>SQUAD MEMBER 2</label>
+                  <div className="form-group">
+                    <label className="form-label">SQUAD MEMBER 2</label>
                     <input
                       type="text"
                       placeholder="Member 2 name"
@@ -292,10 +299,11 @@ export function RegisterPage() {
                         next[0] = e.target.value;
                         setSquadNames(next);
                       }}
+                      className="form-input"
                     />
                   </div>
-                  <div>
-                    <label>SQUAD MEMBER 3</label>
+                  <div className="form-group">
+                    <label className="form-label">SQUAD MEMBER 3</label>
                     <input
                       type="text"
                       placeholder="Member 3 name"
@@ -305,10 +313,11 @@ export function RegisterPage() {
                         next[1] = e.target.value;
                         setSquadNames(next);
                       }}
+                      className="form-input"
                     />
                   </div>
-                  <div>
-                    <label>SQUAD MEMBER 4</label>
+                  <div className="form-group">
+                    <label className="form-label">SQUAD MEMBER 4</label>
                     <input
                       type="text"
                       placeholder="Member 4 name"
@@ -318,6 +327,7 @@ export function RegisterPage() {
                         next[2] = e.target.value;
                         setSquadNames(next);
                       }}
+                      className="form-input"
                     />
                   </div>
                 </>
