@@ -272,9 +272,9 @@
   backdrop-filter: blur(12px);
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   .tab-bar {
-    display: none; /* hide on desktop */
+    display: none !important; /* hide on tablet and desktop */
   }
 }
 

@@ -1,5 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { playSynthSound } from '../lib/audio';
+import React, { useState } from 'react';
+
+const INK = "#1A1A1A";
+const VERMILION = "#C7382F";
+const TEAL = "#12595B";
+const MUSTARD = "#E8A13A";
+const hoardingShadow = `4px 4px 0px ${INK}`;
 
 const GALLERY_PHOTOS = [
   { id: '1', title: 'Code Clash Lab', url: '/gallery/code_clash.jpg', desc: 'Contestants coding in the arena.' },
@@ -10,153 +15,74 @@ const GALLERY_PHOTOS = [
   { id: '6', title: 'Console Esports', url: '/gallery/gaming_desk.jpg', desc: 'Players fighting in console hubs.' }
 ];
 
-const PREVIOUS_EDITIONS = [
-  { edition: "Spectrum 4.0", year: "2025", tagline: "The Retro Bytes Hack", url: "/gallery/gallery_1.jpg" },
-  { edition: "Spectrum 3.0", year: "2024", tagline: "Rise of the Machine Code", url: "/gallery/code_clash.jpg" },
-  { edition: "Spectrum 2.0", year: "2023", tagline: "Binary Dawn Tournament", url: "/gallery/spectrum_heads.jpg" },
-  { edition: "Spectrum 1.0", year: "2022", tagline: "System Startup Arena", url: "/gallery/gaming_desk.jpg" }
-];
-
 export function GalleryPage() {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
-  useEffect(() => {
-    if ((window as any).lucide) {
-      (window as any).lucide.createIcons();
-    }
-  }, [lightboxIndex]);
-
-  const openLightbox = (idx: number) => {
-    playSynthSound('click');
-    setLightboxIndex(idx);
-  };
-
-  const closeLightbox = () => {
-    playSynthSound('click');
-    setLightboxIndex(null);
-  };
-
-  const showPrev = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    playSynthSound('click');
-    if (lightboxIndex !== null) {
-      setLightboxIndex(prev => (prev === 0 ? GALLERY_PHOTOS.length - 1 : (prev ?? 0) - 1));
-    }
-  };
-
-  const showNext = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    playSynthSound('click');
-    if (lightboxIndex !== null) {
-      setLightboxIndex(prev => (prev === GALLERY_PHOTOS.length - 1 ? 0 : (prev ?? 0) + 1));
-    }
-  };
-
   return (
-    <div className="max-w-md mx-auto px-4 py-8 page-content flex flex-col gap-6 text-left">
-      
+    <div className="flex flex-col gap-6 px-4 py-16 w-full min-h-screen max-w-lg mx-auto text-left">
       {/* Header */}
-      <div className="text-center flex flex-col items-center gap-2">
-        <div className="flex items-center gap-2">
-          <span className="highlight-icon"><i data-lucide="image"></i></span>
-          <div className="section-divider" style={{ margin: 0 }}>ARENA GALLERY</div>
-        </div>
-        <p className="text-small text-text-secondary text-center">
-          Visual logs captured from past Spectrum gaming battles.
+      <div className="text-center">
+        <h2 className="font-hero text-3xl" style={{ color: VERMILION, textShadow: `1px 1px 0 ${INK}` }}>
+          Gallery
+        </h2>
+        <p className="text-sm font-bold uppercase tracking-widest font-body" style={{ color: TEAL }}>
+          Moments & Memories
         </p>
       </div>
 
-      {/* Masonry Photogrid */}
-      <div className="pixel-card">
-        <h3 className="text-heading text-left uppercase mb-4 border-b border-border pb-2">SNAP RECORDS</h3>
-        <div className="photo-masonry-grid">
-          {GALLERY_PHOTOS.map((photo, idx) => (
-            <div
-              key={photo.id}
-              onClick={() => openLightbox(idx)}
-              className="photo-masonry-item"
-            >
-              <img src={photo.url} alt={photo.title} onError={(e) => {
-                e.currentTarget.src = `https://api.dicebear.com/7.x/pixel-art/svg?seed=${photo.id}`;
-              }} />
-              <div className="p-3 text-left">
-                <span className="font-ui text-sm font-bold text-text-primary uppercase block">{photo.title}</span>
-                <span className="text-small text-text-secondary">{photo.desc}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Previous Editions */}
-      <div className="pixel-card text-left">
-        <h3 className="text-heading uppercase mb-6 border-b border-border pb-2">PREVIOUS EDITIONS</h3>
-        <div className="flex flex-col gap-4">
-          {PREVIOUS_EDITIONS.map((ed, idx) => (
-            <div key={idx} className="p-3 bg-bg-raised border border-border flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-bg-primary border border-border overflow-hidden shrink-0">
-                  <img src={ed.url} className="w-full h-full object-cover" onError={(e) => {
-                    e.currentTarget.src = `https://api.dicebear.com/7.x/pixel-art/svg?seed=${ed.edition}`;
-                  }} />
-                </div>
-                <div>
-                  <span className="font-ui text-base font-bold text-text-primary uppercase block">{ed.edition} ({ed.year})</span>
-                  <span className="text-small text-text-secondary">{ed.tagline}</span>
-                </div>
-              </div>
-              <a
-                href="#"
-                onClick={(e) => { e.preventDefault(); playSynthSound('laser'); }}
-                className="font-pixel text-[10px] text-text-primary uppercase tracking-wider hover:text-red-500"
-              >
-                EXPLORE SOUVENIRS →
-              </a>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Lightbox Overlay Modal */}
-      {lightboxIndex !== null && (
-        <div className="lightbox-modal" onClick={closeLightbox}>
-          <button className="lightbox-close-btn" onClick={closeLightbox}>&times;</button>
-          
-          <button
-            onClick={showPrev}
-            className="absolute left-4 top-1/2 -translate-y-1/2 btn w-12 h-12 rounded-full flex items-center justify-center bg-black/60 border-white/20 text-white"
+      {/* Grid */}
+      <div className="grid grid-cols-1 gap-6 mt-6">
+        {GALLERY_PHOTOS.map((photo, idx) => (
+          <div 
+            key={photo.id} 
+            className="border-4 bg-white p-4 flex flex-col gap-3" 
+            style={{ borderColor: INK, boxShadow: hoardingShadow }}
+            onClick={() => setLightboxIndex(idx)}
           >
-            <i data-lucide="chevron-right" style={{ transform: 'rotate(180deg)' }}></i>
-          </button>
-
-          <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
-            <img
-              src={GALLERY_PHOTOS[lightboxIndex].url}
-              alt={GALLERY_PHOTOS[lightboxIndex].title}
-              className="max-w-full max-h-[70vh] border-2 border-white/20 rounded shadow-2xl"
-              onError={(e) => {
-                e.currentTarget.src = `https://api.dicebear.com/7.x/pixel-art/svg?seed=${GALLERY_PHOTOS[lightboxIndex].id}`;
-              }}
-            />
-            <div className="p-4 bg-black/80 text-left mt-2 rounded border border-white/10">
-              <span className="font-ui text-base font-bold text-white uppercase block">
-                {GALLERY_PHOTOS[lightboxIndex].title}
-              </span>
-              <span className="text-small text-slate-400 mt-1 block">
-                {GALLERY_PHOTOS[lightboxIndex].desc}
-              </span>
+            <div className="w-full h-48 bg-gray-200 border-2 overflow-hidden" style={{ borderColor: INK }}>
+              <img src={photo.url} alt={photo.title} className="w-full h-full object-cover" />
+            </div>
+            <div>
+              <h3 className="font-hero text-base" style={{ color: INK }}>
+                {photo.title}
+              </h3>
+              <p className="font-body text-xs font-bold mt-1" style={{ color: TEAL }}>
+                {photo.desc}
+              </p>
             </div>
           </div>
+        ))}
+      </div>
 
-          <button
-            onClick={showNext}
-            className="absolute right-4 top-1/2 -translate-y-1/2 btn w-12 h-12 rounded-full flex items-center justify-center bg-black/60 border-white/20 text-white"
+      {/* Lightbox Modal */}
+      {lightboxIndex !== null && (
+        <div 
+          className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50"
+          onClick={() => setLightboxIndex(null)}
+        >
+          <div 
+            className="border-4 bg-white p-4 max-w-sm w-full flex flex-col gap-3 relative" 
+            style={{ borderColor: INK }}
+            onClick={(e) => e.stopPropagation()}
           >
-            <i data-lucide="chevron-right"></i>
-          </button>
+            <button 
+              onClick={() => setLightboxIndex(null)}
+              className="absolute top-2 right-2 font-hero text-sm px-2 py-1 bg-white border-2"
+              style={{ borderColor: INK }}
+            >
+              X
+            </button>
+            <img 
+              src={GALLERY_PHOTOS[lightboxIndex].url} 
+              alt={GALLERY_PHOTOS[lightboxIndex].title} 
+              className="w-full h-auto max-h-[300px] object-contain border-2" 
+              style={{ borderColor: INK }}
+            />
+            <h4 className="font-hero text-base mt-2">{GALLERY_PHOTOS[lightboxIndex].title}</h4>
+            <p className="font-body text-xs text-opacity-80">{GALLERY_PHOTOS[lightboxIndex].desc}</p>
+          </div>
         </div>
       )}
-
     </div>
   );
 }

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { playSynthSound } from '../lib/audio';
-import { CastleSVG, SkylineSVG } from '../components/PixelCharacters';
 
 const EVENT_DATE = new Date('2026-09-30T09:00:00');
 
@@ -25,14 +24,6 @@ export function LandingPage() {
     <div className="layout-offset-top layout-offset-bottom page-content container flex flex-col gap-12">
       {/* Hero Section */}
       <section className="hero">
-        {/* Background elements from CSS spec */}
-        <div className="hero-bg-castle">
-          <CastleSVG />
-        </div>
-        <div className="hero-bg-city">
-          <SkylineSVG />
-        </div>
-
         {/* Content */}
         <div className="hero-content">
           <span className="hero-eyebrow">4 EVENTS. 1 ULTIMATE BATTLE.</span>
