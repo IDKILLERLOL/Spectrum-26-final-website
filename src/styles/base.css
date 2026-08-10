@@ -199,7 +199,7 @@ input, textarea, select, button {
   }
 
   body {
-    background-color: #1A1A1A !important; /* Dark outer backdrop for premium desktop centering */
+    background-color: var(--bg-primary) !important;
   }
 }
 

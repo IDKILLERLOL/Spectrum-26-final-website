@@ -188,7 +188,7 @@ export function EventsPage() {
           </div>
           <p className="text-small text-text-secondary text-center mt-[-10px]">Choose your battleground.</p>
           
-          <div className="flex flex-col gap-6 mt-2">
+          <div className="flex flex-col gap-6 mt-12">
             {ARCH_CARDS_DATA.map((card, idx) => (
               <div
                 key={card.id}
