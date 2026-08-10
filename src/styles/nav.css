@@ -23,17 +23,18 @@
   right: 0;
   z-index: 100;
   height: var(--nav-height);
-  background: rgba(13, 15, 20, 0.85); /* --bg-primary at 85% opacity */
+  background: var(--bg-surface);
   -webkit-backdrop-filter: blur(16px) saturate(1.2);
   backdrop-filter: blur(16px) saturate(1.2);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 2px solid var(--border);
   display: flex;
   align-items: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* Light theme nav override */
 [data-theme="light"] .nav-bar {
-  background: rgba(240, 237, 228, 0.88); /* --bg-primary light at 88% */
+  background: var(--bg-surface);
 }
 
 .nav-inner {
@@ -62,7 +63,7 @@
 
 .nav-logo-text {
   font-family: var(--font-display);
-  font-size: clamp(9px, 2vw, 13px);
+  font-size: clamp(10px, 2.2vw, 15px);
   color: var(--text-primary);
   letter-spacing: 0.04em;
   line-height: 1;
@@ -70,11 +71,12 @@
 
 .nav-logo-version {
   font-family: var(--font-display);
-  font-size: 8px;
-  color: var(--text-secondary);
-  border: 1px solid var(--border);
+  font-size: 9px;
+  color: var(--accent-inv);
+  background: var(--accent);
+  border: 1.5px solid var(--border);
   border-radius: var(--radius-tag);
-  padding: 2px 5px;
+  padding: 2px 6px;
   line-height: 1;
 }
 
@@ -97,10 +99,10 @@
 .nav-link {
   font-family: var(--font-ui);
   font-size: var(--text-ui);
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   text-decoration: none;
   padding: 8px 12px;
   border-radius: var(--radius-sm);
@@ -115,19 +117,20 @@
   bottom: 2px;
   left: 12px;
   right: 12px;
-  height: 2px;
-  background: var(--text-primary);
+  height: 3px;
+  background: var(--accent);
   transform: scaleX(0);
   transition: transform var(--transition-base);
   transform-origin: left;
 }
 
 .nav-link:hover {
-  color: var(--text-primary);
+  color: var(--accent);
 }
 
 .nav-link.is-active {
-  color: var(--text-primary);
+  color: var(--accent);
+  font-weight: 800;
 }
 
 .nav-link.is-active::after {
