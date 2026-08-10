@@ -185,17 +185,14 @@ input, textarea, select, button {
   }
 }
 
-/* Center app on desktop screens */
 @media (min-width: 768px) {
   #root {
     max-width: 480px;
     margin-inline: auto;
-    box-shadow: 0 0 40px rgba(0, 0, 0, 0.2);
     min-height: 100vh;
     min-height: 100dvh;
     background-color: var(--bg-primary);
     position: relative;
-    border-inline: 4px solid var(--border);
   }
 
   body {

@@ -46,7 +46,7 @@
    ════════════════════════════════════════════════════════════ */
 .pixel-card {
   background: var(--bg-surface);
-  border: 1.5px solid var(--border);
+  border: none;
   border-radius: var(--radius-card);
   box-shadow: var(--pixel-shadow);
   padding: var(--space-md);
