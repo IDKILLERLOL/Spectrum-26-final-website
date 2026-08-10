@@ -104,9 +104,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   text-align: center;
   gap: var(--space-md);
-  max-width: 640px;
+  max-width: 680px;
+  width: 100%;
+  margin-inline: auto;
   padding-inline: var(--space-md);
 }
 
@@ -118,6 +121,9 @@
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--text-muted);
+  text-align: center;
+  display: block;
+  width: 100%;
 }
 
 /* THE BIG TITLE — Press Start 2P, uses glitch shadow token */
@@ -128,6 +134,8 @@
   line-height: 1.1;
   letter-spacing: -0.01em;
   text-shadow: var(--glitch-shadow);
+  text-align: center;
+  width: 100%;
 }
 
 /* "The ultimate tech and gaming showdown." */
@@ -136,7 +144,10 @@
   font-size: var(--text-body);
   color: var(--text-secondary);
   line-height: 1.6;
-  max-width: 320px;
+  max-width: 520px;
+  width: 100%;
+  margin-inline: auto;
+  text-align: center;
 }
 
 /* The two CTA buttons sit side by side on desktop,
@@ -144,15 +155,19 @@
 .hero-actions {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: var(--space-sm);
   width: 100%;
   max-width: 360px;
+  margin-inline: auto;
   margin-top: var(--space-sm);
 }
 
 @media (min-width: 480px) {
   .hero-actions {
     flex-direction: row;
+    justify-content: center;
     max-width: none;
     width: auto;
   }

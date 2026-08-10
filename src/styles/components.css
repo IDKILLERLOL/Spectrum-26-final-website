@@ -624,7 +624,9 @@
   align-items: center;
   gap: var(--space-lg);
   flex-wrap: wrap;
-  justify-content: space-between;
+  justify-content: center;
+  text-align: center;
+  margin-inline: auto;
 }
 
 .countdown-timer {
