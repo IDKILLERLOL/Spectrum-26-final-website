@@ -7,9 +7,9 @@ export function RequireAdmin() {
 
   if (loading) {
     return (
-      <div className=""
+      <div className="min-h-screen flex items-center justify-center"
            style={{ background: 'var(--color-bg-base)' }}>
-        <div className=""
+        <div className="w-8 h-8 border-2 rounded-full animate-spin"
              style={{ borderColor: 'var(--color-text-primary)', borderTopColor: 'transparent' }} />
       </div>
     );

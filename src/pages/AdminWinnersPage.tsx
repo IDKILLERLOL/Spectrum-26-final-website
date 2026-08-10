@@ -90,28 +90,28 @@ export function AdminWinnersPage() {
   if (loading) return <PageSkeleton />;
 
   return (
-    <main className="">
-      <div className="">
-        <h1 className="">Winners</h1>
+    <main className="flex flex-col gap-8 py-8 px-6 max-w-7xl mx-auto w-full">
+      <div className="border-b-2 border-primary pb-6">
+        <h1 className="font-hero text-[40px] leading-none uppercase tracking-widest text-primary">Winners</h1>
       </div>
 
-      <div className="">
+      <div className="flex flex-col gap-12">
         {events.map((event) => {
           const eventWinners = winners.get(event.id) ?? new Map<1 | 2 | 3, Winner>();
           const eventRegs = regs.filter((r) => r.eventId === event.id);
 
           return (
-            <div key={event.id} className="">
+            <div key={event.id} className="flex flex-col gap-4">
               {/* Event heading */}
-              <div className="" style={{ border: 'none' }}>
+              <div className="flex items-center gap-4 pb-2" style={{ border: 'none' }}>
                 <span
-                  className=""
+                  className="font-micro text-micro uppercase tracking-widest mr-2"
                   style={{ color: '#ff3333', background: 'transparent', border: 'none', padding: 0 }}
                 >
                   {categoryLabel(event.category)}
                 </span>
-                <h2 className="" style={{ margin: 0 }}>{event.name}</h2>
-                <span className="">
+                <h2 className="font-heading text-card-title text-primary uppercase" style={{ margin: 0 }}>{event.name}</h2>
+                <span className="font-micro text-micro text-text-muted uppercase">
                   {eventRegs.length} team(s)
                 </span>
               </div>
@@ -127,35 +127,35 @@ export function AdminWinnersPage() {
                   inlineState.placement === placement;
 
                 return (
-                  <div key={placement} className="" style={{ borderStyle: 'none' }}>
-                    <div className="">
+                  <div key={placement} className="py-2" style={{ borderStyle: 'none' }}>
+                    <div className="flex flex-wrap md:flex-nowrap items-center gap-6 p-4 border border-border-default rounded bg-bg-card hover:border-primary transition-all">
                       {/* Trophy */}
-                      <div className="">
-                        <Trophy size={18} className="" />
-                        <span className="">{PLACEMENT_LABEL[placement]}</span>
+                      <div className="flex items-center gap-3 min-w-[80px]">
+                        <Trophy size={18} className="text-primary opacity-70" />
+                        <span className="font-hero text-[20px] text-primary tracking-widest">{PLACEMENT_LABEL[placement]}</span>
                       </div>
 
                       {/* Winner info */}
-                      <div className="">
+                      <div className="flex-1 flex flex-col gap-1">
                         {winner && winnerReg ? (
                           <>
-                            <span className="">
+                            <span className="font-heading text-heading text-primary uppercase">
                               {leader?.name ?? winnerReg.id}
                             </span>
-                            <span className="">
+                            <span className="font-body text-small text-text-muted">
                               Reg: {winnerReg.id.slice(0, 16)}…
                             </span>
                           </>
                         ) : (
-                          <span className="">Not recorded yet</span>
+                          <span className="font-body text-small text-text-muted italic">Not recorded yet</span>
                         )}
                       </div>
 
                       {/* Actions */}
-                      <div className="">
+                      <div className="flex items-center gap-2 shrink-0">
                         <button
                           onClick={() => isSelectOpen ? closeState() : openSelect(event.id, placement)}
-                          className=""
+                          className="flex items-center gap-2 px-4 py-2 border border-border-default hover:border-primary text-text-secondary hover:text-primary font-button text-button uppercase transition-colors"
                         >
                           <Pencil size={14} /> {winner ? 'Change' : 'Set'}
                         </button>
@@ -163,7 +163,7 @@ export function AdminWinnersPage() {
                           <button
                             onClick={() => handleClearWinner(event.id, placement)}
                             disabled={saving}
-                            className=""
+                            className="p-2 border border-border-default hover:border-primary text-text-secondary hover:text-primary transition-colors disabled:opacity-50"
                           >
                             <Trash2 size={16} />
                           </button>
@@ -173,14 +173,14 @@ export function AdminWinnersPage() {
 
                     {/* ── Inline: Select winner ── */}
                     {isSelectOpen && (
-                      <div className="">
-                        <p className="">
+                      <div className="expand-in border-t border-border-default px-6 py-6 bg-bg-elevated flex flex-col gap-4">
+                        <p className="font-micro text-micro text-text-muted uppercase tracking-widest">
                           Select team for {PLACEMENT_LABEL[placement]} place
                         </p>
                         <select
                           value={selectedRegId}
                           onChange={(e) => setSelectedRegId(e.target.value)}
-                          className=""
+                          className="bg-bg-base border-b-2 border-border-strong text-primary font-heading text-heading py-2 focus:outline-none focus:border-primary transition-all"
                         >
                           <option value="">— Select a team —</option>
                           {eventRegs.map((r) => {
@@ -192,15 +192,15 @@ export function AdminWinnersPage() {
                             );
                           })}
                         </select>
-                        {error && <p className="">{error}</p>}
-                        <div className="">
-                          <button onClick={closeState} className="">Cancel</button>
+                        {error && <p className="font-body text-small text-text-secondary">{error}</p>}
+                        <div className="flex gap-3">
+                          <button onClick={closeState} className="px-5 py-3 border border-border-default text-text-secondary font-button text-button uppercase hover:opacity-70">Cancel</button>
                           <button
                             onClick={handleSetWinner}
                             disabled={saving || !selectedRegId}
-                            className=""
+                            className="px-8 py-3 bg-primary text-bg-base font-button text-button uppercase hover:opacity-90 disabled:opacity-50 flex items-center gap-2"
                           >
-                            {saving && <Loader2 size={14} className="" />} Confirm
+                            {saving && <Loader2 size={14} className="animate-spin" />} Confirm
                           </button>
                         </div>
                       </div>
@@ -218,10 +218,10 @@ export function AdminWinnersPage() {
 
 function PageSkeleton() {
   return (
-    <main className="">
-      <div className="" style={{ background: 'var(--color-bg-card)' }} />
-      <div className="">
-        {[1, 2].map((i) => <div key={i} className="" style={{ background: 'var(--color-bg-card)' }} />)}
+    <main className="flex flex-col gap-8 py-8 px-6 max-w-7xl mx-auto w-full">
+      <div className="skeleton h-12 w-40 rounded border-b-2 border-primary pb-6" style={{ background: 'var(--color-bg-card)' }} />
+      <div className="flex flex-col gap-6">
+        {[1, 2].map((i) => <div key={i} className="skeleton h-32 w-full rounded" style={{ background: 'var(--color-bg-card)' }} />)}
       </div>
     </main>
   );

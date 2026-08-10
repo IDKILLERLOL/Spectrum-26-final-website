@@ -39,21 +39,21 @@ export function PublicEventDetailPage() {
 
   if (loading) {
     return (
-      <main className="">
-        <div className="" />
-        <div className="" />
-        <div className="" />
+      <main className="w-full min-h-screen flex flex-col py-16 px-6 max-w-3xl mx-auto gap-8">
+        <div className="skeleton h-12 w-48" />
+        <div className="skeleton h-8 w-full" />
+        <div className="skeleton h-32 w-full" />
       </main>
     );
   }
 
   if (!event) {
     return (
-      <main className="">
-        <div className="">
-          <ShieldAlert size={48} className="" />
-          <p className="">Event Not Found</p>
-          <button onClick={() => navigate(-1)} className="">Back</button>
+      <main className="w-full min-h-screen flex items-center justify-center px-6">
+        <div className="text-center flex flex-col gap-4">
+          <ShieldAlert size={48} className="mx-auto text-primary animate-bounce" />
+          <p className="font-heading text-heading text-text-secondary uppercase tracking-widest">Event Not Found</p>
+          <button onClick={() => navigate(-1)} className="font-button text-button text-primary border border-primary px-6 py-3 hover:bg-primary hover:text-bg-base transition-colors uppercase cursor-pointer bg-transparent">Back</button>
         </div>
       </main>
     );
@@ -69,14 +69,14 @@ export function PublicEventDetailPage() {
          : TECH_ROUND_DETAILS[event.name];
 
   return (
-    <main className="">
+    <main className="relative z-10 w-full min-h-screen py-12 px-6 max-w-3xl mx-auto flex flex-col gap-10">
       {/* Back button */}
       <button
         onClick={() => {
           playSynthSound('click');
           navigate(-1);
         }}
-        className=""
+        className="inline-flex items-center gap-2 text-primary hover:opacity-75 transition-opacity font-heading text-heading uppercase w-fit bg-transparent border-none cursor-pointer p-0"
         style={{ textDecoration: 'none' }}
       >
         <ArrowLeft size={20} /> Back
@@ -88,13 +88,13 @@ export function PublicEventDetailPage() {
         initial={{ opacity: 0, scale: 0.85, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        className=""
+        className="p-8 comic-border-thick comic-shadow"
         style={{ background: 'var(--panel-bg)' }}
       >
         {/* Badges */}
-        <div className="">
+        <div className="flex gap-3 mb-6">
           <span
-            className=""
+            className="comic-badge px-3 py-1 text-sm"
             style={{
               background: 'var(--color-text-primary)',
               color: 'var(--color-bg-base)',
@@ -104,7 +104,7 @@ export function PublicEventDetailPage() {
             {categoryLabel(event.category)}
           </span>
           <span
-            className=""
+            className="comic-badge px-3 py-1 text-sm"
             style={{
               transform: 'rotate(1deg)',
             }}
@@ -144,7 +144,7 @@ export function PublicEventDetailPage() {
 
         {/* Info Grid */}
         <div
-          className=""
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 py-6 border-y-2 border-primary mb-8"
           style={{ borderColor: 'var(--border-color)', fontFamily: 'Space Grotesk, sans-serif' }}
         >
           <div>
@@ -173,7 +173,7 @@ export function PublicEventDetailPage() {
 
         {/* Event expandable round details */}
         {roundsToRender && roundsToRender.length > 0 && (
-          <div className="" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+          <div className="mb-8 pt-2 text-left" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
             <button
               onClick={() => {
                 playSynthSound('click');
@@ -204,10 +204,10 @@ export function PublicEventDetailPage() {
             </button>
 
             {showRounds && (
-              <div style={{ marginTop: '16px', padding: '16px', background: 'rgba(255, 255, 255, 0.05)', borderLeft: '3px solid var(--color-primary)' }} className="">
+              <div style={{ marginTop: '16px', padding: '16px', background: 'rgba(255, 255, 255, 0.05)', borderLeft: '3px solid var(--color-primary)' }} className="flex flex-col gap-3 font-body text-small text-text-secondary leading-relaxed">
                 {roundsToRender.map((round, idx) => (
-                  <div key={idx} className="">
-                    <span className="">•</span>
+                  <div key={idx} className="flex gap-2">
+                    <span className="text-primary font-bold">•</span>
                     <span>{round}</span>
                   </div>
                 ))}
@@ -222,14 +222,14 @@ export function PublicEventDetailPage() {
             <Link
               to={`/register/${event.id}`}
               onClick={() => playSynthSound('laser')}
-              className=""
+              className="comic-btn text-center w-full block"
               style={{ fontSize: '24px', padding: '14px 28px', textDecoration: 'none' }}
             >
               REGISTER FOR THIS EVENT
             </Link>
           ) : (
             <div
-              className=""
+              className="comic-btn-outline text-center w-full block"
               style={{ fontSize: '20px', padding: '14px 28px', opacity: 0.5, cursor: 'not-allowed' }}
             >
               {full ? 'REGISTRATION FULL' : 'REGISTRATIONS CLOSED'}

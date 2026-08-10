@@ -1,21 +1,17 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../lib/useAuth';
-import { getMyRegistrations, getUser } from '../lib/firestore';
+import { getUser } from '../lib/firestore';
 import { playSynthSound, setSoundEnabled } from '../lib/audio';
-import { Volume2, VolumeX, Sun, Moon, LogIn, LogOut, User, Menu, X, Home, Calendar, Trophy, Mail, MoreHorizontal, Award, Instagram, Gamepad2, Terminal } from 'lucide-react';
+import { getTheme, toggleTheme } from '../lib/theme';
 
 export function Navbar() {
   const location = useLocation();
-  const { user, loading, logout } = useAuth();
-  const [theme] = useState('dark');
-  const [hasRegistrations, setHasRegistrations] = useState(false);
-  const [showUserCard, setShowUserCard] = useState(false);
+  const { user, logout } = useAuth();
+  const [theme, setTheme] = useState(getTheme());
   const [dbUser, setDbUser] = useState<any | null>(null);
   const [sfxOn, setSfxOn] = useState(true);
-  
-  // Mobile More Pop-up Menu State
-  const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     if (!user) { setDbUser(null); return; }
@@ -24,12 +20,19 @@ export function Navbar() {
       .catch(() => setDbUser({ name: user.displayName || user.email?.split('@')[0] || 'User', email: user.email || '' }));
   }, [user]);
 
+  // Ensure Lucide icon tags are converted on state toggles
   useEffect(() => {
-    if (!user) { setHasRegistrations(false); return; }
-    getMyRegistrations(user.uid, user.email ?? undefined)
-      .then((regs) => setHasRegistrations(regs.length > 0))
-      .catch(() => setHasRegistrations(false));
-  }, [user, location.pathname]);
+    if ((window as any).lucide) {
+      (window as any).lucide.createIcons();
+    }
+  }, [theme, sfxOn, isMobileMenuOpen]);
+
+  const handleToggleTheme = () => {
+    playSynthSound('click');
+    toggleTheme(theme, (nextTheme) => {
+      setTheme(nextTheme);
+    });
+  };
 
   const toggleSfx = () => {
     const next = !sfxOn;
@@ -40,274 +43,173 @@ export function Navbar() {
 
   const isActive = (to: string) => location.pathname === to;
 
-  const navLink = (to: string, label: string, onClickExtra?: () => void) => (
-    <Link
-      key={to}
-      to={to}
-      onClick={() => {
-        playSynthSound('click');
-        if (onClickExtra) onClickExtra();
-      }}
-      style={{
-        fontFamily: "'Press Start 2P', monospace",
-        fontSize: '9px',
-        letterSpacing: '0.05em',
-        textTransform: 'uppercase',
-        color: 'var(--color-text-primary)',
-        textDecoration: isActive(to) ? 'underline' : 'none',
-        textDecorationStyle: isActive(to) ? 'solid' : undefined,
-        textDecorationThickness: isActive(to) ? '2px' : undefined,
-        textUnderlineOffset: '6px',
-      }}
-      onMouseEnter={(e) => {
-        (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline';
-        (e.currentTarget as HTMLAnchorElement).style.textDecorationStyle = 'solid';
-        (e.currentTarget as HTMLAnchorElement).style.textDecorationThickness = '3px';
-      }}
-      onMouseLeave={(e) => {
-        if (!isActive(to)) {
-          (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none';
-        }
-      }}
-    >
-      {label}
-    </Link>
-  );
-
   return (
     <>
-      <div className="">
-        <nav
-          className=""
-          style={{
-            background: 'rgba(8, 12, 22, 0.88)',
-            backdropFilter: 'blur(16px)',
-            WebkitBackdropFilter: 'blur(16px)',
-            borderColor: 'rgba(255, 51, 51, 0.3)',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
-          }}
-        >
-          {/* Left side: Brand Logo with Horns emblem & 8-bit title */}
+      {/* Top Navbar Container */}
+      <header className="nav-bar">
+        <div className="nav-inner">
+          {/* Left side: Brand Logo */}
           <Link
             to="/"
             onClick={() => playSynthSound('click')}
-            className=""
+            className="nav-logo"
           >
-            <div className="">
-              <Terminal className="" size={16} />
-            </div>
-            <div className="">
-              <span className="">
-                SPECTRUM <span className="">5.0</span>
-              </span>
-            </div>
+            <span className="nav-logo-text">SPECTRUM</span>
+            <span className="nav-logo-version">5.0</span>
           </Link>
 
-          {/* Desktop nav menu */}
-          <div className="">
-            {navLink('/', 'HOME')}
-            {navLink('/events', 'EVENTS')}
-            {navLink('/schedule', 'SCHEDULE')}
-            {navLink('/winners', 'WINNERS')}
-            {navLink('/sponsors', 'SPONSORS')}
-            {navLink('/gallery', 'GALLERY')}
-            {navLink('/contact', 'CONTACT')}
-          </div>
+          {/* Desktop Nav menu */}
+          <ul className="nav-links">
+            <li><Link to="/" onClick={() => playSynthSound('click')} className={`nav-link ${isActive('/') ? 'is-active' : ''}`}>Home</Link></li>
+            <li><Link to="/events" onClick={() => playSynthSound('click')} className={`nav-link ${isActive('/events') ? 'is-active' : ''}`}>Events</Link></li>
+            <li><Link to="/schedule" onClick={() => playSynthSound('click')} className={`nav-link ${isActive('/schedule') ? 'is-active' : ''}`}>Schedule</Link></li>
+            <li><Link to="/winners" onClick={() => playSynthSound('click')} className={`nav-link ${isActive('/winners') ? 'is-active' : ''}`}>Winners</Link></li>
+            <li><Link to="/sponsors" onClick={() => playSynthSound('click')} className={`nav-link ${isActive('/sponsors') ? 'is-active' : ''}`}>Sponsors</Link></li>
+            <li><Link to="/gallery" onClick={() => playSynthSound('click')} className={`nav-link ${isActive('/gallery') ? 'is-active' : ''}`}>Gallery</Link></li>
+            <li><Link to="/contact" onClick={() => playSynthSound('click')} className={`nav-link ${isActive('/contact') ? 'is-active' : ''}`}>Contact</Link></li>
+            {dbUser?.role === 'ADMIN' && (
+              <li><Link to="/supercore" onClick={() => playSynthSound('click')} className={`nav-link ${isActive('/supercore') ? 'is-active' : ''}`}>Admin</Link></li>
+            )}
+          </ul>
 
-          {/* Right side: Social icons & Register Button */}
-          <div className="">
-            <a
-              href="https://instagram.com"
-              target="_blank"
-              rel="noreferrer"
-              className=""
-              aria-label="Instagram"
+          {/* Right side controls */}
+          <div className="nav-actions">
+            {/* SFX sound toggle */}
+            <button
+              onClick={toggleSfx}
+              className="nav-icon-btn"
+              aria-label="Toggle sound effects"
             >
-              <Instagram size={15} />
-            </a>
-            <a
-              href="https://discord.com"
-              target="_blank"
-              rel="noreferrer"
-              className=""
-              aria-label="Discord"
-            >
-              <Gamepad2 size={15} />
-            </a>
+              {sfxOn ? <i data-lucide="volume-2"></i> : <i data-lucide="volume-x"></i>}
+            </button>
 
+            {/* Theme switcher toggle */}
+            <button
+              onClick={handleToggleTheme}
+              className="nav-icon-btn"
+              aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {theme === 'dark' ? <i data-lucide="sun"></i> : <i data-lucide="moon"></i>}
+            </button>
+
+            {/* Register CTA button - desktop only */}
             <Link
               to="/events"
               onClick={() => playSynthSound('laser')}
-              className=""
+              className="btn btn-primary nav-cta"
             >
-              REGISTER NOW <span className="">→</span>
+              REGISTER NOW →
             </Link>
-          </div>
 
-          {/* Mobile Menu Hamburger Toggle Button */}
-          <button
-            onClick={() => {
-              playSynthSound('click');
-              setShowMoreMenu(!showMoreMenu);
-            }}
-            className=""
-            aria-label="Toggle Navigation Menu"
-          >
-            <Menu size={20} />
-          </button>
-        </nav>
+            {/* Mobile hamburger menu toggle */}
+            <button
+              onClick={() => {
+                playSynthSound('click');
+                setIsMobileMenuOpen(!isMobileMenuOpen);
+              }}
+              className="nav-icon-btn nav-hamburger"
+              aria-label="Toggle navigation menu"
+            >
+              {isMobileMenuOpen ? <i data-lucide="x"></i> : <i data-lucide="menu"></i>}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Hamburger Overlay Mobile Menu */}
+      <div className={`nav-overlay ${isMobileMenuOpen ? 'is-open' : ''}`}>
+        <ul className="nav-overlay-links">
+          <li>
+            <Link to="/" onClick={() => { playSynthSound('click'); setIsMobileMenuOpen(false); }} className={`nav-overlay-link ${isActive('/') ? 'is-active' : ''}`}>
+              <span>Home</span>
+              <i data-lucide="chevron-right"></i>
+            </Link>
+          </li>
+          <li>
+            <Link to="/events" onClick={() => { playSynthSound('click'); setIsMobileMenuOpen(false); }} className={`nav-overlay-link ${isActive('/events') ? 'is-active' : ''}`}>
+              <span>Events</span>
+              <i data-lucide="chevron-right"></i>
+            </Link>
+          </li>
+          <li>
+            <Link to="/schedule" onClick={() => { playSynthSound('click'); setIsMobileMenuOpen(false); }} className={`nav-overlay-link ${isActive('/schedule') ? 'is-active' : ''}`}>
+              <span>Schedule</span>
+              <i data-lucide="chevron-right"></i>
+            </Link>
+          </li>
+          <li>
+            <Link to="/winners" onClick={() => { playSynthSound('click'); setIsMobileMenuOpen(false); }} className={`nav-overlay-link ${isActive('/winners') ? 'is-active' : ''}`}>
+              <span>Winners</span>
+              <i data-lucide="chevron-right"></i>
+            </Link>
+          </li>
+          <li>
+            <Link to="/sponsors" onClick={() => { playSynthSound('click'); setIsMobileMenuOpen(false); }} className={`nav-overlay-link ${isActive('/sponsors') ? 'is-active' : ''}`}>
+              <span>Sponsors</span>
+              <i data-lucide="chevron-right"></i>
+            </Link>
+          </li>
+          <li>
+            <Link to="/gallery" onClick={() => { playSynthSound('click'); setIsMobileMenuOpen(false); }} className={`nav-overlay-link ${isActive('/gallery') ? 'is-active' : ''}`}>
+              <span>Gallery</span>
+              <i data-lucide="chevron-right"></i>
+            </Link>
+          </li>
+          <li>
+            <Link to="/contact" onClick={() => { playSynthSound('click'); setIsMobileMenuOpen(false); }} className={`nav-overlay-link ${isActive('/contact') ? 'is-active' : ''}`}>
+              <span>Contact</span>
+              <i data-lucide="chevron-right"></i>
+            </Link>
+          </li>
+          {dbUser?.role === 'ADMIN' && (
+            <li>
+              <Link to="/supercore" onClick={() => { playSynthSound('click'); setIsMobileMenuOpen(false); }} className={`nav-overlay-link ${isActive('/supercore') ? 'is-active' : ''}`}>
+                <span>Admin</span>
+                <i data-lucide="chevron-right"></i>
+              </Link>
+            </li>
+          )}
+        </ul>
       </div>
 
-      {/* Mobile Pop-up Menu */}
-      {showMoreMenu && (
-        <div
-          className=""
-          style={{
-            background: 'rgba(8, 12, 22, 0.98)',
-            backdropFilter: 'blur(24px)',
-            WebkitBackdropFilter: 'blur(24px)',
-            borderColor: 'rgba(255, 51, 51, 0.4)',
-            minWidth: '200px',
-          }}
+      {/* Mobile Bottom Tab Bar Navigation (<= 1023px) */}
+      <nav className="tab-bar">
+        <Link
+          to="/"
+          onClick={() => playSynthSound('click')}
+          className={`tab-bar-item ${isActive('/') ? 'is-active' : ''}`}
         >
-          <Link
-            to="/"
-            onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
-            className=""
-          >
-            <Home size={14} className="" />
-            <span>HOME</span>
-          </Link>
-          <Link
-            to="/events"
-            onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
-            className=""
-          >
-            <Trophy size={14} className="" />
-            <span>EVENTS</span>
-          </Link>
-          <Link
-            to="/schedule"
-            onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
-            className=""
-          >
-            <Calendar size={14} className="" />
-            <span>SCHEDULE</span>
-          </Link>
-          <Link
-            to="/winners"
-            onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
-            className=""
-          >
-            <Award size={14} className="" />
-            <span>WINNERS</span>
-          </Link>
-          <Link
-            to="/sponsors"
-            onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
-            className=""
-          >
-            <Award size={14} className="" />
-            <span>SPONSORS</span>
-          </Link>
-          <Link
-            to="/gallery"
-            onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
-            className=""
-          >
-            <Award size={14} className="" />
-            <span>GALLERY</span>
-          </Link>
-          <Link
-            to="/contact"
-            onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
-            className=""
-          >
-            <Mail size={14} className="" />
-            <span>CONTACT</span>
-          </Link>
-
-          {dbUser?.role === 'ADMIN' && (
-            <Link
-              to="/supercore"
-              onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
-              className=""
-            >
-              <Menu size={14} className="" />
-              <span>SUPERCORE</span>
-            </Link>
-          )}
-        </div>
-      )}
-
-      {/* Mobile Floating Bottom Dock */}
-      <div className="">
-        {/* Floating REGISTER NOW Button */}
+          <i data-lucide="house"></i>
+          <span className="tab-bar-label">Home</span>
+        </Link>
         <Link
           to="/events"
-          onClick={() => playSynthSound('laser')}
-          className=""
+          onClick={() => playSynthSound('click')}
+          className={`tab-bar-item ${isActive('/events') ? 'is-active' : ''}`}
         >
-          <span>★</span> REGISTER NOW <span>→ ★</span>
+          <i data-lucide="gamepad-2"></i>
+          <span className="tab-bar-label">Events</span>
         </Link>
-
-        {/* Glassmorphic Nav Bar */}
-        <div
-          className=""
-          style={{
-            background: 'rgba(8, 12, 22, 0.95)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            borderColor: 'rgba(255, 51, 51, 0.25)',
-            boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.8)',
-          }}
+        <Link
+          to="/schedule"
+          onClick={() => playSynthSound('click')}
+          className={`tab-bar-item ${isActive('/schedule') ? 'is-active' : ''}`}
         >
-          <Link
-            to="/"
-            onClick={() => playSynthSound('click')}
-            className={`flex flex-col items-center gap-1 ${location.pathname === '/' ? 'text-red-500' : 'text-text-muted hover:text-white'}`}
-          >
-            <Home size={18} />
-            <span className="">HOME</span>
-          </Link>
-
-          <Link
-            to="/events"
-            onClick={() => playSynthSound('click')}
-            className={`flex flex-col items-center gap-1 ${location.pathname === '/events' ? 'text-red-500' : 'text-text-muted hover:text-white'}`}
-          >
-            <Gamepad2 size={18} />
-            <span className="">EVENTS</span>
-          </Link>
-
-          <Link
-            to="/schedule"
-            onClick={() => playSynthSound('click')}
-            className={`flex flex-col items-center gap-1 ${location.pathname === '/schedule' ? 'text-red-500' : 'text-text-muted hover:text-white'}`}
-          >
-            <Calendar size={18} />
-            <span className="">SCHEDULE</span>
-          </Link>
-
-          <Link
-            to="/winners"
-            onClick={() => playSynthSound('click')}
-            className={`flex flex-col items-center gap-1 ${location.pathname === '/winners' ? 'text-red-500' : 'text-text-muted hover:text-white'}`}
-          >
-            <Trophy size={18} />
-            <span className="">WINNERS</span>
-          </Link>
-
-          <Link
-            to="/contact"
-            onClick={() => playSynthSound('click')}
-            className={`flex flex-col items-center gap-1 ${location.pathname === '/contact' ? 'text-red-500' : 'text-text-muted hover:text-white'}`}
-          >
-            <Mail size={18} />
-            <span className="">CONTACT</span>
-          </Link>
-        </div>
-      </div>
+          <i data-lucide="calendar-clock"></i>
+          <span className="tab-bar-label">Schedule</span>
+        </Link>
+        <button
+          onClick={() => {
+            playSynthSound('click');
+            setIsMobileMenuOpen(!isMobileMenuOpen);
+          }}
+          className="tab-bar-item"
+          style={{ background: 'none', border: 'none', padding: 0 }}
+        >
+          <i data-lucide="ellipsis"></i>
+          <span className="tab-bar-label">More</span>
+        </button>
+      </nav>
     </>
   );
 }

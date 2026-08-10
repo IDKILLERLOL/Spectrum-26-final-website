@@ -181,24 +181,24 @@ export function AdminSchedulePage() {
 
   if (loading) {
     return (
-      <div className="">
-        <Loader2 className="" size={40} />
+      <div className="flex-grow flex items-center justify-center p-12">
+        <Loader2 className="animate-spin text-primary" size={40} />
       </div>
     );
   }
 
   return (
-    <div className="">
+    <div className="p-6 md:p-8 flex flex-col gap-8 max-w-7xl mx-auto w-full">
       {/* Header */}
-      <div className="">
+      <div className="flex justify-between items-center border-b border-border-default pb-4">
         <div>
-          <h1 className="">Schedule Slots</h1>
-          <p className="">Create and manage timeslots for {eventDetails.name}.</p>
+          <h1 className="font-hero text-2xl uppercase tracking-widest text-primary">Schedule Slots</h1>
+          <p className="font-body text-small text-text-secondary">Create and manage timeslots for {eventDetails.name}.</p>
         </div>
         {inlineState.type === 'none' && (
           <button
             onClick={openCreate}
-            className=""
+            className="flex items-center gap-2 font-button text-button px-4 py-2 border border-primary text-primary hover:bg-primary hover:text-bg-base transition-colors"
           >
             <Plus size={16} /> Add Slot
           </button>
@@ -215,81 +215,81 @@ export function AdminSchedulePage() {
               ? handleCreate(e)
               : handleUpdate(e, (inlineState as { slotId: string }).slotId)
           }
-          className=""
+          className="border border-border-default p-6 bg-bg-card flex flex-col gap-6"
         >
-          <h2 className="">
+          <h2 className="font-heading text-heading uppercase tracking-widest text-primary">
             {inlineState.type === 'create' ? 'Create New Slot' : 'Edit Slot'}
           </h2>
 
           {error && (
-            <div className="">
+            <div className="text-small text-red-500 font-body border border-red-900/30 bg-red-950/10 p-3">
               {error}
             </div>
           )}
 
-          <div className="">
-            <div className="">
-              <label className="">Day</label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="flex flex-col gap-2">
+              <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">Day</label>
               <input
                 type="text"
                 value={form.day}
                 onChange={(e) => setField('day', e.target.value)}
-                className=""
+                className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
                 placeholder="e.g. Day 1"
               />
             </div>
 
 
-            <div className="">
-              <label className="">Title</label>
+            <div className="flex flex-col gap-2">
+              <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">Title</label>
               <input
                 type="text"
                 value={form.title}
                 onChange={(e) => setField('title', e.target.value)}
-                className=""
+                className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
                 placeholder="e.g. Speed Typing - Prelims"
               />
             </div>
 
-            <div className="">
-              <label className="">Location</label>
+            <div className="flex flex-col gap-2">
+              <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">Location</label>
               <input
                 type="text"
                 value={form.location}
                 onChange={(e) => setField('location', e.target.value)}
-                className=""
+                className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
                 placeholder="e.g. Lab 3, CSE Block"
               />
             </div>
 
-            <div className="">
-              <label className="">Sort Time (24h)</label>
+            <div className="flex flex-col gap-2">
+              <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">Sort Time (24h)</label>
               <input
                 type="text"
                 value={form.sortTime}
                 onChange={(e) => setField('sortTime', e.target.value)}
-                className=""
+                className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
                 placeholder="e.g. 09:30"
               />
             </div>
 
-            <div className="">
-              <label className="">Display Time</label>
+            <div className="flex flex-col gap-2">
+              <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">Display Time</label>
               <input
                 type="text"
                 value={form.displayTime}
                 onChange={(e) => setField('displayTime', e.target.value)}
-                className=""
+                className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
                 placeholder="e.g. 09:30 AM - 11:00 AM"
               />
             </div>
 
-            <div className="">
-              <label className="">Type</label>
+            <div className="flex flex-col gap-2">
+              <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">Type</label>
               <select
                 value={form.type}
                 onChange={(e) => setField('type', e.target.value as ScheduleEventType)}
-                className=""
+                className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
               >
                 <option value="TECH">TECH</option>
                 <option value="NON_TECH">NON-TECH</option>
@@ -298,29 +298,29 @@ export function AdminSchedulePage() {
               </select>
             </div>
 
-            <div className="">
-              <label className="">Sort Order</label>
+            <div className="flex flex-col gap-2">
+              <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">Sort Order</label>
               <input
                 type="number"
                 value={form.sortOrder}
                 onChange={(e) => setField('sortOrder', parseInt(e.target.value, 10) || 0)}
-                className=""
+                className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
               />
             </div>
           </div>
 
-          <div className="">
+          <div className="flex gap-4">
             <button
               type="submit"
               disabled={saving}
-              className=""
+              className="font-button text-button px-6 py-3 border border-primary bg-primary text-bg-base hover:bg-transparent hover:text-primary transition-colors disabled:opacity-50"
             >
               {saving ? 'Saving...' : 'Save'}
             </button>
             <button
               type="button"
               onClick={closeState}
-              className=""
+              className="font-button text-button px-6 py-3 border border-border-default text-text-secondary hover:text-primary hover:border-primary transition-colors"
             >
               Cancel
             </button>
@@ -330,22 +330,22 @@ export function AdminSchedulePage() {
 
       {/* Delete Confirmation */}
       {inlineState.type === 'confirm-delete' && (
-        <div className="">
-          <h2 className="">Confirm Deletion</h2>
-          <p className="">
+        <div className="border border-red-900/30 bg-red-950/5 p-6 flex flex-col gap-4">
+          <h2 className="font-heading text-heading uppercase text-red-500">Confirm Deletion</h2>
+          <p className="font-body text-body text-text-secondary">
             Are you sure you want to delete this schedule slot? This action is permanent.
           </p>
-          <div className="">
+          <div className="flex gap-4">
             <button
               onClick={() => handleDelete((inlineState as { slotId: string }).slotId)}
               disabled={saving}
-              className=""
+              className="font-button text-button px-6 py-3 border border-red-600 bg-red-600 text-white hover:bg-transparent hover:text-red-600 transition-colors disabled:opacity-50"
             >
               Delete
             </button>
             <button
               onClick={closeState}
-              className=""
+              className="font-button text-button px-6 py-3 border border-border-default text-text-secondary hover:text-primary transition-colors"
             >
               Cancel
             </button>
@@ -354,48 +354,48 @@ export function AdminSchedulePage() {
       )}
 
       {/* Slots List */}
-      <div className="">
+      <div className="flex flex-col gap-4">
         {slots.length === 0 ? (
-          <p className="">No schedule slots defined.</p>
+          <p className="font-body text-body text-text-secondary">No schedule slots defined.</p>
         ) : (
-          <div className="">
-            <table className="">
-              <thead className="">
+          <div className="border border-border-default bg-bg-card overflow-hidden">
+            <table className="w-full text-left font-body">
+              <thead className="bg-bg-elevated border-b border-border-default font-micro text-micro uppercase tracking-widest text-text-muted">
                 <tr>
-                  <th className="">Day</th>
-                  <th className="">Time</th>
-                  <th className="">Title</th>
-                  <th className="">Location</th>
-                  <th className="">Type</th>
-                  <th className="">Actions</th>
+                  <th className="p-4">Day</th>
+                  <th className="p-4">Time</th>
+                  <th className="p-4">Title</th>
+                  <th className="p-4">Location</th>
+                  <th className="p-4">Type</th>
+                  <th className="p-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="">
+              <tbody className="divide-y divide-border-default text-primary">
                 {slots.map((slot) => (
-                  <tr key={slot.id} className="">
-                    <td className="">
+                  <tr key={slot.id} className="hover:bg-bg-elevated/40 transition-colors">
+                    <td className="p-4">
                       <div>{slot.day}</div>
                     </td>
-                    <td className="">{slot.displayTime}</td>
-                    <td className="">{slot.title}</td>
-                    <td className="">{slot.location}</td>
-                    <td className="">
-                      <span className="">
+                    <td className="p-4 font-mono">{slot.displayTime}</td>
+                    <td className="p-4 font-semibold">{slot.title}</td>
+                    <td className="p-4">{slot.location}</td>
+                    <td className="p-4">
+                      <span className="font-micro text-micro px-2 py-0.5 border border-border-default rounded">
                         {slot.type}
                       </span>
                     </td>
-                    <td className="">
-                      <div className="">
+                    <td className="p-4 text-right">
+                      <div className="flex justify-end gap-3">
                         <button
                           onClick={() => openEdit(slot)}
-                          className=""
+                          className="text-text-secondary hover:text-primary transition-colors"
                           title="Edit"
                         >
                           <Pencil size={16} />
                         </button>
                         <button
                           onClick={() => setInlineState({ type: 'confirm-delete', slotId: slot.id })}
-                          className=""
+                          className="text-text-secondary hover:text-red-500 transition-colors"
                           title="Delete"
                         >
                           <Trash2 size={16} />

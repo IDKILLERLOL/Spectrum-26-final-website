@@ -1,0 +1,80 @@
+/* Quest board registration and multi step indicators */
+
+.quest-board-landing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--space-xl) var(--space-sm);
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.quest-image-box {
+  width: 160px;
+  height: 160px;
+  margin: var(--space-md) 0;
+}
+
+/* Step indicator line dots */
+.wizard-progress-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-xl);
+}
+
+.wizard-step-node {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background-color: var(--bg-primary);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.wizard-step-node.completed {
+  background-color: var(--text-primary);
+  border-color: var(--text-primary);
+}
+
+.wizard-step-node.active {
+  background-color: var(--bg-primary);
+  border-color: var(--text-primary);
+}
+
+.wizard-connector-line {
+  width: 32px;
+  height: 2px;
+  background-color: var(--border);
+}
+
+.wizard-connector-line.completed {
+  background-color: var(--text-primary);
+}
+
+/* Radio card options */
+.radio-card-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin: var(--space-md) 0;
+}
+
+.radio-card-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-md);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-btn);
+  background-color: var(--bg-surface);
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.radio-card-option.selected {
+  border-color: var(--text-primary);
+  box-shadow: var(--pixel-shadow);
+}

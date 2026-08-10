@@ -126,7 +126,7 @@ export function FighterCard({ event, panelIndex }: FighterCardProps) {
   return (
     <div
       ref={cardRef}
-      className=""
+      className="fighter-card"
       onMouseEnter={() => !isMobile && setHovered(true)}
       onMouseLeave={() => !isMobile && setHovered(false)}
       onClick={handleClick}
@@ -188,7 +188,7 @@ export function FighterCard({ event, panelIndex }: FighterCardProps) {
       >
         {/* Default lower-third: character name + event name */}
         <div
-          className=""
+          className="fighter-lower-default"
           style={{
             position: 'absolute',
             inset: 0,
@@ -246,7 +246,7 @@ export function FighterCard({ event, panelIndex }: FighterCardProps) {
 
         {/* Stat block — flips in from bottom */}
         <div
-          className=""
+          className="fighter-stat-block"
           style={{
             position: 'absolute',
             inset: 0,

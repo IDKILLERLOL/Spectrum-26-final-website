@@ -113,35 +113,35 @@ export function AdminGatePage() {
 
   return (
     <main
-      className=""
+      className="min-h-screen w-full flex flex-col items-center justify-center px-6 py-16 relative admin-theme"
       style={{ background: 'var(--color-bg-base)' }}
     >
-      <div className="">
+      <div className="w-full max-w-md flex flex-col gap-10">
         {/* Header */}
-        <div className="">
-          <span className="">SPECTRUM 26</span>
-          <span className="">Admin Access</span>
+        <div className="flex flex-col gap-2">
+          <span className="font-hero text-xl md:text-2xl uppercase tracking-widest text-primary">SPECTRUM 26</span>
+          <span className="font-micro text-micro text-text-muted uppercase tracking-widest">Admin Access</span>
         </div>
 
         {/* Progress dots */}
-        <div className="">
-          <div className="" />
+        <div className="flex gap-3 items-center">
+          <div className="w-3 h-3 bg-primary" />
           <div
-            className=""
+            className="w-3 h-3 border-2 transition-all duration-300"
             style={{
               background: step === 'google' ? 'var(--color-text-primary)' : 'transparent',
               borderColor: 'var(--color-text-primary)',
             }}
           />
-          <div className="" style={{ background: 'var(--color-border-default)' }} />
-          <span className="">
+          <div className="flex-1 h-px" style={{ background: 'var(--color-border-default)' }} />
+          <span className="font-micro text-micro text-text-muted uppercase">
             Step {step === 'password' ? '1' : '2'} of 2
           </span>
         </div>
 
         {/* Card */}
         <div
-          className=""
+          className="p-8 border"
           style={{
             background: 'var(--color-bg-card)',
             borderColor: 'var(--color-border-default)',
@@ -155,27 +155,27 @@ export function AdminGatePage() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
                 transition={{ duration: 0.2 }}
-                className=""
+                className="flex flex-col gap-6"
               >
-                <div className="">
-                  <h1 className="">
+                <div className="flex flex-col gap-1">
+                  <h1 className="font-heading text-card-title text-primary uppercase tracking-wide">
                     Enter Gate Password
                   </h1>
-                  <p className="">
+                  <p className="font-body text-small text-text-secondary">
                     Shared password required before Google sign-in.
                   </p>
                 </div>
 
                 {lockoutUntil ? (
-                  <div className="">
-                    <AlertCircle size={16} className="" />
+                  <div className="flex items-center gap-3 p-4 border border-dashed border-border-default text-text-secondary font-body text-small">
+                    <AlertCircle size={16} className="shrink-0" />
                     Locked. Try again in {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')}
                   </div>
                 ) : (
-                  <form onSubmit={handlePasswordSubmit} className="">
-                    <div className="">
-                      <label className="">Password</label>
-                      <div className="">
+                  <form onSubmit={handlePasswordSubmit} className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-2">
+                      <label className="font-micro text-micro text-text-muted uppercase tracking-widest">Password</label>
+                      <div className="flex items-center border-b-2 border-border-strong focus-within:border-primary transition-all">
                         <input
                           type={showPassword ? 'text' : 'password'}
                           value={password}
@@ -183,12 +183,12 @@ export function AdminGatePage() {
                           placeholder="••••••••••"
                           required
                           autoFocus
-                          className=""
+                          className="flex-1 bg-transparent text-primary font-heading text-heading py-2 focus:outline-none"
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword((v) => !v)}
-                          className=""
+                          className="text-text-muted hover:text-primary transition-colors px-2"
                         >
                           {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                         </button>
@@ -196,8 +196,8 @@ export function AdminGatePage() {
                     </div>
 
                     {error && (
-                      <div className="">
-                        <AlertCircle size={14} className="" />
+                      <div className="flex items-start gap-2 p-3 border border-dashed border-border-default font-body text-small text-text-secondary">
+                        <AlertCircle size={14} className="shrink-0 mt-0.5" />
                         {error}
                       </div>
                     )}
@@ -205,9 +205,9 @@ export function AdminGatePage() {
                     <button
                       type="submit"
                       disabled={loading || !password}
-                      className=""
+                      className="w-full bg-primary text-bg-base font-button text-button uppercase py-4 hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
                     >
-                      {loading && <Loader2 size={14} className="" />}
+                      {loading && <Loader2 size={14} className="animate-spin" />}
                       Continue
                     </button>
                   </form>
@@ -222,20 +222,20 @@ export function AdminGatePage() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.2 }}
-                className=""
+                className="flex flex-col gap-6"
               >
-                <div className="">
-                  <h2 className="">
+                <div className="flex flex-col gap-1">
+                  <h2 className="font-heading text-card-title text-primary uppercase tracking-wide">
                     Sign in with Google
                   </h2>
-                  <p className="">
+                  <p className="font-body text-small text-text-secondary">
                     Your Google account must be on the admin whitelist.
                   </p>
                 </div>
 
                 {error && (
-                  <div className="">
-                    <AlertCircle size={14} className="" />
+                  <div className="flex items-start gap-2 p-3 border border-dashed border-border-default font-body text-small text-text-secondary">
+                    <AlertCircle size={14} className="shrink-0 mt-0.5" />
                     {error}
                   </div>
                 )}
@@ -243,10 +243,10 @@ export function AdminGatePage() {
                 <button
                   onClick={handleGoogleSignIn}
                   disabled={loading}
-                  className=""
+                  className="w-full flex items-center justify-center gap-3 border-2 border-primary font-button text-button text-primary uppercase py-4 hover:bg-primary hover:text-bg-base transition-colors disabled:opacity-50"
                 >
                   {loading ? (
-                    <Loader2 size={16} className="" />
+                    <Loader2 size={16} className="animate-spin" />
                   ) : (
                     <svg width="18" height="18" viewBox="0 0 24 24">
                       <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -261,7 +261,7 @@ export function AdminGatePage() {
 
                 <button
                   onClick={() => { setStep('password'); setError(null); }}
-                  className=""
+                  className="font-body text-small text-text-muted hover:text-primary transition-colors text-left"
                 >
                   ← Back
                 </button>
@@ -270,7 +270,7 @@ export function AdminGatePage() {
           </AnimatePresence>
         </div>
 
-        <p className="">
+        <p className="font-body text-small text-text-muted text-center">
           Failed attempts are logged to the audit trail.
         </p>
       </div>

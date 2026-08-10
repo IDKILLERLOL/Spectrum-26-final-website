@@ -91,7 +91,7 @@ export function MaxErrorPopup() {
 
       {/* Popup container */}
       <div
-        className=""
+        className="max-error-popup"
         data-visible={isVisible}
         data-reduced={prefersReduced}
         onClick={dismiss}
@@ -121,7 +121,7 @@ export function MaxErrorPopup() {
       >
         {/* Speech bubble (to the left of sprite on desktop) */}
         <div
-          className=""
+          className="pixel-bubble"
           style={{
             opacity: bubbleVisible ? (bubbleFade ? 0 : 1) : 0,
             transition: `opacity ${bubbleFade ? 150 : 150}ms ease-out`,

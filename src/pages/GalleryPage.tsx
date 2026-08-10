@@ -1,432 +1,162 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { ChevronLeft, ChevronRight, Play, Pause, Maximize2, X, Sparkles, Image as ImageIcon } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 import { playSynthSound } from '../lib/audio';
 
-export interface SlideshowItem {
-  id: string;
-  title: string;
-  imageUrl: string;
-  caption?: string;
-}
+const GALLERY_PHOTOS = [
+  { id: '1', title: 'Code Clash Lab', url: '/gallery/code_clash.jpg', desc: 'Contestants coding in the arena.' },
+  { id: '2', title: 'Organizers Group', url: '/gallery/gallery_1.jpg', desc: 'Committee members photo.' },
+  { id: '3', title: 'Spectrum Heads', url: '/gallery/spectrum_heads.jpg', desc: 'Official event leads lineup.' },
+  { id: '4', title: 'Handprint Wall', url: '/gallery/spectrum_wall_banner.jpg', desc: 'Mural board handprints.' },
+  { id: '5', title: 'Codopoly Session', url: '/gallery/codopoly_session.jpg', desc: 'DSA board game battle.' },
+  { id: '6', title: 'Console Esports', url: '/gallery/gaming_desk.jpg', desc: 'Players fighting in console hubs.' }
+];
 
-export const SLIDESHOW_ITEMS: SlideshowItem[] = [
-  {
-    id: 'slide-1',
-    title: 'SPECTRUM — Team & Crew Gathering',
-    imageUrl: '/gallery/gallery_1.jpg',
-    caption: 'Organizers, committee heads, and volunteers celebrating a successful festival kickoff.',
-  },
-  {
-    id: 'slide-2',
-    title: 'SPECTRUM — Code Clash Challenge',
-    imageUrl: '/gallery/code_clash.jpg',
-    caption: 'Participants locked in deep focus during the high-stakes Code Clash lab session.',
-  },
-  {
-    id: 'slide-3',
-    title: 'SPECTRUM — Executive Leads & Heads',
-    imageUrl: '/gallery/spectrum_heads.jpg',
-    caption: 'President, Vice President, and Committee Heads showcasing their official SPECTRUM team hoodies.',
-  },
-  {
-    id: 'slide-4',
-    title: 'SPECTRUM — Wall of Handprints Banner',
-    imageUrl: '/gallery/spectrum_wall_banner.jpg',
-    caption: 'The iconic SPECTRUM 4.0 handprint art mural celebrating unity and festival spirit.',
-  },
-  {
-    id: 'slide-5',
-    title: 'SPECTRUM — Codopoly Board Game Face-Off',
-    imageUrl: '/gallery/codopoly_session.jpg',
-    caption: 'Teams competing strategically in the CS topic board game Codopoly.',
-  },
-  {
-    id: 'slide-6',
-    title: 'SPECTRUM — Esports & Console Battle',
-    imageUrl: '/gallery/gaming_desk.jpg',
-    caption: 'Gamers going head-to-head in the intense console esports event.',
-  },
-  {
-    id: 'slide-7',
-    title: 'SPECTRUM 4.0 — Photo Booth & Inauguration',
-    imageUrl: '/gallery/photo_booth.jpg',
-    caption: 'Faculty members, dignitaries, and event heads posing at the SPECTRUM 4.0 photo frame.',
-  },
-  {
-    id: 'slide-8',
-    title: 'SPECTRUM — Department Dignitaries & Faculty',
-    imageUrl: '/gallery/faculty_hallway_1.jpg',
-    caption: 'Faculty and department heads gathered under the binary code festival decorations.',
-  },
-  {
-    id: 'slide-9',
-    title: 'SPECTRUM — Organizers & Faculty Reception',
-    imageUrl: '/gallery/faculty_hallway_2.jpg',
-    caption: 'Faculty mentors, event coordinators, and core leads gathered in the main department corridor.',
-  },
-  {
-    id: 'slide-10',
-    title: 'SPECTRUM — Codopoly Championship Arena',
-    imageUrl: '/gallery/codopoly_arena.jpg',
-    caption: 'Faculty members and participants observing the intense Codopoly tournament match.',
-  },
+const PREVIOUS_EDITIONS = [
+  { edition: "Spectrum 4.0", year: "2025", tagline: "The Retro Bytes Hack", url: "/gallery/gallery_1.jpg" },
+  { edition: "Spectrum 3.0", year: "2024", tagline: "Rise of the Machine Code", url: "/gallery/code_clash.jpg" },
+  { edition: "Spectrum 2.0", year: "2023", tagline: "Binary Dawn Tournament", url: "/gallery/spectrum_heads.jpg" },
+  { edition: "Spectrum 1.0", year: "2022", tagline: "System Startup Arena", url: "/gallery/gaming_desk.jpg" }
 ];
 
 export function GalleryPage() {
-  const [items] = useState<SlideshowItem[]>(SLIDESHOW_ITEMS);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [direction, setDirection] = useState<number>(1);
-  const [isPlaying, setIsPlaying] = useState(true);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
-  const currentItem = items[currentIndex];
-
-  const handleNext = useCallback(() => {
-    playSynthSound('click');
-    setDirection(1);
-    setCurrentIndex((prev) => (prev === items.length - 1 ? 0 : prev + 1));
-  }, [items.length]);
-
-  const handlePrev = useCallback(() => {
-    playSynthSound('click');
-    setDirection(-1);
-    setCurrentIndex((prev) => (prev === 0 ? items.length - 1 : prev - 1));
-  }, [items.length]);
-
-  // Autoplay Slideshow Effect
   useEffect(() => {
-    if (!isPlaying || isFullscreen) return;
-    const timer = setInterval(() => {
-      handleNext();
-    }, 4500);
-    return () => clearInterval(timer);
-  }, [isPlaying, isFullscreen, handleNext]);
+    if ((window as any).lucide) {
+      (window as any).lucide.createIcons();
+    }
+  }, [lightboxIndex]);
 
-  // Keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowLeft') handlePrev();
-      if (e.key === 'ArrowRight') handleNext();
-      if (e.key === 'Escape') setIsFullscreen(false);
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handlePrev, handleNext]);
+  const openLightbox = (idx: number) => {
+    playSynthSound('click');
+    setLightboxIndex(idx);
+  };
 
-  const variants = {
-    enter: (dir: number) => ({
-      x: dir > 0 ? 120 : -120,
-      opacity: 0,
-    }),
-    center: {
-      x: 0,
-      opacity: 1,
-    },
-    exit: (dir: number) => ({
-      x: dir < 0 ? 120 : -120,
-      opacity: 0,
-    }),
+  const closeLightbox = () => {
+    playSynthSound('click');
+    setLightboxIndex(null);
+  };
+
+  const showPrev = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    playSynthSound('click');
+    if (lightboxIndex !== null) {
+      setLightboxIndex(prev => (prev === 0 ? GALLERY_PHOTOS.length - 1 : (prev ?? 0) - 1));
+    }
+  };
+
+  const showNext = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    playSynthSound('click');
+    if (lightboxIndex !== null) {
+      setLightboxIndex(prev => (prev === GALLERY_PHOTOS.length - 1 ? 0 : (prev ?? 0) + 1));
+    }
   };
 
   return (
-    <div className="">
+    <div className="max-w-md mx-auto px-4 py-8 page-content flex flex-col gap-6 text-left">
+      
       {/* Header */}
-      <div className="">
-        <span
-          className=""
-          style={{
-            fontFamily: 'Space Grotesk, sans-serif',
-            fontSize: '12px',
-            fontWeight: 700,
-            letterSpacing: '0.12em',
-            padding: '4px 14px',
-            background: 'var(--badge-bg)',
-            color: 'var(--color-text-primary)',
-            transform: 'rotate(-1deg)',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-          }}
-        >
-          <Sparkles size={14} /> SPECTRUM MEMORIES
-        </span>
-
-        <h1
-          style={{
-            fontFamily: "'Press Start 2P', monospace",
-            fontSize: 'clamp(24px, 5vw, 54px)',
-            lineHeight: 1.1,
-            letterSpacing: '0.04em',
-            color: 'var(--color-text-primary)',
-            textShadow: '3px 3px 0px rgba(0,0,0,0.4)',
-          }}
-        >
-          GALLERY
-        </h1>
-        <p
-          style={{
-            fontFamily: 'Space Grotesk, sans-serif',
-            fontSize: '16px',
-            color: 'var(--color-text-secondary)',
-            maxWidth: '560px',
-          }}
-        >
-          Relive the energy, competition, and memorable moments from SPECTRUM festival events.
+      <div className="text-center flex flex-col items-center gap-2">
+        <div className="flex items-center gap-2">
+          <span className="highlight-icon"><i data-lucide="image"></i></span>
+          <div className="section-divider" style={{ margin: 0 }}>ARENA GALLERY</div>
+        </div>
+        <p className="text-small text-text-secondary text-center">
+          Visual logs captured from past Spectrum gaming battles.
         </p>
       </div>
 
-      {/* Main Slideshow Container */}
-      <div
-        className=""
-        style={{
-          border: '3px solid var(--border-color)',
-          background: 'var(--panel-bg)',
-        }}
-      >
-        {/* Slideshow Display Area */}
-        <div className="">
-          <AnimatePresence initial={false} custom={direction} mode="wait">
-            <motion.img
-              key={currentItem.id}
-              src={currentItem.imageUrl}
-              alt={currentItem.title}
-              custom={direction}
-              variants={variants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{ duration: 0.75, ease: [0.25, 1, 0.5, 1] }}
-              className=""
-            />
-          </AnimatePresence>
-
-          {/* Left Arrow */}
-          {items.length > 1 && (
-            <button
-              onClick={handlePrev}
-              className=""
-              aria-label="Previous Slide"
+      {/* Masonry Photogrid */}
+      <div className="pixel-card">
+        <h3 className="text-heading text-left uppercase mb-4 border-b border-border pb-2">SNAP RECORDS</h3>
+        <div className="photo-masonry-grid">
+          {GALLERY_PHOTOS.map((photo, idx) => (
+            <div
+              key={photo.id}
+              onClick={() => openLightbox(idx)}
+              className="photo-masonry-item"
             >
-              <ChevronLeft size={24} />
-            </button>
-          )}
-
-          {/* Right Arrow */}
-          {items.length > 1 && (
-            <button
-              onClick={handleNext}
-              className=""
-              aria-label="Next Slide"
-            >
-              <ChevronRight size={24} />
-            </button>
-          )}
-
-          {/* Top Controls Overlay */}
-          <div className="">
-            {/* AutoPlay Toggle */}
-            {items.length > 1 && (
-              <button
-                onClick={() => {
-                  playSynthSound('click');
-                  setIsPlaying((prev) => !prev);
-                }}
-                className=""
-              >
-                {isPlaying ? <Pause size={13} /> : <Play size={13} />}
-                {isPlaying ? 'Pause' : 'Autoplay'}
-              </button>
-            )}
-
-            {/* Fullscreen Button */}
-            <button
-              onClick={() => {
-                playSynthSound('click');
-                setIsFullscreen(true);
-              }}
-              className=""
-              title="Fullscreen View"
-            >
-              <Maximize2 size={16} />
-            </button>
-          </div>
-
-          {/* Counter Badge */}
-          <div className="">
-            0{currentIndex + 1} / 0{items.length}
-          </div>
-        </div>
-
-        {/* Slide Caption & Controls Bar */}
-        <div className="">
-          <div className="">
-            <h3
-              style={{
-                fontFamily: "'Press Start 2P', monospace",
-                fontSize: '16px',
-                letterSpacing: '0.04em',
-                color: 'var(--color-text-primary)',
-                textTransform: 'uppercase',
-              }}
-            >
-              {currentItem.title}
-            </h3>
-            {currentItem.caption && (
-              <p
-                style={{
-                  fontFamily: 'Space Grotesk, sans-serif',
-                  fontSize: '14px',
-                  color: 'var(--color-text-secondary)',
-                }}
-              >
-                {currentItem.caption}
-              </p>
-            )}
-          </div>
-
-          {/* Dot Indicators */}
-          <div className="">
-            {items.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => {
-                  playSynthSound('click');
-                  setDirection(idx > currentIndex ? 1 : -1);
-                  setCurrentIndex(idx);
-                }}
-                className={`h-3 transition-all duration-300 ${
-                  idx === currentIndex
-                    ? 'w-8 bg-primary border-2 border-border-color'
-                    : 'w-3 bg-border-subtle border border-border-color hover:bg-text-secondary'
-                }`}
-                aria-label={`Go to slide ${idx + 1}`}
-              />
-            ))}
-          </div>
+              <img src={photo.url} alt={photo.title} onError={(e) => {
+                e.currentTarget.src = `https://api.dicebear.com/7.x/pixel-art/svg?seed=${photo.id}`;
+              }} />
+              <div className="p-3 text-left">
+                <span className="font-ui text-sm font-bold text-text-primary uppercase block">{photo.title}</span>
+                <span className="text-small text-text-secondary">{photo.desc}</span>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Thumbnails Row */}
-      <div className="">
-        <h4
-          style={{
-            fontFamily: "'Press Start 2P', monospace",
-            fontSize: '14px',
-            letterSpacing: '0.05em',
-            textTransform: 'uppercase',
-            color: 'var(--color-text-primary)',
-          }}
-        >
-          // ALL PHOTOS ({items.length})
-        </h4>
-
-        <div className="">
-          {items.map((item, idx) => {
-            const isSelected = idx === currentIndex;
-            return (
-              <div
-                key={item.id}
-                onClick={() => {
-                  playSynthSound('click');
-                  setDirection(idx > currentIndex ? 1 : -1);
-                  setCurrentIndex(idx);
-                }}
-                className={`comic-shadow cursor-pointer relative overflow-hidden transition-all duration-200 border-2 ${
-                  isSelected ? 'border-primary ring-2 ring-primary scale-[1.02]' : 'border-border-color hover:border-primary/60'
-                }`}
-                style={{ background: 'var(--panel-bg)' }}
-              >
-                <div className="">
-                  <img
-                    src={item.imageUrl}
-                    alt={item.title}
-                    className=""
-                  />
+      {/* Previous Editions */}
+      <div className="pixel-card text-left">
+        <h3 className="text-heading uppercase mb-6 border-b border-border pb-2">PREVIOUS EDITIONS</h3>
+        <div className="flex flex-col gap-4">
+          {PREVIOUS_EDITIONS.map((ed, idx) => (
+            <div key={idx} className="p-3 bg-bg-raised border border-border flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-bg-primary border border-border overflow-hidden shrink-0">
+                  <img src={ed.url} className="w-full h-full object-cover" onError={(e) => {
+                    e.currentTarget.src = `https://api.dicebear.com/7.x/pixel-art/svg?seed=${ed.edition}`;
+                  }} />
                 </div>
-                <div className="">
-                  <span
-                    style={{
-                      fontFamily: "'Press Start 2P', monospace",
-                      fontSize: '12px',
-                      color: 'var(--color-text-primary)',
-                      display: 'block',
-                      textTransform: 'uppercase',
-                    }}
-                  >
-                    {item.title}
-                  </span>
+                <div>
+                  <span className="font-ui text-base font-bold text-text-primary uppercase block">{ed.edition} ({ed.year})</span>
+                  <span className="text-small text-text-secondary">{ed.tagline}</span>
                 </div>
               </div>
-            );
-          })}
+              <a
+                href="#"
+                onClick={(e) => { e.preventDefault(); playSynthSound('laser'); }}
+                className="font-pixel text-[10px] text-text-primary uppercase tracking-wider hover:text-red-500"
+              >
+                EXPLORE SOUVENIRS →
+              </a>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Fullscreen Lightbox Modal */}
-      <AnimatePresence>
-        {isFullscreen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.4 }}
-            className=""
-            onClick={() => setIsFullscreen(false)}
+      {/* Lightbox Overlay Modal */}
+      {lightboxIndex !== null && (
+        <div className="lightbox-modal" onClick={closeLightbox}>
+          <button className="lightbox-close-btn" onClick={closeLightbox}>&times;</button>
+          
+          <button
+            onClick={showPrev}
+            className="absolute left-4 top-1/2 -translate-y-1/2 btn w-12 h-12 rounded-full flex items-center justify-center bg-black/60 border-white/20 text-white"
           >
-            <button
-              onClick={() => setIsFullscreen(false)}
-              className=""
-              aria-label="Close Fullscreen View"
-            >
-              <X size={24} />
-            </button>
+            <i data-lucide="chevron-right" style={{ transform: 'rotate(180deg)' }}></i>
+          </button>
 
-            {items.length > 1 && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handlePrev();
-                }}
-                className=""
-                aria-label="Previous Photo"
-              >
-                <ChevronLeft size={28} />
-              </button>
-            )}
-
-            {items.length > 1 && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleNext();
-                }}
-                className=""
-                aria-label="Next Photo"
-              >
-                <ChevronRight size={28} />
-              </button>
-            )}
-
-            <div className="" onClick={(e) => e.stopPropagation()}>
-              <AnimatePresence mode="wait" custom={direction}>
-                <motion.img
-                  key={currentItem.id}
-                  src={currentItem.imageUrl}
-                  alt={currentItem.title}
-                  custom={direction}
-                  initial={{ opacity: 0, scale: 0.97 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 1.03 }}
-                  transition={{ duration: 0.75, ease: [0.25, 1, 0.5, 1] }}
-                  className=""
-                />
-              </AnimatePresence>
-              <span className="">{currentItem.title}</span>
+          <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
+            <img
+              src={GALLERY_PHOTOS[lightboxIndex].url}
+              alt={GALLERY_PHOTOS[lightboxIndex].title}
+              className="max-w-full max-h-[70vh] border-2 border-white/20 rounded shadow-2xl"
+              onError={(e) => {
+                e.currentTarget.src = `https://api.dicebear.com/7.x/pixel-art/svg?seed=${GALLERY_PHOTOS[lightboxIndex].id}`;
+              }}
+            />
+            <div className="p-4 bg-black/80 text-left mt-2 rounded border border-white/10">
+              <span className="font-ui text-base font-bold text-white uppercase block">
+                {GALLERY_PHOTOS[lightboxIndex].title}
+              </span>
+              <span className="text-small text-slate-400 mt-1 block">
+                {GALLERY_PHOTOS[lightboxIndex].desc}
+              </span>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+
+          <button
+            onClick={showNext}
+            className="absolute right-4 top-1/2 -translate-y-1/2 btn w-12 h-12 rounded-full flex items-center justify-center bg-black/60 border-white/20 text-white"
+          >
+            <i data-lucide="chevron-right"></i>
+          </button>
+        </div>
+      )}
+
     </div>
   );
 }

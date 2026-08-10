@@ -293,19 +293,19 @@ export function AdminEditRegistrationPage() {
 
   if (loading) {
     return (
-      <main className="">
-        <div className="" style={{ background: 'var(--color-bg-card)' }} />
-        <div className="" style={{ background: 'var(--color-bg-card)' }} />
+      <main className="flex flex-col gap-8 py-8 px-6 max-w-7xl mx-auto w-full">
+        <div className="skeleton h-12 w-80 rounded" style={{ background: 'var(--color-bg-card)' }} />
+        <div className="skeleton h-64 w-full rounded" style={{ background: 'var(--color-bg-card)' }} />
       </main>
     );
   }
 
   if (!registration || !event) {
     return (
-      <main className="">
-        <ShieldAlert size={48} className="" />
-        <h2 className="">Pass Not Found</h2>
-        <Link to="/supercore/registrations" className="">
+      <main className="flex flex-col gap-6 items-center justify-center py-20 px-6 max-w-md mx-auto">
+        <ShieldAlert size={48} className="text-red-500" />
+        <h2 className="font-heading text-card-title text-primary uppercase">Pass Not Found</h2>
+        <Link to="/supercore/registrations" className="font-button text-button text-primary border border-primary px-6 py-3 hover:bg-primary hover:text-bg-base transition-colors uppercase">
           Back to list
         </Link>
       </main>
@@ -313,58 +313,58 @@ export function AdminEditRegistrationPage() {
   }
 
   return (
-    <main className="">
+    <main className="flex flex-col gap-8 py-8 px-6 max-w-7xl mx-auto w-full">
       {/* Header */}
-      <div className="">
-        <Link to="/supercore/registrations" className="">
+      <div className="border-b-2 border-primary pb-6 flex flex-col gap-4">
+        <Link to="/supercore/registrations" className="inline-flex items-center gap-2 text-primary hover:opacity-75 uppercase font-heading text-small">
           <ArrowLeft size={16} /> Back to Registrations
         </Link>
-        <h1 className="">
+        <h1 className="font-hero text-[36px] md:text-[44px] leading-none uppercase tracking-widest text-primary mt-2">
           Edit Roster
         </h1>
-        <span className="">
+        <span className="font-micro text-micro text-text-muted uppercase tracking-widest">
           {event.name} • {categoryLabel(event.category)}
         </span>
       </div>
 
-      <div className="">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Roster column */}
-        <div className="">
+        <div className="lg:col-span-8 flex flex-col gap-6">
           {/* Team Name block (for team events) */}
           {event.isTeamEvent && (
-            <div className="">
-              <div className="">
-                <div className="">
-                  <span className="">Team Name</span>
+            <div className="border border-border-default bg-bg-card p-6 flex flex-col gap-4 shadow-md">
+              <div className="flex justify-between items-center">
+                <div className="flex flex-col gap-1 flex-1">
+                  <span className="font-micro text-micro text-text-muted uppercase tracking-widest">Team Name</span>
                   {isEditingTeamName ? (
-                    <div className="">
+                    <div className="flex flex-wrap items-center gap-3 mt-1">
                       <input
                         type="text"
                         value={editTeamName}
                         onChange={(e) => setEditTeamName(e.target.value)}
-                        className=""
+                        className="bg-transparent border-b border-border-strong text-primary font-heading text-heading focus:outline-none focus:border-primary transition-all py-1 placeholder:text-text-muted/40"
                         placeholder="Enter Team Name"
                         autoFocus
                       />
                       <button
                         onClick={handleSaveTeamName}
                         disabled={saving === 'teamName'}
-                        className=""
+                        className="px-4 py-1.5 bg-primary text-bg-base font-button text-small uppercase hover:opacity-90 disabled:opacity-50 flex items-center gap-1"
                       >
-                        {saving === 'teamName' && <Loader2 size={12} className="" />} Save
+                        {saving === 'teamName' && <Loader2 size={12} className="animate-spin" />} Save
                       </button>
                       <button
                         onClick={() => {
                           setEditTeamName(registration.teamName || '');
                           setIsEditingTeamName(false);
                         }}
-                        className=""
+                        className="px-3 py-1.5 border border-border-default text-text-secondary font-button text-small uppercase hover:opacity-75"
                       >
                         Cancel
                       </button>
                     </div>
                   ) : (
-                    <h3 className="">
+                    <h3 className="font-heading text-card-title text-primary uppercase mt-1">
                       {registration.teamName || '(No Team Name set)'}
                     </h3>
                   )}
@@ -372,23 +372,23 @@ export function AdminEditRegistrationPage() {
                 {!isEditingTeamName && (
                   <button
                     onClick={() => setIsEditingTeamName(true)}
-                    className=""
+                    className="flex items-center gap-1 font-button text-micro text-primary border border-primary px-3 py-1.5 hover:bg-primary hover:text-bg-base transition-colors uppercase tracking-wide"
                   >
                     <Pencil size={12} /> Edit Name
                   </button>
                 )}
               </div>
-              {error && isEditingTeamName && <p className="">{error}</p>}
+              {error && isEditingTeamName && <p className="font-body text-small text-text-secondary mt-1">{error}</p>}
             </div>
           )}
 
-          <div className="">
-            <div className="">
-              <h2 className=""> Roster</h2>
+          <div className="border border-border-default bg-bg-card p-6 flex flex-col gap-6 shadow-md">
+            <div className="flex justify-between items-center border-b border-border-subtle pb-4">
+              <h2 className="font-heading text-card-title text-primary uppercase"> Roster</h2>
               {inlineState.type !== 'add' && members.length < event.maxMembers && (
                 <button
                   onClick={() => setInlineState({ type: 'add' })}
-                  className=""
+                  className="flex items-center gap-2 font-button text-button text-primary border border-primary px-4 py-2 hover:bg-primary hover:text-bg-base transition-all uppercase"
                 >
                   <Plus size={14} /> Add Member
                 </button>
@@ -396,32 +396,32 @@ export function AdminEditRegistrationPage() {
             </div>
 
             {/* Members List */}
-            <div className="">
+            <div className="flex flex-col divide-y border-b border-border-subtle">
               {members.map((m) => {
                 const isEdit = inlineState.type === 'edit' && inlineState.memberId === m.id;
                 const isLdr = m.role === 'LEADER';
 
                 return (
-                  <div key={m.id} className="">
-                    <div className="">
-                      <div className="">
-                        <div className="">
-                          <span className="">{m.name}</span>
+                  <div key={m.id} className="py-4">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      <div className="flex-1 flex flex-col gap-1">
+                        <div className="flex items-center gap-3">
+                          <span className="font-heading text-heading text-primary">{m.name}</span>
                           <span className={`font-micro text-micro px-2 py-0.5 border uppercase ${isLdr ? 'border-primary text-primary' : 'border-dashed border-border-default text-text-muted'}`}>
                             {m.role}
                           </span>
                         </div>
-                        <div className="">
+                        <div className="flex flex-wrap gap-4 font-body text-small text-text-secondary">
                           <span>{m.email}</span>
                           {m.phone && <span>{m.phone}</span>}
-                          {m.college && <span className="">{m.college}</span>}
+                          {m.college && <span className="text-text-muted">{m.college}</span>}
                         </div>
                       </div>
 
-                      <div className="">
+                      <div className="flex items-center gap-2">
                         <button
                           onClick={() => isEdit ? closeState() : startEdit(m)}
-                          className=""
+                          className="p-2 border border-border-default hover:border-primary text-text-secondary hover:text-primary transition-colors"
                         >
                           <Pencil size={14} />
                         </button>
@@ -430,7 +430,7 @@ export function AdminEditRegistrationPage() {
                             <button
                               onClick={() => handleMakeLeader(m.id)}
                               disabled={saving !== null}
-                              className=""
+                              className="p-2 border border-border-default hover:border-primary text-text-secondary hover:text-primary transition-colors"
                               title="Make Leader"
                             >
                               <Crown size={14} />
@@ -438,7 +438,7 @@ export function AdminEditRegistrationPage() {
                             <button
                               onClick={() => handleRemoveMember(m.id)}
                               disabled={saving !== null}
-                              className=""
+                              className="p-2 border border-border-default hover:border-red-500 text-text-secondary hover:text-red-500 transition-colors"
                             >
                               <Trash2 size={14} />
                             </button>
@@ -449,31 +449,31 @@ export function AdminEditRegistrationPage() {
 
                     {/* Inline edit member */}
                     {isEdit && (
-                      <div className="">
-                        <span className="">Edit Member details</span>
-                        <div className="">
+                      <div className="expand-in mt-4 border-l-2 border-primary pl-4 py-4 flex flex-col gap-4 bg-bg-elevated p-4">
+                        <span className="font-micro text-micro text-text-muted uppercase tracking-widest">Edit Member details</span>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {[
                             { label: 'Name', value: editName, setter: setEditName },
                             { label: 'Email', value: editEmail, setter: setEditEmail },
                             { label: 'Phone', value: editPhone, setter: setEditPhone },
                             { label: 'College', value: editCollege, setter: setEditCollege },
                           ].map((field) => (
-                            <div key={field.label} className="">
-                              <label className="">{field.label}</label>
+                            <div key={field.label} className="flex flex-col gap-1">
+                              <label className="font-micro text-micro text-text-muted uppercase">{field.label}</label>
                               <input
                                 type="text"
                                 value={field.value}
                                 onChange={(e) => field.setter(e.target.value)}
-                                className=""
+                                className="bg-transparent border-b border-border-strong text-primary py-1 text-small focus:outline-none focus:border-primary transition-all"
                               />
                             </div>
                           ))}
                         </div>
-                        {error && <p className="">{error}</p>}
-                        <div className="">
-                          <button onClick={closeState} className="">Cancel</button>
-                          <button onClick={handleSaveEdit} disabled={saving !== null} className="">
-                            {saving === 'edit' && <Loader2 size={12} className="" />} Save
+                        {error && <p className="font-body text-small text-red-500">{error}</p>}
+                        <div className="flex gap-2">
+                          <button onClick={closeState} className="font-button text-button uppercase border border-border-default px-4 py-2 hover:opacity-70">Cancel</button>
+                          <button onClick={handleSaveEdit} disabled={saving !== null} className="font-button text-button uppercase bg-primary text-bg-base px-6 py-2 hover:opacity-90 disabled:opacity-50">
+                            {saving === 'edit' && <Loader2 size={12} className="animate-spin inline mr-1" />} Save
                           </button>
                         </div>
                       </div>
@@ -485,31 +485,31 @@ export function AdminEditRegistrationPage() {
 
             {/* Inline add member */}
             {inlineState.type === 'add' && (
-              <form onSubmit={handleAddMember} className="">
-                <span className="">Add New Team Member</span>
-                <div className="">
+              <form onSubmit={handleAddMember} className="expand-in border border-primary p-4 flex flex-col gap-4 bg-bg-elevated">
+                <span className="font-micro text-micro text-primary uppercase tracking-widest">Add New Team Member</span>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {[
                     { label: 'Name *', value: addName, setter: setAddName, required: true },
                     { label: 'Email *', value: addEmail, setter: setAddEmail, required: true },
                     { label: 'Phone', value: addPhone, setter: setAddPhone, required: false },
                   ].map((field) => (
-                    <div key={field.label} className="">
-                      <label className="">{field.label}</label>
+                    <div key={field.label} className="flex flex-col gap-1">
+                      <label className="font-micro text-micro text-text-muted uppercase">{field.label}</label>
                       <input
                         type="text"
                         value={field.value}
                         onChange={(e) => field.setter(e.target.value)}
                         required={field.required}
-                        className=""
+                        className="bg-transparent border-b border-border-strong text-primary py-1 text-small focus:outline-none focus:border-primary transition-all"
                       />
                     </div>
                   ))}
                 </div>
-                {error && <p className="">{error}</p>}
-                <div className="">
-                  <button type="button" onClick={closeState} className="">Cancel</button>
-                  <button type="submit" disabled={saving !== null} className="">
-                    {saving === 'add' && <Loader2 size={12} className="" />} Add
+                {error && <p className="font-body text-small text-red-500">{error}</p>}
+                <div className="flex gap-2 mt-2">
+                  <button type="button" onClick={closeState} className="font-button text-button uppercase border border-border-default px-4 py-2 hover:opacity-70">Cancel</button>
+                  <button type="submit" disabled={saving !== null} className="font-button text-button uppercase bg-primary text-bg-base px-6 py-2 hover:opacity-90 disabled:opacity-50">
+                    {saving === 'add' && <Loader2 size={12} className="animate-spin inline mr-1" />} Add
                   </button>
                 </div>
               </form>
@@ -518,64 +518,64 @@ export function AdminEditRegistrationPage() {
         </div>
 
         {/* Status column */}
-        <div className="">
-          <div className="">
-            <h2 className="">Status & Billing</h2>
+        <div className="lg:col-span-4 flex flex-col gap-6">
+          <div className="border border-border-default bg-bg-card p-6 flex flex-col gap-6 shadow-md">
+            <h2 className="font-heading text-card-title text-primary uppercase border-b border-border-subtle pb-4">Status & Billing</h2>
 
-            <div className="">
-              <span className="">Registration ID</span>
-              <code className="">{registration.id}</code>
+            <div className="flex flex-col gap-2">
+              <span className="font-micro text-micro text-text-muted uppercase">Registration ID</span>
+              <code className="font-mono text-heading text-primary select-all">{registration.id}</code>
             </div>
 
-            <div className="">
-              <span className="">UPI Transaction Ref</span>
-              <code className="">{registration.upiTransactionRef ?? '(not submitted)'}</code>
+            <div className="flex flex-col gap-2">
+              <span className="font-micro text-micro text-text-muted uppercase">UPI Transaction Ref</span>
+              <code className="font-mono text-heading text-primary">{registration.upiTransactionRef ?? '(not submitted)'}</code>
             </div>
 
             {registration.paymentProofUrl && (
-              <div className="">
-                <span className="">Payment Screenshot Proof</span>
+              <div className="flex flex-col gap-2 border-t border-border-subtle pt-3">
+                <span className="font-micro text-micro text-text-muted uppercase">Payment Screenshot Proof</span>
                 <a
                   href={registration.paymentProofUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className=""
+                  className="border border-primary/40 hover:border-primary p-1 bg-bg-base block rounded overflow-hidden"
                 >
                   <img
                     src={registration.paymentProofUrl}
                     alt="Uploaded Payment Proof"
-                    className=""
+                    className="max-h-48 w-full object-contain"
                   />
                 </a>
               </div>
             )}
 
             {/* Action buttons */}
-            <div className="">
+            <div className="flex flex-col gap-3 mt-4 pt-4 border-t border-border-subtle">
               <button
                 onClick={handleToggleFee}
                 disabled={saving !== null}
-                className=""
+                className="w-full font-button text-button py-3 border border-primary text-primary hover:bg-primary hover:text-bg-base transition-colors uppercase uppercase tracking-wider flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                {saving === 'fee' ? <Loader2 size={14} className="" /> : registration.feeStatus === 'PAID' ? <Clock size={14} /> : <CheckCircle2 size={14} />}
+                {saving === 'fee' ? <Loader2 size={14} className="animate-spin" /> : registration.feeStatus === 'PAID' ? <Clock size={14} /> : <CheckCircle2 size={14} />}
                 Mark as {registration.feeStatus === 'PAID' ? 'Pending' : 'Paid'}
               </button>
 
               <button
                 onClick={handleToggleCheckin}
                 disabled={saving !== null}
-                className=""
+                className="w-full font-button text-button py-3 border border-primary text-primary hover:bg-primary hover:text-bg-base transition-colors uppercase uppercase tracking-wider flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                {saving === 'checkin' ? <Loader2 size={14} className="" /> : <CheckCircle2 size={14} />}
+                {saving === 'checkin' ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />}
                 {registration.checkedIn ? 'Check Out' : 'Check In'}
               </button>
 
               <button
                 onClick={handleDeleteReg}
                 disabled={saving !== null}
-                className=""
+                className="w-full font-button text-button py-3 border border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-colors uppercase uppercase tracking-wider flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                {saving === 'delete' ? <Loader2 size={14} className="" /> : <Trash2 size={14} />}
+                {saving === 'delete' ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
                 Delete Pass
               </button>
             </div>
