@@ -1,255 +1,64 @@
-import { useState, useEffect } from 'react';
-import { getScheduleSlots, getEventDetails, type EventDetails } from '../lib/firestore';
-import type { ScheduleSlot, ScheduleEventType } from '../types';
-import { playSynthSound } from '../lib/audio';
+import React, { useState, useEffect } from 'react';
+import { getScheduleSlots } from '../lib/firestore';
+import type { ScheduleSlot } from '../types';
 
-const TYPE_CONFIG: Record<ScheduleEventType, { label: string; fill: boolean }> = {
-  TECH:     { label: 'TECH',     fill: true  },
-  NON_TECH: { label: 'NON-TECH', fill: false },
-  GENERAL:  { label: 'GENERAL',  fill: false },
-  BREAK:    { label: 'BREAK',    fill: false },
-};
-
-function ScheduleCard({ slot }: { slot: ScheduleSlot }) {
-  const cfg = TYPE_CONFIG[slot.type];
-
-  return (
-    <div
-      className="comic-border-thick comic-shadow overflow-hidden flex flex-col justify-between relative"
-      style={{
-        background: 'var(--panel-bg)',
-        minHeight: '200px',
-        padding: '20px',
-      }}
-    >
-      {/* Crosshatch overlay */}
-      <div className="absolute inset-0 hatch-pattern" style={{ opacity: 0.1, pointerEvents: 'none' }} />
-
-      <div className="flex flex-col gap-4 relative">
-        {/* Time + Location */}
-        <div className="flex justify-between items-start flex-wrap gap-2">
-          <span
-            className="comic-badge"
-            style={{
-              fontFamily: 'Space Grotesk, sans-serif',
-              fontSize: '12px',
-              fontWeight: 700,
-              letterSpacing: '0.08em',
-              padding: '2px 10px',
-              background: 'var(--badge-bg)',
-              color: 'var(--color-text-primary)',
-              transform: 'rotate(-1deg)',
-            }}
-          >
-            {slot.displayTime}
-          </span>
-          <span
-            style={{
-              fontFamily: 'Space Grotesk, sans-serif',
-              fontSize: '11px',
-              fontWeight: 700,
-              letterSpacing: '0.10em',
-              textTransform: 'uppercase',
-              color: 'var(--color-text-primary)',
-              border: '2px solid var(--border-color)',
-              padding: '2px 8px',
-            }}
-          >
-            {slot.location}
-          </span>
-        </div>
-
-        {/* Type badge */}
-        <div>
-          <span
-            className="comic-badge"
-            style={{
-              fontFamily: "'Press Start 2P', monospace",
-              fontSize: '11px',
-              letterSpacing: '0.08em',
-              padding: '4px 12px',
-              background: cfg.fill ? 'var(--color-text-primary)' : 'var(--badge-bg)',
-              color: cfg.fill ? 'var(--color-bg-base)' : 'var(--color-text-primary)',
-              border: '2px solid var(--border-color)',
-              transform: 'rotate(-1deg)',
-            }}
-          >
-            {cfg.label}
-          </span>
-        </div>
-
-        {/* Title */}
-        <h3
-          style={{
-            fontFamily: "'Press Start 2P', monospace",
-            fontSize: '16px',
-            letterSpacing: '0.04em',
-            textTransform: 'uppercase',
-            color: 'var(--color-text-primary)',
-            lineHeight: 1.2,
-          }}
-        >
-          {slot.title}
-        </h3>
-      </div>
-    </div>
-  );
-}
-
-function ScheduleCardSkeleton() {
-  return (
-    <div
-      className="comic-border-thick flex flex-col gap-4"
-      style={{
-        background: 'var(--panel-bg)',
-        padding: '20px',
-        minHeight: '200px',
-        boxShadow: '8px 8px 0px var(--border-color)',
-      }}
-    >
-      <div className="flex justify-between gap-2">
-        <div className="skeleton h-6 w-24" />
-        <div className="skeleton h-6 w-20" />
-      </div>
-      <div className="skeleton h-5 w-16" />
-      <div className="skeleton h-8 w-3/4" />
-    </div>
-  );
-}
+const INK = "#1A1A1A";
+const VERMILION = "#C7382F";
 
 export function SchedulePage() {
-  console.log("[Mount] SchedulePage component loaded");
   const [slots, setSlots] = useState<ScheduleSlot[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [activeDayIndex, setActiveDayIndex] = useState(0);
-  const [eventDetails, setEventDetails] = useState<EventDetails>({
-    name: 'SPECTRUM 26',
-    location: 'College Campus',
-    date: 'September 30, 2026',
-    countdownTarget: '2026-09-30T09:00:00',
-  });
 
   useEffect(() => {
-    Promise.all([
-      getScheduleSlots(),
-      getEventDetails()
-    ])
-      .then(([slotsData, detailsData]) => {
-        setSlots(slotsData);
-        setEventDetails(detailsData);
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
+    getScheduleSlots()
+      .then(setSlots)
+      .catch(console.error);
   }, []);
 
-  const days = Array.from(
-    slots.reduce((map, slot) => {
-      const key = `${slot.day}__${slot.date}`;
-      if (!map.has(key)) map.set(key, { day: slot.day, date: slot.date, slots: [] });
-      const currentSlots = map.get(key)!.slots;
-      const slotKey = `${slot.displayTime}__${slot.location}__${slot.title}`.toLowerCase();
-      if (!currentSlots.some(s => `${s.displayTime}__${s.location}__${s.title}`.toLowerCase() === slotKey)) {
-        currentSlots.push(slot);
-      }
-      return map;
-    }, new Map<string, { day: string; date: string; slots: ScheduleSlot[] }>())
-  );
-
-  useEffect(() => {
-    if (activeDayIndex >= days.length && days.length > 0) {
-      setActiveDayIndex(days.length - 1);
-    }
-  }, [days.length, activeDayIndex]);
-
-  const currentDay = days[activeDayIndex];
-
   return (
-    <main className="relative z-10 max-w-7xl mx-auto w-[92%] py-12 md:py-20">
-
-      {/* Page Header */}
-      <header className="mb-12 md:mb-16 text-center relative">
-        {/* Crosshatch decoration */}
-        <div
-          className="absolute inset-0 hatch-pattern pointer-events-none"
-          style={{ borderRadius: '50%', transform: 'scale(0.85)', opacity: 0.5 }}
-        />
-        <div
-          className="comic-badge inline-block mb-4"
-          style={{
-            padding: '6px 16px',
-            fontSize: '11px',
-            fontFamily: "'Press Start 2P', monospace",
-            background: 'var(--color-text-primary)',
-            color: 'var(--color-bg-base)',
-            transform: 'rotate(-1.5deg)',
-          }}
-        >
-          TIMELINE — {eventDetails.name}
+    <div className="flex flex-col gap-6 px-4 py-16 w-full min-h-screen max-w-lg mx-auto">
+      <div className="text-center">
+        <h2 className="font-hero text-3xl" style={{ color: VERMILION, textShadow: `1px 1px 0 ${INK}` }}>
+          Timetable
+        </h2>
+      </div>
+      
+      {/* Chalkboard schedule container */}
+      <div 
+        className="p-5 border-[12px] shadow-xl rounded-md relative text-left"
+        style={{ 
+          borderColor: "#4A3525", // Wooden frame
+          background: "#2A3B2A", // Chalkboard green
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.5' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.15'/%3E%3C/svg%3E")`
+        }}
+      >
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-2 opacity-80" style={{ background: "#3A2515" }} />
+        
+        <ol className="space-y-6 relative z-10">
+          {slots.map((item) => (
+            <li key={item.id} className="flex gap-4 border-b border-white/20 pb-4 last:border-0 last:pb-0">
+              <div className="font-hero text-white/90 text-right w-24 shrink-0 text-sm mt-1" style={{ textShadow: "0 0 2px rgba(255,255,255,0.5)" }}>
+                {item.displayTime}
+              </div>
+              <div>
+                <p className="font-hero text-white/95 text-lg" style={{ textShadow: "0 0 2px rgba(255,255,255,0.5)" }}>
+                  {item.title}
+                </p>
+                <p className="text-white/70 text-xs italic font-body">
+                  Location: {item.location}
+                </p>
+              </div>
+            </li>
+          ))}
+          {slots.length === 0 && (
+            <li className="text-center text-white/80 font-hero py-12">
+              No Slots Added Yet
+            </li>
+          )}
+        </ol>
+        <div className="mt-6 pt-4 border-t-2 border-white/30 text-center text-white/80 font-mono text-xs uppercase tracking-widest">
+          Venue: SVKM's Shri Bhagubhai Mafatlal Polytechnic
         </div>
-        <h1
-          style={{
-            fontFamily: "'Press Start 2P', monospace",
-            fontSize: 'clamp(28px, 6vw, 54px)',
-            lineHeight: 1.1,
-            letterSpacing: '0.04em',
-            textTransform: 'uppercase',
-            color: 'var(--color-text-primary)',
-            transform: 'skewX(-4deg)',
-            display: 'block',
-            marginBottom: '12px',
-          }}
-        >
-          Schedule
-        </h1>
-        <p
-          style={{
-            fontFamily: 'Space Grotesk, sans-serif',
-            fontSize: '14px',
-            fontWeight: 500,
-            color: 'var(--color-text-primary)',
-            maxWidth: '520px',
-            margin: '0 auto',
-          }}
-        >
-          The timeline for {eventDetails.name}. All times are IST.
-        </p>
-      </header>
-
-      {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {[1, 2, 3].map((i) => <ScheduleCardSkeleton key={i} />)}
-        </div>
-      ) : slots.length === 0 ? (
-        <div className="flex flex-col items-center gap-6 py-24 text-center">
-          <div
-            className="comic-badge"
-            style={{
-              fontFamily: "'Press Start 2P', monospace",
-              fontSize: '24px',
-              padding: '12px 24px',
-              transform: 'rotate(-2deg)',
-              color: 'var(--color-text-primary)',
-            }}
-          >
-            COMING SOON
-          </div>
-          <p style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '14px', color: 'var(--color-text-primary)', maxWidth: '380px' }}>
-            The detailed event schedule will be published closer to the event date.
-          </p>
-        </div>
-      ) : (
-        <div className="animate-fade-in">
-          <div 
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-h-[650px] overflow-y-auto pr-3 py-2"
-            style={{
-              scrollbarWidth: 'thin',
-              scrollbarColor: 'var(--color-primary) rgba(255,255,255,0.05)'
-            }}
-          >
-            {slots.map((slot) => <ScheduleCard key={slot.id} slot={slot} />)}
-          </div>
-        </div>
-      )}
-    </main>
+      </div>
+    </div>
   );
 }
