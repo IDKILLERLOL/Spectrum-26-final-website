@@ -72,26 +72,7 @@ export function Navbar() {
             )}
           </ul>
 
-          {/* Right side controls */}
           <div className="nav-actions">
-            {/* SFX sound toggle */}
-            <button
-              onClick={toggleSfx}
-              className="nav-icon-btn"
-              aria-label="Toggle sound effects"
-            >
-              {sfxOn ? <i data-lucide="volume-2"></i> : <i data-lucide="volume-x"></i>}
-            </button>
-
-            {/* Theme switcher toggle */}
-            <button
-              onClick={handleToggleTheme}
-              className="nav-icon-btn"
-              aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-            >
-              {theme === 'dark' ? <i data-lucide="sun"></i> : <i data-lucide="moon"></i>}
-            </button>
-
             {/* Register CTA button - desktop only */}
             <Link
               to="/events"
