@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
 import { Sidebar } from './components/Sidebar';
-import { Footer } from './components/Footer';
 import { RequireAuth } from './components/RequireAuth';
 import { RequireAdmin } from './components/RequireAdmin';
 import { LandingPage } from './pages/LandingPage';
@@ -60,7 +59,6 @@ function PublicLayout() {
       <main className="flex-1 flex flex-col w-full relative pt-24 sm:pt-28 pb-20 md:pb-0">
         <Outlet />
       </main>
-      {!isHome && <Footer />}
     </div>
   );
 }

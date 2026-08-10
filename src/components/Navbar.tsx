@@ -171,6 +171,45 @@ export function Navbar() {
           )}
         </ul>
       </div>
+
+      {/* Mobile Bottom Tab Bar Navigation (<= 1023px) */}
+      <nav className="tab-bar">
+        <Link
+          to="/"
+          onClick={() => playSynthSound('click')}
+          className={`tab-bar-item ${isActive('/') ? 'is-active' : ''}`}
+        >
+          <i data-lucide="house"></i>
+          <span className="tab-bar-label">Home</span>
+        </Link>
+        <Link
+          to="/events"
+          onClick={() => playSynthSound('click')}
+          className={`tab-bar-item ${isActive('/events') ? 'is-active' : ''}`}
+        >
+          <i data-lucide="gamepad-2"></i>
+          <span className="tab-bar-label">Events</span>
+        </Link>
+        <Link
+          to="/schedule"
+          onClick={() => playSynthSound('click')}
+          className={`tab-bar-item ${isActive('/schedule') ? 'is-active' : ''}`}
+        >
+          <i data-lucide="calendar-clock"></i>
+          <span className="tab-bar-label">Schedule</span>
+        </Link>
+        <button
+          onClick={() => {
+            playSynthSound('click');
+            setIsMobileMenuOpen(!isMobileMenuOpen);
+          }}
+          className="tab-bar-item"
+          style={{ background: 'none', border: 'none', padding: 0 }}
+        >
+          <i data-lucide="ellipsis"></i>
+          <span className="tab-bar-label">More</span>
+        </button>
+      </nav>
     </>
   );
 }
