@@ -136,7 +136,7 @@
   font-size: var(--text-body);
   color: var(--text-secondary);
   line-height: 1.6;
-  max-width: 420px;
+  max-width: 320px;
 }
 
 /* The two CTA buttons sit side by side on desktop,
