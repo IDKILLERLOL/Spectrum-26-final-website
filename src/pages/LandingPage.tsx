@@ -32,8 +32,6 @@ export function LandingPage() {
         <div className="hero-bg-city">
           <SkylineSVG />
         </div>
-        <img src="/Green.png" className="hero-char-left" alt="Coder" />
-        <img src="/purple.png" className="hero-char-right" alt="Gamer" />
 
         {/* Content */}
         <div className="hero-content">
@@ -110,7 +108,10 @@ export function LandingPage() {
               onClick={() => playSynthSound('laser')}
               className="event-preview-card pixel-card"
             >
-              <div className="event-preview-art">
+              <div className="event-preview-art flex items-center justify-center bg-bg-raised" style={{ color: 'var(--text-primary)' }}>
+                <i data-lucide={card.id === 'tech-duo-1' ? 'code-2' : card.id === 'tech-solo-1' ? 'terminal' : card.id === 'non-tech-1' ? 'gamepad-2' : 'swords'} style={{ width: '28px', height: '28px' }}></i>
+              </div>
+              <div className="event-preview-art" style={{ display: 'none' }}>
                 <img src={card.img} alt={card.title} className="w-full h-full object-cover" />
               </div>
               <div className="event-preview-info">

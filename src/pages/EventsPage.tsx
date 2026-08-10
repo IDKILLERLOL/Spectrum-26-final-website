@@ -83,8 +83,8 @@ export function EventsPage() {
           </button>
 
           <div className="pixel-card flex gap-4 items-center">
-            <div className="w-16 h-20 shrink-0 bg-bg-raised border border-border overflow-hidden">
-              <img src={ARCH_CARDS_DATA.find(c => c.id === selectedEvent.id)?.img} className="w-full h-full object-cover" />
+            <div className="w-16 h-20 shrink-0 bg-bg-raised border border-border flex items-center justify-center" style={{ color: 'var(--text-primary)' }}>
+              <i data-lucide={selectedEvent.id === 'tech-duo-1' ? 'code-2' : selectedEvent.id === 'tech-solo-1' ? 'terminal' : selectedEvent.id === 'non-tech-1' ? 'gamepad-2' : 'swords'} style={{ width: '28px', height: '28px' }}></i>
             </div>
             <div className="text-left">
               <h2 className="text-heading uppercase">{selectedEvent.name}</h2>
@@ -195,9 +195,8 @@ export function EventsPage() {
                 onClick={() => handleSelectEvent(card.id)}
                 className="pixel-card flex gap-4 cursor-pointer text-left transition-transform hover:-translate-y-1 duration-300"
               >
-                {/* Portal capsule image box */}
-                <div className="w-24 h-28 bg-bg-raised border border-border overflow-hidden shrink-0">
-                  <img src={card.img} alt={card.title} className="w-full h-full object-cover" />
+                <div className="w-24 h-28 bg-bg-raised border border-border flex items-center justify-center shrink-0" style={{ color: 'var(--text-primary)' }}>
+                  <i data-lucide={card.id === 'tech-duo-1' ? 'code-2' : card.id === 'tech-solo-1' ? 'terminal' : card.id === 'non-tech-1' ? 'gamepad-2' : 'swords'} style={{ width: '32px', height: '32px' }}></i>
                 </div>
                 <div className="flex-grow flex flex-col justify-between py-1">
                   <div>
