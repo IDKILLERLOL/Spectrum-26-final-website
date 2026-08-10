@@ -1,104 +1,88 @@
-@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Space+Grotesk:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Yatra+One&family=Mukta:wght@400;600;700;800&display=swap');
 
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════════════════════════
-   RADIANT CRISIS 001 DESIGN SYSTEM
-   Pure B&W comic ink — Bangers + Space Grotesk
-   Reference: Valorant "Radiant Crisis 001" aesthetic
-   Dark  = white ink on black paper
-   Light = black ink on white paper
-═══════════════════════════════════════════════════════════════ */
+   DESI RETRO THEME
+   Mustard, Jute, Teal, Vermilion, Marigold, Ink
+   ═══════════════════════════════════════════════════════════════ */
 
 @theme {
-  /* --- DARK MODE TOKENS (Stranger Things: The Game Theme) --- */
-  --color-bg-base:        #060b13; /* Dark blue-black sky */
-  --color-bg-elevated:    #0e1626; /* Deep blue-grey panels */
-  --color-bg-card:        rgba(14, 22, 38, 0.85);
-  --color-bg-card-hover:  #142036;
+  --color-bg-base:        #D9C9A3; /* Jute */
+  --color-bg-elevated:    #E8A13A; /* Mustard */
+  --color-bg-card:        #ffffff;
+  --color-bg-card-hover:  #FFF9E6;
 
-  --color-border-subtle:  rgba(255,51,51,0.25);
-  --color-border-default: #ff3333; /* Retro neon red borders */
-  --color-border-strong:  #ff3333;
+  --color-border-subtle:  #1A1A1A;
+  --color-border-default: #1A1A1A; /* Ink */
+  --color-border-strong:  #1A1A1A;
 
-  --color-text-primary:   #ffffff;
-  --color-text-secondary: #b0bec5;
-  --color-text-muted:     #78909c;
-  --color-text-disabled:  rgba(255,255,255,0.25);
+  --color-text-primary:   #1A1A1A; /* Ink */
+  --color-text-secondary: #12595B; /* Teal */
+  --color-text-muted:     #12595B;
+  --color-text-disabled:  rgba(26,26,26,0.3);
 
-  --color-primary:        #ff3333; /* Neon red */
-  --color-accent:         #ff3333;
-  --color-accent-glow:    rgba(255,51,51,0.25);
-  --color-hero-glow:      rgba(255,51,51,0.15);
+  --color-primary:        #C7382F; /* Vermilion */
+  --color-accent:         #E8A13A; /* Mustard */
 
-  /* Retro-game-specific tokens */
-  --panel-bg:             #0e1626;
-  --border-color:         #ff3333; /* Flat red border */
-  --ink-color:            #ffffff;
-  --badge-bg:             #142036;
-  --btn-bg:               #ff3333;
-  --btn-text:             #ffffff;
-  --btn-border:           #ffffff;
-  --btn-shadow:           #000000;
-  --shadow-color:         rgba(0,0,0,0.5);
-  --halftone-color:       rgba(255,51,51,0.04);
-  --hatch-color:          #2a3b50;
+  --panel-bg:             #E8A13A;
+  --border-color:         #1A1A1A;
+  --ink-color:            #1A1A1A;
+  --badge-bg:             #F4A300;
+  --btn-bg:               #C7382F;
+  --btn-text:             #D9C9A3;
+  --btn-border:           #1A1A1A;
+  --btn-shadow:           #1A1A1A;
+  --shadow-color:         #1A1A1A;
+  --halftone-color:       rgba(18,89,91,0.05);
+  --hatch-color:          #12595B;
 
   /* Fonts */
-  --font-hero:    'Bangers', cursive;
-  --font-heading: 'Bangers', cursive;
-  --font-body:    'Space Grotesk', sans-serif;
-  --font-micro:   'Space Grotesk', sans-serif;
-  --font-pixel:   'Press Start 2P', monospace;
-  --font-silkscreen: 'Silkscreen', monospace;
+  --font-hero:    'Yatra One', cursive;
+  --font-heading: 'Yatra One', cursive;
+  --font-body:    'Mukta', sans-serif;
+  --font-micro:   'Mukta', sans-serif;
+  --font-pixel:   'Yatra One', monospace;
+  --font-silkscreen: 'Yatra One', monospace;
 }
 
 .font-pixel {
-  font-family: 'Press Start 2P', monospace;
+  font-family: 'Yatra One', cursive;
 }
 
 .font-silkscreen {
-  font-family: 'Silkscreen', monospace;
+  font-family: 'Yatra One', cursive;
 }
 
-.pixel-crisp {
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
-  image-rendering: -webkit-optimize-contrast;
-}
-
-/* --- LIGHT MODE OVERRIDES (keeps dark mode theme to guarantee only dark mode colors exist) --- */
+/* Light mode matches Desi Retro exactly */
 [data-theme="light"] {
-  --color-bg-base:        #060b13;
-  --color-bg-elevated:    #0e1626;
-  --color-bg-card:        rgba(14, 22, 38, 0.85);
-  --color-bg-card-hover:  #142036;
+  --color-bg-base:        #D9C9A3;
+  --color-bg-elevated:    #E8A13A;
+  --color-bg-card:        #ffffff;
+  --color-bg-card-hover:  #FFF9E6;
 
-  --color-border-subtle:  rgba(255,51,51,0.25);
-  --color-border-default: #ff3333;
-  --color-border-strong:  #ff3333;
+  --color-border-subtle:  #1A1A1A;
+  --color-border-default: #1A1A1A;
+  --color-border-strong:  #1A1A1A;
 
-  --color-text-primary:   #ffffff;
-  --color-text-secondary: #b0bec5;
-  --color-text-muted:     #78909c;
-  --color-text-disabled:  rgba(255,255,255,0.25);
+  --color-text-primary:   #1A1A1A;
+  --color-text-secondary: #12595B;
+  --color-text-muted:     #12595B;
+  --color-text-disabled:  rgba(26,26,26,0.3);
 
-  --color-primary:        #ff3333;
-  --color-accent:         #ff3333;
-  --color-accent-glow:    rgba(255,51,51,0.25);
-  --color-hero-glow:      rgba(255,51,51,0.15);
+  --color-primary:        #C7382F;
+  --color-accent:         #E8A13A;
 
-  --panel-bg:             #0e1626;
-  --border-color:         #ff3333;
-  --ink-color:            #ffffff;
-  --badge-bg:             #142036;
-  --btn-bg:               #ff3333;
-  --btn-text:             #ffffff;
-  --btn-border:           #ffffff;
-  --btn-shadow:           #000000;
-  --shadow-color:         rgba(0,0,0,0.5);
-  --halftone-color:       rgba(255,51,51,0.04);
-  --hatch-color:          #2a3b50;
+  --panel-bg:             #E8A13A;
+  --border-color:         #1A1A1A;
+  --ink-color:            #1A1A1A;
+  --badge-bg:             #F4A300;
+  --btn-bg:               #C7382F;
+  --btn-text:             #D9C9A3;
+  --btn-border:           #1A1A1A;
+  --btn-shadow:           #1A1A1A;
+  --shadow-color:         #1A1A1A;
+  --halftone-color:       rgba(18,89,91,0.05);
 }
 
 /* --- ADMIN THEME CUSTOM BLACK COLORIZATION --- */

@@ -1,0 +1,25 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+html,
+body {
+  height: 100%;
+  overscroll-behavior-y: none;
+}
+
+body {
+  margin: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Every theme is designed mobile-first at 390x844; desktop is a widened variant. */
+@media (min-width: 768px) {
+  [data-theme] {
+    max-width: 480px;
+    margin-inline: auto;
+  }
+}
