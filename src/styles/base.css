@@ -177,10 +177,6 @@ input, textarea, select, button {
   color: var(--bg-primary);
 }
 
-/* ─── GLOBAL REDUCED MOTION ──────────────────────────────────
-   For users who have set "reduce motion" in their OS,
-   kill all animations and transitions sitewide.
-   ──────────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -188,3 +184,22 @@ input, textarea, select, button {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Center app on desktop screens */
+@media (min-width: 768px) {
+  #root {
+    max-width: 480px;
+    margin-inline: auto;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.2);
+    min-height: 100vh;
+    min-height: 100dvh;
+    background-color: var(--bg-primary);
+    position: relative;
+    border-inline: 4px solid var(--border);
+  }
+
+  body {
+    background-color: #1A1A1A !important; /* Dark outer backdrop for premium desktop centering */
+  }
+}
+
