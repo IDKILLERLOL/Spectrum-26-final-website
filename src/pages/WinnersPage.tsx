@@ -22,22 +22,22 @@ function ContenderRoster({ contenders }: { contenders: CompetingTeam[] }) {
   const visible = expanded ? sorted : sorted.slice(0, 3);
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="">
       <h3
-        className="text-primary uppercase flex items-center gap-2 pb-2"
+        className=""
         style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '18px', fontWeight: 700, letterSpacing: '0.04em' }}
       >
         <Users size={14} /> ROSTER
       </h3>
 
       {contenders.length === 0 ? (
-        <span className="font-body text-small text-text-muted italic">Waiting for contestants to register.</span>
+        <span className="">Waiting for contestants to register.</span>
       ) : (
         <>
-          <div className="flex flex-col gap-1.5 divide-y divide-border-subtle/30" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+          <div className="" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
             {visible.map((c, i) => (
-              <div key={c.regId} className="pt-1.5 flex items-center justify-between text-xs text-text-secondary">
-                <span className="font-bold truncate max-w-[130px]">{c.teamName || c.leaderName}</span>
+              <div key={c.regId} className="">
+                <span className="">{c.teamName || c.leaderName}</span>
                 <span style={{ fontSize: '9px', color: 'var(--color-text-muted)' }}>#{(i + 1).toString().padStart(2, '0')}</span>
               </div>
             ))}
@@ -45,7 +45,7 @@ function ContenderRoster({ contenders }: { contenders: CompetingTeam[] }) {
           {sorted.length > 3 && (
             <button
               onClick={() => setExpanded(e => !e)}
-              className="flex items-center gap-1 text-primary mt-1"
+              className=""
               style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
             >
               <ChevronDown size={12} style={{ transform: expanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
@@ -132,25 +132,25 @@ export function WinnersPage() {
 
   if (loading) {
     return (
-      <main className="w-full min-h-screen flex items-center justify-center bg-bg-base px-6">
-        <div className="flex flex-col items-center gap-3">
-          <Loader2 size={36} className="animate-spin text-primary" />
-          <span className="font-heading text-heading text-text-secondary uppercase tracking-widest">Loading leaderboard details...</span>
+      <main className="">
+        <div className="">
+          <Loader2 size={36} className="" />
+          <span className="">Loading leaderboard details...</span>
         </div>
       </main>
     );
   }
 
   return (
-    <main className="w-full min-h-screen py-12 max-w-7xl mx-auto flex flex-col gap-12 px-4 md:px-6">
+    <main className="">
       {/* Header */}
       <header
-        className="flex flex-col gap-4 pb-8 relative overflow-hidden p-6 comic-border-thick"
+        className=""
         style={{ background: 'var(--panel-bg)', transform: 'rotate(-0.5deg)' }}
       >
-        <div className="absolute inset-0 hatch-pattern pointer-events-none" style={{ opacity: 0.15 }} />
+        <div className="" style={{ opacity: 0.15 }} />
         <span
-          className="comic-badge"
+          className=""
           style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -165,7 +165,7 @@ export function WinnersPage() {
             textShadow: 'none'
           }}
         >
-          <Sparkles size={12} className="shrink-0" /> THE CHAMPIONS
+          <Sparkles size={12} className="" /> THE CHAMPIONS
         </span>
         <h1
           style={{
@@ -186,7 +186,7 @@ export function WinnersPage() {
       </header>
 
       {/* Grid of Events */}
-      <div className="flex flex-col gap-16">
+      <div className="">
         {events.map((event) => {
           const eventWinners = winners.filter((w) => w.eventId === event.id);
           const first = eventWinners.find((w) => w.placement === 1);
@@ -207,54 +207,54 @@ export function WinnersPage() {
           return (
             <div
               key={event.id}
-              className="grid grid-cols-1 lg:grid-cols-12 gap-8 comic-border-thick p-6 relative overflow-hidden"
+              className=""
               style={{ background: 'var(--panel-bg)' }}
             >
               {/* Event category indicator tag */}
-              <div className="absolute -top-[1px] -right-[1px] px-4 py-1.5 font-micro text-micro uppercase tracking-widest bg-primary text-bg-base font-bold z-10">
+              <div className="">
                 {categoryLabel(event.category)}
               </div>
 
               {/* Left Column: Event details */}
-              <div className="lg:col-span-4 flex flex-col justify-between pb-6 lg:pb-0 lg:pr-6">
-                <div className="flex flex-col gap-3">
-                  <span className="font-micro text-micro text-text-muted uppercase tracking-widest">
+              <div className="">
+                <div className="">
+                  <span className="">
                     {isSolo ? 'Solo Arena' : isDuo ? 'Duo Partners' : 'Squad Battle'}
                   </span>
-                  <h2 className="font-hero text-[32px] uppercase tracking-wide text-primary leading-tight">
+                  <h2 className="">
                     {event.name}
                   </h2>
-                  <p className="font-body text-small text-text-secondary leading-relaxed">
+                  <p className="">
                     {event.description || 'Event description coming soon.'}
                   </p>
                 </div>
-                <div className="mt-6 flex flex-wrap gap-2">
-                  <span className="comic-badge text-xs" style={{ padding: '6px 12px', textShadow: 'none' }}>
+                <div className="">
+                  <span className="" style={{ padding: '6px 12px', textShadow: 'none' }}>
                     Fee: ₹{event.price}
                   </span>
-                  <span className="comic-badge text-xs" style={{ padding: '6px 12px', textShadow: 'none' }}>
+                  <span className="" style={{ padding: '6px 12px', textShadow: 'none' }}>
                     Size: {event.maxMembers === 1 ? '1 Player' : `${event.minMembers}-${event.maxMembers} Players`}
                   </span>
                 </div>
               </div>
 
               {/* Center Column: Dynamic Podium Display */}
-              <div className="lg:col-span-5 flex flex-col gap-6">
-                <h3 className="text-primary uppercase flex items-center gap-2 border-b border-border-subtle pb-2" style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '20px', fontWeight: 700, letterSpacing: '0.04em' }}>
+              <div className="">
+                <h3 className="" style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '20px', fontWeight: 700, letterSpacing: '0.04em' }}>
                   <Trophy size={16} /> PODIUM FINISHERS
                 </h3>
 
                 {/* Physical Podium Layout */}
-                <div className="flex items-end justify-center gap-2 pt-6 h-[200px]" style={{ fontFamily: "'Press Start 2P', monospace", userSelect: 'none', fontSize: '10px' }}>
+                <div className="" style={{ fontFamily: "'Press Start 2P', monospace", userSelect: 'none', fontSize: '10px' }}>
                   {/* 2nd Place (Silver) */}
-                  <div className="flex flex-col items-center flex-1">
-                    <div className="text-center mb-2 px-1 w-full truncate" style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '11px', fontWeight: 700 }}>
+                  <div className="">
+                    <div className="" style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '11px', fontWeight: 700 }}>
                       <span className={second ? "text-primary" : "text-gray-400"} style={{ color: second ? undefined : '#9ca3af' }}>
                         {resolveTeamName(second) ?? 'TBA'}
                       </span>
                     </div>
                     <div
-                      className="w-full text-center flex flex-col justify-center items-center relative"
+                      className=""
                       style={{
                         height: '90px',
                         background: 'linear-gradient(180deg, #9ca3af 0%, #4b5563 100%)',
@@ -262,18 +262,18 @@ export function WinnersPage() {
                         boxShadow: '2px 2px 0px var(--border-color)',
                       }}
                     >
-                      <span className="text-[32px] text-black">2</span>
-                      <span className="absolute bottom-1 font-body text-[9px] uppercase font-bold text-gray-200">SILVER</span>
+                      <span className="">2</span>
+                      <span className="">SILVER</span>
                     </div>
                   </div>
 
                   {/* 1st Place (Gold) */}
-                  <div className="flex flex-col items-center flex-1">
-                    <div className="text-center mb-2 px-1 w-full truncate" style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '13px', fontWeight: 800 }}>
-                      <span className="text-yellow-400 flex items-center justify-center gap-0.5"><Award size={13} /> {resolveTeamName(first) ?? 'TBA'}</span>
+                  <div className="">
+                    <div className="" style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '13px', fontWeight: 800 }}>
+                      <span className=""><Award size={13} /> {resolveTeamName(first) ?? 'TBA'}</span>
                     </div>
                     <div
-                      className="w-full text-center flex flex-col justify-center items-center relative"
+                      className=""
                       style={{
                         height: '130px',
                         background: 'linear-gradient(180deg, #fbbf24 0%, #b45309 100%)',
@@ -281,20 +281,20 @@ export function WinnersPage() {
                         boxShadow: '3px 3px 0px var(--border-color)',
                       }}
                     >
-                      <span className="text-[44px] text-black">1</span>
-                      <span className="absolute bottom-1 font-body text-[10px] uppercase font-bold text-yellow-100">CHAMPION</span>
+                      <span className="">1</span>
+                      <span className="">CHAMPION</span>
                     </div>
                   </div>
 
                   {/* 3rd Place (Bronze) */}
-                  <div className="flex flex-col items-center flex-1">
-                    <div className="text-center mb-2 px-1 w-full truncate" style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '11px', fontWeight: 700 }}>
+                  <div className="">
+                    <div className="" style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '11px', fontWeight: 700 }}>
                       <span className={third ? "text-primary" : "text-amber-700"} style={{ color: third ? undefined : '#cd7f32' }}>
                         {resolveTeamName(third) ?? 'TBA'}
                       </span>
                     </div>
                     <div
-                      className="w-full text-center flex flex-col justify-center items-center relative"
+                      className=""
                       style={{
                         height: '70px',
                         background: 'linear-gradient(180deg, #b45309 0%, #78350f 100%)',
@@ -302,15 +302,15 @@ export function WinnersPage() {
                         boxShadow: '1.5px 1.5px 0px var(--border-color)',
                       }}
                     >
-                      <span className="text-[28px] text-black">3</span>
-                      <span className="absolute bottom-1 font-body text-[9px] uppercase font-bold text-amber-200">BRONZE</span>
+                      <span className="">3</span>
+                      <span className="">BRONZE</span>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Right Column: Contender list */}
-              <div className="lg:col-span-3 flex flex-col justify-between pt-6 lg:pt-0 lg:pl-6">
+              <div className="">
                 <ContenderRoster contenders={contenders} />
               </div>
             </div>

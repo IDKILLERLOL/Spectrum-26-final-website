@@ -10,13 +10,13 @@ export function Footer() {
   });
 
   return (
-    <div className="w-full mt-12" style={{ backgroundColor: '#060b13' }}>
+    <div className="" style={{ backgroundColor: '#060b13' }}>
       <footer
-        className="relative z-10 max-w-7xl mx-auto w-[92%] flex flex-wrap justify-between items-center gap-6 py-6"
+        className=""
         style={{ background: 'transparent' }}
       >
       {/* Wordmark */}
-      <div className="flex items-center gap-3">
+      <div className="">
         <span
           style={{
             fontFamily: 'Bangers, cursive',
@@ -45,7 +45,7 @@ export function Footer() {
       </div>
 
       {/* Links */}
-      <div className="flex gap-6" style={{ fontFamily: 'Bangers, cursive', fontSize: '20px', letterSpacing: '0.05em' }}>
+      <div className="" style={{ fontFamily: 'Bangers, cursive', fontSize: '20px', letterSpacing: '0.05em' }}>
         {[
           { to: '/contact', label: 'Contact' },
           { to: '/schedule', label: 'Schedule' },

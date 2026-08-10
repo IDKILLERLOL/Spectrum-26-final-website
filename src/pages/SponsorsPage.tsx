@@ -13,15 +13,15 @@ const SPONSORS_DATA = [
 
 export function SponsorsPage() {
   return (
-    <div className="flex flex-col gap-6 px-4 py-16 w-full min-h-screen max-w-lg mx-auto">
-      <h2 className="font-hero text-3xl text-center" style={{ color: VERMILION, textShadow: `1px 1px 0 ${INK}` }}>
+    <div className="">
+      <h2 className="" style={{ color: VERMILION, textShadow: `1px 1px 0 ${INK}` }}>
         Proud Sponsors
       </h2>
-      <div className="flex flex-col gap-4 mt-6">
+      <div className="">
         {SPONSORS_DATA.map((s) => (
           <div 
             key={s.name} 
-            className="font-hero border-4 px-5 py-3 text-lg bg-white text-center" 
+            className="" 
             style={{ 
               borderColor: INK, 
               color: TEAL, 

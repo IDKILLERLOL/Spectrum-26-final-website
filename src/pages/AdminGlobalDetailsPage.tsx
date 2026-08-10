@@ -82,19 +82,19 @@ export function AdminGlobalDetailsPage() {
 
   if (loading) {
     return (
-      <div className="flex-grow flex items-center justify-center p-12 bg-black text-white">
-        <Loader2 className="animate-spin text-primary" size={40} />
+      <div className="">
+        <Loader2 className="" size={40} />
       </div>
     );
   }
 
   return (
-    <div className="p-6 md:p-8 flex flex-col gap-8 max-w-7xl mx-auto w-full bg-black min-h-screen text-white">
+    <div className="">
       {/* Header */}
-      <div className="flex justify-between items-center border-b border-border-default pb-4">
+      <div className="">
         <div>
-          <h1 className="font-hero text-2xl uppercase tracking-widest text-primary">Global Event Details</h1>
-          <p className="font-body text-small text-text-secondary">Configure branding, helpline info, countdown timers, and payment channels.</p>
+          <h1 className="">Global Event Details</h1>
+          <p className="">Configure branding, helpline info, countdown timers, and payment channels.</p>
         </div>
       </div>
 
@@ -109,56 +109,56 @@ export function AdminGlobalDetailsPage() {
         </div>
       )}
 
-      <div className="flex flex-col gap-8">
+      <div className="">
         {/* Global Event Details Panel */}
-        <div className="border border-border-default p-6 bg-bg-card flex flex-col gap-4">
-          <div className="flex items-center gap-3 border-b border-border-default pb-3">
-            <Settings size={20} className="text-primary" />
-            <h2 className="font-heading text-heading uppercase tracking-widest text-primary">Branding &amp; Metadata</h2>
+        <div className="">
+          <div className="">
+            <Settings size={20} className="" />
+            <h2 className="">Branding &amp; Metadata</h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="flex flex-col gap-2">
-              <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">Event Name</label>
+          <div className="">
+            <div className="">
+              <label className="">Event Name</label>
               <input
                 type="text"
                 value={eventDetails.name}
                 onChange={(e) => setEventDetails(prev => ({ ...prev, name: e.target.value }))}
-                className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
+                className=""
               />
             </div>
-            <div className="flex flex-col gap-2">
-              <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">Location</label>
+            <div className="">
+              <label className="">Location</label>
               <input
                 type="text"
                 value={eventDetails.location}
                 onChange={(e) => setEventDetails(prev => ({ ...prev, location: e.target.value }))}
-                className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
+                className=""
               />
             </div>
-            <div className="flex flex-col gap-2">
-              <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">Date Description</label>
+            <div className="">
+              <label className="">Date Description</label>
               <input
                 type="text"
                 value={eventDetails.date}
                 onChange={(e) => setEventDetails(prev => ({ ...prev, date: e.target.value }))}
-                className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
+                className=""
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-2">
-            <div className="flex flex-col gap-2">
-              <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">Countdown Target</label>
+          <div className="">
+            <div className="">
+              <label className="">Countdown Target</label>
               <input
                 type="text"
                 value={eventDetails.countdownTarget}
                 onChange={(e) => setEventDetails(prev => ({ ...prev, countdownTarget: e.target.value }))}
                 placeholder="YYYY-MM-DDTHH:MM:SS"
-                className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
+                className=""
               />
             </div>
-            <div className="flex flex-col gap-2">
-              <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">Helpline Phone 1</label>
+            <div className="">
+              <label className="">Helpline Phone 1</label>
               <input
                 type="text"
                 value={eventDetails.helplinePhones?.[0] ?? eventDetails.helplinePhone ?? '+91 86574 78886'}
@@ -167,11 +167,11 @@ export function AdminGlobalDetailsPage() {
                   next[0] = e.target.value;
                   setEventDetails(prev => ({ ...prev, helplinePhone: next[0], helplinePhones: next }));
                 }}
-                className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
+                className=""
               />
             </div>
-            <div className="flex flex-col gap-2">
-              <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">Helpline Phone 2</label>
+            <div className="">
+              <label className="">Helpline Phone 2</label>
               <input
                 type="text"
                 value={eventDetails.helplinePhones?.[1] ?? '+91 90046 20948'}
@@ -180,11 +180,11 @@ export function AdminGlobalDetailsPage() {
                   next[1] = e.target.value;
                   setEventDetails(prev => ({ ...prev, helplinePhones: next }));
                 }}
-                className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
+                className=""
               />
             </div>
-            <div className="flex flex-col gap-2">
-              <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">Helpline Phone 3</label>
+            <div className="">
+              <label className="">Helpline Phone 3</label>
               <input
                 type="text"
                 value={eventDetails.helplinePhones?.[2] ?? '+91 90210 95204'}
@@ -193,61 +193,61 @@ export function AdminGlobalDetailsPage() {
                   next[2] = e.target.value;
                   setEventDetails(prev => ({ ...prev, helplinePhones: next }));
                 }}
-                className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
+                className=""
               />
             </div>
           </div>
 
-          <div className="flex flex-col gap-2 mt-2">
-            <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">Support Helpline Email</label>
+          <div className="">
+            <label className="">Support Helpline Email</label>
             <input
               type="email"
               value={eventDetails.helplineEmail || ''}
               onChange={(e) => setEventDetails(prev => ({ ...prev, helplineEmail: e.target.value }))}
-              className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
+              className=""
             />
           </div>
 
           <button
             onClick={handleSaveEventDetails}
             disabled={savingDetails}
-            className="self-start font-button text-button px-6 py-2 bg-primary border border-primary text-white hover:bg-white hover:text-primary hover:border-white transition-colors disabled:opacity-50 mt-4"
+            className=""
           >
             {savingDetails ? 'Saving...' : 'Save Global Details'}
           </button>
         </div>
 
         {/* UPI ID Section Panel */}
-        <div className="border border-border-default p-6 bg-bg-card flex flex-col gap-4">
-          <div className="flex items-center gap-3 border-b border-border-default pb-3">
-            <Landmark size={20} className="text-primary" />
-            <h2 className="font-heading text-heading uppercase tracking-widest text-primary">UPI &amp; Payments Configuration</h2>
+        <div className="">
+          <div className="">
+            <Landmark size={20} className="" />
+            <h2 className="">UPI &amp; Payments Configuration</h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex flex-col gap-2">
-              <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">VP's UPI ID</label>
+          <div className="">
+            <div className="">
+              <label className="">VP's UPI ID</label>
               <input
                 type="text"
                 value={paymentDetails.upiId}
                 onChange={(e) => setPaymentDetails(prev => ({ ...prev, upiId: e.target.value }))}
-                className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
+                className=""
               />
             </div>
-            <div className="flex flex-col gap-2">
-              <label className="font-micro text-micro uppercase tracking-widest text-text-secondary">QR Code Image Link / Path</label>
+            <div className="">
+              <label className="">QR Code Image Link / Path</label>
               <input
                 type="text"
                 value={paymentDetails.qrCodeUrl}
                 onChange={(e) => setPaymentDetails(prev => ({ ...prev, qrCodeUrl: e.target.value }))}
                 placeholder="e.g. /payment-qr.jpg or URL link"
-                className="bg-bg-elevated border border-border-default p-3 font-body text-primary focus:outline-none focus:border-primary"
+                className=""
               />
             </div>
           </div>
           <button
             onClick={handleSavePaymentDetails}
             disabled={savingPayments}
-            className="self-start font-button text-button px-6 py-2 bg-primary border border-primary text-white hover:bg-white hover:text-primary hover:border-white transition-colors disabled:opacity-50 mt-4"
+            className=""
           >
             {savingPayments ? 'Saving...' : 'Save Payment Details'}
           </button>

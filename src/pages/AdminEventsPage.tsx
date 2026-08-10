@@ -162,13 +162,13 @@ export function AdminEventsPage() {
   if (loading) return <AdminPageSkeleton />;
 
   return (
-    <main className="flex flex-col gap-8 py-8 px-6 max-w-7xl mx-auto w-full">
+    <main className="">
       {/* Header */}
-      <div className="flex flex-wrap items-end justify-between gap-4 border-b-2 border-primary pb-6">
-        <h1 className="font-hero text-[40px] leading-none uppercase tracking-widest text-primary">Events</h1>
+      <div className="">
+        <h1 className="">Events</h1>
         <button
           onClick={inlineState.type === 'create' ? closeState : openCreate}
-          className="flex items-center gap-2 font-button text-button uppercase bg-primary text-bg-base px-5 py-3 hover:opacity-90 transition-opacity"
+          className=""
         >
           {inlineState.type === 'create' ? <ChevronUp size={14} /> : <Plus size={14} />}
           {inlineState.type === 'create' ? 'Cancel' : 'New Event'}
@@ -179,15 +179,15 @@ export function AdminEventsPage() {
       {inlineState.type === 'create' && (
         <form
           onSubmit={handleCreate}
-          className="expand-in border-l-4 border-primary pl-6 flex flex-col gap-6 py-4"
+          className=""
         >
-          <p className="font-micro text-micro text-text-muted uppercase tracking-widest">New Event</p>
+          <p className="">New Event</p>
           <EventFormFields form={form} setField={setField} isNew />
-          {error && <p className="font-body text-small text-text-secondary border border-dashed border-border-default px-4 py-3">{error}</p>}
-          <div className="flex gap-3">
-            <button type="button" onClick={closeState} className="px-5 py-3 border border-border-default text-text-secondary font-button text-button uppercase hover:opacity-70 transition-opacity">Cancel</button>
-            <button type="submit" disabled={saving} className="px-8 py-3 bg-primary text-bg-base font-button text-button uppercase hover:opacity-90 disabled:opacity-50 flex items-center gap-2">
-              {saving && <Loader2 size={14} className="animate-spin" />} Create
+          {error && <p className="">{error}</p>}
+          <div className="">
+            <button type="button" onClick={closeState} className="">Cancel</button>
+            <button type="submit" disabled={saving} className="">
+              {saving && <Loader2 size={14} className="" />} Create
             </button>
           </div>
         </form>
@@ -198,13 +198,13 @@ export function AdminEventsPage() {
         { label: 'TECH EVENTS', evs: techEvents },
         { label: 'NON-TECH EVENTS', evs: nonTechEvents },
       ].map(({ label, evs }) => (
-        <div key={label} className="flex flex-col gap-2">
-          <h2 className="font-hero text-[22px] leading-none uppercase tracking-widest text-primary mb-1">
+        <div key={label} className="">
+          <h2 className="">
             {label}
           </h2>
 
           {evs.length === 0 && (
-            <p className="font-body text-body text-text-muted py-4">None yet.</p>
+            <p className="">None yet.</p>
           )}
 
           {evs.map((event) => {
@@ -213,12 +213,12 @@ export function AdminEventsPage() {
             const hasTeams = event.currentTeamCount > 0;
 
             return (
-              <div key={event.id} className="py-2" style={{ borderStyle: 'none' }}>
+              <div key={event.id} className="" style={{ borderStyle: 'none' }}>
                 {/* Event summary row */}
-                <div className="flex flex-wrap md:flex-nowrap items-center gap-4 p-4">
-                  <div className="flex flex-col gap-1 flex-1 min-w-[200px]">
-                    <span className="font-heading text-card-title text-primary uppercase">{event.name}</span>
-                    <div className="flex flex-wrap gap-3 font-micro text-micro text-text-muted uppercase tracking-widest">
+                <div className="">
+                  <div className="">
+                    <span className="">{event.name}</span>
+                    <div className="">
                       <span>{event.isTeamEvent ? `Team (${event.minMembers}-${event.maxMembers} members)` : 'Solo'}</span>
                       <span>·</span>
                       <span>{event.price != null ? `₹${event.price}` : 'Free/TBA'}</span>
@@ -232,10 +232,10 @@ export function AdminEventsPage() {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center gap-2 flex-shrink-0">
+                  <div className="">
                     <button
                       onClick={() => isEditOpen ? closeState() : openEdit(event)}
-                      className="p-2 border border-border-default hover:border-primary text-text-secondary hover:text-primary transition-colors"
+                      className=""
                     >
                       {isEditOpen ? <ChevronUp size={16} /> : <Pencil size={16} />}
                     </button>
@@ -243,7 +243,7 @@ export function AdminEventsPage() {
                       onClick={() => isDeleteOpen ? closeState() : setInlineState({ type: 'confirm-delete', eventId: event.id })}
                       disabled={hasTeams}
                       title={hasTeams ? 'Cannot delete — teams are registered' : 'Delete event'}
-                      className="p-2 border border-border-default hover:border-primary text-text-secondary hover:text-primary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                      className=""
                     >
                       {hasTeams ? <Lock size={16} /> : <Trash2 size={16} />}
                     </button>
@@ -254,22 +254,22 @@ export function AdminEventsPage() {
                 {isEditOpen && (
                   <form
                     onSubmit={(e) => handleUpdate(e, event.id, event)}
-                    className="expand-in border-t border-border-default px-6 py-6 flex flex-col gap-6 bg-bg-elevated"
+                    className=""
                   >
-                    <div className="flex items-center gap-3">
-                      <p className="font-micro text-micro text-text-muted uppercase tracking-widest">Edit Event</p>
+                    <div className="">
+                      <p className="">Edit Event</p>
                       {hasTeams && (
-                        <span className="flex items-center gap-1 font-micro text-micro text-text-muted border border-dashed border-border-default px-2 py-0.5 uppercase">
+                        <span className="">
                           <Lock size={10} /> Category &amp; type locked ({event.currentTeamCount} teams registered)
                         </span>
                       )}
                     </div>
                     <EventFormFields form={form} setField={setField} isNew={false} categoryLocked={hasTeams} />
-                    {error && <p className="font-body text-small text-text-secondary border border-dashed border-border-default px-4 py-3">{error}</p>}
-                    <div className="flex gap-3">
-                      <button type="button" onClick={closeState} className="px-5 py-3 border border-border-default text-text-secondary font-button text-button uppercase hover:opacity-70">Cancel</button>
-                      <button type="submit" disabled={saving} className="px-8 py-3 bg-primary text-bg-base font-button text-button uppercase hover:opacity-90 disabled:opacity-50 flex items-center gap-2">
-                        {saving && <Loader2 size={14} className="animate-spin" />} Save
+                    {error && <p className="">{error}</p>}
+                    <div className="">
+                      <button type="button" onClick={closeState} className="">Cancel</button>
+                      <button type="submit" disabled={saving} className="">
+                        {saving && <Loader2 size={14} className="" />} Save
                       </button>
                     </div>
                   </form>
@@ -277,19 +277,19 @@ export function AdminEventsPage() {
 
                 {/* ── Inline: Delete confirm ── */}
                 {isDeleteOpen && (
-                  <div className="expand-in border-t border-border-default px-6 py-6 bg-bg-elevated flex flex-col gap-4">
-                    <p className="font-body text-body text-text-secondary">
+                  <div className="">
+                    <p className="">
                       Permanently delete <strong>{event.name}</strong>? This cannot be undone.
                     </p>
-                    {error && <p className="font-body text-small text-text-secondary">{error}</p>}
-                    <div className="flex gap-3">
-                      <button onClick={closeState} className="px-5 py-3 border border-border-default text-text-secondary font-button text-button uppercase hover:opacity-70">Cancel</button>
+                    {error && <p className="">{error}</p>}
+                    <div className="">
+                      <button onClick={closeState} className="">Cancel</button>
                       <button
                         onClick={() => handleDelete(event.id)}
                         disabled={saving}
-                        className="px-8 py-3 bg-primary text-bg-base font-button text-button uppercase hover:opacity-90 disabled:opacity-50 flex items-center gap-2"
+                        className=""
                       >
-                        {saving && <Loader2 size={14} className="animate-spin" />} Delete
+                        {saving && <Loader2 size={14} className="" />} Delete
                       </button>
                     </div>
                   </div>
@@ -317,30 +317,30 @@ function EventFormFields({
   categoryLocked?: boolean;
 }) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="">
       {/* Name */}
-      <div className="flex flex-col gap-2 md:col-span-2">
-        <label className="font-micro text-micro text-text-muted uppercase tracking-widest">Event Name *</label>
+      <div className="">
+        <label className="">Event Name *</label>
         <input
           type="text"
           value={form.name}
           onChange={(e) => setField('name', e.target.value)}
           required
           placeholder="e.g. Code Prism"
-          className="bg-transparent border-b-2 border-border-strong text-primary font-heading text-heading py-2 focus:outline-none focus:border-primary transition-all"
+          className=""
         />
       </div>
 
       {/* Category */}
-      <div className="flex flex-col gap-2">
-        <label className="font-micro text-micro text-text-muted uppercase tracking-widest flex items-center gap-2">
+      <div className="">
+        <label className="">
           Category {categoryLocked && <Lock size={10} />}
         </label>
         <select
           value={form.category}
           onChange={(e) => setField('category', e.target.value as 'TECH' | 'NON_TECH')}
           disabled={categoryLocked}
-          className="bg-bg-base border-b-2 border-border-strong text-primary font-heading text-heading py-2 focus:outline-none focus:border-primary transition-all disabled:opacity-40"
+          className=""
         >
           <option value="TECH">TECH</option>
           <option value="NON_TECH">NON-TECH</option>
@@ -348,8 +348,8 @@ function EventFormFields({
       </div>
 
       {/* Team / Solo / Duo */}
-      <div className="flex flex-col gap-2">
-        <label className="font-micro text-micro text-text-muted uppercase tracking-widest flex items-center gap-2">
+      <div className="">
+        <label className="">
           Format {categoryLocked && <Lock size={10} />}
         </label>
         <select
@@ -371,7 +371,7 @@ function EventFormFields({
             }
           }}
           disabled={categoryLocked}
-          className="bg-bg-base border-b-2 border-border-strong text-primary font-heading text-heading py-2 focus:outline-none focus:border-primary transition-all disabled:opacity-40"
+          className=""
         >
           <option value="solo">Solo</option>
           <option value="duo">Duo</option>
@@ -381,138 +381,138 @@ function EventFormFields({
 
       {/* Min members */}
       {form.isTeamEvent && (
-        <div className="flex flex-col gap-2">
-          <label className="font-micro text-micro text-text-muted uppercase tracking-widest">Min Team Members (optional)</label>
+        <div className="">
+          <label className="">Min Team Members (optional)</label>
           <input
             type="number"
             min={2}
             value={form.minMembers || ''}
             onChange={(e) => setField('minMembers', e.target.value === '' ? '' : parseInt(e.target.value))}
-            className="bg-transparent border-b-2 border-border-strong text-primary font-heading text-heading py-2 focus:outline-none focus:border-primary transition-all"
+            className=""
           />
         </div>
       )}
 
       {/* Max members */}
       {form.isTeamEvent && (
-        <div className="flex flex-col gap-2">
-          <label className="font-micro text-micro text-text-muted uppercase tracking-widest">Max Team Members *</label>
+        <div className="">
+          <label className="">Max Team Members *</label>
           <input
             type="number"
             min={2}
             value={form.maxMembers || ''}
             onChange={(e) => setField('maxMembers', e.target.value === '' ? '' : parseInt(e.target.value))}
             required
-            className="bg-transparent border-b-2 border-border-strong text-primary font-heading text-heading py-2 focus:outline-none focus:border-primary transition-all"
+            className=""
           />
         </div>
       )}
 
       {/* Max teams */}
-      <div className="flex flex-col gap-2">
-        <label className="font-micro text-micro text-text-muted uppercase tracking-widest">Max Teams (blank = no cap)</label>
+      <div className="">
+        <label className="">Max Teams (blank = no cap)</label>
         <input
           type="number"
           min={0}
           value={form.maxTeams ?? ''}
           onChange={(e) => setField('maxTeams', e.target.value ? parseInt(e.target.value) : null)}
           placeholder="No cap"
-          className="bg-transparent border-b-2 border-border-strong text-primary font-heading text-heading py-2 focus:outline-none focus:border-primary transition-all"
+          className=""
         />
       </div>
 
       {/* Price */}
-      <div className="flex flex-col gap-2">
-        <label className="font-micro text-micro text-text-muted uppercase tracking-widest">Price ₹ (blank = TBA)</label>
+      <div className="">
+        <label className="">Price ₹ (blank = TBA)</label>
         <input
           type="number"
           min={0}
           value={form.price ?? ''}
           onChange={(e) => setField('price', e.target.value ? parseInt(e.target.value) : null)}
           placeholder="TBA"
-          className="bg-transparent border-b-2 border-border-strong text-primary font-heading text-heading py-2 focus:outline-none focus:border-primary transition-all"
+          className=""
         />
       </div>
 
       {/* One Line Description */}
-      <div className="flex flex-col gap-2 md:col-span-2">
-        <label className="font-micro text-micro text-text-muted uppercase tracking-widest">One Line Description (home page, no hover)</label>
+      <div className="">
+        <label className="">One Line Description (home page, no hover)</label>
         <input
           type="text"
           value={form.oneLineDescription || ''}
           onChange={(e) => setField('oneLineDescription', e.target.value)}
           placeholder="e.g. The ultimate duo coding face-off."
-          className="bg-transparent border-b-2 border-border-strong text-primary font-body text-body py-2 focus:outline-none focus:border-primary transition-all"
+          className=""
         />
       </div>
 
       {/* Short Description */}
-      <div className="flex flex-col gap-2 md:col-span-2">
-        <label className="font-micro text-micro text-text-muted uppercase tracking-widest">Short Description (home page, hover)</label>
+      <div className="">
+        <label className="">Short Description (home page, hover)</label>
         <textarea
           value={form.shortDescription || ''}
           onChange={(e) => setField('shortDescription', e.target.value)}
           rows={2}
           placeholder="e.g. Battle in Codopoly, Swap Challenge, and Snakes & Ladders Challenges."
-          className="bg-transparent border border-border-strong text-primary font-body text-body p-3 focus:outline-none focus:border-primary transition-all resize-none"
+          className=""
         />
       </div>
 
       {/* Description */}
-      <div className="flex flex-col gap-2 md:col-span-2">
-        <label className="font-micro text-micro text-text-muted uppercase tracking-widest">Long Description (details page)</label>
+      <div className="">
+        <label className="">Long Description (details page)</label>
         <textarea
           value={form.description}
           onChange={(e) => setField('description', e.target.value)}
           rows={3}
-          className="bg-transparent border border-border-strong text-primary font-body text-body p-3 focus:outline-none focus:border-primary transition-all resize-none"
+          className=""
         />
       </div>
 
       {/* Rules URL */}
-      <div className="flex flex-col gap-2 md:col-span-2">
-        <label className="font-micro text-micro text-text-muted uppercase tracking-widest">Rules URL (optional)</label>
+      <div className="">
+        <label className="">Rules URL (optional)</label>
         <input
           type="url"
           value={form.rulesUrl ?? ''}
           onChange={(e) => setField('rulesUrl', e.target.value || null)}
           placeholder="https://..."
-          className="bg-transparent border-b-2 border-border-strong text-primary font-body text-body py-2 focus:outline-none focus:border-primary transition-all"
+          className=""
         />
       </div>
 
       {/* Round Details */}
-      <div className="flex flex-col gap-2 md:col-span-2">
-        <label className="font-micro text-micro text-text-muted uppercase tracking-widest">Round Details / Sub-Events (one per line)</label>
+      <div className="">
+        <label className="">Round Details / Sub-Events (one per line)</label>
         <textarea
           value={(form.roundDetails || []).join('\n')}
           onChange={(e) => setField('roundDetails', e.target.value.split('\n').filter(line => line.trim() !== ''))}
           rows={4}
           placeholder="Sub-Event 1: Codopoly — CS topic board game..."
-          className="bg-transparent border border-border-strong text-primary font-body text-body p-3 focus:outline-none focus:border-primary transition-all resize-y"
+          className=""
         />
       </div>
 
       {/* Registration open toggle */}
-      <div className="flex items-center gap-4">
-        <label className="font-micro text-micro text-text-muted uppercase tracking-widest">Registration Open</label>
+      <div className="">
+        <label className="">Registration Open</label>
         <button
           type="button"
           role="switch"
           aria-checked={form.registrationOpen}
           onClick={() => setField('registrationOpen', !form.registrationOpen)}
-          className="w-12 h-6 border-2 border-primary relative transition-colors flex items-center"
+          className=""
           style={{ background: form.registrationOpen ? 'var(--color-text-primary)' : 'transparent' }}
         >
           <span
-            className="absolute w-4 h-4 transition-all duration-200"
+            className=""
             style={{
               background: form.registrationOpen ? 'var(--color-bg-base)' : 'var(--color-text-primary)',
               left: form.registrationOpen ? 'calc(100% - 1.25rem)' : '0.125rem',
             }}
           />
         </button>
-        <span className="font-body text-small text-primary">{form.registrationOpen ? 'Yes' : 'No'}</span>
+        <span className="">{form.registrationOpen ? 'Yes' : 'No'}</span>
       </div>
     </div>
   );
@@ -520,12 +520,12 @@ function EventFormFields({
 
 function AdminPageSkeleton() {
   return (
-    <main className="flex flex-col gap-8 py-8 px-6 max-w-7xl mx-auto w-full">
-      <div className="border-b-2 border-primary pb-6">
-        <div className="skeleton h-12 w-40 rounded" style={{ background: 'var(--color-bg-card)' }} />
+    <main className="">
+      <div className="">
+        <div className="" style={{ background: 'var(--color-bg-card)' }} />
       </div>
-      <div className="flex flex-col gap-4">
-        {[1, 2, 3, 4].map((i) => <div key={i} className="skeleton h-20 w-full rounded" style={{ background: 'var(--color-bg-card)', animationDelay: `${i * 0.1}s` }} />)}
+      <div className="">
+        {[1, 2, 3, 4].map((i) => <div key={i} className="" style={{ background: 'var(--color-bg-card)', animationDelay: `${i * 0.1}s` }} />)}
       </div>
     </main>
   );

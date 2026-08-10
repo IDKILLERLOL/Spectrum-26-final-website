@@ -76,9 +76,9 @@ export function Navbar() {
 
   return (
     <>
-      <div className="fixed top-4 z-[100] w-full flex justify-center pointer-events-none px-3">
+      <div className="">
         <nav
-          className="pointer-events-auto max-w-6xl w-full py-3.5 px-6 flex justify-between items-center gap-6 border rounded-sm"
+          className=""
           style={{
             background: 'rgba(8, 12, 22, 0.88)',
             backdropFilter: 'blur(16px)',
@@ -91,20 +91,20 @@ export function Navbar() {
           <Link
             to="/"
             onClick={() => playSynthSound('click')}
-            className="flex items-center gap-2.5 text-decoration-none group"
+            className=""
           >
-            <div className="w-8 h-8 rounded bg-gradient-to-br from-red-600 to-red-950 flex items-center justify-center border border-red-500/50 shadow-[0_0_12px_rgba(255,51,51,0.5)]">
-              <Terminal className="text-red-400" size={16} />
+            <div className="">
+              <Terminal className="" size={16} />
             </div>
-            <div className="flex flex-col">
-              <span className="font-pixel text-base sm:text-lg tracking-wider text-white group-hover:text-red-400 transition-colors flex items-center gap-1.5">
-                SPECTRUM <span className="text-red-500 font-pixel">5.0</span>
+            <div className="">
+              <span className="">
+                SPECTRUM <span className="">5.0</span>
               </span>
             </div>
           </Link>
 
           {/* Desktop nav menu */}
-          <div className="hidden lg:flex gap-5 items-center">
+          <div className="">
             {navLink('/', 'HOME')}
             {navLink('/events', 'EVENTS')}
             {navLink('/schedule', 'SCHEDULE')}
@@ -115,12 +115,12 @@ export function Navbar() {
           </div>
 
           {/* Right side: Social icons & Register Button */}
-          <div className="hidden lg:flex items-center gap-4">
+          <div className="">
             <a
               href="https://instagram.com"
               target="_blank"
               rel="noreferrer"
-              className="w-9 h-9 rounded bg-white/5 border border-white/10 flex items-center justify-center text-text-secondary hover:text-white hover:border-red-500/50 transition-colors"
+              className=""
               aria-label="Instagram"
             >
               <Instagram size={15} />
@@ -129,7 +129,7 @@ export function Navbar() {
               href="https://discord.com"
               target="_blank"
               rel="noreferrer"
-              className="w-9 h-9 rounded bg-white/5 border border-white/10 flex items-center justify-center text-text-secondary hover:text-white hover:border-red-500/50 transition-colors"
+              className=""
               aria-label="Discord"
             >
               <Gamepad2 size={15} />
@@ -138,9 +138,9 @@ export function Navbar() {
             <Link
               to="/events"
               onClick={() => playSynthSound('laser')}
-              className="px-5 py-2.5 rounded bg-white/5 border border-white/20 hover:border-red-500 hover:text-red-400 text-white font-pixel text-[9px] uppercase tracking-wider transition-all flex items-center gap-1.5 font-bold shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:shadow-[0_0_20px_rgba(255,51,51,0.25)]"
+              className=""
             >
-              REGISTER NOW <span className="text-xs">→</span>
+              REGISTER NOW <span className="">→</span>
             </Link>
           </div>
 
@@ -150,7 +150,7 @@ export function Navbar() {
               playSynthSound('click');
               setShowMoreMenu(!showMoreMenu);
             }}
-            className="lg:hidden flex flex-col justify-center items-center w-10 h-10 border border-white/20 rounded bg-white/5 text-white"
+            className=""
             aria-label="Toggle Navigation Menu"
           >
             <Menu size={20} />
@@ -161,7 +161,7 @@ export function Navbar() {
       {/* Mobile Pop-up Menu */}
       {showMoreMenu && (
         <div
-          className="lg:hidden fixed bottom-24 right-4 z-[9999] flex flex-col gap-1 p-3 border rounded-lg shadow-2xl"
+          className=""
           style={{
             background: 'rgba(8, 12, 22, 0.98)',
             backdropFilter: 'blur(24px)',
@@ -173,57 +173,57 @@ export function Navbar() {
           <Link
             to="/"
             onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
-            className="flex items-center gap-3 px-3 py-2.5 text-white hover:text-red-400 hover:bg-white/5 rounded transition-all font-pixel text-xs"
+            className=""
           >
-            <Home size={14} className="text-red-500" />
+            <Home size={14} className="" />
             <span>HOME</span>
           </Link>
           <Link
             to="/events"
             onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
-            className="flex items-center gap-3 px-3 py-2.5 text-white hover:text-red-400 hover:bg-white/5 rounded transition-all font-pixel text-xs"
+            className=""
           >
-            <Trophy size={14} className="text-red-500" />
+            <Trophy size={14} className="" />
             <span>EVENTS</span>
           </Link>
           <Link
             to="/schedule"
             onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
-            className="flex items-center gap-3 px-3 py-2.5 text-white hover:text-red-400 hover:bg-white/5 rounded transition-all font-pixel text-xs"
+            className=""
           >
-            <Calendar size={14} className="text-red-500" />
+            <Calendar size={14} className="" />
             <span>SCHEDULE</span>
           </Link>
           <Link
             to="/winners"
             onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
-            className="flex items-center gap-3 px-3 py-2.5 text-white hover:text-red-400 hover:bg-white/5 rounded transition-all font-pixel text-xs"
+            className=""
           >
-            <Award size={14} className="text-red-500" />
+            <Award size={14} className="" />
             <span>WINNERS</span>
           </Link>
           <Link
             to="/sponsors"
             onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
-            className="flex items-center gap-3 px-3 py-2.5 text-white hover:text-red-400 hover:bg-white/5 rounded transition-all font-pixel text-xs"
+            className=""
           >
-            <Award size={14} className="text-red-500" />
+            <Award size={14} className="" />
             <span>SPONSORS</span>
           </Link>
           <Link
             to="/gallery"
             onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
-            className="flex items-center gap-3 px-3 py-2.5 text-white hover:text-red-400 hover:bg-white/5 rounded transition-all font-pixel text-xs"
+            className=""
           >
-            <Award size={14} className="text-red-500" />
+            <Award size={14} className="" />
             <span>GALLERY</span>
           </Link>
           <Link
             to="/contact"
             onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
-            className="flex items-center gap-3 px-3 py-2.5 text-white hover:text-red-400 hover:bg-white/5 rounded transition-all font-pixel text-xs"
+            className=""
           >
-            <Mail size={14} className="text-red-500" />
+            <Mail size={14} className="" />
             <span>CONTACT</span>
           </Link>
 
@@ -231,9 +231,9 @@ export function Navbar() {
             <Link
               to="/supercore"
               onClick={() => { playSynthSound('click'); setShowMoreMenu(false); }}
-              className="flex items-center gap-3 px-3 py-2 text-white hover:text-red-400 hover:bg-white/5 rounded transition-all border-t border-white/10 mt-1 pt-2 font-pixel text-xs"
+              className=""
             >
-              <Menu size={14} className="text-red-500" />
+              <Menu size={14} className="" />
               <span>SUPERCORE</span>
             </Link>
           )}
@@ -241,19 +241,19 @@ export function Navbar() {
       )}
 
       {/* Mobile Floating Bottom Dock */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[9990] flex flex-col items-center gap-2 pb-3 px-4 pointer-events-none">
+      <div className="">
         {/* Floating REGISTER NOW Button */}
         <Link
           to="/events"
           onClick={() => playSynthSound('laser')}
-          className="pointer-events-auto px-6 py-2.5 rounded-full bg-white/5 border border-white/20 hover:border-red-500 hover:text-red-400 text-white font-pixel text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 font-bold active:scale-95 transition-transform shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:shadow-[0_0_20px_rgba(255,51,51,0.25)]"
+          className=""
         >
           <span>★</span> REGISTER NOW <span>→ ★</span>
         </Link>
 
         {/* Glassmorphic Nav Bar */}
         <div
-          className="pointer-events-auto w-full max-w-md py-2.5 px-4 flex justify-between items-center rounded-2xl border"
+          className=""
           style={{
             background: 'rgba(8, 12, 22, 0.95)',
             backdropFilter: 'blur(20px)',
@@ -268,7 +268,7 @@ export function Navbar() {
             className={`flex flex-col items-center gap-1 ${location.pathname === '/' ? 'text-red-500' : 'text-text-muted hover:text-white'}`}
           >
             <Home size={18} />
-            <span className="font-pixel text-[9px]">HOME</span>
+            <span className="">HOME</span>
           </Link>
 
           <Link
@@ -277,7 +277,7 @@ export function Navbar() {
             className={`flex flex-col items-center gap-1 ${location.pathname === '/events' ? 'text-red-500' : 'text-text-muted hover:text-white'}`}
           >
             <Gamepad2 size={18} />
-            <span className="font-pixel text-[9px]">EVENTS</span>
+            <span className="">EVENTS</span>
           </Link>
 
           <Link
@@ -286,7 +286,7 @@ export function Navbar() {
             className={`flex flex-col items-center gap-1 ${location.pathname === '/schedule' ? 'text-red-500' : 'text-text-muted hover:text-white'}`}
           >
             <Calendar size={18} />
-            <span className="font-pixel text-[9px]">SCHEDULE</span>
+            <span className="">SCHEDULE</span>
           </Link>
 
           <Link
@@ -295,7 +295,7 @@ export function Navbar() {
             className={`flex flex-col items-center gap-1 ${location.pathname === '/winners' ? 'text-red-500' : 'text-text-muted hover:text-white'}`}
           >
             <Trophy size={18} />
-            <span className="font-pixel text-[9px]">WINNERS</span>
+            <span className="">WINNERS</span>
           </Link>
 
           <Link
@@ -304,7 +304,7 @@ export function Navbar() {
             className={`flex flex-col items-center gap-1 ${location.pathname === '/contact' ? 'text-red-500' : 'text-text-muted hover:text-white'}`}
           >
             <Mail size={18} />
-            <span className="font-pixel text-[9px]">CONTACT</span>
+            <span className="">CONTACT</span>
           </Link>
         </div>
       </div>

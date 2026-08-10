@@ -73,60 +73,60 @@ export function ProfilePage() {
 
   if (loading) {
     return (
-      <main className="w-full min-h-screen flex flex-col py-8 px-6 max-w-7xl mx-auto gap-14">
-        <div className="skeleton h-14 w-56 rounded border-b-2 border-primary pb-8" />
-        <div className="flex flex-col gap-6 max-w-lg">
-          {[1, 2, 3].map((i) => <div key={i} className="skeleton h-12 w-full rounded" />)}
+      <main className="">
+        <div className="" />
+        <div className="">
+          {[1, 2, 3].map((i) => <div key={i} className="" />)}
         </div>
       </main>
     );
   }
 
   return (
-    <main className="w-full min-h-screen flex flex-col py-8 px-6 max-w-7xl mx-auto gap-14 md:gap-24">
-      <header className="flex flex-col gap-6 border-b-2 border-primary pb-8">
-        <h1 className="font-hero text-[48px] md:text-[64px] leading-none uppercase tracking-widest text-primary">
+    <main className="">
+      <header className="">
+        <h1 className="">
           Profile
         </h1>
-        <p className="font-body text-body text-text-secondary max-w-2xl">
+        <p className="">
           These are your <em>account-level</em> details. Your name and contact info on existing registrations are separate and must be edited from each event pass.
         </p>
       </header>
 
       {redirectMessage && (
         <div
-          className="p-4 border-2 border-primary font-body text-small text-primary bg-bg-elevated flex items-start gap-3 max-w-2xl"
+          className=""
         >
-          <span className="shrink-0 font-bold font-micro">IMPORTANT:</span>
+          <span className="">IMPORTANT:</span>
           <span>{redirectMessage}</span>
         </div>
       )}
 
 
-      <div className="flex flex-col md:flex-row gap-12 md:gap-24 max-w-3xl">
-        <form onSubmit={handleSave} className="flex flex-col gap-8 flex-1">
-          <div className="flex flex-col gap-6">
+      <div className="">
+        <form onSubmit={handleSave} className="">
+          <div className="">
             {[
               { label: 'Full Name', value: name, setter: setName, type: 'text', placeholder: 'Your full name' },
               { label: 'Email', value: email, setter: setEmail, type: 'email', placeholder: 'your@email.com' },
               { label: 'Phone', value: phone, setter: setPhone, type: 'tel', placeholder: '+91 9876543210' },
               { label: 'College', value: college, setter: setCollege, type: 'text', placeholder: 'e.g. IIT Bombay' },
             ].map(({ label, value, setter, type, placeholder }) => (
-              <div key={label} className="flex flex-col gap-2">
-                <label className="font-micro text-micro text-text-muted uppercase tracking-widest">{label}</label>
+              <div key={label} className="">
+                <label className="">{label}</label>
                 <input
                   type={type}
                   value={value}
                   onChange={(e) => setter(e.target.value)}
                   placeholder={placeholder}
-                  className="bg-transparent border-b-2 border-border-strong text-primary font-heading text-heading py-2 focus:outline-none focus:border-primary transition-all"
+                  className=""
                 />
               </div>
             ))}
           </div>
 
           {error && (
-            <p className="font-body text-small text-text-secondary border border-dashed border-border-default px-4 py-3">
+            <p className="">
               {error}
             </p>
           )}
@@ -134,26 +134,26 @@ export function ProfilePage() {
           <button
             type="submit"
             disabled={saving}
-            className="w-full md:w-auto bg-primary text-bg-base font-button text-button uppercase py-4 px-8 hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
+            className=""
           >
-            {saving && <Loader2 size={14} className="animate-spin" />}
+            {saving && <Loader2 size={14} className="" />}
             {saved ? '✓ Saved' : <><Save size={14} /> Save Changes</>}
           </button>
         </form>
 
         {/* Account meta */}
-        <div className="flex flex-col gap-8 min-w-[200px]">
-          <div className="flex flex-col gap-2">
-            <span className="font-micro text-micro text-text-muted uppercase tracking-widest">Auth Method</span>
-            <span className="font-heading text-heading text-primary uppercase">{profile?.authMethod ?? 'google'}</span>
+        <div className="">
+          <div className="">
+            <span className="">Auth Method</span>
+            <span className="">{profile?.authMethod ?? 'google'}</span>
           </div>
-          <div className="flex flex-col gap-2">
-            <span className="font-micro text-micro text-text-muted uppercase tracking-widest">Account ID</span>
-            <span className="font-body text-small text-text-muted font-mono break-all">{user?.uid?.slice(0, 16)}…</span>
+          <div className="">
+            <span className="">Account ID</span>
+            <span className="">{user?.uid?.slice(0, 16)}…</span>
           </div>
           <button
             onClick={handleLogout}
-            className="font-button text-button text-text-secondary border border-dashed border-border-default px-6 py-3 hover:border-primary hover:text-primary transition-colors uppercase tracking-wide w-max"
+            className=""
           >
             Sign Out
           </button>

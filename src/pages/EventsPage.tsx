@@ -61,78 +61,78 @@ export function EventsPage() {
   };
 
   return (
-    <div className="flex flex-col gap-8 px-4 py-16 bg-opacity-50 w-full min-h-screen max-w-lg mx-auto" style={{ background: `linear-gradient(to bottom, transparent, rgba(244, 163, 0, 0.15))` }}>
-      <div className="text-center">
-        <h2 className="font-hero text-3xl" style={{ color: VERMILION, textShadow: `1px 1px 0 ${INK}` }}>
+    <div className="" style={{ background: `linear-gradient(to bottom, transparent, rgba(244, 163, 0, 0.15))` }}>
+      <div className="">
+        <h2 className="" style={{ color: VERMILION, textShadow: `1px 1px 0 ${INK}` }}>
           Mela Arena
         </h2>
-        <p className="text-sm font-bold uppercase tracking-widest font-body" style={{ color: TEAL }}>
+        <p className="" style={{ color: TEAL }}>
           Choose your stall
         </p>
       </div>
 
-      <div className="flex flex-col gap-10 mt-6">
+      <div className="">
         {ARCH_CARDS_DATA.map((ev) => (
-          <div key={ev.id} className="relative border-4 bg-white pt-6" style={{ borderColor: INK, boxShadow: hoardingShadow }}>
+          <div key={ev.id} className="" style={{ borderColor: INK, boxShadow: hoardingShadow }}>
             {/* Striped Card Awning */}
-            <div className="absolute -top-3.5 left-0 right-0 flex h-3.5" style={{ borderTop: `2.5px solid ${INK}` }}>
+            <div className="" style={{ borderTop: `2.5px solid ${INK}` }}>
               {Array.from({ length: 24 }).map((_, i) => (
-                <div key={i} className="flex-1 border-r-2 border-b-2 rounded-b-sm" style={{ backgroundColor: i % 2 === 0 ? ev.color : '#fff', borderColor: INK }} />
+                <div key={i} className="" style={{ backgroundColor: i % 2 === 0 ? ev.color : '#fff', borderColor: INK }} />
               ))}
             </div>
             
             <button 
               type="button" 
-              className="flex w-full items-start justify-between text-left p-4" 
+              className="" 
               onClick={() => {
                 playSynthSound('click');
                 setOpenId(openId === ev.id ? null : ev.id);
               }}
             >
-              <div className="flex gap-3 items-center">
+              <div className="">
                 <span
-                  className="font-hero flex size-10 shrink-0 items-center justify-center text-lg border-2"
+                  className=""
                   style={{ background: ev.color, color: INK, borderColor: INK, boxShadow: softHoardingShadow }}
                 >
                   {ev.index}
                 </span>
                 <div>
-                  <h3 className="font-hero text-xl" style={{ color: INK }}>
+                  <h3 className="" style={{ color: INK }}>
                     {ev.name}
                   </h3>
-                  <p className="text-xs font-bold uppercase font-body" style={{ color: TEAL }}>
+                  <p className="" style={{ color: TEAL }}>
                     {ev.tag}
                   </p>
                 </div>
               </div>
-              <div className="shrink-0 text-right text-xs font-bold font-body" style={{ color: VERMILION }}>
-                <div className="opacity-80">{ev.format}</div>
-                <div className="text-sm">{ev.fee}</div>
+              <div className="" style={{ color: VERMILION }}>
+                <div className="">{ev.format}</div>
+                <div className="">{ev.fee}</div>
               </div>
             </button>
 
             {openId === ev.id && (
-              <div className="px-4 pb-4 space-y-2 text-sm border-t-2 pt-3 font-body" style={{ borderColor: `${INK}33`, color: INK }}>
-                <p className="font-bold text-base mb-3">Compete and conquer this track to win massive rewards!</p>
-                <ul className="list-disc space-y-1 pl-4 mb-3">
+              <div className="" style={{ borderColor: `${INK}33`, color: INK }}>
+                <p className="">Compete and conquer this track to win massive rewards!</p>
+                <ul className="">
                   {getEventRules(ev.name).map((r) => (
                     <li key={r}>{r}</li>
                   ))}
                 </ul>
-                <ul className="space-y-1 p-3 border-2 bg-yellow-50" style={{ borderColor: INK, borderStyle: 'dashed' }}>
-                  <li className="font-bold"><span style={{ color: VERMILION }}>1st Place:</span> Trophy + Special Merch</li>
-                  <li className="font-bold"><span style={{ color: VERMILION }}>2nd Place:</span> Custom Goodies</li>
+                <ul className="" style={{ borderColor: INK, borderStyle: 'dashed' }}>
+                  <li className=""><span style={{ color: VERMILION }}>1st Place:</span> Trophy + Special Merch</li>
+                  <li className=""><span style={{ color: VERMILION }}>2nd Place:</span> Custom Goodies</li>
                 </ul>
               </div>
             )}
 
-            <div className="px-4 pb-4 mt-2">
+            <div className="">
               <button 
                 onClick={() => {
                   playSynthSound('laser');
                   navigate('/register', { state: { selectedEventId: ev.id } });
                 }}
-                className="font-hero w-full py-3 text-sm border-2 uppercase tracking-widest hover:translate-x-0.5 hover:translate-y-0.5 transition-transform" 
+                className="" 
                 style={{
                   borderColor: INK,
                   background: MUSTARD,

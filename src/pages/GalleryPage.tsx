@@ -130,11 +130,11 @@ export function GalleryPage() {
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-6 py-12 flex flex-col gap-10">
+    <div className="">
       {/* Header */}
-      <div className="flex flex-col gap-3 text-center items-center">
+      <div className="">
         <span
-          className="comic-badge"
+          className=""
           style={{
             fontFamily: 'Space Grotesk, sans-serif',
             fontSize: '12px',
@@ -178,14 +178,14 @@ export function GalleryPage() {
 
       {/* Main Slideshow Container */}
       <div
-        className="relative w-full comic-shadow overflow-hidden flex flex-col bg-black/60"
+        className=""
         style={{
           border: '3px solid var(--border-color)',
           background: 'var(--panel-bg)',
         }}
       >
         {/* Slideshow Display Area */}
-        <div className="relative w-full aspect-[16/9] max-h-[650px] overflow-hidden bg-black flex items-center justify-center">
+        <div className="">
           <AnimatePresence initial={false} custom={direction} mode="wait">
             <motion.img
               key={currentItem.id}
@@ -197,7 +197,7 @@ export function GalleryPage() {
               animate="center"
               exit="exit"
               transition={{ duration: 0.75, ease: [0.25, 1, 0.5, 1] }}
-              className="w-full h-full object-contain select-none"
+              className=""
             />
           </AnimatePresence>
 
@@ -205,7 +205,7 @@ export function GalleryPage() {
           {items.length > 1 && (
             <button
               onClick={handlePrev}
-              className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-black/60 hover:bg-black text-white border-2 border-white/40 hover:border-white rounded-full transition-all z-20"
+              className=""
               aria-label="Previous Slide"
             >
               <ChevronLeft size={24} />
@@ -216,7 +216,7 @@ export function GalleryPage() {
           {items.length > 1 && (
             <button
               onClick={handleNext}
-              className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-black/60 hover:bg-black text-white border-2 border-white/40 hover:border-white rounded-full transition-all z-20"
+              className=""
               aria-label="Next Slide"
             >
               <ChevronRight size={24} />
@@ -224,7 +224,7 @@ export function GalleryPage() {
           )}
 
           {/* Top Controls Overlay */}
-          <div className="absolute top-4 right-4 flex items-center gap-3 z-20">
+          <div className="">
             {/* AutoPlay Toggle */}
             {items.length > 1 && (
               <button
@@ -232,7 +232,7 @@ export function GalleryPage() {
                   playSynthSound('click');
                   setIsPlaying((prev) => !prev);
                 }}
-                className="px-3 py-1.5 bg-black/70 hover:bg-black border border-white/40 text-white font-button text-micro uppercase tracking-wider flex items-center gap-1.5 transition-all"
+                className=""
               >
                 {isPlaying ? <Pause size={13} /> : <Play size={13} />}
                 {isPlaying ? 'Pause' : 'Autoplay'}
@@ -245,7 +245,7 @@ export function GalleryPage() {
                 playSynthSound('click');
                 setIsFullscreen(true);
               }}
-              className="p-1.5 bg-black/70 hover:bg-black border border-white/40 text-white transition-all"
+              className=""
               title="Fullscreen View"
             >
               <Maximize2 size={16} />
@@ -253,14 +253,14 @@ export function GalleryPage() {
           </div>
 
           {/* Counter Badge */}
-          <div className="absolute top-4 left-4 bg-black/70 border border-white/30 text-white px-3 py-1 font-mono text-micro tracking-widest z-20">
+          <div className="">
             0{currentIndex + 1} / 0{items.length}
           </div>
         </div>
 
         {/* Slide Caption & Controls Bar */}
-        <div className="p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-t-2 border-border-color">
-          <div className="flex flex-col gap-1">
+        <div className="">
+          <div className="">
             <h3
               style={{
                 fontFamily: "'Press Start 2P', monospace",
@@ -286,7 +286,7 @@ export function GalleryPage() {
           </div>
 
           {/* Dot Indicators */}
-          <div className="flex items-center gap-2 self-center md:self-auto">
+          <div className="">
             {items.map((_, idx) => (
               <button
                 key={idx}
@@ -308,7 +308,7 @@ export function GalleryPage() {
       </div>
 
       {/* Thumbnails Row */}
-      <div className="flex flex-col gap-4 mt-2">
+      <div className="">
         <h4
           style={{
             fontFamily: "'Press Start 2P', monospace",
@@ -321,7 +321,7 @@ export function GalleryPage() {
           // ALL PHOTOS ({items.length})
         </h4>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div className="">
           {items.map((item, idx) => {
             const isSelected = idx === currentIndex;
             return (
@@ -337,14 +337,14 @@ export function GalleryPage() {
                 }`}
                 style={{ background: 'var(--panel-bg)' }}
               >
-                <div className="aspect-[16/10] overflow-hidden bg-black">
+                <div className="">
                   <img
                     src={item.imageUrl}
                     alt={item.title}
-                    className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                    className=""
                   />
                 </div>
-                <div className="p-3">
+                <div className="">
                   <span
                     style={{
                       fontFamily: "'Press Start 2P', monospace",
@@ -371,12 +371,12 @@ export function GalleryPage() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4 }}
-            className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/98 backdrop-blur-xl"
+            className=""
             onClick={() => setIsFullscreen(false)}
           >
             <button
               onClick={() => setIsFullscreen(false)}
-              className="absolute top-6 right-6 p-3 text-white border-2 border-white/40 hover:border-white hover:bg-white/10 rounded-full transition-all z-[100000]"
+              className=""
               aria-label="Close Fullscreen View"
             >
               <X size={24} />
@@ -388,7 +388,7 @@ export function GalleryPage() {
                   e.stopPropagation();
                   handlePrev();
                 }}
-                className="absolute left-6 top-1/2 -translate-y-1/2 p-3 text-white border-2 border-white/40 hover:border-white hover:bg-white/10 rounded-full transition-all z-[100000]"
+                className=""
                 aria-label="Previous Photo"
               >
                 <ChevronLeft size={28} />
@@ -401,14 +401,14 @@ export function GalleryPage() {
                   e.stopPropagation();
                   handleNext();
                 }}
-                className="absolute right-6 top-1/2 -translate-y-1/2 p-3 text-white border-2 border-white/40 hover:border-white hover:bg-white/10 rounded-full transition-all z-[100000]"
+                className=""
                 aria-label="Next Photo"
               >
                 <ChevronRight size={28} />
               </button>
             )}
 
-            <div className="max-w-6xl max-h-[92vh] flex flex-col items-center gap-4" onClick={(e) => e.stopPropagation()}>
+            <div className="" onClick={(e) => e.stopPropagation()}>
               <AnimatePresence mode="wait" custom={direction}>
                 <motion.img
                   key={currentItem.id}
@@ -419,10 +419,10 @@ export function GalleryPage() {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 1.03 }}
                   transition={{ duration: 0.75, ease: [0.25, 1, 0.5, 1] }}
-                  className="max-h-[82vh] w-auto object-contain border-2 border-white/20 select-none shadow-2xl rounded-sm"
+                  className=""
                 />
               </AnimatePresence>
-              <span className="font-hero text-xl text-white uppercase tracking-wider text-center px-4">{currentItem.title}</span>
+              <span className="">{currentItem.title}</span>
             </div>
           </motion.div>
         )}

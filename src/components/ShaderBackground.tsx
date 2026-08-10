@@ -194,7 +194,7 @@ void main() {
   }, []);
 
   return (
-    <div className="fixed inset-0 w-full h-full z-0 pointer-events-none" style={{ display: 'block' }}>
+    <div className="" style={{ display: 'block' }}>
       <canvas ref={canvasRef} style={{ display: 'block', width: '100%', height: '100%' }} />
     </div>
   );

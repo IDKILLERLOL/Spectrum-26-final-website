@@ -202,48 +202,48 @@ export function AdminCreateRegistrationPage() {
 
   if (loadingEvents) {
     return (
-      <main className="flex flex-col gap-8 py-8 px-6 max-w-3xl mx-auto w-full min-h-screen justify-center items-center">
-        <Loader2 className="animate-spin text-primary" size={32} />
-        <p className="font-body text-body text-text-secondary uppercase tracking-wider">Loading events...</p>
+      <main className="">
+        <Loader2 className="" size={32} />
+        <p className="">Loading events...</p>
       </main>
     );
   }
 
   return (
-    <main className="flex flex-col gap-8 py-8 px-6 max-w-4xl mx-auto w-full">
+    <main className="">
       {/* Back button & Header */}
-      <div className="flex flex-col gap-4 border-b-2 border-primary pb-6">
+      <div className="">
         <Link
           to="/supercore/registrations"
-          className="flex items-center gap-2 font-button text-small text-text-secondary hover:text-primary transition-colors uppercase"
+          className=""
         >
           <ArrowLeft size={14} /> Back to registrations
         </Link>
-        <h1 className="font-hero text-[40px] leading-none uppercase tracking-widest text-primary">
+        <h1 className="">
           Add Registration
         </h1>
-        <p className="font-micro text-micro text-text-muted uppercase">
+        <p className="">
           Manually register a team or individual for any event.
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+      <form onSubmit={handleSubmit} className="">
         {/* Event Selection */}
-        <div className="bg-bg-card border border-border-default p-8 flex flex-col gap-6 shadow-xl">
-          <h2 className="font-heading text-card-title text-primary uppercase border-b border-border-subtle pb-2">
+        <div className="">
+          <h2 className="">
             Select Event
           </h2>
-          <div className="flex flex-col gap-2">
-            <label className="text-micro font-body uppercase tracking-widest text-text-muted">
+          <div className="">
+            <label className="">
               Choose Event *
             </label>
             <select
               value={selectedEventId}
               onChange={(e) => setSelectedEventId(e.target.value)}
-              className="bg-bg-base border border-border-strong text-primary font-body text-body py-2.5 px-3 focus:outline-none focus:border-primary"
+              className=""
             >
               {events.map((e) => (
-                <option key={e.id} value={e.id} className="bg-bg-card">
+                <option key={e.id} value={e.id} className="">
                   [{categoryLabel(e.category)}] {e.name}
                 </option>
               ))}
@@ -251,8 +251,8 @@ export function AdminCreateRegistrationPage() {
           </div>
 
           {selectedEvent && (
-            <div className="bg-bg-base/40 border border-dashed border-border-default p-4 flex flex-col gap-2">
-              <div className="flex flex-wrap gap-4 text-small font-body text-text-secondary">
+            <div className="">
+              <div className="">
                 <span>
                   <strong>Category:</strong> {categoryLabel(selectedEvent.category)}
                 </span>
@@ -263,7 +263,7 @@ export function AdminCreateRegistrationPage() {
                   <strong>Current Teams:</strong> {selectedEvent.currentTeamCount} {selectedEvent.maxTeams ? `/ ${selectedEvent.maxTeams}` : ''}
                 </span>
               </div>
-              <p className="text-small font-body text-text-muted line-clamp-2 mt-1">
+              <p className="">
                 {selectedEvent.description}
               </p>
             </div>
@@ -271,13 +271,13 @@ export function AdminCreateRegistrationPage() {
         </div>
 
         {/* Leader Details */}
-        <div className="bg-bg-card border border-border-default p-8 flex flex-col gap-6 shadow-xl">
-          <h2 className="font-heading text-card-title text-primary uppercase border-b border-border-subtle pb-2">
+        <div className="">
+          <h2 className="">
             Leader / Registrant Details
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="flex flex-col gap-1">
-              <label className="text-micro font-body uppercase tracking-widest text-text-muted">
+          <div className="">
+            <div className="">
+              <label className="">
                 Full Name *
               </label>
               <input
@@ -286,11 +286,11 @@ export function AdminCreateRegistrationPage() {
                 onChange={(e) => setLeaderName(e.target.value)}
                 placeholder="Full Name"
                 required
-                className="bg-transparent border-b border-border-strong text-primary font-body text-body py-1.5 focus:outline-none focus:border-primary placeholder:text-text-muted/50"
+                className=""
               />
             </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-micro font-body uppercase tracking-widest text-text-muted">
+            <div className="">
+              <label className="">
                 Email Address *
               </label>
               <input
@@ -299,11 +299,11 @@ export function AdminCreateRegistrationPage() {
                 onChange={(e) => setLeaderEmail(e.target.value)}
                 placeholder="leader@example.com"
                 required
-                className="bg-transparent border-b border-border-strong text-primary font-body text-body py-1.5 focus:outline-none focus:border-primary placeholder:text-text-muted/50"
+                className=""
               />
             </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-micro font-body uppercase tracking-widest text-text-muted">
+            <div className="">
+              <label className="">
                 Phone Number *
               </label>
               <input
@@ -312,11 +312,11 @@ export function AdminCreateRegistrationPage() {
                 onChange={(e) => setLeaderPhone(e.target.value)}
                 placeholder="+91 XXXXX XXXXX"
                 required
-                className="bg-transparent border-b border-border-strong text-primary font-body text-body py-1.5 focus:outline-none focus:border-primary placeholder:text-text-muted/50"
+                className=""
               />
             </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-micro font-body uppercase tracking-widest text-text-muted">
+            <div className="">
+              <label className="">
                 College Name
               </label>
               <input
@@ -324,7 +324,7 @@ export function AdminCreateRegistrationPage() {
                 value={leaderCollege}
                 onChange={(e) => setLeaderCollege(e.target.value)}
                 placeholder="e.g. MIT College"
-                className="bg-transparent border-b-2 border-border-strong text-primary font-body text-body py-1.5 focus:outline-none focus:border-primary placeholder:text-text-muted/50"
+                className=""
               />
             </div>
           </div>
@@ -332,12 +332,12 @@ export function AdminCreateRegistrationPage() {
 
         {/* Team Identification (For Team Events) */}
         {selectedEvent?.isTeamEvent && (
-          <div className="bg-bg-card border border-border-default p-8 flex flex-col gap-6 shadow-xl">
-            <h2 className="font-heading text-card-title text-primary uppercase border-b border-border-subtle pb-2">
+          <div className="">
+            <h2 className="">
               Team Identification
             </h2>
-            <div className="flex flex-col gap-2">
-              <label className="text-micro font-body uppercase tracking-widest text-text-muted">
+            <div className="">
+              <label className="">
                 Team Name *
               </label>
               <input
@@ -346,7 +346,7 @@ export function AdminCreateRegistrationPage() {
                 onChange={(e) => setTeamName(e.target.value)}
                 placeholder="Enter your team name"
                 required
-                className="bg-transparent border-b border-border-strong text-primary font-body text-body py-1.5 focus:outline-none focus:border-primary placeholder:text-text-muted/50"
+                className=""
               />
             </div>
           </div>
@@ -354,16 +354,16 @@ export function AdminCreateRegistrationPage() {
 
         {/* Team Members Section (For Team Events) */}
         {selectedEvent?.isTeamEvent && (
-          <div className="bg-bg-card border border-border-default p-8 flex flex-col gap-6 shadow-xl">
-            <div className="flex items-center justify-between border-b border-border-subtle pb-2">
-              <h2 className="font-heading text-card-title text-primary uppercase">
+          <div className="">
+            <div className="">
+              <h2 className="">
                 Teammate Details
               </h2>
               {members.length + 1 < selectedEvent.maxMembers && (
                 <button
                   type="button"
                   onClick={handleAddMember}
-                  className="flex items-center gap-1 font-button text-small text-primary border border-primary px-3 py-1.5 hover:bg-primary hover:text-bg-base transition-colors uppercase"
+                  className=""
                 >
                   <Plus size={12} /> Add Teammate
                 </button>
@@ -371,27 +371,27 @@ export function AdminCreateRegistrationPage() {
             </div>
 
             {members.length === 0 ? (
-              <p className="font-body text-body text-text-muted">No additional teammates added yet.</p>
+              <p className="">No additional teammates added yet.</p>
             ) : (
-              <div className="flex flex-col gap-8">
+              <div className="">
                 {members.map((member, index) => (
-                  <div key={index} className="flex flex-col gap-4 p-4 border border-border-subtle bg-bg-base/20 relative">
-                    <div className="flex items-center justify-between">
-                      <span className="font-micro text-micro text-primary uppercase tracking-widest">
+                  <div key={index} className="">
+                    <div className="">
+                      <span className="">
                         Teammate #{index + 1}
                       </span>
                       <button
                         type="button"
                         onClick={() => handleRemoveMember(index)}
-                        className="text-red-500 hover:text-red-400 flex items-center gap-1 font-button text-micro uppercase transition-colors"
+                        className=""
                       >
                         <Trash2 size={12} /> Remove
                       </button>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="flex flex-col gap-1">
-                        <label className="text-micro font-body uppercase tracking-widest text-text-muted">
+                    <div className="">
+                      <div className="">
+                        <label className="">
                           Name *
                         </label>
                         <input
@@ -400,11 +400,11 @@ export function AdminCreateRegistrationPage() {
                           onChange={(e) => handleMemberChange(index, 'name', e.target.value)}
                           placeholder="Full Name"
                           required
-                          className="bg-transparent border-b border-border-strong text-primary font-body text-body py-1 focus:outline-none focus:border-primary placeholder:text-text-muted/50"
+                          className=""
                         />
                       </div>
-                      <div className="flex flex-col gap-1">
-                        <label className="text-micro font-body uppercase tracking-widest text-text-muted">
+                      <div className="">
+                        <label className="">
                           Email *
                         </label>
                         <input
@@ -413,11 +413,11 @@ export function AdminCreateRegistrationPage() {
                           onChange={(e) => handleMemberChange(index, 'email', e.target.value)}
                           placeholder="teammate@example.com"
                           required
-                          className="bg-transparent border-b border-border-strong text-primary font-body text-body py-1 focus:outline-none focus:border-primary placeholder:text-text-muted/50"
+                          className=""
                         />
                       </div>
-                      <div className="flex flex-col gap-1">
-                        <label className="text-micro font-body uppercase tracking-widest text-text-muted">
+                      <div className="">
+                        <label className="">
                           Phone
                         </label>
                         <input
@@ -425,11 +425,11 @@ export function AdminCreateRegistrationPage() {
                           value={member.phone}
                           onChange={(e) => handleMemberChange(index, 'phone', e.target.value)}
                           placeholder="+91 XXXXX XXXXX"
-                          className="bg-transparent border-b border-border-strong text-primary font-body text-body py-1 focus:outline-none focus:border-primary placeholder:text-text-muted/50"
+                          className=""
                         />
                       </div>
-                      <div className="flex flex-col gap-1">
-                        <label className="text-micro font-body uppercase tracking-widest text-text-muted">
+                      <div className="">
+                        <label className="">
                           College Name
                         </label>
                         <input
@@ -437,7 +437,7 @@ export function AdminCreateRegistrationPage() {
                           value={member.college}
                           onChange={(e) => handleMemberChange(index, 'college', e.target.value)}
                           placeholder={leaderCollege || 'e.g. MIT College'}
-                          className="bg-transparent border-b border-border-strong text-primary font-body text-body py-1 focus:outline-none focus:border-primary placeholder:text-text-muted/50"
+                          className=""
                         />
                       </div>
                     </div>
@@ -450,13 +450,13 @@ export function AdminCreateRegistrationPage() {
 
         {/* Error / Success Alerts */}
         {error && (
-          <div className="p-4 border-2 border-dashed border-red-500 bg-red-500/10 text-red-500 font-body text-body text-center">
+          <div className="">
             {error}
           </div>
         )}
 
         {success && (
-          <div className="p-4 border-2 border-dashed border-primary bg-primary/10 text-primary font-body text-body text-center flex items-center justify-center gap-2">
+          <div className="">
             <CheckCircle2 size={16} />
             {success}
           </div>
@@ -466,7 +466,7 @@ export function AdminCreateRegistrationPage() {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full flex items-center justify-center gap-3 py-4 font-button text-button uppercase tracking-wider transition-all duration-150 hover:bg-opacity-90 disabled:opacity-50"
+          className=""
           style={{
             background: 'var(--color-primary)',
             color: 'var(--color-bg-base)',
@@ -474,7 +474,7 @@ export function AdminCreateRegistrationPage() {
           }}
         >
           {submitting ? (
-            <Loader2 size={16} className="animate-spin" />
+            <Loader2 size={16} className="" />
           ) : (
             'Create Registration'
           )}

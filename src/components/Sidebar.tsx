@@ -44,16 +44,16 @@ export function Sidebar() {
     <>
       {/* Desktop sidebar */}
       <aside
-        className="hidden lg:flex flex-col w-64 border-r border-border-default shrink-0 min-h-screen"
+        className=""
         style={{ background: 'var(--color-bg-elevated)' }}
       >
         {/* Branding */}
-        <div className="p-6 border-b border-border-default flex flex-col gap-1">
-          <span className="font-hero tracking-widest text-lg uppercase text-primary">SPECTRUM 26</span>
-          <span className="font-micro text-[10px] text-text-muted uppercase tracking-wider">Admin Console</span>
+        <div className="">
+          <span className="">SPECTRUM 26</span>
+          <span className="">Admin Console</span>
           {adminEmail && (
             <span
-              className="font-body text-small text-text-secondary mt-2 truncate max-w-[200px]"
+              className=""
               title={adminEmail}
             >
               {adminEmail}
@@ -62,12 +62,12 @@ export function Sidebar() {
         </div>
 
         {/* Nav */}
-        <nav className="flex flex-col flex-1 p-4 gap-1 overflow-y-auto">
+        <nav className="">
           {NAV_ITEMS.map(({ to, label, Icon }) => (
             <Link
               key={to}
               to={to}
-              className="flex items-center gap-3 px-4 py-3 font-heading text-heading uppercase tracking-wider transition-colors"
+              className=""
               style={{
                 color: isActive(to) ? 'var(--color-text-primary)' : 'var(--color-text-muted)',
                 background: isActive(to) ? 'var(--color-bg-card)' : 'transparent',
@@ -81,17 +81,17 @@ export function Sidebar() {
         </nav>
 
         {/* Theme and Logout controls */}
-        <div className="p-4 border-t border-border-default flex flex-col gap-2">
+        <div className="">
           <button
             onClick={handleReload}
-            className="flex items-center gap-3 px-4 py-2 w-full font-heading text-heading uppercase tracking-wide text-text-secondary hover:text-primary transition-colors"
+            className=""
           >
             <RotateCw size={17} />
             Reload Data
           </button>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 px-4 py-2 w-full font-heading text-heading uppercase tracking-wide text-text-secondary hover:text-primary transition-colors"
+            className=""
           >
             <LogOut size={17} /> Sign Out
           </button>
@@ -100,14 +100,14 @@ export function Sidebar() {
  
       {/* Mobile: top tab bar */}
       <div
-        className="lg:hidden flex border-b border-border-default overflow-x-auto fixed top-0 left-0 right-0 z-50"
+        className=""
         style={{ background: 'var(--color-bg-elevated)' }}
       >
         {NAV_ITEMS.map(({ to, label, Icon }) => (
           <Link
             key={to}
             to={to}
-            className="flex flex-col items-center gap-1 px-4 py-3 shrink-0 font-micro text-micro uppercase tracking-widest transition-all"
+            className=""
             style={{
               color: isActive(to) ? 'var(--color-text-primary)' : 'var(--color-text-muted)',
               borderBottom: isActive(to) ? '2px solid var(--color-text-primary)' : '2px solid transparent',
@@ -119,21 +119,21 @@ export function Sidebar() {
         ))}
         <button
           onClick={handleReload}
-          className="flex flex-col items-center gap-1 px-4 py-3 shrink-0 font-micro text-micro uppercase tracking-widest text-text-muted hover:text-primary transition-colors ml-auto"
+          className=""
         >
           <RotateCw size={16} />
           Reload
         </button>
         <button
           onClick={handleLogout}
-          className="flex flex-col items-center gap-1 px-4 py-3 shrink-0 font-micro text-micro uppercase tracking-widest text-text-muted hover:text-primary transition-colors"
+          className=""
         >
           <LogOut size={16} /> Out
         </button>
       </div>
  
       {/* Mobile: spacer to push content below fixed tab bar */}
-      <div className="lg:hidden h-[62px]" />
+      <div className="" />
     </>
   );
 }

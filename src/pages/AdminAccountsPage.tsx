@@ -124,10 +124,10 @@ export function AdminAccountsPage() {
 
   if (loading) {
     return (
-      <main className="w-full min-h-screen flex items-center justify-center bg-bg-base px-6">
-        <div className="flex flex-col items-center gap-3">
-          <Loader2 size={36} className="animate-spin text-primary" />
-          <span className="font-heading text-heading text-text-secondary uppercase tracking-widest">
+      <main className="">
+        <div className="">
+          <Loader2 size={36} className="" />
+          <span className="">
             Loading accounts...
           </span>
         </div>
@@ -136,45 +136,45 @@ export function AdminAccountsPage() {
   }
 
   return (
-    <main className="flex flex-col gap-8 py-8 px-6 max-w-7xl mx-auto w-full">
+    <main className="">
       {/* Header */}
-      <div className="flex flex-wrap items-end justify-between gap-4 border-b-2 border-primary pb-6">
-        <div className="flex flex-col gap-2">
-          <h1 className="font-hero text-[40px] leading-none uppercase tracking-widest text-primary">
+      <div className="">
+        <div className="">
+          <h1 className="">
             Accounts
           </h1>
-          <p className="font-body text-small text-text-secondary max-w-lg">
+          <p className="">
             Manage all registered and unregistered participant accounts.
           </p>
         </div>
-        <div className="flex items-center gap-2 text-heading font-heading bg-bg-card border border-border-default px-4 py-2 text-text-secondary uppercase text-[12px] tracking-wider">
-          <UserMinus size={14} className="text-primary" />
+        <div className="">
+          <UserMinus size={14} className="" />
           <span>{filteredList.length} of {users.length} Accounts Shown</span>
         </div>
       </div>
 
       {/* Search & Filters */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
-        <div className="flex flex-col gap-1.5">
-          <label className="font-micro text-micro text-text-muted uppercase">Search</label>
-          <div className="flex items-center gap-3 border border-border-default px-4 py-2 bg-bg-card">
-            <Search size={16} className="text-text-muted shrink-0" />
+      <div className="">
+        <div className="">
+          <label className="">Search</label>
+          <div className="">
+            <Search size={16} className="" />
             <input
               type="text"
               value={filterText}
               onChange={(e) => setFilterText(e.target.value)}
               placeholder="Name, email, college..."
-              className="bg-transparent text-primary font-body text-body focus:outline-none flex-1 placeholder:text-text-muted text-small"
+              className=""
             />
           </div>
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <label className="font-micro text-micro text-text-muted uppercase">Filter by status</label>
+        <div className="">
+          <label className="">Filter by status</label>
           <select
             value={selectedRegStatus}
             onChange={(e) => setSelectedRegStatus(e.target.value)}
-            className="bg-bg-card border border-border-default px-4 py-2 text-primary font-body text-small focus:outline-none focus:border-primary w-full"
+            className=""
           >
             <option value="all">All Accounts</option>
             <option value="registered">Registered Only</option>
@@ -182,12 +182,12 @@ export function AdminAccountsPage() {
           </select>
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <label className="font-micro text-micro text-text-muted uppercase">Sort by</label>
+        <div className="">
+          <label className="">Sort by</label>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="bg-bg-card border border-border-default px-4 py-2 text-primary font-body text-small focus:outline-none focus:border-primary w-full"
+            className=""
           >
             <option value="date-desc">Joined (Newest First)</option>
             <option value="date-asc">Joined (Oldest First)</option>
@@ -201,24 +201,24 @@ export function AdminAccountsPage() {
 
       {/* Grid List */}
       {filteredList.length === 0 ? (
-        <div className="border border-dashed border-border-default p-12 text-center">
-          <span className="font-body text-body text-text-muted italic">
+        <div className="">
+          <span className="">
             No matching accounts found.
           </span>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="">
           {filteredList.map((u) => {
             const isRegistered = !unregisteredIds.has(u.id);
             return (
               <div
                 key={u.id}
-                className="bg-bg-card border border-border-default p-6 flex flex-col gap-4 shadow-md hover:border-primary/50 transition-colors relative"
+                className=""
               >
-                <div className="flex justify-between items-start gap-2 border-b border-border-subtle/30 pb-3">
-                  <div className="flex flex-col gap-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-heading text-heading text-primary uppercase truncate">{u.name || 'Anonymous User'}</span>
+                <div className="">
+                  <div className="">
+                    <div className="">
+                      <span className="">{u.name || 'Anonymous User'}</span>
                       <span className={`font-micro text-[10px] border px-2 py-0.5 uppercase tracking-wider font-bold shrink-0 ${
                         isRegistered 
                           ? 'bg-green-500/10 text-green-400 border-green-500/20' 
@@ -227,40 +227,40 @@ export function AdminAccountsPage() {
                         {isRegistered ? 'Registered' : 'Unregistered'}
                       </span>
                     </div>
-                    <span className="font-mono text-small text-text-secondary truncate">{u.email}</span>
+                    <span className="">{u.email}</span>
                   </div>
                   <button
                     type="button"
                     onClick={() => setConfirmDeleteUser(u)}
-                    className="p-2 border border-border-default text-text-muted hover:border-red-500 hover:text-red-500 transition-colors shrink-0"
+                    className=""
                     aria-label="Delete Account"
                   >
                     <Trash2 size={16} />
                   </button>
                 </div>
 
-              <div className="flex flex-col gap-2 font-body text-small">
+              <div className="">
                 {u.phone && (
-                  <div className="flex justify-between items-center gap-2">
-                    <span className="text-text-muted">Phone:</span>
-                    <span className="text-text-primary font-mono">{u.phone}</span>
+                  <div className="">
+                    <span className="">Phone:</span>
+                    <span className="">{u.phone}</span>
                   </div>
                 )}
                 {u.college && (
-                  <div className="flex justify-between items-start gap-2">
-                    <span className="text-text-muted shrink-0">College:</span>
-                    <span className="text-text-primary text-right truncate max-w-[160px]">{u.college}</span>
+                  <div className="">
+                    <span className="">College:</span>
+                    <span className="">{u.college}</span>
                   </div>
                 )}
-                <div className="flex justify-between items-center gap-2">
-                  <span className="text-text-muted">Auth:</span>
-                  <span className="text-text-primary uppercase text-micro px-2 py-0.5 border border-border-default tracking-wide font-semibold">
+                <div className="">
+                  <span className="">Auth:</span>
+                  <span className="">
                     {u.authMethod}
                   </span>
                 </div>
-                <div className="flex justify-between items-center gap-2">
-                  <span className="text-text-muted">Joined:</span>
-                  <span className="text-text-primary text-micro">
+                <div className="">
+                  <span className="">Joined:</span>
+                  <span className="">
                     {u.createdAt.toLocaleDateString(undefined, { dateStyle: 'medium' })}
                   </span>
                 </div>
@@ -273,26 +273,26 @@ export function AdminAccountsPage() {
 
       {/* Delete User Confirmation Modal */}
       {confirmDeleteUser && (
-        <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-6 animate-fade-in">
-          <div className="bg-[#121212] border border-white/10 max-w-md w-full p-8 flex flex-col gap-6 shadow-2xl text-left rounded-none">
-            <div className="flex items-center gap-3 text-white">
-              <ShieldAlert size={28} className="text-white shrink-0" />
-              <h3 className="font-heading text-card-title uppercase tracking-wide font-bold">DELETE ACCOUNT</h3>
+        <div className="">
+          <div className="">
+            <div className="">
+              <ShieldAlert size={28} className="" />
+              <h3 className="">DELETE ACCOUNT</h3>
             </div>
             
-            <div className="h-px bg-white/10 w-full" />
+            <div className="" />
             
-            <p className="font-body text-body leading-relaxed text-white/60">
+            <p className="">
               Are you sure you want to delete user account for <strong>{confirmDeleteUser.name || confirmDeleteUser.email}</strong>? 
               This will remove their profile record from database. This action is **irreversible**.
             </p>
 
-            <div className="flex gap-4 mt-2">
+            <div className="">
               <button
                 type="button"
                 onClick={() => setConfirmDeleteUser(null)}
                 disabled={deleting}
-                className="flex-1 py-3 border border-white/20 bg-transparent text-white font-button uppercase hover:bg-white/5 active:scale-95 transition-all text-center tracking-wider text-sm font-semibold rounded-none disabled:opacity-50"
+                className=""
               >
                 Cancel
               </button>
@@ -300,9 +300,9 @@ export function AdminAccountsPage() {
                 type="button"
                 onClick={() => handleDelete(confirmDeleteUser.id)}
                 disabled={deleting}
-                className="flex-1 py-3 bg-red-600 text-white font-button uppercase hover:bg-red-700 active:scale-95 transition-all text-center font-bold tracking-wider text-sm rounded-none disabled:opacity-50 flex items-center justify-center gap-2"
+                className=""
               >
-                {deleting ? <Loader2 size={16} className="animate-spin" /> : 'Delete'}
+                {deleting ? <Loader2 size={16} className="" /> : 'Delete'}
               </button>
             </div>
           </div>
