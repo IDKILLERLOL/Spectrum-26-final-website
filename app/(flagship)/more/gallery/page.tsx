@@ -1,13 +1,13 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { galleryTiles } from "@/content/spectrum"
 import { PageHeader } from "@/components/flagship/PageHeader"
 import { PageContainer } from "@/components/flagship/PageContainer"
 import { questDisplay, questBody } from "@/components/flagship/fonts"
 import { INK, MUSTARD, VERMILION, hoardingShadow, softHoardingShadow } from "@/components/flagship/tokens"
-import { ChevronLeft, ChevronRight, Play, Pause, Maximize2, Minimize2, X } from "lucide-react"
+import { ChevronLeft, ChevronRight, Play, Pause, Maximize2, Minimize2 } from "lucide-react"
 
 export default function GalleryPage() {
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -27,29 +27,40 @@ export default function GalleryPage() {
     setCurrentIndex((prev) => (prev - 1 + galleryTiles.length) % galleryTiles.length)
   }, [])
 
-  // Auto-slide timer (works both inline and fullscreen)
+  // Keep latest handlers in refs to guarantee stable useEffect dependencies
+  const handleNextRef = useRef(handleNext)
+  const handlePrevRef = useRef(handlePrev)
+  const isFullscreenRef = useRef(isFullscreen)
+
+  useEffect(() => {
+    handleNextRef.current = handleNext
+    handlePrevRef.current = handlePrev
+    isFullscreenRef.current = isFullscreen
+  }, [handleNext, handlePrev, isFullscreen])
+
+  // Auto-slide timer (stable dependency array: [isAutoplay])
   useEffect(() => {
     if (!isAutoplay) return
     const timer = setInterval(() => {
-      handleNext()
+      handleNextRef.current()
     }, 4000)
     return () => clearInterval(timer)
-  }, [isAutoplay, handleNext])
+  }, [isAutoplay])
 
-  // Global Keyboard shortcuts
+  // Global Keyboard shortcuts (stable dependency array: [])
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight") handleNext()
-      if (e.key === "ArrowLeft") handlePrev()
+      if (e.key === "ArrowRight") handleNextRef.current()
+      if (e.key === "ArrowLeft") handlePrevRef.current()
       if (e.key === " ") {
         e.preventDefault()
         setIsAutoplay((prev) => !prev)
       }
-      if (e.key === "Escape" && isFullscreen) setIsFullscreen(false)
+      if (e.key === "Escape" && isFullscreenRef.current) setIsFullscreen(false)
     }
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [handleNext, handlePrev, isFullscreen])
+  }, [])
 
   const slideVariants = {
     enter: (dir: number) => ({
@@ -66,7 +77,7 @@ export default function GalleryPage() {
     exit: (dir: number) => ({
       x: dir < 0 ? 300 : -300,
       opacity: 0,
-      scale: 0.96,
+      scale: 0.25,
       transition: { duration: 0.25, ease: "easeIn" },
     }),
   }

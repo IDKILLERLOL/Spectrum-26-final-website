@@ -7,12 +7,13 @@ import { usePathname, useSearchParams } from "next/navigation"
 function PageviewTracker({ measurementId }: { measurementId: string }) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const searchString = searchParams?.toString() ?? ""
 
   React.useEffect(() => {
     if (typeof window.gtag !== "function") return
-    const url = searchParams?.toString() ? `${pathname}?${searchParams.toString()}` : pathname
+    const url = searchString ? `${pathname}?${searchString}` : pathname
     window.gtag("event", "page_view", { page_path: url })
-  }, [pathname, searchParams, measurementId])
+  }, [pathname, searchString, measurementId])
 
   return null
 }
