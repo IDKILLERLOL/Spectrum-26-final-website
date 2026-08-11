@@ -16,17 +16,22 @@ function getAdminApp(): App {
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL
   const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n")
 
-  if (!projectId || !clientEmail || !privateKey) {
+  if (projectId && clientEmail && privateKey) {
+    return initializeApp({
+      credential: cert({ projectId, clientEmail, privateKey }),
+    })
+  }
+
+  // Fallback to Application Default Credentials (ADC) or local setup
+  try {
+    return initializeApp()
+  } catch (err) {
     throw new Error(
       "Firebase Admin SDK is not configured. Set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and " +
-        "FIREBASE_PRIVATE_KEY in .env.local — generate a service account at Firebase Console > " +
+        "FIREBASE_PRIVATE_KEY in .env — generate a service account at Firebase Console > " +
         "Project Settings > Service Accounts > Generate new private key. See .env.example."
     )
   }
-
-  return initializeApp({
-    credential: cert({ projectId, clientEmail, privateKey }),
-  })
 }
 
 let _db: Firestore | null = null
