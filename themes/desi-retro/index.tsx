@@ -207,8 +207,8 @@ const Hero: ThemeModule["Hero"] = () => {
           {site.tagline}
         </p>
 
-        <div className="mt-5 grid grid-cols-4 gap-1 border-2 p-2 bg-yellow-50" style={{ borderColor: INK }}>
-           <p className={`${desiBody.className} col-span-4 text-[10px] font-bold uppercase tracking-widest text-center border-b-2 mb-1 pb-1`} style={{ borderColor: TEAL, color: TEAL }}>Starts In</p>
+        <div className="mt-5 grid grid-cols-4 gap-2 border-2 p-3 bg-yellow-50" style={{ borderColor: INK }}>
+           <p className={`${desiBody.className} col-span-4 text-xs font-bold uppercase tracking-widest text-center border-b-2 mb-2 pb-1`} style={{ borderColor: TEAL, color: TEAL }}>Starts In</p>
            {[
             ["Days", cd.days],
             ["Hrs", cd.hours],
@@ -216,10 +216,10 @@ const Hero: ThemeModule["Hero"] = () => {
             ["Sec", cd.seconds],
           ].map(([label, value]) => (
             <div key={label as string} className="text-center">
-              <div className={desiDisplay.className} style={{ color: VERMILION, fontSize: "1.2rem" }}>
+              <div className={desiDisplay.className} style={{ color: VERMILION, fontSize: "clamp(1.75rem, 3.2vw, 2.5rem)", lineHeight: 1.1 }}>
                 {pad2(value as number)}
               </div>
-              <div className={`${desiBody.className} text-[9px] uppercase font-bold`} style={{ color: INK }}>
+              <div className={`${desiBody.className} text-[10px] font-bold uppercase tracking-wider mt-1`} style={{ color: INK }}>
                 {label}
               </div>
             </div>

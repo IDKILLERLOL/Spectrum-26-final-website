@@ -183,7 +183,7 @@ function Hero() {
         </p>
 
         <Card className="mt-5 grid w-full grid-cols-4 gap-2 p-4 text-center lg:mt-7 lg:p-6" style={{ boxShadow: questShadowLg }}>
-          <p className={`${questBody.className} col-span-4 mb-1 text-[10px] uppercase lg:text-xs`} style={{ color: NAVY }}>
+          <p className={`${questBody.className} col-span-4 mb-2 text-xs font-bold uppercase tracking-widest lg:text-sm`} style={{ color: NAVY }}>
             The Battle Begins In
           </p>
           {[
@@ -192,11 +192,11 @@ function Hero() {
             ["Min", cd.minutes],
             ["Sec", cd.seconds],
           ].map(([label, value]) => (
-            <div key={label as string}>
-              <div className={questDisplay.className} style={{ color: NAVY, fontSize: "clamp(1rem, 1.45vw, 1.45rem)" }}>
+            <div key={label as string} className="flex flex-col items-center justify-center">
+              <div className={questDisplay.className} style={{ color: NAVY, fontSize: "clamp(1.75rem, 3.5vw, 2.75rem)", lineHeight: 1.1 }}>
                 {pad2(value as number)}
               </div>
-              <div className={`${questBody.className} text-[9px] uppercase opacity-60 lg:text-[11px]`} style={{ color: NAVY }}>
+              <div className={`${questBody.className} mt-1 text-[10px] font-bold uppercase tracking-wider lg:text-xs opacity-75`} style={{ color: NAVY }}>
                 {label}
               </div>
             </div>
