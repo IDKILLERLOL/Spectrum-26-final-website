@@ -358,17 +358,17 @@ export const previousEditions: Edition[] = [
 export interface GalleryTile {
   id: string
   caption: string
+  imageUrl: string
   gradientFrom: string
   gradientTo: string
 }
 
 export const galleryTiles: GalleryTile[] = [
-  { id: "g1", caption: "Opening Ceremony", gradientFrom: "#EC4B8C", gradientTo: "#8B6FD9" },
-  { id: "g2", caption: "Dual Debug Finals", gradientFrom: "#6FBF5B", gradientTo: "#2A9D6E" },
-  { id: "g3", caption: "BGMI Squad Up", gradientFrom: "#E8963C", gradientTo: "#C7382F" },
-  { id: "g4", caption: "FC 26 Showdown", gradientFrom: "#4FA3E3", gradientTo: "#242150" },
-  { id: "g5", caption: "Prize Distribution", gradientFrom: "#C9A227", gradientTo: "#8B6FD9" },
-  { id: "g6", caption: "Crowd & Energy", gradientFrom: "#8FD3F4", gradientTo: "#EC4B8C" },
+  { id: "g1", caption: "Opening Ceremony", imageUrl: "/gallery/g1.jpg", gradientFrom: "#EC4B8C", gradientTo: "#8B6FD9" },
+  { id: "g2", caption: "Dual Debug Finals", imageUrl: "/gallery/g2.jpg", gradientFrom: "#6FBF5B", gradientTo: "#2A9D6E" },
+  { id: "g3", caption: "BGMI Squad Up", imageUrl: "/gallery/g3.jpg", gradientFrom: "#E8963C", gradientTo: "#C7382F" },
+  { id: "g4", caption: "FC 26 Showdown", imageUrl: "/gallery/g4.jpg", gradientFrom: "#4FA3E3", gradientTo: "#242150" },
+  { id: "g5", caption: "Prize Distribution", imageUrl: "/gallery/g5.jpg", gradientFrom: "#C9A227", gradientTo: "#8B6FD9" },
 ]
 
 export interface ValueProp {

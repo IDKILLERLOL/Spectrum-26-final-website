@@ -43,7 +43,7 @@ const groups: { title: string; tiles: Tile[] }[] = [
     title: "Legacy",
     tiles: [
       { label: "Winners & Hall of Fame", href: "/more/winners", icon: Trophy },
-      { label: "Gallery & Memories", href: "/more/gallery", icon: ImageIcon },
+      { label: "Gallery", href: "/more/gallery", icon: ImageIcon },
     ],
   },
   {
