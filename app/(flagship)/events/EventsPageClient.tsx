@@ -4,6 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import type { SpectrumEvent } from "@/content/spectrum"
 import { site } from "@/content/spectrum"
+import { ArrowRight } from "lucide-react"
 import { Card } from "@/components/flagship/Card"
 import { PageHeader } from "@/components/flagship/PageHeader"
 import { PageContainer } from "@/components/flagship/PageContainer"
@@ -77,7 +78,7 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
                 </p>
               </div>
               <span className={`${questBody.className} text-[11px] underline`} style={{ color: NAVY }}>
-                Explore All →
+                Explore All <span className="inline-flex items-center"><ArrowRight size={14} /></span>
               </span>
             </Card>
           </Link>

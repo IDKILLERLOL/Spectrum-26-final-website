@@ -1,6 +1,6 @@
 "use client"
 
-import { Trophy } from "lucide-react"
+import { Trophy, ArrowRight } from "lucide-react"
 import { site } from "@/content/spectrum"
 import type { SpectrumEvent } from "@/content/spectrum"
 import { Card } from "@/components/flagship/Card"
@@ -59,7 +59,7 @@ export function PrizePoolPageClient({ events }: { events: SpectrumEvent[] }) {
             </p>
           </Card>
           <AppButton href="/events" className="w-full py-3.5 text-sm">
-            Explore All Events →
+            Explore All Events <span className="inline-flex items-center"><ArrowRight size={14} /></span>
           </AppButton>
         </div>
       </PageContainer>

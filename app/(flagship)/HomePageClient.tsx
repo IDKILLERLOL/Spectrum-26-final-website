@@ -29,7 +29,7 @@ import {
   hoardingShadow,
 } from "@/components/flagship/tokens"
 import { questDisplay, questBody } from "@/components/flagship/fonts"
-import { ChevronRight, Star } from "lucide-react"
+import { ChevronRight, Star, Megaphone } from "lucide-react"
 
 function HeroBackground() {
   const reduced = useReducedMotion()
@@ -96,10 +96,10 @@ function Marquee() {
         transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
       >
         <span className="px-4">
-          HORN PLEASE 📯 {site.date} 📯 {site.venue} 📯{" "}
+          <>HORN PLEASE <Megaphone size={12} className="inline" /> {site.date} <Megaphone size={12} className="inline" /> {site.venue} <Megaphone size={12} className="inline" />{" "}</>
         </span>
         <span className="px-4">
-          HORN PLEASE 📯 {site.date} 📯 {site.venue} 📯{" "}
+          <>HORN PLEASE <Megaphone size={12} className="inline" /> {site.date} <Megaphone size={12} className="inline" /> {site.venue} <Megaphone size={12} className="inline" />{" "}</>
         </span>
       </motion.div>
     </div>
