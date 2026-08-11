@@ -364,11 +364,11 @@ export interface GalleryTile {
 }
 
 export const galleryTiles: GalleryTile[] = [
-  { id: "g1", caption: "Opening Ceremony", imageUrl: "/gallery/g1.jpg", gradientFrom: "#EC4B8C", gradientTo: "#8B6FD9" },
-  { id: "g2", caption: "Dual Debug Finals", imageUrl: "/gallery/g2.jpg", gradientFrom: "#6FBF5B", gradientTo: "#2A9D6E" },
-  { id: "g3", caption: "BGMI Squad Up", imageUrl: "/gallery/g3.jpg", gradientFrom: "#E8963C", gradientTo: "#C7382F" },
-  { id: "g4", caption: "FC 26 Showdown", imageUrl: "/gallery/g4.jpg", gradientFrom: "#4FA3E3", gradientTo: "#242150" },
-  { id: "g5", caption: "Prize Distribution", imageUrl: "/gallery/g5.jpg", gradientFrom: "#C9A227", gradientTo: "#8B6FD9" },
+  { id: "g1", caption: "Code Clash Arena", imageUrl: "/gallery/slide1.jpg", gradientFrom: "#EC4B8C", gradientTo: "#8B6FD9" },
+  { id: "g2", caption: "Spectrum 4.0 Core Team", imageUrl: "/gallery/slide2.jpg", gradientFrom: "#6FBF5B", gradientTo: "#2A9D6E" },
+  { id: "g3", caption: "Spectrum 4.0 Wall of Color", imageUrl: "/gallery/slide3.jpg", gradientFrom: "#E8963C", gradientTo: "#C7382F" },
+  { id: "g4", caption: "Interactive Tech Challenge", imageUrl: "/gallery/slide4.jpg", gradientFrom: "#4FA3E3", gradientTo: "#242150" },
+  { id: "g5", caption: "Console & FC Showdown", imageUrl: "/gallery/slide5.jpg", gradientFrom: "#C9A227", gradientTo: "#8B6FD9" },
 ]
 
 export interface ValueProp {
