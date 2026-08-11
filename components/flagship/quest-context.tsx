@@ -4,8 +4,6 @@ import * as React from "react"
 import { useRouter } from "next/navigation"
 import type { EventId, QuestFormValues } from "@/content/spectrum"
 import { questFormDefaults } from "@/content/spectrum"
-import { auth } from "@/src/lib/auth"
-import { createRegistration } from "@/src/lib/firestore"
 
 /**
  * Multi-step registration flow for the Quest Board (register/*) pages: name/email/phone
@@ -80,45 +78,21 @@ export function QuestProvider({ children }: { children: React.ReactNode }) {
   const submit = React.useCallback(async (): Promise<SubmitResult> => {
     setSubmitting(true)
     try {
-      const leaderUid = auth.currentUser?.uid || "anonymous-" + Date.now();
-      
-      const members: any[] = [];
-      if (values.partnerName.trim()) {
-        members.push({ name: values.partnerName, email: "", phone: "" });
-      }
-      if (values.squadNames) {
-        values.squadNames.forEach((name: string) => {
-          if (name.trim()) {
-            members.push({ name, email: "", phone: "" });
-          }
-        });
-      }
+      const res = await fetch("/api/registrations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      })
+      const data = await res.json().catch(() => ({}))
 
-      await createRegistration(
-        values.eventId,
-        {
-          uid: leaderUid,
-          name: values.fullName,
-          email: values.email,
-          phone: values.phone,
-          college: values.collegeName,
-        },
-        values.email,
-        members,
-        values.teamName || `${values.fullName}'s Crew`,
-        values.paymentRefId
-      );
+      if (!res.ok) {
+        return { ok: false, error: data?.error ?? "UNKNOWN", message: data?.message }
+      }
 
       setSubmitted(true)
       return { ok: true }
-    } catch (err: any) {
-      console.error("Registration error:", err);
-      const isAlready = err.message && err.message.includes("ALREADY_REGISTERED");
-      return {
-        ok: false,
-        error: isAlready ? "DUPLICATE" : "UNKNOWN",
-        message: err.message || "Failed to submit registration. Please try again."
-      };
+    } catch {
+      return { ok: false, error: "UNKNOWN", message: "Network error. Please try again." }
     } finally {
       setSubmitting(false)
     }

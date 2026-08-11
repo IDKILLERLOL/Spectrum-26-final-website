@@ -1,0 +1,20 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+html,
+body {
+  height: 100%;
+  overscroll-behavior-y: none;
+}
+
+body {
+  margin: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Designed mobile-first at 390x844. Desktop layout/width is handled per-component
+   (Shell's DesktopNav, PageHeader, PageContainer) rather than a single global cap. */
