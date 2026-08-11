@@ -8,6 +8,12 @@ import { EventsPage } from './pages/EventsPage';
 import { SchedulePage } from './pages/SchedulePage';
 import { AdminGatePage } from './pages/AdminGatePage';
 import { RegisterPage } from './pages/RegisterPage';
+import QuestBoardPage from './pages/register/page';
+import RegisterInfoStep from './pages/register/info/page';
+import RegisterEventStep from './pages/register/event/page';
+import RegisterTeamStep from './pages/register/team/page';
+import RegisterPaymentStep from './pages/register/payment/page';
+import RegisterConfirmationPage from './pages/register/confirmation/page';
 import { AdminEventsPage } from './pages/AdminEventsPage';
 import { AdminUsersPage } from './pages/AdminUsersPage';
 import { AdminWinnersPage } from './pages/AdminWinnersPage';
@@ -33,33 +39,13 @@ import { PageCurlProvider } from './components/PageCurlTransition';
 
 import { useLocation } from 'react-router-dom';
 
-function PublicLayout() {
-  const location = useLocation();
-  const isHome = location.pathname === '/';
+import FlagshipLayout from './pages/layout';
 
+function PublicLayout() {
   return (
-    <div
-      className="min-h-screen w-full flex flex-col font-body relative"
-      style={{ background: 'transparent', color: 'var(--color-text-primary)' }}
-    >
-      {/* Dynamic backdrop blur overlay on sub-pages */}
-      {!isHome && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(6, 11, 19, 0.65)',
-            backdropFilter: 'blur(10px)',
-            zIndex: -1,
-            pointerEvents: 'none',
-          }}
-        />
-      )}
-      <Navbar />
-      <main className="flex-1 flex flex-col w-full relative pt-24 sm:pt-28 pb-20 md:pb-0">
-        <Outlet />
-      </main>
-    </div>
+    <FlagshipLayout>
+      <Outlet />
+    </FlagshipLayout>
   );
 }
 
@@ -99,6 +85,12 @@ export default function App() {
               <Route path="registrations" element={<PublicRegistrationsPage />} />
               <Route path="pass/:id" element={<PublicPassPage />} />
               <Route path="register/:eventId" element={<RegisterPage />} />
+              <Route path="register" element={<QuestBoardPage />} />
+              <Route path="register/info" element={<RegisterInfoStep />} />
+              <Route path="register/event" element={<RegisterEventStep />} />
+              <Route path="register/team" element={<RegisterTeamStep />} />
+              <Route path="register/payment" element={<RegisterPaymentStep />} />
+              <Route path="register/confirmation" element={<RegisterConfirmationPage />} />
               <Route path="sponsors" element={<SponsorsPage />} />
 
             </Route>
