@@ -24,7 +24,7 @@ function getAdminApp(): App {
 
   // Fallback to Application Default Credentials (ADC) or local setup
   try {
-    return initializeApp()
+    return initializeApp(projectId ? { projectId } : undefined)
   } catch (err) {
     throw new Error(
       "Firebase Admin SDK is not configured. Set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and " +
