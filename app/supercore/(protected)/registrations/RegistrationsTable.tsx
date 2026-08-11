@@ -80,7 +80,7 @@ export function RegistrationsTable({ initialRegistrations }: { initialRegistrati
                 <td className="p-3 text-neutral-400">{r.userEmail}</td>
                 <td className="p-3">{r.eventName}</td>
                 <td className="p-3 text-neutral-400">
-                  {r.teamSize} ({r.teamMembers.map((m) => m.name).join(", ") || "solo"})
+                  {r.teamSize} ({r.teamMembers?.map((m) => m.name).join(", ") || "solo"})
                 </td>
                 <td className="p-3 font-mono">{r.paymentRefId}</td>
                 <td className="p-3">₹{r.amountPaid}</td>
