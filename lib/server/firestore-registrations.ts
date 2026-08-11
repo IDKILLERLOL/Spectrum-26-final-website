@@ -132,6 +132,7 @@ export async function listRegistrations(filters?: {
       paymentRefId: regData.upiTransactionRef || "",
       amountPaid: regData.amountPaid || eventFee,
       paymentStatus: regData.feeStatus === "PAID" ? "APPROVED" : (regData.paymentStatus || "PENDING"),
+      checkedIn: regData.checkedIn || false,
       paymentVerifiedBy: regData.paymentVerifiedBy || regData.lastEditedBy || null,
       paymentVerifiedAt: regData.paymentVerifiedAt || regData.lastEditedAt || null,
       sheetsSyncStatus: regData.sheetsSyncStatus || "PENDING",
@@ -168,6 +169,7 @@ export async function setPaymentStatus(
 
   await ref.update({
     paymentStatus: status,
+    feeStatus: status === "APPROVED" ? "PAID" : "PENDING",
     paymentVerifiedBy: verifiedBy,
     paymentVerifiedAt: now,
     updatedAt: now,
@@ -175,6 +177,13 @@ export async function setPaymentStatus(
 
   const updated = await ref.get()
   return { id: updated.id, ...(updated.data() as FirestoreRegistration) }
+}
+
+export async function toggleCheckIn(id: string, checkedIn: boolean): Promise<void> {
+  await getDb().collection(COLLECTION).doc(id).update({
+    checkedIn,
+    updatedAt: Timestamp.now(),
+  })
 }
 
 export async function setSheetsSyncStatus(id: string, status: FirestoreRegistration["sheetsSyncStatus"]): Promise<void> {
