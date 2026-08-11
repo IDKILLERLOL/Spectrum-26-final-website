@@ -369,6 +369,10 @@ export const galleryTiles: GalleryTile[] = [
   { id: "g3", caption: "Spectrum 4.0 Wall of Color", imageUrl: "/gallery/slide3.jpg", gradientFrom: "#E8963C", gradientTo: "#C7382F" },
   { id: "g4", caption: "Interactive Tech Challenge", imageUrl: "/gallery/slide4.jpg", gradientFrom: "#4FA3E3", gradientTo: "#242150" },
   { id: "g5", caption: "Console & FC Showdown", imageUrl: "/gallery/slide5.jpg", gradientFrom: "#C9A227", gradientTo: "#8B6FD9" },
+  { id: "g6", caption: "Photo Frame & Faculty Coordinators", imageUrl: "/gallery/slide6.jpg", gradientFrom: "#8B6FD9", gradientTo: "#EC4B8C" },
+  { id: "g7", caption: "Faculty Team & Binary Portal", imageUrl: "/gallery/slide7.jpg", gradientFrom: "#2A9D6E", gradientTo: "#6FBF5B" },
+  { id: "g8", caption: "Spectrum 4.0 Student Committee", imageUrl: "/gallery/slide8.jpg", gradientFrom: "#C7382F", gradientTo: "#E8963C" },
+  { id: "g9", caption: "Faculty & Dignitaries Group", imageUrl: "/gallery/slide9.jpg", gradientFrom: "#242150", gradientTo: "#4FA3E3" },
 ]
 
 export interface ValueProp {
