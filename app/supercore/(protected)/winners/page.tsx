@@ -9,8 +9,8 @@ export default async function AdminWinnersPage() {
   // Component boundary as props; convert to plain ISO strings first.
   const winners = rawWinners.map((w) => ({
     ...w,
-    createdAt: w.createdAt.toDate().toISOString(),
-    updatedAt: w.updatedAt.toDate().toISOString(),
+    createdAt: w.createdAt ? (typeof w.createdAt.toDate === "function" ? w.createdAt.toDate().toISOString() : new Date(w.createdAt).toISOString()) : new Date().toISOString(),
+    updatedAt: w.updatedAt ? (typeof w.updatedAt.toDate === "function" ? w.updatedAt.toDate().toISOString() : new Date(w.updatedAt).toISOString()) : null,
   }))
   return <WinnersAdminClient winners={winners} events={events} defaultEdition={site.name} />
 }

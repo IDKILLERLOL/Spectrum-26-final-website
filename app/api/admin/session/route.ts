@@ -35,6 +35,7 @@ export async function POST(request: Request) {
   if (!bootstrapped) {
     const allowed = await isWhitelisted(email)
     if (!allowed) {
+      console.log(`[Admin Session] Rejected unauthorized admin access attempt for email: ${email}`);
       return NextResponse.json(
         { error: "This Google account is not authorized for admin access." },
         { status: 403 }

@@ -7,8 +7,8 @@ export default async function AdminUsersPage() {
   // Component boundary as props; convert to plain ISO strings first.
   const users = rawUsers.map((u) => ({
     ...u,
-    createdAt: u.createdAt.toDate().toISOString(),
-    updatedAt: u.updatedAt.toDate().toISOString(),
+    createdAt: u.createdAt ? (typeof u.createdAt.toDate === "function" ? u.createdAt.toDate().toISOString() : new Date(u.createdAt).toISOString()) : new Date().toISOString(),
+    updatedAt: u.updatedAt ? (typeof u.updatedAt.toDate === "function" ? u.updatedAt.toDate().toISOString() : new Date(u.updatedAt).toISOString()) : null,
   }))
   return <UsersAdminClient users={users} />
 }

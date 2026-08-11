@@ -5,6 +5,9 @@ export default async function AdminWhitelistPage() {
   const rawWhitelist = await listWhitelist()
   // Firestore Timestamps are class instances and can't cross the Server -> Client
   // Component boundary as props; convert to a plain ISO string first.
-  const whitelist = rawWhitelist.map((entry) => ({ ...entry, addedAt: entry.addedAt.toDate().toISOString() }))
+  const whitelist = rawWhitelist.map((entry) => ({
+    ...entry,
+    addedAt: entry.addedAt ? (typeof entry.addedAt.toDate === "function" ? entry.addedAt.toDate().toISOString() : new Date(entry.addedAt).toISOString()) : new Date().toISOString()
+  }))
   return <WhitelistAdminClient whitelist={whitelist} />
 }
