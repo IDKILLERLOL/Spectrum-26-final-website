@@ -70,11 +70,11 @@ function HeroBackground() {
 /** Strung row of marigold-orange circles along the top edge of the Hero — mela/wedding garland motif. */
 function MarigoldGarland() {
   return (
-    <div className="absolute top-0 left-0 right-0 h-8 flex overflow-hidden opacity-90 z-10 pointer-events-none">
-      {Array.from({ length: 30 }).map((_, i) => (
+    <div className="absolute top-0 left-1/2 z-10 flex h-8 w-screen -translate-x-1/2 overflow-hidden opacity-90 pointer-events-none lg:h-10">
+      {Array.from({ length: 80 }).map((_, i) => (
         <div
           key={i}
-          className="flex-shrink-0 w-8 h-8 rounded-full border-2 -ml-2 first:ml-0 shadow-sm"
+          className="h-8 w-8 flex-shrink-0 rounded-full border-2 -ml-2 first:ml-0 shadow-sm lg:h-10 lg:w-10"
           style={{ background: `radial-gradient(circle, #F4A300 40%, #D97700 80%)`, borderColor: "#A54A00" }}
         />
       ))}
@@ -87,11 +87,11 @@ function Marquee() {
   const reduced = useReducedMotion()
   return (
     <div
-      className="w-[calc(100%+3rem)] -mx-6 overflow-hidden border-y-4 py-1"
+      className="relative left-1/2 w-screen -translate-x-1/2 overflow-hidden border-y-4 py-1 lg:py-2"
       style={{ borderColor: INK, background: MUSTARD, color: INK }}
     >
       <motion.div
-        className={`${questBody.className} flex whitespace-nowrap text-xs font-bold uppercase tracking-widest`}
+        className={`${questBody.className} flex whitespace-nowrap text-xs font-bold uppercase tracking-widest lg:text-sm`}
         animate={reduced ? undefined : { x: ["0%", "-50%"] }}
         transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
       >
@@ -151,13 +151,13 @@ function Hero() {
   const cd = useCountdown()
   const reduced = useReducedMotion()
   return (
-    <section className="relative flex flex-col items-center gap-5 px-6 pb-10 pt-14 text-center overflow-hidden">
+    <section className="relative overflow-hidden px-4 pb-12 pt-12 text-center sm:px-6 sm:pt-16 lg:px-10 lg:pb-16 lg:pt-20">
       <HeroBackground />
       <MarigoldGarland />
       <DdLoader />
 
       <motion.div
-        className="relative border-4 bg-white p-6 w-full max-w-xs z-10"
+        className="relative z-10 mx-auto w-full max-w-[24rem] border-4 bg-white p-5 sm:p-6 lg:max-w-[46rem] lg:p-9"
         style={{ borderColor: INK, boxShadow: hoardingShadow }}
         animate={reduced ? undefined : { rotate: [-1, 1, -1] }}
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
@@ -167,23 +167,23 @@ function Hero() {
         <div className="absolute bottom-1 left-1 w-4 h-4 border-b-4 border-l-4" style={{ borderColor: VERMILION }} />
         <div className="absolute bottom-1 right-1 w-4 h-4 border-b-4 border-r-4" style={{ borderColor: VERMILION }} />
 
-        <p className={`${questBody.className} text-xs uppercase tracking-[0.25em]`} style={{ color: NAVY }}>
+        <p className={`${questBody.className} text-xs uppercase tracking-[0.25em] lg:text-sm`} style={{ color: NAVY }}>
           {site.eyebrow}
         </p>
         <h1
           className={questDisplay.className}
-          style={{ color: NAVY, fontSize: "2.1rem", lineHeight: 1.3, textShadow: `2px 2px 0px ${MUSTARD}, 4px 4px 0px ${INK}` }}
+          style={{ color: NAVY, fontSize: "clamp(2.1rem, 4.6vw, 4.5rem)", lineHeight: 1.08, textShadow: `2px 2px 0px ${MUSTARD}, 4px 4px 0px ${INK}` }}
         >
           {site.shortName}
           <br />
           <span style={{ color: PINK }}>{site.version}</span>
         </h1>
-        <p className={`${questBody.className} max-w-xs text-sm mx-auto mt-2`} style={{ color: NAVY }}>
+        <p className={`${questBody.className} mx-auto mt-3 max-w-md text-sm leading-relaxed lg:text-lg`} style={{ color: NAVY }}>
           {site.tagline} {site.subTagline}
         </p>
 
-        <Card className="mt-4 grid w-full grid-cols-4 gap-2 p-4 text-center" style={{ boxShadow: questShadowLg }}>
-          <p className={`${questBody.className} col-span-4 mb-1 text-[10px] uppercase`} style={{ color: NAVY }}>
+        <Card className="mt-5 grid w-full grid-cols-4 gap-2 p-4 text-center lg:mt-7 lg:p-6" style={{ boxShadow: questShadowLg }}>
+          <p className={`${questBody.className} col-span-4 mb-1 text-[10px] uppercase lg:text-xs`} style={{ color: NAVY }}>
             The Battle Begins In
           </p>
           {[
@@ -193,10 +193,10 @@ function Hero() {
             ["Sec", cd.seconds],
           ].map(([label, value]) => (
             <div key={label as string}>
-              <div className={questDisplay.className} style={{ color: NAVY, fontSize: "1rem" }}>
+              <div className={questDisplay.className} style={{ color: NAVY, fontSize: "clamp(1rem, 1.45vw, 1.45rem)" }}>
                 {pad2(value as number)}
               </div>
-              <div className={`${questBody.className} text-[9px] uppercase opacity-60`} style={{ color: NAVY }}>
+              <div className={`${questBody.className} text-[9px] uppercase opacity-60 lg:text-[11px]`} style={{ color: NAVY }}>
                 {label}
               </div>
             </div>
@@ -206,16 +206,16 @@ function Hero() {
 
       <Marquee />
 
-      <div className="flex w-full max-w-xs gap-3">
-        <AppButton href="/events" className="flex-1 px-4 py-3.5 text-xs">
+      <div className="mx-auto mt-6 flex w-full max-w-[24rem] gap-3 lg:max-w-[46rem] lg:gap-4">
+        <AppButton href="/events" className="flex-1 px-4 py-3.5 text-xs lg:py-4 lg:text-sm">
           Explore Events
         </AppButton>
-        <AppButton href="/schedule" variant="outline" className="flex-1 px-4 py-3.5 text-xs">
+        <AppButton href="/schedule" variant="outline" className="flex-1 px-4 py-3.5 text-xs lg:py-4 lg:text-sm">
           View Schedule
         </AppButton>
       </div>
 
-      <Card className="flex w-full max-w-xs flex-col gap-2 p-4 text-left">
+      <Card className="mx-auto mt-5 flex w-full max-w-[24rem] flex-col gap-2 p-4 text-left lg:max-w-[46rem] lg:gap-3 lg:p-6">
         <Link href="/more/gallery" className="flex items-center justify-between">
           <span className={`${questBody.className} text-xs font-bold`} style={{ color: NAVY }}>
             Epic Rewards Await
@@ -252,36 +252,36 @@ function EventAwning({ color }: { color: string }) {
 
 function FeaturedEvents({ events }: { events: SpectrumEvent[] }) {
   return (
-    <section className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-5 py-10 md:px-10">
-      <h2 className={`${questDisplay.className} text-xl md:text-3xl`} style={{ color: NAVY }}>
+    <section className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 py-12 sm:px-5 md:px-10 lg:gap-7 lg:py-16">
+      <h2 className={`${questDisplay.className} text-xl md:text-3xl lg:text-4xl`} style={{ color: NAVY }}>
         Featured Events
       </h2>
-      <div className="-mx-5 flex gap-3 overflow-x-auto px-5 pt-3 pb-1 md:mx-0 md:grid md:grid-cols-4 md:gap-4 md:overflow-visible md:px-0">
+      <div className="grid justify-center gap-5 sm:grid-cols-2 xl:grid-cols-4 lg:gap-6">
         {events.map((ev) => (
-          <Card key={ev.id} className="relative mt-3 w-44 shrink-0 overflow-visible p-4 md:w-auto">
+          <Card key={ev.id} className="relative w-full max-w-[19rem] overflow-visible p-4 sm:min-h-[12rem] lg:max-w-[21rem] lg:p-6 xl:min-h-[14rem]">
             <EventAwning color={ev.color} />
             <span
-              className={`${questDisplay.className} mb-2 inline-flex size-7 items-center justify-center text-[9px] text-white`}
+              className={`${questDisplay.className} mb-2 inline-flex size-7 items-center justify-center text-[9px] text-white lg:size-9 lg:text-xs`}
               style={{ background: ev.color }}
             >
               {ev.index}
             </span>
-            <h3 className={`${questBody.className} text-sm font-bold`} style={{ color: NAVY }}>
+            <h3 className={`${questBody.className} text-sm font-bold lg:text-lg`} style={{ color: NAVY }}>
               {ev.name}
             </h3>
-            <p className={`${questBody.className} mt-1 text-[11px] opacity-70`} style={{ color: NAVY }}>
+            <p className={`${questBody.className} mt-1 text-[11px] opacity-70 lg:text-sm`} style={{ color: NAVY }}>
               {ev.tag}
             </p>
-            <p className={`${questBody.className} mt-2 text-[10px] opacity-60`} style={{ color: NAVY }}>
+            <p className={`${questBody.className} mt-2 text-[10px] opacity-60 lg:text-xs`} style={{ color: NAVY }}>
               {ev.format}
             </p>
-            <p className={`${questBody.className} text-xs font-bold`} style={{ color: PINK }}>
+            <p className={`${questBody.className} text-xs font-bold lg:text-sm`} style={{ color: PINK }}>
               {ev.fee}
             </p>
           </Card>
         ))}
       </div>
-      <AppButton href="/events" className="w-full py-3 text-xs md:w-auto md:self-center md:px-10">
+      <AppButton href="/events" className="w-full py-3 text-xs md:w-auto md:self-center md:px-10 lg:py-4 lg:text-sm">
         View All Events
       </AppButton>
     </section>
@@ -290,25 +290,25 @@ function FeaturedEvents({ events }: { events: SpectrumEvent[] }) {
 
 function Highlights() {
   return (
-    <section className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-5 py-10 md:px-10">
-      <h2 className={`${questDisplay.className} text-xl md:text-3xl`} style={{ color: NAVY }}>
+    <section className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 py-12 sm:px-5 md:px-10 lg:gap-7 lg:py-16">
+      <h2 className={`${questDisplay.className} text-xl md:text-3xl lg:text-4xl`} style={{ color: NAVY }}>
         Highlights
       </h2>
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+      <div className="grid justify-center grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4 lg:gap-6">
         {highlights.map((h) => (
-          <Card key={h.title} className="p-4">
-            <p className={`${questBody.className} text-sm font-bold`} style={{ color: NAVY }}>
+          <Card key={h.title} className="w-full max-w-[22rem] p-4 lg:p-6">
+            <p className={`${questBody.className} text-sm font-bold lg:text-lg`} style={{ color: NAVY }}>
               {h.title}
             </p>
-            <p className={`${questBody.className} text-xs opacity-70`} style={{ color: NAVY }}>
+            <p className={`${questBody.className} text-xs opacity-70 lg:text-sm`} style={{ color: NAVY }}>
               {h.description}
             </p>
           </Card>
         ))}
       </div>
-      <Card className="p-4" style={{ background: NAVY }}>
-        <p className={`${questBody.className} text-xs font-bold text-white`}>{site.date}</p>
-        <p className={`${questBody.className} text-[11px] opacity-70 text-white`}>{site.venue}</p>
+      <Card className="w-full max-w-3xl p-4 lg:p-6" style={{ background: NAVY }}>
+        <p className={`${questBody.className} text-xs font-bold text-white lg:text-base`}>{site.date}</p>
+        <p className={`${questBody.className} text-[11px] opacity-70 text-white lg:text-sm`}>{site.venue}</p>
       </Card>
     </section>
   )
@@ -316,7 +316,7 @@ function Highlights() {
 
 function WhySpectrum() {
   return (
-    <section className="mx-auto flex w-full max-w-4xl flex-col gap-4 px-5 py-10 md:px-10">
+    <section className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-10 sm:px-5 md:px-10">
       <h2 className={`${questDisplay.className} text-xl md:text-3xl`} style={{ color: NAVY }}>
         Why Spectrum?
       </h2>
@@ -345,11 +345,11 @@ function WhySpectrum() {
 
 function QuickLinks() {
   return (
-    <section className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-5 py-10 md:px-10">
+    <section className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-10 sm:px-5 md:px-10">
       <h2 className={`${questDisplay.className} text-xl md:text-3xl`} style={{ color: NAVY }}>
         Quick Links
       </h2>
-      <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
         {quickLinks.map((link) => {
           const Icon = resolveIcon(link.icon)
           return (

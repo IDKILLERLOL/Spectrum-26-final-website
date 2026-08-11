@@ -437,6 +437,23 @@ export const nav = [
   { label: "More", href: "more" },
 ]
 
+// Compatibility contract for the imported multi-theme UI.
+export interface RegistrationFormValues {
+  name: string
+  email: string
+  phone: string
+  college: string
+  eventId: EventId | ""
+}
+
+export const registrationFormDefaults: RegistrationFormValues = {
+  name: "",
+  email: "",
+  phone: "",
+  college: "",
+  eventId: "",
+}
+
 // ---- Quest Board registration contract (backed by real Firestore writes via
 // ---- POST /api/registrations — see lib/validation/registration.ts) ----
 export interface QuestFormValues {

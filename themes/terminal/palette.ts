@@ -1,0 +1,8 @@
+export const BLACK = "#050705"
+export const BLACK_RAISED = "#0B0F0B"
+export const GREEN = "#4AF626"
+export const GREEN_DIM = "rgba(74, 246, 38, 0.35)"
+export const GREEN_FAINT = "rgba(74, 246, 38, 0.12)"
+export const AMBER = "#FFB000"
+export const WHITE = "#FFFFFF"
+export const RED = "#FF3B30"
