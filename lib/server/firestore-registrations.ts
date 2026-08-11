@@ -74,13 +74,87 @@ export async function listRegistrations(filters?: {
   eventId?: string
   paymentStatus?: PaymentStatus
 }): Promise<(FirestoreRegistration & { id: string })[]> {
-  let query: FirebaseFirestore.Query = getDb().collection(COLLECTION)
-  if (filters?.eventId) query = query.where("eventId", "==", filters.eventId)
-  if (filters?.paymentStatus) query = query.where("paymentStatus", "==", filters.paymentStatus)
-  query = query.orderBy("createdAt", "desc")
+  const db = getDb()
+  const registrationsSnap = await db.collection(COLLECTION).get()
+  
+  const results: (FirestoreRegistration & { id: string })[] = []
 
-  const snap = await query.get()
-  return snap.docs.map((d) => ({ id: d.id, ...(d.data() as FirestoreRegistration) }))
+  for (const regDoc of registrationsSnap.docs) {
+    const regData = regDoc.data()
+    
+    // Resolve leader user info
+    let fullName = ""
+    let phone = ""
+    let collegeName = ""
+    if (regData.leaderId) {
+      const userDoc = await db.collection("users").doc(regData.leaderId).get()
+      if (userDoc.exists) {
+        fullName = userDoc.data()?.name || ""
+        phone = userDoc.data()?.phone || ""
+        collegeName = userDoc.data()?.college || ""
+      }
+    }
+
+    // Resolve event details
+    let eventName = regData.eventId || ""
+    let eventFee = 0
+    if (regData.eventId) {
+      const eventDoc = await db.collection("events").doc(regData.eventId).get()
+      if (eventDoc.exists) {
+        eventName = eventDoc.data()?.name || regData.eventId
+        eventFee = eventDoc.data()?.price || 0
+      }
+    }
+
+    // Resolve team members
+    const membersSnap = await db.collection("teamMembers")
+      .where("registrationId", "==", regDoc.id)
+      .where("status", "==", "ACTIVE")
+      .get()
+    
+    const teamMembers: { name: string }[] = []
+    membersSnap.forEach((mDoc) => {
+      teamMembers.push({ name: mDoc.data().name || "" })
+    })
+
+    // Construct unified new schema item dynamically
+    const doc: FirestoreRegistration & { id: string } = {
+      id: regDoc.id,
+      userEmail: regData.userEmail || regData.leaderId || "",
+      fullName: fullName,
+      phone: phone,
+      collegeName: collegeName,
+      year: regData.year || "FY",
+      eventId: regData.eventId || "",
+      eventName: eventName,
+      teamMembers: teamMembers,
+      teamSize: teamMembers.length || 1,
+      paymentRefId: regData.upiTransactionRef || "",
+      amountPaid: regData.amountPaid || eventFee,
+      paymentStatus: regData.feeStatus === "PAID" ? "APPROVED" : (regData.paymentStatus || "PENDING"),
+      paymentVerifiedBy: regData.paymentVerifiedBy || regData.lastEditedBy || null,
+      paymentVerifiedAt: regData.paymentVerifiedAt || regData.lastEditedAt || null,
+      sheetsSyncStatus: regData.sheetsSyncStatus || "PENDING",
+      emailSentAt: regData.emailSentAt || null,
+      createdAt: regData.createdAt || null,
+      updatedAt: regData.updatedAt || regData.lastEditedAt || null,
+    }
+
+    // Filter by options if supplied
+    if (filters?.eventId && doc.eventId !== filters.eventId) continue
+    if (filters?.paymentStatus && doc.paymentStatus !== filters.paymentStatus) continue
+
+    results.push(doc)
+  }
+
+  // Sort descending by creation date
+  results.sort((a, b) => {
+    const aTime = a.createdAt ? (typeof a.createdAt.toDate === "function" ? a.createdAt.toDate().getTime() : new Date(a.createdAt).getTime()) : 0
+    const bTime = b.createdAt ? (typeof b.createdAt.toDate === "function" ? b.createdAt.toDate().getTime() : new Date(b.createdAt).getTime()) : 0
+    return bTime - aTime
+  })
+
+  return results
 }
 
 export async function setPaymentStatus(
