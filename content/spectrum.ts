@@ -98,12 +98,12 @@ export const events: SpectrumEvent[] = [
     index: "02",
     order: 2,
     category: "Coding",
-    name: "Singularity Strike",
-    shortName: "Sing. Strike",
+    name: "Code Clash",
+    shortName: "Code Clash",
     tag: "Solo arena battle.",
     format: "Individual",
-    fee: "₹50",
-    feeNumeric: 50,
+    fee: "₹100",
+    feeNumeric: 100,
     capacity: 1,
     teamSize: "1 Participant",
     difficulty: 4,
@@ -339,7 +339,7 @@ export const hallOfFame: HallOfFameEntry[] = [
   { edition: "Spectrum 4.0", eventName: "Dual Debug", championTeam: "Code Commanders" },
   { edition: "Spectrum 3.0", eventName: "BGMI Tournament", championTeam: "Ghost Squad" },
   { edition: "Spectrum 2.0", eventName: "FC 25 Showdown", championTeam: "Rohan V." },
-  { edition: "Spectrum 1.0", eventName: "Singularity Strike", championTeam: "Nova" },
+  { edition: "Spectrum 1.0", eventName: "Code Clash", championTeam: "Nova" },
 ]
 
 export interface Edition {

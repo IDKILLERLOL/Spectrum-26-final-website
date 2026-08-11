@@ -26,14 +26,14 @@ const newEvents = [
   },
   {
     id: "tech-solo-1",
-    name: "Singularity Strike",
+    name: "Code Clash",
     category: "TECH",
     description: "The ultimate solo arena battle. Conquer the grid, survive the buzzer, and rank in the MCQ challenges.",
     isTeamEvent: false,
     maxTeams: null,
     currentTeamCount: 0,
     registrationOpen: true,
-    price: 50,
+    price: 100,
     rulesUrl: null,
     minMembers: 1,
     maxMembers: 1
