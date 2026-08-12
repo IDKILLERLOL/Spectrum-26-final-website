@@ -6,7 +6,6 @@ import { motion } from "motion/react"
 import {
   site,
   highlights,
-  valueProps,
   quickLinks,
   socialLinks,
 } from "@/content/spectrum"
@@ -314,35 +313,6 @@ function Highlights() {
   )
 }
 
-function WhySpectrum() {
-  return (
-    <section className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-10 sm:px-5 md:px-10">
-      <h2 className={`${questDisplay.className} text-xl md:text-3xl`} style={{ color: NAVY }}>
-        Why Spectrum?
-      </h2>
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-        {valueProps.map((v) => (
-          <Card key={v.title} className="flex items-center gap-3 p-4">
-            <span className="flex size-9 shrink-0 items-center justify-center" style={{ background: PINK }}>
-              <span className={questDisplay.className} style={{ color: CREAM, fontSize: "0.7rem" }}>
-                {v.title[0]}
-              </span>
-            </span>
-            <div>
-              <p className={`${questBody.className} text-sm font-bold`} style={{ color: NAVY }}>
-                {v.title}
-              </p>
-              <p className={`${questBody.className} text-xs opacity-70`} style={{ color: NAVY }}>
-                {v.description}
-              </p>
-            </div>
-          </Card>
-        ))}
-      </div>
-    </section>
-  )
-}
-
 function QuickLinks() {
   return (
     <section className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-10 sm:px-5 md:px-10">
@@ -400,7 +370,6 @@ export function HomePageClient({ events }: { events: SpectrumEvent[] }) {
       <Hero />
       <FeaturedEvents events={events} />
       <Highlights />
-      <WhySpectrum />
       <QuickLinks />
     </>
   )
