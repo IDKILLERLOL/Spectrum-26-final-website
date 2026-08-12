@@ -4,17 +4,15 @@ import * as React from "react"
 import Link from "next/link"
 import type { SpectrumEvent } from "@/content/spectrum"
 import { site } from "@/content/spectrum"
-import { ArrowRight } from "lucide-react"
+import { Trophy } from "lucide-react"
 import { Card } from "@/components/flagship/Card"
 import { PageHeader } from "@/components/flagship/PageHeader"
 import { PageContainer } from "@/components/flagship/PageContainer"
-import { AppButton } from "@/components/flagship/AppButton"
-import { NAVY, INK, softHoardingShadow } from "@/components/flagship/tokens"
+import { NAVY, INK, PINK, MUSTARD, hoardingShadow, softHoardingShadow } from "@/components/flagship/tokens"
 import { questDisplay, questBody } from "@/components/flagship/fonts"
 import { trackEventCardView, trackEventCardClick } from "@/lib/analytics/track"
 
-/** Scalloped canvas awning strip — mela/fair stall roofline, alternating the
- *  event's own accent colour with white. Sits astride the card's top edge. */
+/** Scalloped canvas awning strip — alternating the event's own accent colour with white. */
 function StallAwning({ color }: { color: string }) {
   return (
     <div
@@ -40,13 +38,40 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
 
   return (
     <>
-      <PageHeader title="Events Arena" subtitle="Choose your battleground." back={false} />
+      <PageHeader title="Events & Prizes" subtitle="Choose your battleground and win big." back={false} />
       <PageContainer width="wide">
-        <div className="flex flex-col gap-4 px-5 py-6">
+        <div className="flex flex-col gap-8 px-5 py-6">
+          
+          {/* Merged Prize Pool Hero Section */}
+          <div className="mx-auto w-full max-w-2xl flex flex-col sm:flex-row items-center gap-6 border-4 bg-white p-6 rounded-lg"
+               style={{ borderColor: INK, boxShadow: hoardingShadow }}>
+            <span
+              className="flex size-16 shrink-0 items-center justify-center border-4"
+              style={{ background: PINK, borderColor: INK, boxShadow: softHoardingShadow }}
+            >
+              <Trophy size={28} color="#fff" />
+            </span>
+            <div className="flex-1 text-center sm:text-left">
+              <p className={`${questBody.className} text-xs uppercase tracking-wide opacity-70`} style={{ color: NAVY }}>
+                Total Prize Pool
+              </p>
+              <h2
+                className={questDisplay.className}
+                style={{ color: PINK, fontSize: "2rem", textShadow: `1.5px 1.5px 0px ${MUSTARD}, 3px 3px 0px ${INK}` }}
+              >
+                {site.prizePool}
+              </h2>
+              <p className={`${questBody.className} mt-2 text-xs opacity-80`} style={{ color: NAVY }}>
+                Trophies, goodie bags, and certificates await the champions across all arena events.
+              </p>
+            </div>
+          </div>
+
+          {/* Events Grid */}
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:gap-5">
             {events.map((ev) => (
               <Link key={ev.id} href={`/events/${ev.id}`} onClick={() => trackEventCardClick(ev.id, ev.name)}>
-                <Card className="relative flex h-40 flex-col justify-between p-4 pt-7" style={{ borderColor: ev.color }}>
+                <Card className="relative flex h-40 flex-col justify-between p-4 pt-7 transition-all hover:-translate-y-0.5 hover:shadow-lg" style={{ borderColor: ev.color }}>
                   <StallAwning color={ev.color} />
                   <span
                     className={`${questDisplay.className} flex size-8 items-center justify-center border-2 text-[10px] text-white`}
@@ -67,21 +92,6 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
             ))}
           </div>
 
-          <Link href="/events/prize-pool">
-            <Card className="flex items-center justify-between p-4 md:mx-auto md:max-w-xl">
-              <div>
-                <p className={`${questBody.className} text-xs font-bold`} style={{ color: NAVY }}>
-                  Total Prize Pool
-                </p>
-                <p className={questDisplay.className} style={{ color: NAVY, fontSize: "1rem" }}>
-                  {site.prizePool}
-                </p>
-              </div>
-              <span className={`${questBody.className} text-[11px] underline`} style={{ color: NAVY }}>
-                Explore All <span className="inline-flex items-center"><ArrowRight size={14} /></span>
-              </span>
-            </Card>
-          </Link>
         </div>
       </PageContainer>
     </>

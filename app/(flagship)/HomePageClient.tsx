@@ -216,7 +216,7 @@ function Hero() {
       </div>
 
       <Card className="mx-auto mt-5 flex w-full max-w-[24rem] flex-col gap-2 p-4 text-left lg:max-w-[46rem] lg:gap-3 lg:p-6">
-        <Link href="/events/prize-pool" className="flex items-center justify-between">
+        <Link href="/events" className="flex items-center justify-between">
           <span className={`${questBody.className} text-xs font-bold`} style={{ color: NAVY }}>
             Epic Rewards Await
           </span>
