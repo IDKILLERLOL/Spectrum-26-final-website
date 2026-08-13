@@ -66,8 +66,8 @@ export default function RegisterInfoStep() {
       const res = await fetch(`/api/check-email?email=${encodeURIComponent(values.email.trim())}${values.eventId ? `&eventId=${encodeURIComponent(values.eventId)}` : ""}`)
       const data = await res.json()
 
-      if (data.isDuplicateEvent) {
-        setErrorMsg(data.message || "This email is already registered for this event.")
+      if (data.registered) {
+        setErrorMsg(data.isDuplicateEvent ? (data.message || "You are already registered for this event with this email.") : "This email address is already registered in the system.")
         return
       }
     } catch {
