@@ -59,12 +59,25 @@ export default function RegisterTeamStep() {
     setField("teamMembers", next)
   }
 
-  const membersFilled = memberCount === 0 || values.teamMembers.slice(0, memberCount).every((m) => m?.trim().length > 0)
-  const isValid = membersFilled && values.year !== ""
+  const [errorMsg, setErrorMsg] = React.useState<string | null>(null)
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!isValid) return
+    setErrorMsg(null)
+
+    if (memberCount > 0) {
+      const missing = values.teamMembers.slice(0, memberCount).some((m) => !m || !m.trim())
+      if (missing) {
+        setErrorMsg("Please enter all required team member names.")
+        return
+      }
+    }
+
+    if (!values.year) {
+      setErrorMsg("Please select your academic year.")
+      return
+    }
+
     router.push("/register/payment")
   }
 
@@ -115,7 +128,6 @@ export default function RegisterTeamStep() {
                 <Field
                   key={i}
                   label={MEMBER_LABELS[i] ?? `Member ${i + 1} Name`}
-                  required
                   placeholder={`Enter ${MEMBER_LABELS[i] ?? `member ${i + 1}`}`}
                   value={values.teamMembers[i] ?? ""}
                   onChange={(e) => setMember(i, e.target.value)}
@@ -129,10 +141,9 @@ export default function RegisterTeamStep() {
               />
               <div className="flex flex-col gap-1">
                 <label className={`${questBody.className} text-[10px] font-bold uppercase md:text-xs`} style={{ color: TEAL }}>
-                  Year
+                  Year *
                 </label>
                 <select
-                  required
                   value={values.year}
                   onChange={(e) => setField("year", e.target.value)}
                   className="border-2 p-2 text-sm outline-none font-bold bg-white md:p-3 md:text-base"
@@ -146,7 +157,14 @@ export default function RegisterTeamStep() {
                   ))}
                 </select>
               </div>
-              <AppButton type="submit" disabled={!isValid} className="mt-2 w-full py-3.5 text-sm md:py-4 md:text-base">
+
+              {errorMsg && (
+                <p className={`${questBody.className} text-xs font-bold`} style={{ color: VERMILION }}>
+                  {errorMsg}
+                </p>
+              )}
+
+              <AppButton type="submit" className="mt-2 w-full py-3.5 text-sm md:py-4 md:text-base">
                 Next
               </AppButton>
             </form>

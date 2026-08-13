@@ -53,6 +53,17 @@ export function RegisterEventStepClient({ events }: { events: SpectrumEvent[] })
     })
   }
 
+  const [errorMsg, setErrorMsg] = React.useState<string | null>(null)
+
+  function handleNext() {
+    setErrorMsg(null)
+    if (!selectedEvent) {
+      setErrorMsg("Please select an event to proceed.")
+      return
+    }
+    router.push("/register/team")
+  }
+
   return (
     <>
       <PageHeader title="Register" />
@@ -102,9 +113,14 @@ export function RegisterEventStepClient({ events }: { events: SpectrumEvent[] })
               })}
             </div>
 
+            {errorMsg && (
+              <p className={`${questBody.className} mt-3 text-xs font-bold`} style={{ color: VERMILION }}>
+                {errorMsg}
+              </p>
+            )}
+
             <AppButton
-              onClick={() => router.push("/register/team")}
-              disabled={!selectedEvent}
+              onClick={handleNext}
               className="mt-5 w-full py-3.5 text-sm md:py-4 md:text-base"
             >
               Next

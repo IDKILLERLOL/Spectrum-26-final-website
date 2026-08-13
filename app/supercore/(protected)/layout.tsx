@@ -20,7 +20,7 @@ export default async function ProtectedAdminLayout({ children }: { children: Rea
     <div className="min-h-dvh bg-neutral-950 text-neutral-100">
       <AutoLogoutOnUnload />
       <header className="sticky top-0 z-20 border-b border-neutral-800 bg-neutral-950/95 backdrop-blur py-3">
-        <nav className="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-5 text-xs">
+        <nav className="mx-auto flex max-w-[96rem] gap-1 overflow-x-auto px-5 text-xs">
           {NAV.map((item) => (
             <Link
               key={item.href}
@@ -32,7 +32,7 @@ export default async function ProtectedAdminLayout({ children }: { children: Rea
           ))}
         </nav>
       </header>
-      <main className="mx-auto max-w-6xl px-5 py-8">{children}</main>
+      <main className="mx-auto max-w-[96rem] px-5 py-8">{children}</main>
     </div>
   )
 }

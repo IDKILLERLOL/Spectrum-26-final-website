@@ -14,6 +14,7 @@ export const registrationSchema = z.object({
   collegeName: z.string().trim().optional().default(""),
   year: z.string().trim().min(1, "Select your year."),
   paymentRefId: z.string().trim().regex(/^\d{12}$/, "Enter the 12-digit UPI transaction reference ID."),
+  pictureUrl: z.string().optional().default(""),
 })
 
 export type RegistrationInput = z.infer<typeof registrationSchema>

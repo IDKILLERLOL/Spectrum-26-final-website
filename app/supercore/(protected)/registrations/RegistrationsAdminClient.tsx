@@ -468,8 +468,8 @@ export function RegistrationsAdminClient({
       )}
 
       {/* Main table */}
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-neutral-700">
+      <div className="w-full">
+        <table className="w-full text-left text-sm border-collapse">
           <thead>
             <tr className="text-left text-xs font-medium text-neutral-400">
               <th className="whitespace-nowrap px-4 py-3">Reg ID</th>
@@ -620,6 +620,16 @@ export function RegistrationsAdminClient({
                               <p className="text-xs text-neutral-500 mb-1">Email</p>
                               <p className="text-sm font-medium">{reg.userEmail || '-'}</p>
                             </div>
+                            {(reg as any).pictureUrl && (
+                              <div>
+                                <p className="text-xs text-neutral-500 mb-1">Profile Photo</p>
+                                <img
+                                  src={(reg as any).pictureUrl}
+                                  alt="Profile"
+                                  className="size-16 object-cover border border-neutral-700 rounded"
+                                />
+                              </div>
+                            )}
                             <div>
                               <p className="text-xs text-neutral-500 mb-1">Phone</p>
                               <p className="text-sm font-medium">{reg.phone || '-'}</p>

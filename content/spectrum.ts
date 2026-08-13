@@ -470,6 +470,7 @@ export interface QuestFormValues {
   collegeName: string // optional at validation layer, kept as string (not string|undefined) for controlled inputs
   year: string
   paymentRefId: string // 12-digit UPI transaction reference
+  pictureUrl?: string
 }
 
 export const questFormDefaults: QuestFormValues = {
@@ -481,4 +482,5 @@ export const questFormDefaults: QuestFormValues = {
   collegeName: "",
   year: "",
   paymentRefId: "",
+  pictureUrl: "",
 }
