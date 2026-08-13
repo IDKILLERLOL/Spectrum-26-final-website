@@ -23,6 +23,7 @@ interface Tile {
 const tiles: Tile[] = [
   { label: "About Us", href: "/more/about", icon: Info },
   { label: "Our Team", href: "/more/team", icon: Users },
+  { label: "Our Sponsors", href: "/more/sponsors", icon: Heart },
   { label: "Winners & Hall of Fame", href: "/more/winners", icon: Trophy },
   { label: "Gallery", href: "/more/gallery", icon: ImageIcon },
   { label: "Contact", href: "/more/contact", icon: Mail },
