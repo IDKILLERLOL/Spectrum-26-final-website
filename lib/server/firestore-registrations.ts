@@ -146,12 +146,18 @@ export async function listRegistrations(filters?: {
     let fullName = ""
     let phone = ""
     let collegeName = ""
-    if (regData.leaderId) {
-      const userDoc = await db.collection("users").doc(regData.leaderId).get()
+    let fetchedEmail = ""
+    
+    const userIdToLookup = regData.leaderId || (typeof regData.userEmail === "string" && regData.userEmail.startsWith("guest_") ? regData.userEmail : null)
+    
+    if (userIdToLookup) {
+      const userDoc = await db.collection("users").doc(userIdToLookup).get()
       if (userDoc.exists) {
-        fullName = userDoc.data()?.name || ""
-        phone = userDoc.data()?.phone || ""
-        collegeName = userDoc.data()?.college || ""
+        const uData = userDoc.data()
+        fullName = uData?.name || ""
+        phone = uData?.phone || ""
+        collegeName = uData?.college || ""
+        fetchedEmail = uData?.email || ""
       }
     }
 
@@ -189,7 +195,8 @@ export async function listRegistrations(filters?: {
       })
     }
 
-    const userEmail = regData.userEmail || regData.email || regData.leaderEmail || regData.leaderId || ""
+    const rawEmail = regData.userEmail || regData.email || regData.leaderEmail || ""
+    const userEmail = fetchedEmail || (!rawEmail.startsWith("guest_") ? rawEmail : "") || regData.leaderId || ""
 
     // Construct unified new schema item dynamically
     const doc: FirestoreRegistration & { id: string } = {
