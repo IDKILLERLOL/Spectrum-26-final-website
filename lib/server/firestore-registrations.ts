@@ -283,3 +283,12 @@ export async function setSheetsSyncStatus(id: string, status: FirestoreRegistrat
 export async function setEmailSent(id: string): Promise<void> {
   await getDb().collection(COLLECTION).doc(id).update({ emailSentAt: Timestamp.now(), updatedAt: Timestamp.now() })
 }
+
+export async function deleteRegistration(id: string): Promise<void> {
+  const db = getDb()
+  await db.collection(COLLECTION).doc(id).delete()
+  const membersSnap = await db.collection("teamMembers").where("registrationId", "==", id).get()
+  const batch = db.batch()
+  membersSnap.forEach((doc) => batch.delete(doc.ref))
+  await batch.commit()
+}

@@ -187,21 +187,25 @@ export function RegistrationsAdminClient({
   // Note: deleteRegistration function would need to be implemented or API route created
   // For now, we'll comment it out or implement a basic version if needed
   const handleDeleteRegistration = useCallback(async (regId: string) => {
-    if (!window.confirm('Are you sure you want to delete this registration? This action cannot be undone.')) {
+    if (!window.confirm('Are you sure you want to delete this registration/team? This action cannot be undone.')) {
       return
     }
 
     setSaving(regId)
     try {
-      // TODO: Implement delete registration API route or function
-      alert('Delete functionality not yet implemented')
+      const res = await fetch(`/api/admin/registrations/${regId}`, { method: 'DELETE' })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error || 'Failed to delete registration')
+      }
+      await reload()
     } catch (err) {
       console.error('[admin] Delete registration error:', err)
-      alert('Failed to delete registration. Please try again.')
+      alert((err as Error).message || 'Failed to delete registration. Please try again.')
     } finally {
       setSaving(null)
     }
-  }, [])
+  }, [reload])
 
   const handleSyncAll = useCallback(async () => {
     setSyncing(true)
@@ -313,27 +317,27 @@ export function RegistrationsAdminClient({
       </div>
 
       {/* Search and filters */}
-      <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="mb-6 flex flex-wrap items-end gap-3 text-xs">
         <div>
-          <label className="block text-sm font-medium mb-1">Search</label>
+          <label className="block font-medium mb-1 text-neutral-400">Search</label>
           <div className="relative">
-            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-500" />
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-neutral-500" />
             <input
               type="text"
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              placeholder="Search by ID, name, email, event..."
-              className="pl-8 pr-4 py-2 rounded border border-neutral-600 bg-neutral-900/50 text-neutral-100 focus:border-amber-400 focus:outline-none focus:ring-0"
+              placeholder="Search..."
+              className="pl-8 pr-3 py-1.5 rounded border border-neutral-700 bg-neutral-900 text-neutral-100 focus:border-amber-400 focus:outline-none"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Event</label>
+          <label className="block font-medium mb-1 text-neutral-400">Event</label>
           <select
             value={selectedEventId}
             onChange={(e) => setSelectedEventId(e.target.value)}
-            className="block w-full pl-3 pr-10 py-2 rounded border border-neutral-600 bg-neutral-900/50 text-neutral-100 focus:border-amber-400 focus:outline-none"
+            className="px-3 py-1.5 rounded border border-neutral-700 bg-neutral-900 text-neutral-100 focus:border-amber-400 focus:outline-none"
           >
             <option value="all">All Events</option>
             {[...new Set(registrations.map(r => r.eventName))].sort().map(event => (
@@ -345,11 +349,11 @@ export function RegistrationsAdminClient({
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Payment Status</label>
+          <label className="block font-medium mb-1 text-neutral-400">Payment Status</label>
           <select
             value={selectedPaymentStatus}
             onChange={(e) => setSelectedPaymentStatus(e.target.value as PaymentStatus | 'all')}
-            className="block w-full pl-3 pr-10 py-2 rounded border border-neutral-600 bg-neutral-900/50 text-neutral-100 focus:border-amber-400 focus:outline-none"
+            className="px-3 py-1.5 rounded border border-neutral-700 bg-neutral-900 text-neutral-100 focus:border-amber-400 focus:outline-none"
           >
             <option value="all">All Statuses</option>
             <option value="APPROVED">Approved</option>
@@ -359,11 +363,11 @@ export function RegistrationsAdminClient({
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Check-in Status</label>
+          <label className="block font-medium mb-1 text-neutral-400">Check-in</label>
           <select
             value={selectedCheckInStatus}
             onChange={(e) => setSelectedCheckInStatus(e.target.value as CheckInStatus)}
-            className="block w-full pl-3 pr-10 py-2 rounded border border-neutral-600 bg-neutral-900/50 text-neutral-100 focus:border-amber-400 focus:outline-none"
+            className="px-3 py-1.5 rounded border border-neutral-700 bg-neutral-900 text-neutral-100 focus:border-amber-400 focus:outline-none"
           >
             <option value="all">All</option>
             <option value="checked-in">Checked In</option>
@@ -372,11 +376,11 @@ export function RegistrationsAdminClient({
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Sort By</label>
+          <label className="block font-medium mb-1 text-neutral-400">Sort By</label>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="block w-full pl-3 pr-10 py-2 rounded border border-neutral-600 bg-neutral-900/50 text-neutral-100 focus:border-amber-400 focus:outline-none"
+            className="px-3 py-1.5 rounded border border-neutral-700 bg-neutral-900 text-neutral-100 focus:border-amber-400 focus:outline-none"
           >
             <option value="date-desc">Date (Newest)</option>
             <option value="date-asc">Date (Oldest)</option>
@@ -388,87 +392,7 @@ export function RegistrationsAdminClient({
         </div>
       </div>
 
-      {/* Action buttons bar */}
-      {(filtered()).length > 0 && (
-        <div className="mb-4 flex flex-wrap gap-3">
-          <button 
-            onClick={() => {
-              const checkedRows = filtered().filter(({ reg }) => 
-                reg.paymentStatus === 'PENDING' || reg.paymentStatus === 'REJECTED'
-              )
-              if (checkedRows.length === 0) {
-                alert('No pending/rejected registrations to approve')
-                return
-              }
-              if (window.confirm(`Approve ${checkedRows.length} registration(s)?`)) {
-                checkedRows.forEach(({ reg }) => 
-                  handleUpdatePaymentStatus(reg.id, 'APPROVED')
-                )
-              }
-            }}
-            className="btn btn-success btn-sm"
-            disabled={saving !== null}
-          >
-            Approve Selected
-          </button>
-          <button 
-            onClick={() => {
-              const checkedRows = filtered().filter(({ reg }) => 
-                reg.paymentStatus === 'PENDING' || reg.paymentStatus === 'APPROVED'
-              )
-              if (checkedRows.length === 0) {
-                alert('No pending/approved registrations to reject')
-                return
-              }
-              if (window.confirm(`Reject ${checkedRows.length} registration(s)?`)) {
-                checkedRows.forEach(({ reg }) => 
-                  handleUpdatePaymentStatus(reg.id, 'REJECTED')
-                )
-              }
-            }}
-            className="btn btn-error btn-sm"
-            disabled={saving !== null}
-          >
-            Reject Selected
-          </button>
-          <button 
-            onClick={() => {
-              const checkedRows = filtered().filter(({ reg }) => !reg.checkedIn)
-              if (checkedRows.length === 0) {
-                alert('All registrations are already checked in')
-                return
-              }
-              if (window.confirm(`Check in ${checkedRows.length} registration(s)?`)) {
-                checkedRows.forEach(({ reg }) => 
-                  handleToggleCheckIn(reg.id, true)
-                )
-              }
-            }}
-            className="btn btn-primary btn-sm"
-            disabled={saving !== null}
-          >
-            Check In Selected
-          </button>
-          <button 
-            onClick={() => {
-              const checkedRows = filtered().filter(({ reg }) => reg.checkedIn)
-              if (checkedRows.length === 0) {
-                alert('No registrations are currently checked in')
-                return
-              }
-              if (window.confirm(`Check out ${checkedRows.length} registration(s)?`)) {
-                checkedRows.forEach(({ reg }) => 
-                  handleToggleCheckIn(reg.id, false)
-                )
-              }
-            }}
-            className="btn btn-warning btn-sm"
-            disabled={saving !== null}
-          >
-            Check Out Selected
-          </button>
-        </div>
-      )}
+
 
       {/* Main table */}
       <div className="w-full">
@@ -491,11 +415,14 @@ export function RegistrationsAdminClient({
             {filtered().map(({ reg }, index) => (
               <React.Fragment key={reg.id}>
                 {/* Main row */}
-                <tr className="hover:bg-neutral-800/50">
+                <tr 
+                  onClick={() => setExpandedId(expandedId === reg.id ? null : reg.id)}
+                  className="hover:bg-neutral-800/50 cursor-pointer transition-colors"
+                >
                   <td className="px-4 py-3 whitespace-nowrap text-sm font-mono">
                     {reg.id.slice(0, 8)}...
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm">
+                  <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
                     {reg.eventName}
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap text-sm">
@@ -546,7 +473,7 @@ export function RegistrationsAdminClient({
                       <EyeOff className="h-4 w-4 text-red-400" />
                     )}
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-right space-x-2">
+                  <td className="px-4 py-3 whitespace-nowrap text-right space-x-2" onClick={(e) => e.stopPropagation()}>
                     {/* Action buttons */}
                     {saving === reg.id ? (
                       <Loader2 className="h-3 w-3 animate-spin" />
@@ -600,11 +527,8 @@ export function RegistrationsAdminClient({
                         >
                           <Copy className="h-3 w-3" />
                         </button>
-                        {/* Expand/collapse button */}
                         <button
-                          onClick={() => {
-                            setExpandedId(expandedId === reg.id ? null : reg.id)
-                          }}
+                          onClick={() => setExpandedId(expandedId === reg.id ? null : reg.id)}
                           className="ml-1 hover:text-neutral-400"
                           title="Expand/collapse details"
                         >
@@ -622,8 +546,21 @@ export function RegistrationsAdminClient({
                 {/* Expandable details row */}
                 {expandedId === reg.id && (
                   <tr className="bg-neutral-900/50">
-                    <td colSpan="10" className="px-4 py-3">
-                      <div className="space-y-3">
+                    <td colSpan="10" className="px-4 py-4">
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between border-b border-neutral-800 pb-3">
+                          <h4 className="font-semibold text-sm text-white">
+                            Registration &amp; Team Details
+                          </h4>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteRegistration(reg.id)}
+                            disabled={saving === reg.id}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-red-500/20 border border-red-500/30 text-xs font-bold text-red-400 hover:bg-red-500/30 transition-colors"
+                          >
+                            <Trash2 size={13} /> Delete Team
+                          </button>
+                        </div>
                         <div className="border border-neutral-700 rounded p-3">
                           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div>
