@@ -40,9 +40,6 @@ export default function QuestBoardPage() {
             <AppButton onClick={() => router.push("/register/info")} className="w-full py-3.5 text-sm md:py-4 md:text-base">
               Accept Quest
             </AppButton>
-            <AppButton variant="outline" disabled className="w-full py-3.5 text-sm md:py-4 md:text-base">
-              Login (Coming Soon)
-            </AppButton>
           </div>
         </div>
       </PageContainer>
