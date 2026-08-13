@@ -1,7 +1,9 @@
 import "server-only"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
-import { verifySessionCookie, SESSION_COOKIE_NAME } from "./session"
+import { verifySessionCookie } from "./session"
+
+const SESSION_COOKIE_NAME = "spectrum_admin_session"
 import { isWhitelisted } from "@/lib/server/firestore-admin-whitelist"
 
 /**
