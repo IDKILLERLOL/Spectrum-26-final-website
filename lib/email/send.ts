@@ -18,12 +18,55 @@ export async function sendEmail(message: EmailMessage, tokenOverride?: string | 
   let token = tokenOverride || null
   if (!token) {
     try {
-      const doc = await db.collection("systemConfig").doc("gmail").get()
-      if (doc.exists) {
-        token = doc.data()?.token || null
+      // 1. Try environment variables for OAuth auto-refresh
+      const clientId = process.env.GMAIL_CLIENT_ID
+      const clientSecret = process.env.GMAIL_CLIENT_SECRET
+      const refreshToken = process.env.GMAIL_REFRESH_TOKEN
+
+      if (clientId && clientSecret && refreshToken) {
+        const refreshRes = await fetch("https://oauth2.googleapis.com/token", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({
+            client_id: clientId,
+            client_secret: clientSecret,
+            refresh_token: refreshToken,
+            grant_type: "refresh_token",
+          }),
+        })
+        const refreshData = await refreshRes.json()
+        if (refreshRes.ok && refreshData.access_token) {
+          token = refreshData.access_token
+        }
+      }
+
+      // 2. Fall back to Firestore document 'systemConfig/gmail'
+      if (!token) {
+        const doc = await db.collection("systemConfig").doc("gmail").get()
+        if (doc.exists) {
+          const docData = doc.data()
+          token = docData?.token || null
+          // If stored doc has refresh_token credentials, exchange for access_token
+          if (!token && docData?.refreshToken && docData?.clientId && docData?.clientSecret) {
+            const refreshRes = await fetch("https://oauth2.googleapis.com/token", {
+              method: "POST",
+              headers: { "Content-Type": "application/x-www-form-urlencoded" },
+              body: new URLSearchParams({
+                client_id: docData.clientId,
+                client_secret: docData.clientSecret,
+                refresh_token: docData.refreshToken,
+                grant_type: "refresh_token",
+              }),
+            })
+            const refreshData = await refreshRes.json()
+            if (refreshRes.ok && refreshData.access_token) {
+              token = refreshData.access_token
+            }
+          }
+        }
       }
     } catch (err) {
-      console.error("[email] Failed to retrieve Gmail OAuth token from Firestore:", err)
+      console.error("[email] Failed to resolve Gmail access token:", err)
     }
   }
 
