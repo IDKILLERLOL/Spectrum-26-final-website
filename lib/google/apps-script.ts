@@ -37,14 +37,20 @@ export async function fetchFromSheet(): Promise<any[]> {
   }
 
   try {
-    const res = await fetch(`${url}?action=readRegistrations`, {
+    const fetchUrl = url.includes("?") ? `${url}&action=readRegistrations` : `${url}?action=readRegistrations`
+    const res = await fetch(fetchUrl, {
       method: "GET",
       headers: { "Accept": "application/json" },
       redirect: "follow",
       signal: AbortSignal.timeout(10000),
     })
     if (!res.ok) return []
-    const data = await res.json()
+    const text = await res.text()
+    if (!text || text.trim().startsWith("<")) {
+      console.warn("[apps-script] fetchFromSheet returned non-JSON/HTML response.")
+      return []
+    }
+    const data = JSON.parse(text)
     return Array.isArray(data) ? data : (data.registrations || [])
   } catch (err) {
     console.error("[apps-script] fetchFromSheet failed:", err)
