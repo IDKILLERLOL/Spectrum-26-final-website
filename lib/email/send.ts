@@ -76,6 +76,30 @@ export async function sendEmail(message: EmailMessage, tokenOverride?: string | 
   }
 
   if (!token) {
+    const appsScriptUrl = process.env.APPS_SCRIPT_URL || process.env.VITE_GOOGLE_SHEETS_WEBAPP_URL
+    if (appsScriptUrl) {
+      console.log(`[email] Dispatching email to ${message.to} via Apps Script Web App...`)
+      try {
+        const relayRes = await fetch(appsScriptUrl, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            type: "email",
+            to: message.to,
+            subject: message.subject,
+            html: message.html,
+            text: message.text,
+          }),
+        })
+        if (relayRes.ok || relayRes.status === 302 || relayRes.status === 200) {
+          console.log(`[email] Email sent successfully via Apps Script to ${message.to}`)
+          return true
+        }
+      } catch (err) {
+        console.error("[email] Apps Script email dispatch error:", err)
+      }
+    }
+
     console.warn("[email:console-fallback] No Gmail token configured. Falling back to console logging.")
     console.log("[email:console-fallback] ---- would-be email ----")
     console.log(`[email:console-fallback] To: ${message.to}`)
@@ -119,6 +143,29 @@ export async function sendEmail(message: EmailMessage, tokenOverride?: string | 
     if (!res.ok) {
       const err = await res.json().catch(() => ({}))
       console.warn("[email] Gmail API send failed:", err)
+      
+      // Fallback: Dispatch email via Google Apps Script Web App (MailApp.sendEmail)
+      const appsScriptUrl = process.env.APPS_SCRIPT_URL || process.env.VITE_GOOGLE_SHEETS_WEBAPP_URL
+      if (appsScriptUrl) {
+        console.log(`[email] Relay email to ${message.to} via Apps Script Web App...`)
+        const relayRes = await fetch(appsScriptUrl, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            type: "email",
+            to: message.to,
+            subject: message.subject,
+            html: message.html,
+            text: message.text,
+          }),
+        }).catch(() => null)
+
+        if (relayRes && (relayRes.ok || relayRes.status === 302 || relayRes.status === 200)) {
+          console.log(`[email] Email sent successfully via Apps Script to ${message.to}`)
+          return true
+        }
+      }
+
       if (res.status === 401) {
         console.warn("[email] Gmail API access token expired. Clearing token from Firestore.")
         await db.collection("systemConfig").doc("gmail").delete()
