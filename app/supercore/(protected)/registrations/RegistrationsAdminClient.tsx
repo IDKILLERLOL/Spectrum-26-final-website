@@ -498,14 +498,16 @@ export function RegistrationsAdminClient({
                   <td className="px-4 py-3 whitespace-nowrap text-sm">
                     {reg.teamName || `Team ${reg.id.slice(0, 4)}`}
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm flex items-center gap-2">
-                    {/* Leader avatar/initials */}
-                    <div className="h-8 w-8 rounded bg-neutral-700 flex items-center justify-center text-xs font-bold">
-                      {reg.fullName ? reg.fullName.split(' ').map(n => n[0]).join('').slice(0, 2) : '??'}
-                    </div>
-                    <div className="flex-1">
-                      <div className="text-sm">{reg.fullName}</div>
-                      <div className="text-xs text-neutral-500">{reg.userEmail}</div>
+                  <td className="px-4 py-3 whitespace-nowrap text-sm">
+                    <div className="flex items-center gap-2">
+                      {/* Leader avatar/initials */}
+                      <div className="h-8 w-8 rounded bg-neutral-700 flex items-center justify-center text-xs font-bold shrink-0">
+                        {reg.fullName ? reg.fullName.split(' ').map(n => n[0]).join('').slice(0, 2) : '??'}
+                      </div>
+                      <div className="flex-1">
+                        <div className="text-sm">{reg.fullName}</div>
+                        <div className="text-xs text-neutral-500">{reg.userEmail}</div>
+                      </div>
                     </div>
                   </td>
                   <td className="px-4 py-3 text-sm">
@@ -547,7 +549,7 @@ export function RegistrationsAdminClient({
                       <Loader2 className="h-3 w-3 animate-spin" />
                     ) : (
                       <React.Fragment>
-                        {reg.paymentStatus === 'PENDING' || reg.paymentStatus === 'REJECTED' && (
+                        {(reg.paymentStatus === 'PENDING' || reg.paymentStatus === 'REJECTED') && (
                           <button
                             onClick={() => handleUpdatePaymentStatus(reg.id, 'APPROVED')}
                             title="Approve payment"
@@ -556,7 +558,16 @@ export function RegistrationsAdminClient({
                             <CheckCircle2 className="h-3 w-3" />
                           </button>
                         )}
-                        {reg.paymentStatus === 'PENDING' || reg.paymentStatus === 'APPROVED' && (
+                        {reg.paymentStatus === 'APPROVED' && (
+                          <button
+                            onClick={() => handleUpdatePaymentStatus(reg.id, 'PENDING')}
+                            title="Un-approve payment (Mark Pending)"
+                            className="ml-1 hover:text-amber-400"
+                          >
+                            <RefreshCw className="h-3 w-3" />
+                          </button>
+                        )}
+                        {(reg.paymentStatus === 'PENDING' || reg.paymentStatus === 'APPROVED') && (
                           <button
                             onClick={() => handleUpdatePaymentStatus(reg.id, 'REJECTED')}
                             title="Reject payment"
