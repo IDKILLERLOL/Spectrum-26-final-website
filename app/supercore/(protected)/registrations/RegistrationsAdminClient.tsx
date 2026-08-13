@@ -456,10 +456,16 @@ export function RegistrationsAdminClient({
                       <span className="text-neutral-500 text-xs">Solo / No members</span>
                     )}
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    <span className={`px-2 py-0.5 rounded text-xs ${getPaymentStatusClass(reg.paymentStatus as PaymentStatus)}`}>
-                      {reg.paymentStatus}
-                    </span>
+                  <td className="px-4 py-3 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                    <button
+                      type="button"
+                      disabled={saving === reg.id}
+                      onClick={() => handleUpdatePaymentStatus(reg.id, reg.paymentStatus === 'APPROVED' ? 'PENDING' : 'APPROVED')}
+                      title="Click to toggle Payment Status (Approved / Pending)"
+                      className={`px-3 py-1 rounded text-xs font-bold transition-transform active:scale-95 disabled:opacity-50 ${getPaymentStatusClass(reg.paymentStatus as PaymentStatus)}`}
+                    >
+                      {saving === reg.id ? "Updating…" : (reg.paymentStatus === "APPROVED" ? "PAID" : "NOT PAID")}
+                    </button>
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap text-right text-sm">
                     {reg.amountPaid !== null && reg.amountPaid !== undefined 
@@ -469,80 +475,43 @@ export function RegistrationsAdminClient({
                   <td className="px-4 py-3 whitespace-nowrap text-sm font-mono">
                     {reg.paymentRefId || '-'}
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-center">
-                    {reg.checkedIn ? (
-                      <CheckCircle2 className="h-4 w-4 text-green-400" />
-                    ) : (
-                      <EyeOff className="h-4 w-4 text-red-400" />
-                    )}
+                  <td className="px-4 py-3 whitespace-nowrap text-center" onClick={(e) => e.stopPropagation()}>
+                    <button
+                      type="button"
+                      disabled={saving === reg.id}
+                      onClick={() => handleToggleCheckIn(reg.id, !reg.checkedIn)}
+                      title="Click to toggle Check-in Status"
+                      className={`px-3 py-1 rounded text-xs font-bold transition-transform active:scale-95 disabled:opacity-50 ${
+                        reg.checkedIn
+                          ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30"
+                          : "bg-neutral-800 text-neutral-400 border border-neutral-700 hover:bg-neutral-700 hover:text-white"
+                      }`}
+                    >
+                      {reg.checkedIn ? "Checked In" : "Checked Out"}
+                    </button>
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap text-right space-x-2" onClick={(e) => e.stopPropagation()}>
-                    {/* Action buttons */}
-                    {saving === reg.id ? (
-                      <Loader2 className="h-3 w-3 animate-spin" />
-                    ) : (
-                      <React.Fragment>
-                        {(reg.paymentStatus === 'PENDING' || reg.paymentStatus === 'REJECTED') && (
-                          <button
-                            onClick={() => handleUpdatePaymentStatus(reg.id, 'APPROVED')}
-                            title="Approve payment"
-                            className="hover:text-green-400"
-                          >
-                            <CheckCircle2 className="h-3 w-3" />
-                          </button>
-                        )}
-                        {reg.paymentStatus === 'APPROVED' && (
-                          <button
-                            onClick={() => handleUpdatePaymentStatus(reg.id, 'PENDING')}
-                            title="Un-approve payment (Mark Pending)"
-                            className="ml-1 hover:text-amber-400"
-                          >
-                            <RefreshCw className="h-3 w-3" />
-                          </button>
-                        )}
-                        {(reg.paymentStatus === 'PENDING' || reg.paymentStatus === 'APPROVED') && (
-                          <button
-                            onClick={() => handleUpdatePaymentStatus(reg.id, 'REJECTED')}
-                            title="Reject payment"
-                            className="ml-1 hover:text-red-400"
-                          >
-                            <AlertTriangle className="h-3 w-3" />
-                          </button>
-                        )}
-                        <button
-                          onClick={() => handleToggleCheckIn(reg.id, !reg.checkedIn)}
-                          title={reg.checkedIn ? 'Check out' : 'Check in'}
-                          className="ml-1 hover:text-amber-400"
-                        >
-                          {reg.checkedIn ? (
-                            <Loader2 className="h-3 w-3" />
-                          ) : (
-                            <CheckCircle2 className="h-3 w-3" />
-                          )}
-                        </button>
-                        <button
-                          onClick={() => {
-                            setIdPopupTitle('Registration ID')
-                            setIdPopupContent(reg.id)
-                          }}
-                          title="Copy ID"
-                          className="ml-1 hover:text-neutral-400"
-                        >
-                          <Copy className="h-3 w-3" />
-                        </button>
-                        <button
-                          onClick={() => setExpandedId(expandedId === reg.id ? null : reg.id)}
-                          className="ml-1 hover:text-neutral-400"
-                          title="Expand/collapse details"
-                        >
-                          {expandedId === reg.id ? (
-                            <ChevronUp className="h-3 w-3" />
-                          ) : (
-                            <ChevronDown className="h-3 w-3" />
-                          )}
-                        </button>
-                      </React.Fragment>
-                    )}
+                    <button
+                      onClick={() => {
+                        setIdPopupTitle('Registration ID')
+                        setIdPopupContent(reg.id)
+                      }}
+                      title="Copy ID"
+                      className="p-1 hover:text-white text-neutral-400"
+                    >
+                      <Copy className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      onClick={() => setExpandedId(expandedId === reg.id ? null : reg.id)}
+                      className="p-1 hover:text-white text-neutral-400"
+                      title="Expand/collapse details"
+                    >
+                      {expandedId === reg.id ? (
+                        <ChevronUp className="h-3.5 w-3.5" />
+                      ) : (
+                        <ChevronDown className="h-3.5 w-3.5" />
+                      )}
+                    </button>
                   </td>
                 </tr>
 

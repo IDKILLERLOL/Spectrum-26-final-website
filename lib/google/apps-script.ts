@@ -43,7 +43,15 @@ interface RegistrationSheetRow {
 }
 
 export function buildRegistrationRow(input: RegistrationSheetRow) {
-  return input
+  let eventName = input.eventName
+  if (eventName === "singularity-strike" || eventName === "singularity_strike") {
+    eventName = "Code Clash"
+  } else if (eventName === "fc26" || eventName === "fc_26") {
+    eventName = "FIFA"
+  } else if (eventName === "dual-debug" || eventName === "dual_debug") {
+    eventName = "Dual Debug"
+  }
+  return { ...input, eventName }
 }
 
 interface AuditLogSheetRow {
