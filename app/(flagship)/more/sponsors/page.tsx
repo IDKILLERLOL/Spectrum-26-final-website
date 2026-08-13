@@ -18,7 +18,11 @@ export default async function SponsorsPage() {
         tier: s.fields.tier || s.fields.Tier || "Partner",
         fields: s.fields,
       }))
-    : staticSponsors
+    : staticSponsors.map((s) => ({
+        name: s.name,
+        tier: s.tier,
+        fields: { tier: s.tier },
+      }))
 
   return (
     <>

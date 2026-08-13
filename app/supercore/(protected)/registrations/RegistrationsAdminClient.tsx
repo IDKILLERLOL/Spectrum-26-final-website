@@ -525,7 +525,7 @@ export function RegistrationsAdminClient({
                 {/* Expandable details row */}
                 {expandedId === reg.id && (
                   <tr className="bg-neutral-900/50">
-                    <td colSpan="10" className="px-4 py-4">
+                    <td colSpan={9} className="px-4 py-4">
                       <div className="space-y-4">
                         <div className="flex items-center justify-between border-b border-neutral-800 pb-3">
                           <h4 className="font-semibold text-sm text-white">
