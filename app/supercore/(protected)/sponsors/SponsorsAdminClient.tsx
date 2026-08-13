@@ -98,6 +98,11 @@ export function SponsorsAdminClient({ initialSponsors }: { initialSponsors: Spon
       if (!res.ok) throw new Error(data.error ?? "Failed to save sponsor.")
 
       setIsFormOpen(false)
+      const listRes = await fetch("/api/admin/sponsors")
+      const listData = await listRes.json()
+      if (listRes.ok && listData.sponsors) {
+        setSponsors(listData.sponsors)
+      }
       startTransition(() => router.refresh())
     } catch (err: any) {
       setError(err.message || "Failed to save sponsor.")
@@ -117,6 +122,11 @@ export function SponsorsAdminClient({ initialSponsors }: { initialSponsors: Spon
       if (!res.ok) throw new Error(data.error ?? "Failed to delete sponsor.")
 
       setSponsors((prev) => prev.filter((s) => s.id !== id))
+      const listRes = await fetch("/api/admin/sponsors")
+      const listData = await listRes.json()
+      if (listRes.ok && listData.sponsors) {
+        setSponsors(listData.sponsors)
+      }
       startTransition(() => router.refresh())
     } catch (err: any) {
       setError(err.message || "Failed to delete sponsor.")
@@ -220,7 +230,7 @@ export function SponsorsAdminClient({ initialSponsors }: { initialSponsors: Spon
 
       {/* Sponsors Table / Cards */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        {initialSponsors.map((sponsor) => {
+        {sponsors.map((sponsor) => {
           const fields = sponsor.fields || {}
           const fieldKeys = Object.keys(fields)
 
@@ -231,12 +241,14 @@ export function SponsorsAdminClient({ initialSponsors }: { initialSponsors: Spon
                   <h3 className="text-base font-bold text-white">{sponsor.name}</h3>
                   <div className="flex gap-1">
                     <button
+                      type="button"
                       onClick={() => openEditForm(sponsor)}
                       className="rounded p-1.5 text-neutral-400 hover:bg-neutral-800 hover:text-amber-400"
                     >
                       <Edit2 size={14} />
                     </button>
                     <button
+                      type="button"
                       onClick={() => handleDelete(sponsor.id, sponsor.name)}
                       disabled={deletingId === sponsor.id}
                       className="rounded p-1.5 text-neutral-400 hover:bg-neutral-800 hover:text-red-400"
@@ -263,7 +275,7 @@ export function SponsorsAdminClient({ initialSponsors }: { initialSponsors: Spon
           )
         })}
 
-        {initialSponsors.length === 0 && (
+        {sponsors.length === 0 && (
           <div className="col-span-full rounded border border-neutral-800 bg-neutral-900/50 p-8 text-center text-xs text-neutral-500">
             No sponsors created yet. Click &quot;Add Sponsor&quot; above to create one.
           </div>
