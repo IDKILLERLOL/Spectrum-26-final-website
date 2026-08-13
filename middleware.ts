@@ -1,6 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server"
 import { verifyGateToken, GATE_COOKIE_NAME } from "@/lib/auth/gate"
 
+export const runtime = "nodejs"
+
 const SESSION_COOKIE_NAME = "spectrum_admin_session"
 
 export async function middleware(request: NextRequest) {
