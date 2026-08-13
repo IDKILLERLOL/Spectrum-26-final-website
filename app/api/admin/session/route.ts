@@ -29,14 +29,7 @@ export async function POST(request: Request) {
   } catch (err: any) {
     const msg = err?.message ?? String(err)
     console.error("[POST /api/admin/session] createSessionCookie failed:", msg)
-    // Surface a helpful message for common misconfigurations
-    if (msg.includes("app/invalid-credential") || msg.includes("private key") || msg.includes("FIREBASE_")) {
-      return NextResponse.json(
-        { error: "Server mis-configuration: Firebase Admin SDK credentials are invalid or missing. Check Vercel env vars." },
-        { status: 500 }
-      )
-    }
-    return NextResponse.json({ error: "Could not verify Google sign-in. " + msg }, { status: 401 })
+    return NextResponse.json({ error: msg }, { status: 401 })
   }
 
   // Whitelist check (with ENV fallback already built-in to isWhitelisted)
