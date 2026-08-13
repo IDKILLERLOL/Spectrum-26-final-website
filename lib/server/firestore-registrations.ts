@@ -136,109 +136,107 @@ export async function listRegistrations(filters?: {
   paymentStatus?: PaymentStatus
 }): Promise<(FirestoreRegistration & { id: string })[]> {
   const db = getDb()
-  const registrationsSnap = await db.collection(COLLECTION).get()
-  
-  const results: (FirestoreRegistration & { id: string })[] = []
 
-  for (const regDoc of registrationsSnap.docs) {
-    const regData = regDoc.data()
+  try {
+    const registrationsSnap = await db.collection(COLLECTION).get()
     
-    // Resolve leader user info
-    let fullName = ""
-    let phone = ""
-    let collegeName = ""
-    let fetchedEmail = ""
-    
-    const userIdToLookup = regData.leaderId || (typeof regData.userEmail === "string" && regData.userEmail.startsWith("guest_") ? regData.userEmail : null)
-    
-    if (userIdToLookup) {
-      const userDoc = await db.collection("users").doc(userIdToLookup).get()
-      if (userDoc.exists) {
-        const uData = userDoc.data()
+    // Batch fetch users and events to avoid N+1 quota exhaustion (1 query instead of N*4 queries)
+    const [usersSnap, eventsSnap] = await Promise.all([
+      db.collection("users").get().catch(() => ({ docs: [] })),
+      db.collection("events").get().catch(() => ({ docs: [] })),
+    ])
+
+    const userMap = new Map<string, any>()
+    usersSnap.docs.forEach((d: any) => userMap.set(d.id, d.data()))
+
+    const eventMap = new Map<string, any>()
+    eventsSnap.docs.forEach((d: any) => eventMap.set(d.id, d.data()))
+
+    const results: (FirestoreRegistration & { id: string })[] = []
+
+    for (const regDoc of registrationsSnap.docs) {
+      const regData = regDoc.data()
+      
+      let fullName = ""
+      let phone = ""
+      let collegeName = ""
+      let fetchedEmail = ""
+      
+      const userIdToLookup = regData.leaderId || (typeof regData.userEmail === "string" && regData.userEmail.startsWith("guest_") ? regData.userEmail : null)
+      
+      if (userIdToLookup && userMap.has(userIdToLookup)) {
+        const uData = userMap.get(userIdToLookup)
         fullName = uData?.name || ""
         phone = uData?.phone || ""
         collegeName = uData?.college || ""
         fetchedEmail = uData?.email || ""
       }
-    }
 
-    // Resolve event details
-    let eventName = regData.eventId || ""
-    let eventFee = 0
-    if (regData.eventId) {
-      const eventDoc = await db.collection("events").doc(regData.eventId).get()
-      if (eventDoc.exists) {
-        eventName = eventDoc.data()?.name || regData.eventId
-        eventFee = eventDoc.data()?.price || 0
+      let eventName = regData.eventName || regData.eventId || ""
+      let eventFee = 0
+      if (regData.eventId && eventMap.has(regData.eventId)) {
+        const eData = eventMap.get(regData.eventId)
+        eventName = eData?.name || regData.eventId
+        eventFee = eData?.price || 0
       }
+
+      const teamMembers: { name: string }[] = []
+      if (Array.isArray(regData.teamMembers)) {
+        regData.teamMembers.forEach((m: any) => {
+          const memberName = typeof m === "string" ? m : (m?.name || "")
+          if (memberName) teamMembers.push({ name: memberName })
+        })
+      } else if (Array.isArray(regData.members)) {
+        regData.members.forEach((m: any) => {
+          const memberName = typeof m === "string" ? m : (m?.name || "")
+          if (memberName) teamMembers.push({ name: memberName })
+        })
+      }
+
+      const rawEmail = regData.userEmail || regData.email || regData.leaderEmail || ""
+      const userEmail = fetchedEmail || (!rawEmail.startsWith("guest_") ? rawEmail : "") || regData.leaderId || ""
+
+      const doc: FirestoreRegistration & { id: string } = {
+        id: regDoc.id,
+        userEmail: userEmail,
+        fullName: fullName || regData.fullName || regData.name || "",
+        phone: phone || regData.phone || "",
+        collegeName: collegeName || regData.collegeName || regData.college || "",
+        year: regData.year || "FY",
+        eventId: regData.eventId || "",
+        eventName: eventName,
+        teamMembers: teamMembers,
+        teamSize: teamMembers.length || 1,
+        paymentRefId: regData.paymentRefId || regData.upiTransactionRef || "",
+        amountPaid: regData.amountPaid || eventFee,
+        paymentStatus: regData.feeStatus === "PAID" ? "APPROVED" : (regData.paymentStatus || "PENDING"),
+        pictureUrl: regData.pictureUrl || regData.photoUrl || regData.paymentScreenshot || regData.screenshotUrl || regData.image || "",
+        checkedIn: regData.checkedIn || false,
+        paymentVerifiedBy: regData.paymentVerifiedBy || regData.lastEditedBy || null,
+        paymentVerifiedAt: regData.paymentVerifiedAt || regData.lastEditedAt || null,
+        sheetsSyncStatus: regData.sheetsSyncStatus || "PENDING",
+        emailSentAt: regData.emailSentAt || null,
+        createdAt: regData.createdAt?.toDate ? regData.createdAt.toDate().toISOString() : (typeof regData.createdAt === "string" ? regData.createdAt : null),
+        updatedAt: regData.updatedAt?.toDate ? regData.updatedAt.toDate().toISOString() : (typeof regData.updatedAt === "string" ? regData.updatedAt : null),
+      }
+
+      if (filters?.eventId && doc.eventId !== filters.eventId) continue
+      if (filters?.paymentStatus && doc.paymentStatus !== filters.paymentStatus) continue
+
+      results.push(doc)
     }
 
-    // Resolve team members
-    const membersSnap = await db.collection("teamMembers")
-      .where("registrationId", "==", regDoc.id)
-      .where("status", "==", "ACTIVE")
-      .get()
-    
-    const teamMembers: { name: string }[] = []
-    membersSnap.forEach((mDoc) => {
-      teamMembers.push({ name: mDoc.data().name || "" })
+    results.sort((a, b) => {
+      const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0
+      const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0
+      return timeB - timeA
     })
 
-    if (teamMembers.length === 0 && Array.isArray(regData.teamMembers)) {
-      regData.teamMembers.forEach((m: any) => {
-        const memberName = typeof m === "string" ? m : (m?.name || "")
-        if (memberName) teamMembers.push({ name: memberName })
-      })
-    } else if (teamMembers.length === 0 && Array.isArray(regData.members)) {
-      regData.members.forEach((m: any) => {
-        const memberName = typeof m === "string" ? m : (m?.name || "")
-        if (memberName) teamMembers.push({ name: memberName })
-      })
-    }
-
-    const rawEmail = regData.userEmail || regData.email || regData.leaderEmail || ""
-    const userEmail = fetchedEmail || (!rawEmail.startsWith("guest_") ? rawEmail : "") || regData.leaderId || ""
-
-    // Construct unified new schema item dynamically
-    const doc: FirestoreRegistration & { id: string } = {
-      id: regDoc.id,
-      userEmail: userEmail,
-      fullName: fullName || regData.fullName || regData.name || "",
-      phone: phone || regData.phone || "",
-      collegeName: collegeName || regData.collegeName || regData.college || "",
-      year: regData.year || "FY",
-      eventId: regData.eventId || "",
-      eventName: eventName,
-      teamMembers: teamMembers,
-      teamSize: teamMembers.length || 1,
-      paymentRefId: regData.paymentRefId || regData.upiTransactionRef || "",
-      amountPaid: regData.amountPaid || eventFee,
-      paymentStatus: regData.feeStatus === "PAID" ? "APPROVED" : (regData.paymentStatus || "PENDING"),
-      pictureUrl: regData.pictureUrl || regData.photoUrl || regData.paymentScreenshot || regData.screenshotUrl || regData.image || "",
-      checkedIn: regData.checkedIn || false,
-      paymentVerifiedBy: regData.paymentVerifiedBy || regData.lastEditedBy || null,
-      paymentVerifiedAt: regData.paymentVerifiedAt || regData.lastEditedAt || null,
-      sheetsSyncStatus: regData.sheetsSyncStatus || "PENDING",
-      emailSentAt: regData.emailSentAt || null,
-      createdAt: regData.createdAt?.toDate ? regData.createdAt.toDate().toISOString() : (typeof regData.createdAt === "string" ? regData.createdAt : null),
-      updatedAt: regData.updatedAt?.toDate ? regData.updatedAt.toDate().toISOString() : (typeof regData.updatedAt === "string" ? regData.updatedAt : null),
-    }
-
-    // Filter by options if supplied
-    if (filters?.eventId && doc.eventId !== filters.eventId) continue
-    if (filters?.paymentStatus && doc.paymentStatus !== filters.paymentStatus) continue
-
-    results.push(doc)
+    return results
+  } catch (err: any) {
+    console.warn("[listRegistrations] Error or Quota limit reached:", err?.message || err)
+    return []
   }
-
-  // Sort descending by creation date
-  results.sort((a, b) => {
-    const aTime = a.createdAt ? (typeof a.createdAt.toDate === "function" ? a.createdAt.toDate().getTime() : new Date(a.createdAt).getTime()) : 0
-    const bTime = b.createdAt ? (typeof b.createdAt.toDate === "function" ? b.createdAt.toDate().getTime() : new Date(b.createdAt).getTime()) : 0
-    return bTime - aTime
-  })
-
-  return results
 }
 
 export async function setPaymentStatus(
