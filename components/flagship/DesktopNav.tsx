@@ -21,7 +21,8 @@ export function DesktopNav() {
 
   // Close sidebar on path change
   useEffect(() => {
-    setIsOpen(false)
+    const timer = setTimeout(() => setIsOpen(false), 0)
+    return () => clearTimeout(timer)
   }, [pathname])
 
   return (

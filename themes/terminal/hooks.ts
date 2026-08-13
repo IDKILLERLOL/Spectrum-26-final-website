@@ -18,13 +18,7 @@ export function useTypewriter(text: string, opts?: { cps?: number; startDelay?: 
   const [done, setDone] = React.useState(reduced)
 
   React.useEffect(() => {
-    if (reduced) {
-      setCount(text.length)
-      setDone(true)
-      return
-    }
-    setCount(0)
-    setDone(false)
+    if (reduced) return
     let raf = 0
     let cancelled = false
     const msPerChar = 1000 / cps

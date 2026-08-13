@@ -218,18 +218,25 @@ const IntroTransition = () => {
 
 const Sakura = () => {
   const reduced = useReducedMotion()
+  const petals = React.useMemo(
+    () =>
+      Array.from({ length: 12 }).map((_, i) => ({
+        id: i,
+        left: `${((i * 37 + 13) % 100)}%`,
+        duration: 8 + ((i * 17) % 7),
+        delay: (i * 1.3) % 5,
+      })),
+    []
+  )
+
   if (reduced) return null
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
-      {Array.from({ length: 12 }).map((_, i) => {
-        const left = `${Math.random() * 100}%`
-        const duration = 8 + Math.random() * 6
-        const delay = Math.random() * 5
-        return (
-          <motion.div
-            key={i}
-            className="absolute -top-4 size-3 rounded-tl-full rounded-br-full opacity-60"
-            style={{ background: '#FFB7C5', left }}
+      {petals.map((p) => (
+        <motion.div
+          key={p.id}
+          className="absolute -top-4 size-3 rounded-tl-full rounded-br-full opacity-60"
+          style={{ background: '#FFB7C5', left: p.left }}
             animate={{
               y: ["-5vh", "105vh"],
               x: ["-2vw", "3vw", "-1vw", "2vw"],

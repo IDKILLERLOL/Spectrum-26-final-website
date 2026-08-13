@@ -700,13 +700,10 @@ const Dock: ThemeModule["Dock"] = () => {
 const Hero: ThemeModule["Hero"] = () => {
   const countdown = useCountdown()
   const reduced = useReducedMotion()
-  const [intro, setIntro] = React.useState(true)
+  const [intro, setIntro] = React.useState(() => !reduced)
 
   React.useEffect(() => {
-    if (reduced) {
-      setIntro(false)
-      return
-    }
+    if (reduced) return
     const id = window.setTimeout(() => setIntro(false), 1500)
     return () => window.clearTimeout(id)
   }, [reduced])

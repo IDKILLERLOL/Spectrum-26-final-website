@@ -18,8 +18,13 @@ export default function ThemedSitePage() {
     let cancelled = false
     const loader = loadTheme(slug)
     if (!loader) {
-      setNotFound(true)
-      return
+      const timer = setTimeout(() => {
+        if (!cancelled) setNotFound(true)
+      }, 0)
+      return () => {
+        cancelled = true
+        clearTimeout(timer)
+      }
     }
     loader.then((mod) => {
       if (!cancelled) setT(mod.default)

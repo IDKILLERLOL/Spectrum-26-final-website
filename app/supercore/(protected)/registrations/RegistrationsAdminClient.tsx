@@ -50,8 +50,8 @@ export function RegistrationsAdminClient({
   adminEmail: string 
 }) {
   const router = useRouter()
-  const [rows, setRows] = useState<RowView[]>([])
-  const [loading, setLoading] = useState(true)
+  const [rows, setRows] = useState<RowView[]>(() => registrations.map(reg => ({ reg })))
+  const [loading, setLoading] = useState(false)
   const [filter, setFilter] = useState('')
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [saving, setSaving] = useState<string | null>(null)
@@ -66,14 +66,7 @@ export function RegistrationsAdminClient({
   const [selectedPaymentStatus, setSelectedPaymentStatus] = useState<PaymentStatus | 'all'>('all')
   const [selectedCheckInStatus, setSelectedCheckInStatus] = useState<CheckInStatus>('all')
   const [sortBy, setSortBy] = useState<string>('date-desc')
-  const [lastUpdated, setLastUpdated] = useState("")
-
-  // Initialize rows from registrations prop
-  useEffect(() => {
-    const rowData: RowView[] = registrations.map(reg => ({ reg }))
-    setRows(rowData)
-    setLastUpdated(new Date().toLocaleTimeString())
-  }, [registrations])
+  const [lastUpdated, setLastUpdated] = useState(() => new Date().toLocaleTimeString())
 
   // Client-side filter & sort on pre-fetched data
   const filtered = useCallback(() => {
