@@ -214,7 +214,7 @@ export async function listRegistrations(filters?: {
       paymentRefId: regData.paymentRefId || regData.upiTransactionRef || "",
       amountPaid: regData.amountPaid || eventFee,
       paymentStatus: regData.feeStatus === "PAID" ? "APPROVED" : (regData.paymentStatus || "PENDING"),
-      pictureUrl: regData.pictureUrl || regData.photoUrl || "",
+      pictureUrl: regData.pictureUrl || regData.photoUrl || regData.paymentScreenshot || regData.screenshotUrl || regData.image || "",
       checkedIn: regData.checkedIn || false,
       paymentVerifiedBy: regData.paymentVerifiedBy || regData.lastEditedBy || null,
       paymentVerifiedAt: regData.paymentVerifiedAt || regData.lastEditedAt || null,
