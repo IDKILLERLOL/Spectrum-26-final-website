@@ -57,18 +57,20 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     .then((ok) => setSheetsSyncStatus(id, ok ? "SYNCED" : "FAILED"))
     .catch(() => setSheetsSyncStatus(id, "FAILED"))
 
-  sendEmail(
-    paymentStatusEmail({
-      to: existing.userEmail,
-      fullName: existing.fullName,
-      eventName: existing.eventName,
-      status: body.status,
-    })
-  )
-    .then((ok) => {
-      if (ok) return setEmailSent(id)
-    })
-    .catch(() => {})
+  if (body.status !== "PENDING") {
+    sendEmail(
+      paymentStatusEmail({
+        to: existing.userEmail,
+        fullName: existing.fullName,
+        eventName: existing.eventName,
+        status: body.status as "APPROVED" | "REJECTED",
+      })
+    )
+      .then((ok) => {
+        if (ok) return setEmailSent(id)
+      })
+      .catch(() => {})
+  }
 
   return NextResponse.json({ ok: true, registration: updated })
 }

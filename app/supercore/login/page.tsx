@@ -16,12 +16,14 @@ export default function AdminLoginPage() {
     setError(null)
     try {
       const result = await signInWithPopup(getClientAuth(), googleProvider)
+      const credential = GoogleAuthProvider.credentialFromResult(result)
+      const accessToken = credential?.accessToken ?? null
       const idToken = await result.user.getIdToken()
 
       const res = await fetch("/api/admin/session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idToken }),
+        body: JSON.stringify({ idToken, accessToken }),
       })
 
       if (!res.ok) {

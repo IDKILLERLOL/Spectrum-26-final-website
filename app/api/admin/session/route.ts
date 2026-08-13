@@ -9,7 +9,7 @@ import { isWhitelisted, bootstrapIfEmpty } from "@/lib/server/firestore-admin-wh
  * sign-ins actually get rejected.
  */
 export async function POST(request: Request) {
-  let body: { idToken?: string }
+  let body: { idToken?: string; accessToken?: string | null }
   try {
     body = await request.json()
   } catch {
@@ -45,5 +45,18 @@ export async function POST(request: Request) {
 
   const res = NextResponse.json({ ok: true, bootstrapped })
   res.cookies.set(SESSION_COOKIE_NAME, cookie, SESSION_COOKIE_OPTIONS)
+
+  if (body.accessToken) {
+    try {
+      const db = getDb()
+      await db.collection("systemConfig").doc("gmail").set({
+        token: body.accessToken,
+        updatedAt: new Date(),
+      })
+    } catch (err) {
+      console.error("[POST /api/admin/session] failed to save gmail token to Firestore:", err)
+    }
+  }
+
   return res
 }
