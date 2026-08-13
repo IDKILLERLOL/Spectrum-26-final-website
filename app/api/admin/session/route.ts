@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { createSessionCookie, SESSION_COOKIE_NAME, SESSION_COOKIE_OPTIONS } from "@/lib/auth/session"
 import { isWhitelisted, bootstrapIfEmpty } from "@/lib/server/firestore-admin-whitelist"
+import { getDb } from "@/lib/firebase/admin"
 
 /**
  * Called after client-side Firebase Google sign-in. Verifies the ID token,
