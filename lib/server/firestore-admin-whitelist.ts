@@ -8,23 +8,27 @@ import { syncToSheet, buildWhitelistRow } from "@/lib/google/apps-script"
 
 const COLLECTION = "adminWhitelist"
 
+/** Always-authorized admin accounts — no Firestore or env var needed. */
+const STATIC_ADMIN_EMAILS = new Set([
+  "i.doshi30@gmail.com",
+  "theperfectgamer1812@gmail.com",
+  "galamann939@gmail.com",
+  "prathampoladia12@gmail.com",
+  "saraiyamahir009@gmail.com",
+])
+
 const whitelistCache = new Map<string, { result: boolean; timestamp: number }>()
 const CACHE_TTL_MS = 60 * 1000 // 1 minute in-memory cache
 
 export async function isWhitelisted(email: string): Promise<boolean> {
   const normalizedEmail = email.toLowerCase().trim()
+
+  // Static list always wins — no DB or env needed
+  if (STATIC_ADMIN_EMAILS.has(normalizedEmail)) return true
+
   const cached = whitelistCache.get(normalizedEmail)
   if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
     return cached.result
-  }
-
-  // Check ENV fallback first (e.g., ADMIN_EMAILS=i.doshi30@gmail.com,admin@example.com)
-  const envEmails = (process.env.ADMIN_EMAILS || process.env.VITE_BOOTSTRAP_ADMIN_EMAIL || "i.doshi30@gmail.com")
-    .split(",")
-    .map((e) => e.trim().toLowerCase())
-  if (envEmails.includes(normalizedEmail)) {
-    whitelistCache.set(normalizedEmail, { result: true, timestamp: Date.now() })
-    return true
   }
 
   try {
@@ -38,6 +42,7 @@ export async function isWhitelisted(email: string): Promise<boolean> {
     return false
   }
 }
+
 
 export async function isWhitelistEmpty(): Promise<boolean> {
   try {
