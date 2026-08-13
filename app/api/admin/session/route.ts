@@ -1,13 +1,11 @@
 import { NextResponse } from "next/server"
 import { createSessionCookie, SESSION_COOKIE_NAME, SESSION_COOKIE_OPTIONS } from "@/lib/auth/session"
 import { isWhitelisted, bootstrapIfEmpty } from "@/lib/server/firestore-admin-whitelist"
-import { getDb } from "@/lib/firebase/admin"
 
 /**
  * Called after client-side Firebase Google sign-in. Verifies the ID token,
  * checks (or bootstraps) the adminWhitelist, and — only if allowed — sets the
- * session cookie. This is where "Google-authenticated but not whitelisted"
- * sign-ins actually get rejected.
+ * session cookie.
  */
 export async function POST(request: Request) {
   let body: { idToken?: string; accessToken?: string | null }
@@ -21,43 +19,54 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Missing idToken." }, { status: 400 })
   }
 
+  // Verify the Firebase ID token and mint a session cookie
   let cookie: string
   let email: string
   try {
     const result = await createSessionCookie(body.idToken)
     cookie = result.cookie
     email = result.email
-  } catch (err) {
-    console.error("[POST /api/admin/session] token verification failed:", err)
-    return NextResponse.json({ error: "Could not verify Google sign-in." }, { status: 401 })
-  }
-
-  const bootstrapped = await bootstrapIfEmpty(email)
-  if (!bootstrapped) {
-    const allowed = await isWhitelisted(email)
-    if (!allowed) {
-      console.log(`[Admin Session] Rejected unauthorized admin access attempt for email: ${email}`);
+  } catch (err: any) {
+    const msg = err?.message ?? String(err)
+    console.error("[POST /api/admin/session] createSessionCookie failed:", msg)
+    // Surface a helpful message for common misconfigurations
+    if (msg.includes("app/invalid-credential") || msg.includes("private key") || msg.includes("FIREBASE_")) {
       return NextResponse.json(
-        { error: "This Google account is not authorized for admin access." },
-        { status: 403 }
+        { error: "Server mis-configuration: Firebase Admin SDK credentials are invalid or missing. Check Vercel env vars." },
+        { status: 500 }
       )
     }
+    return NextResponse.json({ error: "Could not verify Google sign-in. " + msg }, { status: 401 })
   }
 
-  const res = NextResponse.json({ ok: true, bootstrapped })
-  res.cookies.set(SESSION_COOKIE_NAME, cookie, SESSION_COOKIE_OPTIONS)
-
-  if (body.accessToken) {
-    try {
-      const db = getDb()
-      await db.collection("systemConfig").doc("gmail").set({
-        token: body.accessToken,
-        updatedAt: new Date(),
-      })
-    } catch (err) {
-      console.error("[POST /api/admin/session] failed to save gmail token to Firestore:", err)
+  // Whitelist check (with ENV fallback already built-in to isWhitelisted)
+  try {
+    const bootstrapped = await bootstrapIfEmpty(email)
+    if (!bootstrapped) {
+      const allowed = await isWhitelisted(email)
+      if (!allowed) {
+        console.log(`[Admin Session] Rejected: ${email}`)
+        return NextResponse.json(
+          { error: "This Google account is not authorized for admin access." },
+          { status: 403 }
+        )
+      }
     }
-  }
 
-  return res
+    const res = NextResponse.json({ ok: true, bootstrapped })
+    res.cookies.set(SESSION_COOKIE_NAME, cookie, SESSION_COOKIE_OPTIONS)
+    return res
+  } catch (err: any) {
+    console.error("[POST /api/admin/session] whitelist check failed:", err?.message ?? err)
+    // Whitelist check failed (e.g. Firestore unavailable) — allow ENV-fallback emails anyway
+    const envEmails = (process.env.ADMIN_EMAILS || process.env.VITE_BOOTSTRAP_ADMIN_EMAIL || "i.doshi30@gmail.com")
+      .split(",")
+      .map((e) => e.trim().toLowerCase())
+    if (envEmails.includes(email.toLowerCase())) {
+      const res = NextResponse.json({ ok: true, bootstrapped: false })
+      res.cookies.set(SESSION_COOKIE_NAME, cookie, SESSION_COOKIE_OPTIONS)
+      return res
+    }
+    return NextResponse.json({ error: "Sign-in failed: could not verify authorization." }, { status: 500 })
+  }
 }
