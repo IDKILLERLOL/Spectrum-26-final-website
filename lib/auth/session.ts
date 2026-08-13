@@ -17,18 +17,17 @@ function getSecret(): string {
   return s
 }
 
-/** HMAC-SHA256 sign */
-async function sign(payload: string, secret: string): Promise<string> {
+/** HMAC-SHA256 → hex string */
+async function hmacHex(data: string, secret: string): Promise<string> {
   const enc = new TextEncoder()
   const key = await crypto.subtle.importKey(
     "raw", enc.encode(secret),
     { name: "HMAC", hash: "SHA-256" }, false, ["sign"]
   )
-  const sig = await crypto.subtle.sign("HMAC", key, enc.encode(payload))
+  const sig = await crypto.subtle.sign("HMAC", key, enc.encode(data))
   return Array.from(new Uint8Array(sig)).map((b) => b.toString(16).padStart(2, "0")).join("")
 }
 
-/** Constant-time compare */
 function safeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) return false
   let diff = 0
@@ -36,13 +35,24 @@ function safeEqual(a: string, b: string): boolean {
   return diff === 0
 }
 
+/** btoa-safe base64url encode */
+function toBase64url(str: string): string {
+  return btoa(str).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "")
+}
+
+/** base64url decode */
+function fromBase64url(str: string): string {
+  const padded = str.replace(/-/g, "+").replace(/_/g, "/").padEnd(str.length + (4 - str.length % 4) % 4, "=")
+  return atob(padded)
+}
+
 /**
- * Verifies a Firebase ID token via the public REST API (no Admin SDK needed).
- * Only requires NEXT_PUBLIC_FIREBASE_API_KEY.
+ * Verifies a Firebase ID token via the public REST API.
+ * Only requires NEXT_PUBLIC_FIREBASE_API_KEY — no Admin SDK / private key needed.
  */
 export async function verifyFirebaseIdToken(idToken: string): Promise<{ email: string }> {
   const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY
-  if (!apiKey) throw new Error("NEXT_PUBLIC_FIREBASE_API_KEY is not set.")
+  if (!apiKey) throw new Error("NEXT_PUBLIC_FIREBASE_API_KEY is not set in environment.")
 
   const res = await fetch(
     `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${apiKey}`,
@@ -55,33 +65,30 @@ export async function verifyFirebaseIdToken(idToken: string): Promise<{ email: s
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
-    throw new Error(err?.error?.message ?? `Firebase token verification failed (${res.status})`)
+    throw new Error(err?.error?.message ?? `Firebase token lookup failed (HTTP ${res.status})`)
   }
 
   const data = await res.json()
   const user = data?.users?.[0]
-  if (!user?.email) throw new Error("No email found in Firebase token.")
-  return { email: user.email.toLowerCase() }
+  if (!user?.email) throw new Error("No email found in Firebase token response.")
+  return { email: (user.email as string).toLowerCase() }
 }
 
 /**
- * Creates a signed session token: base64(payload).signature
- * Payload: { email, exp } as JSON → base64url
+ * Mints a signed session cookie: base64url(payload).hmacHex
  */
 export async function createSessionCookie(idToken: string): Promise<{ cookie: string; email: string }> {
   const { email } = await verifyFirebaseIdToken(idToken)
   const secret = getSecret()
 
   const exp = Math.floor(Date.now() / 1000) + SESSION_MAX_AGE_SECONDS
-  const payload = Buffer.from(JSON.stringify({ email, exp })).toString("base64url")
-  const sig = await sign(payload, secret)
-  const cookie = `${payload}.${sig}`
-
-  return { cookie, email }
+  const payload = toBase64url(JSON.stringify({ email, exp }))
+  const sig = await hmacHex(payload, secret)
+  return { cookie: `${payload}.${sig}`, email }
 }
 
 /**
- * Verifies our own HMAC session cookie and returns { email } or null.
+ * Verifies our HMAC session cookie. Returns { email } or null.
  */
 export async function verifySessionCookie(cookie: string | undefined): Promise<{ email: string } | null> {
   if (!cookie) return null
@@ -92,11 +99,11 @@ export async function verifySessionCookie(cookie: string | undefined): Promise<{
 
     const payload = cookie.slice(0, dot)
     const sig = cookie.slice(dot + 1)
-    const expectedSig = await sign(payload, secret)
-    if (!safeEqual(sig, expectedSig)) return null
+    const expected = await hmacHex(payload, secret)
+    if (!safeEqual(sig, expected)) return null
 
-    const data = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"))
-    if (!data?.email || !data?.exp) return null
+    const data = JSON.parse(fromBase64url(payload)) as { email?: string; exp?: number }
+    if (!data.email || !data.exp) return null
     if (Math.floor(Date.now() / 1000) > data.exp) return null
 
     return { email: data.email }
