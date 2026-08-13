@@ -575,13 +575,20 @@ export function RegistrationsAdminClient({
                               <p className="text-sm font-medium">{reg.userEmail || '-'}</p>
                             </div>
                             {(reg as any).pictureUrl && (
-                              <div>
-                                <p className="text-xs text-neutral-500 mb-1">Profile Photo</p>
-                                <img
-                                  src={(reg as any).pictureUrl}
-                                  alt="Profile"
-                                  className="size-16 object-cover border border-neutral-700 rounded"
-                                />
+                              <div className="col-span-2 mt-2 border border-neutral-700 rounded p-3 bg-neutral-900">
+                                <p className="text-xs text-neutral-400 mb-2 font-medium">Payment Verification Screenshot</p>
+                                <a
+                                  href={(reg as any).pictureUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-block"
+                                >
+                                  <img
+                                    src={(reg as any).pictureUrl}
+                                    alt="Payment Screenshot"
+                                    className="max-h-48 max-w-xs object-contain border border-neutral-700 rounded hover:opacity-90 transition-opacity"
+                                  />
+                                </a>
                               </div>
                             )}
                             <div>
