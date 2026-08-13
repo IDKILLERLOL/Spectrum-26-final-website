@@ -131,11 +131,23 @@ export async function getRegistration(id: string): Promise<(FirestoreRegistratio
   }
 }
 
+let cachedRegistrations: (FirestoreRegistration & { id: string })[] = []
+let lastRegistrationsFetch = 0
+const REGISTRATIONS_CACHE_TTL = 30 * 1000 // 30 seconds
+
 export async function listRegistrations(filters?: {
   eventId?: string
   paymentStatus?: PaymentStatus
 }): Promise<(FirestoreRegistration & { id: string })[]> {
   const db = getDb()
+
+  // Return cached result if within TTL
+  if (cachedRegistrations.length > 0 && Date.now() - lastRegistrationsFetch < REGISTRATIONS_CACHE_TTL) {
+    let res = cachedRegistrations
+    if (filters?.eventId) res = res.filter((r) => r.eventId === filters.eventId)
+    if (filters?.paymentStatus) res = res.filter((r) => r.paymentStatus === filters.paymentStatus)
+    return res
+  }
 
   try {
     const registrationsSnap = await db.collection(COLLECTION).get()
@@ -232,10 +244,16 @@ export async function listRegistrations(filters?: {
       return timeB - timeA
     })
 
+    cachedRegistrations = results
+    lastRegistrationsFetch = Date.now()
+
     return results
   } catch (err: any) {
     console.warn("[listRegistrations] Error or Quota limit reached:", err?.message || err)
-    return []
+    let res = cachedRegistrations
+    if (filters?.eventId) res = res.filter((r) => r.eventId === filters.eventId)
+    if (filters?.paymentStatus) res = res.filter((r) => r.paymentStatus === filters.paymentStatus)
+    return res
   }
 }
 
