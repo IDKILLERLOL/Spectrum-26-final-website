@@ -67,8 +67,12 @@ export async function addToWhitelist(email: string, addedBy: string): Promise<vo
     console.warn("[addToWhitelist] Firestore fallback warning:", err)
   }
 
-  // Sync to Google Sheets Whitelist tab
-  await syncToSheet(buildWhitelistRow(normalized, "ADD", addedBy))
+  // Sync to Google Sheets Whitelist tab (best-effort — never crash sign-in)
+  try {
+    await syncToSheet(buildWhitelistRow(normalized, "ADD", addedBy))
+  } catch (err) {
+    console.warn("[addToWhitelist] syncToSheet failed (non-fatal):", err)
+  }
 }
 
 export async function removeFromWhitelist(email: string): Promise<void> {
@@ -81,8 +85,12 @@ export async function removeFromWhitelist(email: string): Promise<void> {
     console.warn("[removeFromWhitelist] Firestore fallback warning:", err)
   }
 
-  // Sync to Google Sheets Whitelist tab
-  await syncToSheet(buildWhitelistRow(normalized, "REMOVE", "admin"))
+  // Sync to Google Sheets Whitelist tab (best-effort — never crash operations)
+  try {
+    await syncToSheet(buildWhitelistRow(normalized, "REMOVE", "admin"))
+  } catch (err) {
+    console.warn("[removeFromWhitelist] syncToSheet failed (non-fatal):", err)
+  }
 }
 
 export async function listWhitelist(): Promise<(AdminWhitelistEntry & { id: string })[]> {

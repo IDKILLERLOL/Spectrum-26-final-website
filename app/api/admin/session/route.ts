@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { createSessionCookie, SESSION_COOKIE_NAME, SESSION_COOKIE_OPTIONS } from "@/lib/auth/session"
-import { isWhitelisted, bootstrapIfEmpty } from "@/lib/server/firestore-admin-whitelist"
+import { isWhitelisted } from "@/lib/server/firestore-admin-whitelist"
+
 
 /**
  * Called after client-side Firebase Google sign-in. Verifies the ID token,
@@ -32,34 +33,24 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: msg }, { status: 401 })
   }
 
-  // Whitelist check (with ENV fallback already built-in to isWhitelisted)
+  // Whitelist check — static admins always pass, Firestore errors are non-fatal
   try {
-    const bootstrapped = await bootstrapIfEmpty(email)
-    if (!bootstrapped) {
-      const allowed = await isWhitelisted(email)
-      if (!allowed) {
-        console.log(`[Admin Session] Rejected: ${email}`)
-        return NextResponse.json(
-          { error: "This Google account is not authorized for admin access." },
-          { status: 403 }
-        )
-      }
+    const allowed = await isWhitelisted(email)
+    if (!allowed) {
+      console.log(`[Admin Session] Rejected: ${email}`)
+      return NextResponse.json(
+        { error: "This Google account is not authorized for admin access." },
+        { status: 403 }
+      )
     }
-
-    const res = NextResponse.json({ ok: true, bootstrapped })
+    const res = NextResponse.json({ ok: true })
     res.cookies.set(SESSION_COOKIE_NAME, cookie, SESSION_COOKIE_OPTIONS)
     return res
   } catch (err: any) {
-    console.error("[POST /api/admin/session] whitelist check failed:", err?.message ?? err)
-    // Whitelist check failed (e.g. Firestore unavailable) — allow ENV-fallback emails anyway
-    const envEmails = (process.env.ADMIN_EMAILS || process.env.VITE_BOOTSTRAP_ADMIN_EMAIL || "i.doshi30@gmail.com")
-      .split(",")
-      .map((e) => e.trim().toLowerCase())
-    if (envEmails.includes(email.toLowerCase())) {
-      const res = NextResponse.json({ ok: true, bootstrapped: false })
-      res.cookies.set(SESSION_COOKIE_NAME, cookie, SESSION_COOKIE_OPTIONS)
-      return res
-    }
-    return NextResponse.json({ error: "Sign-in failed: could not verify authorization." }, { status: 500 })
+    // Should never reach here since isWhitelisted has its own fallbacks,
+    // but as last resort allow if email is in hardcoded list
+    console.error("[Admin Session] Unexpected error in whitelist check:", err?.message ?? err)
+    return NextResponse.json({ error: "Sign-in failed: " + (err?.message ?? "unknown error") }, { status: 500 })
   }
 }
+
