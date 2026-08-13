@@ -18,8 +18,8 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     return NextResponse.json({ error: "Invalid request." }, { status: 400 })
   }
 
-  if (body.status !== "APPROVED" && body.status !== "REJECTED") {
-    return NextResponse.json({ error: "status must be APPROVED or REJECTED." }, { status: 400 })
+  if (body.status !== "APPROVED" && body.status !== "REJECTED" && body.status !== "PENDING") {
+    return NextResponse.json({ error: "status must be APPROVED, REJECTED, or PENDING." }, { status: 400 })
   }
 
   const existing = await getRegistration(id)

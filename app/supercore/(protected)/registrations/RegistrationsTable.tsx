@@ -2,6 +2,8 @@
 
 import * as React from "react"
 import type { FirestoreRegistration } from "@/types/firestore"
+import { INK, MUSTARD, VERMILION, AGED_PAPER, TEAL, hoardingShadow } from "@/components/flagship/tokens"
+import { questDisplay, questBody } from "@/components/flagship/fonts"
 
 export type SerializedRegistration = Omit<
   FirestoreRegistration & { id: string },
@@ -11,29 +13,26 @@ export type SerializedRegistration = Omit<
   updatedAt: string
   paymentVerifiedAt: string | null
   emailSentAt: string | null
-}
-
-const STATUS_COLOR: Record<string, string> = {
-  PENDING: "text-amber-400",
-  APPROVED: "text-green-400",
-  REJECTED: "text-red-400",
+  checkedIn: boolean
 }
 
 export function RegistrationsTable({ initialRegistrations }: { initialRegistrations: SerializedRegistration[] }) {
   const [registrations, setRegistrations] = React.useState(initialRegistrations)
   const [busyId, setBusyId] = React.useState<string | null>(null)
-  const [filter, setFilter] = React.useState<"ALL" | "PENDING" | "APPROVED" | "REJECTED">("ALL")
+  const [filter, setFilter] = React.useState<"ALL" | "PENDING" | "PAID" | "CHECKED_IN">("ALL")
 
-  async function setStatus(id: string, status: "APPROVED" | "REJECTED") {
+  async function togglePaidStatus(id: string, newStatus: "APPROVED" | "PENDING") {
     setBusyId(id)
     try {
       const res = await fetch(`/api/admin/registrations/${id}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ status: newStatus }),
       })
       if (res.ok) {
-        setRegistrations((prev) => prev.map((r) => (r.id === id ? { ...r, paymentStatus: status } : r)))
+        setRegistrations((prev) =>
+          prev.map((r) => (r.id === id ? { ...r, paymentStatus: newStatus } : r))
+        )
       } else {
         const data = await res.json().catch(() => ({}))
         alert(data.error ?? "Failed to update status.")
@@ -43,25 +42,60 @@ export function RegistrationsTable({ initialRegistrations }: { initialRegistrati
     }
   }
 
-  const filtered = filter === "ALL" ? registrations : registrations.filter((r) => r.paymentStatus === filter)
+  async function toggleCheckedIn(id: string, checkedIn: boolean) {
+    setBusyId(id)
+    try {
+      const res = await fetch(`/api/admin/registrations/${id}/checkin`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ checkedIn }),
+      })
+      if (res.ok) {
+        setRegistrations((prev) =>
+          prev.map((r) => (r.id === id ? { ...r, checkedIn } : r))
+        )
+      } else {
+        const data = await res.json().catch(() => ({}))
+        alert(data.error ?? "Failed to update check-in.")
+      }
+    } finally {
+      setBusyId(null)
+    }
+  }
+
+  const filtered = registrations.filter((r) => {
+    if (filter === "PENDING") return r.paymentStatus !== "APPROVED"
+    if (filter === "PAID") return r.paymentStatus === "APPROVED"
+    if (filter === "CHECKED_IN") return r.checkedIn === true
+    return true
+  })
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex gap-2 text-xs">
-        {(["ALL", "PENDING", "APPROVED", "REJECTED"] as const).map((f) => (
+    <div className={`flex flex-col gap-4 ${questBody.className}`}>
+      <div className="flex flex-wrap gap-2 text-xs">
+        {(["ALL", "PENDING", "PAID", "CHECKED_IN"] as const).map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`rounded px-3 py-1.5 ${filter === f ? "bg-amber-400 text-neutral-950 font-bold" : "bg-neutral-900 text-neutral-300"}`}
+            className="border-2 px-3 py-1.5 font-bold uppercase transition-all hover:-translate-y-0.5 active:translate-y-0"
+            style={{
+              borderColor: INK,
+              background: filter === f ? INK : AGED_PAPER,
+              color: filter === f ? MUSTARD : INK,
+              boxShadow: `2px 2px 0px ${INK}`,
+            }}
           >
-            {f}
+            {f === "CHECKED_IN" ? "CHECKED IN" : f}
           </button>
         ))}
       </div>
 
-      <div className="overflow-x-auto rounded border border-neutral-800">
+      <div
+        className="overflow-x-auto border-4 bg-white"
+        style={{ borderColor: INK, boxShadow: hoardingShadow }}
+      >
         <table className="w-full min-w-[900px] text-left text-xs">
-          <thead className="border-b border-neutral-800 text-neutral-400">
+          <thead className="border-b-2 font-bold uppercase tracking-wider" style={{ borderColor: INK, color: INK }}>
             <tr>
               <th className="p-3">Name</th>
               <th className="p-3">Email</th>
@@ -69,50 +103,66 @@ export function RegistrationsTable({ initialRegistrations }: { initialRegistrati
               <th className="p-3">Team</th>
               <th className="p-3">UPI Ref</th>
               <th className="p-3">Amount</th>
-              <th className="p-3">Status</th>
-              <th className="p-3">Actions</th>
+              <th className="p-3">Payment</th>
+              <th className="p-3">Check-In</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody style={{ color: INK }}>
             {filtered.map((r) => (
-              <tr key={r.id} className="border-b border-neutral-900">
-                <td className="p-3">{r.fullName}</td>
-                <td className="p-3 text-neutral-400">{r.userEmail}</td>
-                <td className="p-3">{r.eventName}</td>
-                <td className="p-3 text-neutral-400">
-                  {r.teamSize} ({r.teamMembers.map((m) => m.name).join(", ") || "solo"})
+              <tr key={r.id} className="border-b" style={{ borderColor: `${INK}20` }}>
+                <td className="p-3 font-bold">{r.fullName}</td>
+                <td className="p-3 opacity-80">{r.userEmail}</td>
+                <td className="p-3 font-semibold">{r.eventName}</td>
+                <td className="p-3 opacity-80">
+                  {r.teamSize} ({r.teamMembers?.map((m) => m.name).join(", ") || "solo"})
                 </td>
-                <td className="p-3 font-mono">{r.paymentRefId}</td>
-                <td className="p-3">₹{r.amountPaid}</td>
-                <td className={`p-3 font-bold ${STATUS_COLOR[r.paymentStatus]}`}>{r.paymentStatus}</td>
+                <td className="p-3 font-mono font-bold">{r.paymentRefId}</td>
+                <td className="p-3 font-bold">₹{r.amountPaid}</td>
                 <td className="p-3">
-                  {r.paymentStatus === "PENDING" ? (
-                    <div className="flex gap-2">
+                  {r.paymentStatus === "APPROVED" ? (
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold" style={{ color: TEAL }}>PAID</span>
                       <button
-                        onClick={() => setStatus(r.id, "APPROVED")}
+                        onClick={() => togglePaidStatus(r.id, "PENDING")}
                         disabled={busyId === r.id}
-                        className="rounded bg-green-500/20 px-2 py-1 text-green-400 disabled:opacity-40"
+                        className="text-[10px] font-bold underline hover:opacity-85 transition-opacity"
+                        style={{ color: VERMILION }}
                       >
-                        Approve
-                      </button>
-                      <button
-                        onClick={() => setStatus(r.id, "REJECTED")}
-                        disabled={busyId === r.id}
-                        className="rounded bg-red-500/20 px-2 py-1 text-red-400 disabled:opacity-40"
-                      >
-                        Reject
+                        (Un-Approve)
                       </button>
                     </div>
                   ) : (
-                    <span className="text-neutral-500">{r.paymentVerifiedBy ?? "—"}</span>
+                    <button
+                      onClick={() => togglePaidStatus(r.id, "APPROVED")}
+                      disabled={busyId === r.id}
+                      className="border-2 px-2.5 py-1 text-[10px] font-bold uppercase transition-all active:scale-95"
+                      style={{ borderColor: INK, background: MUSTARD, color: INK, boxShadow: `1.5px 1.5px 0px ${INK}` }}
+                    >
+                      Mark Paid
+                    </button>
                   )}
+                </td>
+                <td className="p-3">
+                  <button
+                    onClick={() => toggleCheckedIn(r.id, !r.checkedIn)}
+                    disabled={busyId === r.id}
+                    className="border-2 px-2.5 py-1 text-[10px] font-bold uppercase transition-all active:scale-95"
+                    style={{
+                      borderColor: INK,
+                      background: r.checkedIn ? TEAL : VERMILION,
+                      color: "#FFFFFF",
+                      boxShadow: `1.5px 1.5px 0px ${INK}`,
+                    }}
+                  >
+                    {r.checkedIn ? "Checked In" : "Check In"}
+                  </button>
                 </td>
               </tr>
             ))}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={8} className="p-6 text-center text-neutral-500">
-                  No registrations{filter !== "ALL" ? ` with status ${filter}` : ""}.
+                <td colSpan={8} className="p-8 text-center font-bold opacity-60">
+                  No registrations{filter !== "ALL" ? ` with status ${filter === "CHECKED_IN" ? "CHECKED IN" : filter}` : ""}.
                 </td>
               </tr>
             )}

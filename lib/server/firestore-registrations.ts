@@ -220,20 +220,28 @@ export async function listRegistrations(filters?: {
 
 export async function setPaymentStatus(
   id: string,
-  status: Exclude<PaymentStatus, "PENDING">,
+  status: PaymentStatus,
   verifiedBy: string
 ): Promise<FirestoreRegistration & { id: string }> {
   const db = getDb()
   const ref = db.collection(COLLECTION).doc(id)
   const now = Timestamp.now()
 
-  await ref.update({
+  const updateData: any = {
     paymentStatus: status,
     feeStatus: status === "APPROVED" ? "PAID" : "PENDING",
-    paymentVerifiedBy: verifiedBy,
-    paymentVerifiedAt: now,
     updatedAt: now,
-  })
+  }
+
+  if (status === "PENDING") {
+    updateData.paymentVerifiedBy = null
+    updateData.paymentVerifiedAt = null
+  } else {
+    updateData.paymentVerifiedBy = verifiedBy
+    updateData.paymentVerifiedAt = now
+  }
+
+  await ref.update(updateData)
 
   const updated = await ref.get()
   return { id: updated.id, ...(updated.data() as FirestoreRegistration) }
