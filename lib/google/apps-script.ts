@@ -66,3 +66,24 @@ interface AuditLogSheetRow {
 export function buildAuditLogRow(input: AuditLogSheetRow) {
   return input
 }
+
+export function buildWhitelistRow(email: string, action: "ADD" | "REMOVE", addedBy: string) {
+  return {
+    type: "whitelist",
+    email: email.toLowerCase().trim(),
+    action,
+    addedBy,
+    timestamp: new Date().toISOString(),
+  }
+}
+
+export function buildSponsorRow(id: string, name: string, fields: Record<string, string>, action: "SAVE" | "DELETE") {
+  return {
+    type: "sponsor",
+    id,
+    name,
+    fields,
+    action,
+    timestamp: new Date().toISOString(),
+  }
+}

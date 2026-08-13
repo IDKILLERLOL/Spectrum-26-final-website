@@ -4,6 +4,8 @@ import { getDb } from "@/lib/firebase/admin"
 import { hashEmail } from "./hash-email"
 import type { AdminWhitelistEntry } from "@/types/firestore"
 
+import { syncToSheet, buildWhitelistRow } from "@/lib/google/apps-script"
+
 const COLLECTION = "adminWhitelist"
 
 const whitelistCache = new Map<string, { result: boolean; timestamp: number }>()
@@ -16,6 +18,15 @@ export async function isWhitelisted(email: string): Promise<boolean> {
     return cached.result
   }
 
+  // Check ENV fallback first (e.g., ADMIN_EMAILS=i.doshi30@gmail.com,admin@example.com)
+  const envEmails = (process.env.ADMIN_EMAILS || process.env.VITE_BOOTSTRAP_ADMIN_EMAIL || "i.doshi30@gmail.com")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+  if (envEmails.includes(normalizedEmail)) {
+    whitelistCache.set(normalizedEmail, { result: true, timestamp: Date.now() })
+    return true
+  }
+
   try {
     const doc = await getDb().collection(COLLECTION).doc(hashEmail(normalizedEmail)).get()
     const result = doc.exists
@@ -23,12 +34,6 @@ export async function isWhitelisted(email: string): Promise<boolean> {
     return result
   } catch (err: any) {
     console.warn("[firestore-admin-whitelist] isWhitelisted error/quota fallback:", err?.message || err)
-    // Fallback for bootstrap admin email if Firestore hits quota limit
-    const bootstrapEmail = process.env.VITE_BOOTSTRAP_ADMIN_EMAIL || "i.doshi30@gmail.com"
-    if (normalizedEmail === bootstrapEmail.toLowerCase().trim()) {
-      return true
-    }
-    // Return cached if available even if expired
     if (cached) return cached.result
     return false
   }
@@ -45,14 +50,34 @@ export async function isWhitelistEmpty(): Promise<boolean> {
 }
 
 export async function addToWhitelist(email: string, addedBy: string): Promise<void> {
-  await getDb()
-    .collection(COLLECTION)
-    .doc(hashEmail(email))
-    .set({ email: email.toLowerCase(), addedAt: Timestamp.now(), addedBy })
+  const normalized = email.toLowerCase().trim()
+  whitelistCache.set(normalized, { result: true, timestamp: Date.now() })
+  
+  try {
+    await getDb()
+      .collection(COLLECTION)
+      .doc(hashEmail(normalized))
+      .set({ email: normalized, addedAt: Timestamp.now(), addedBy })
+  } catch (err) {
+    console.warn("[addToWhitelist] Firestore fallback warning:", err)
+  }
+
+  // Sync to Google Sheets Whitelist tab
+  await syncToSheet(buildWhitelistRow(normalized, "ADD", addedBy))
 }
 
 export async function removeFromWhitelist(email: string): Promise<void> {
-  await getDb().collection(COLLECTION).doc(hashEmail(email)).delete()
+  const normalized = email.toLowerCase().trim()
+  whitelistCache.delete(normalized)
+
+  try {
+    await getDb().collection(COLLECTION).doc(hashEmail(normalized)).delete()
+  } catch (err) {
+    console.warn("[removeFromWhitelist] Firestore fallback warning:", err)
+  }
+
+  // Sync to Google Sheets Whitelist tab
+  await syncToSheet(buildWhitelistRow(normalized, "REMOVE", "admin"))
 }
 
 export async function listWhitelist(): Promise<(AdminWhitelistEntry & { id: string })[]> {

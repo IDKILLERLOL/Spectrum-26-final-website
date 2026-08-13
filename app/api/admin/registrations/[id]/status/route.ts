@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server"
 import { getAdminSession } from "@/lib/auth/require-admin"
 import { getRegistration, setPaymentStatus, setSheetsSyncStatus, setEmailSent } from "@/lib/server/firestore-registrations"
-import { writeAuditLog } from "@/lib/server/firestore-audit"
 import { syncToSheet, buildRegistrationRow } from "@/lib/google/apps-script"
 import { sendEmail } from "@/lib/email/send"
 import { paymentStatusEmail } from "@/lib/email/templates"
+import { getDb } from "@/lib/firebase/admin"
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getAdminSession()
@@ -27,15 +27,6 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   const updated = await setPaymentStatus(id, body.status, session.email)
 
-  await writeAuditLog({
-    actorEmail: session.email,
-    action: `REGISTRATION_${body.status}`,
-    targetCollection: "registrations",
-    targetId: id,
-    metadata: { eventName: existing.eventName, userEmail: existing.userEmail },
-  })
-
-  // Fire-and-forget: a Sheets outage should never block the admin's approve/reject action.
   syncToSheet(
     buildRegistrationRow({
       type: "registration",

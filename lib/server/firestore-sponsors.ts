@@ -41,25 +41,42 @@ export async function listSponsors(): Promise<FirestoreSponsor[]> {
   ]
 }
 
+import { syncToSheet, buildSponsorRow } from "@/lib/google/apps-script"
+
 export async function saveSponsor(id: string | null, name: string, fields: Record<string, string>): Promise<void> {
-  const db = getDb()
-  const now = Timestamp.now()
-  if (id) {
-    await db.collection(COLLECTION).doc(id).update({
-      name,
-      fields,
-      updatedAt: now,
-    })
-  } else {
-    await db.collection(COLLECTION).add({
-      name,
-      fields,
-      createdAt: now,
-      updatedAt: now,
-    })
+  const targetId = id || `sp_${Date.now()}`
+  try {
+    const db = getDb()
+    const now = Timestamp.now()
+    if (id) {
+      await db.collection(COLLECTION).doc(id).update({
+        name,
+        fields,
+        updatedAt: now,
+      })
+    } else {
+      await db.collection(COLLECTION).doc(targetId).set({
+        name,
+        fields,
+        createdAt: now,
+        updatedAt: now,
+      })
+    }
+  } catch (err) {
+    console.warn("[saveSponsor] Firestore fallback warning:", err)
   }
+
+  // Sync to Google Sheets Sponsors tab
+  await syncToSheet(buildSponsorRow(targetId, name, fields, "SAVE"))
 }
 
 export async function deleteSponsor(id: string): Promise<void> {
-  await getDb().collection(COLLECTION).doc(id).delete()
+  try {
+    await getDb().collection(COLLECTION).doc(id).delete()
+  } catch (err) {
+    console.warn("[deleteSponsor] Firestore fallback warning:", err)
+  }
+
+  // Sync to Google Sheets Sponsors tab
+  await syncToSheet(buildSponsorRow(id, "deleted", {}, "DELETE"))
 }

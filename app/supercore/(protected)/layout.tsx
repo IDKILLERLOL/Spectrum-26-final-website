@@ -7,9 +7,7 @@ const NAV = [
   { href: "/supercore/events", label: "Events" },
   { href: "/supercore/sponsors", label: "Sponsors" },
   { href: "/supercore/schedule", label: "Schedule" },
-  { href: "/supercore/winners", label: "Winners" },
   { href: "/supercore/whitelist", label: "Whitelist" },
-  { href: "/supercore/audit-logs", label: "Audit Logs" },
   { href: "/supercore/settings", label: "Settings" },
 ]
 

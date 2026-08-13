@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server"
 import { getAdminSession } from "@/lib/auth/require-admin"
 import { toggleCheckIn, getRegistration } from "@/lib/server/firestore-registrations"
-import { writeAuditLog } from "@/lib/server/firestore-audit"
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getAdminSession()
@@ -23,14 +22,6 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (!existing) return NextResponse.json({ error: "Registration not found." }, { status: 404 })
 
   await toggleCheckIn(id, body.checkedIn)
-
-  await writeAuditLog({
-    actorEmail: session.email,
-    action: body.checkedIn ? "REGISTRATION_CHECKIN" : "REGISTRATION_UNCHECKIN",
-    targetCollection: "registrations",
-    targetId: id,
-    metadata: { eventName: existing.eventName, userEmail: existing.userEmail },
-  })
 
   return NextResponse.json({ ok: true })
 }

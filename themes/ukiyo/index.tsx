@@ -237,19 +237,18 @@ const Sakura = () => {
           key={p.id}
           className="absolute -top-4 size-3 rounded-tl-full rounded-br-full opacity-60"
           style={{ background: '#FFB7C5', left: p.left }}
-            animate={{
-              y: ["-5vh", "105vh"],
-              x: ["-2vw", "3vw", "-1vw", "2vw"],
-              rotate: [0, 180, 360],
-            }}
-            transition={{
-              y: { duration, repeat: Infinity, ease: "linear", delay },
-              x: { duration, repeat: Infinity, ease: "easeInOut", delay },
-              rotate: { duration: duration * 0.8, repeat: Infinity, ease: "linear", delay },
-            }}
-          />
-        )
-      })}
+          animate={{
+            y: ["-5vh", "105vh"],
+            x: ["-2vw", "3vw", "-1vw", "2vw"],
+            rotate: [0, 180, 360],
+          }}
+          transition={{
+            y: { duration: p.duration, repeat: Infinity, ease: "linear", delay: p.delay },
+            x: { duration: p.duration, repeat: Infinity, ease: "easeInOut", delay: p.delay },
+            rotate: { duration: p.duration * 0.8, repeat: Infinity, ease: "linear", delay: p.delay },
+          }}
+        />
+      ))}
     </div>
   )
 }
