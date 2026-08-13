@@ -1,9 +1,19 @@
 import { NextResponse, type NextRequest } from "next/server"
-import { verifyGateToken, GATE_COOKIE_NAME } from "@/lib/auth/gate"
 
-export const runtime = "nodejs"
-
+const GATE_COOKIE_NAME = "spectrum_admin_gate"
 const SESSION_COOKIE_NAME = "spectrum_admin_session"
+
+async function verifyGateToken(token: string | undefined, secret: string): Promise<boolean> {
+  if (!token) return false
+  const enc = new TextEncoder()
+  const key = await crypto.subtle.importKey("raw", enc.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign", "verify"])
+  const sig = await crypto.subtle.sign("HMAC", key, enc.encode("admin-gate"))
+  const expected = Array.from(new Uint8Array(sig)).map((b) => b.toString(16).padStart(2, "0")).join("")
+  if (token.length !== expected.length) return false
+  let diff = 0
+  for (let i = 0; i < token.length; i++) diff |= token.charCodeAt(i) ^ expected.charCodeAt(i)
+  return diff === 0
+}
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
