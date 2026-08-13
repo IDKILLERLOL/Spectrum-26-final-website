@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { useRouter } from "next/navigation"
+import { ArrowLeft } from "lucide-react"
 import { PageHeader } from "@/components/flagship/PageHeader"
 import { PageContainer } from "@/components/flagship/PageContainer"
 import { StepProgress } from "@/components/flagship/StepProgress"
@@ -115,7 +116,14 @@ export default function RegisterTeamStep() {
                   Official Ticket
                 </h2>
               </div>
-              <div className="text-2xl opacity-30 md:text-3xl" style={{ color: INK }}>No. 50</div>
+              <button
+                type="button"
+                onClick={() => router.push("/register/event")}
+                className="flex items-center gap-1 text-xs font-bold underline hover:opacity-80"
+                style={{ color: INK }}
+              >
+                <ArrowLeft size={14} /> Back
+              </button>
             </div>
 
             <form className={`${questBody.className} flex flex-col gap-4 md:gap-5`} onSubmit={handleSubmit}>
@@ -164,9 +172,18 @@ export default function RegisterTeamStep() {
                 </p>
               )}
 
-              <AppButton type="submit" className="mt-2 w-full py-3.5 text-sm md:py-4 md:text-base">
-                Next
-              </AppButton>
+              <div className="flex gap-3 mt-2">
+                <AppButton
+                  type="button"
+                  onClick={() => router.push("/register/event")}
+                  className="w-1/3 py-3.5 text-sm md:py-4 md:text-base opacity-80"
+                >
+                  Back
+                </AppButton>
+                <AppButton type="submit" className="w-2/3 py-3.5 text-sm md:py-4 md:text-base">
+                  Next
+                </AppButton>
+              </div>
             </form>
           </div>
         </div>

@@ -127,11 +127,12 @@ export function RegistrationsAdminClient({
     setLoading(true)
     try {
       const res = await fetch("/api/admin/registrations")
-      if (!res.ok) throw new Error("Failed to fetch registrations")
       const data = await res.json()
-      const rowData: RowView[] = data.registrations.map((reg: any) => ({ reg }))
-      setRows(rowData)
-      setLastUpdated(new Date().toLocaleTimeString())
+      if (res.ok && data.registrations) {
+        const rowData: RowView[] = data.registrations.map((reg: any) => ({ reg }))
+        setRows(rowData)
+        setLastUpdated(new Date().toLocaleTimeString())
+      }
     } catch (err) {
       console.error('[admin] Failed to reload registrations:', err)
     } finally {

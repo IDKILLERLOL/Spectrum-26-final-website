@@ -2,8 +2,6 @@
 
 import * as React from "react"
 import { useRouter } from "next/navigation"
-import Image from "next/image"
-import { Upload, X } from "lucide-react"
 import { PageHeader } from "@/components/flagship/PageHeader"
 import { PageContainer } from "@/components/flagship/PageContainer"
 import { StepProgress } from "@/components/flagship/StepProgress"
@@ -37,36 +35,13 @@ export default function RegisterInfoStep() {
   const router = useRouter()
   const { values, setField } = useQuest()
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null)
-  const fileInputRef = React.useRef<HTMLInputElement>(null)
+  const [checking, setChecking] = React.useState(false)
 
   React.useEffect(() => {
     trackFunnelStep("info")
   }, [])
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setErrorMsg(null)
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    if (!file.type.startsWith("image/")) {
-      setErrorMsg("Please upload a valid image file (JPG, PNG, WEBP, etc.).")
-      return
-    }
-
-    if (file.size > 1024 * 1024) {
-      setErrorMsg("Image size must be under 1 MB.")
-      return
-    }
-
-    const reader = new FileReader()
-    reader.onload = (event) => {
-      const dataUrl = event.target?.result as string
-      setField("pictureUrl", dataUrl)
-    }
-    reader.readAsDataURL(file)
-  }
-
-  function handleNext(e: React.FormEvent) {
+  async function handleNext(e: React.FormEvent) {
     e.preventDefault()
     setErrorMsg(null)
 
@@ -83,6 +58,22 @@ export default function RegisterInfoStep() {
     if (values.phone.trim().length < 7) {
       setErrorMsg("Please enter a valid phone number (at least 7 digits).")
       return
+    }
+
+    // Check duplicate email before moving to event step
+    setChecking(true)
+    try {
+      const res = await fetch(`/api/check-email?email=${encodeURIComponent(values.email.trim())}${values.eventId ? `&eventId=${encodeURIComponent(values.eventId)}` : ""}`)
+      const data = await res.json()
+
+      if (data.isDuplicateEvent) {
+        setErrorMsg(data.message || "This email is already registered for this event.")
+        return
+      }
+    } catch {
+      // Proceed on network error
+    } finally {
+      setChecking(false)
     }
 
     router.push("/register/event")
@@ -129,64 +120,14 @@ export default function RegisterInfoStep() {
                 onChange={(e) => setField("phone", e.target.value)}
               />
 
-              {/* Photo Upload Section */}
-              <div className="flex flex-col gap-1.5 mt-1">
-                <label className={`${questBody.className} text-[10px] font-bold uppercase md:text-xs`} style={{ color: TEAL }}>
-                  Profile Picture (Optional, max 1 MB)
-                </label>
-                
-                {values.pictureUrl ? (
-                  <div className="relative flex items-center gap-3 border-2 p-2 bg-white" style={{ borderColor: INK }}>
-                    <Image
-                      src={values.pictureUrl}
-                      alt="Uploaded profile"
-                      width={56}
-                      height={56}
-                      className="size-14 object-cover border"
-                      style={{ borderColor: INK }}
-                    />
-                    <div className="flex-1 text-xs">
-                      <p className="font-bold" style={{ color: INK }}>Photo Uploaded</p>
-                      <p className="text-[10px] opacity-70">Ready for ticket profile</p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setField("pictureUrl", "")}
-                      className="p-1 border text-red-600 hover:bg-red-50"
-                      style={{ borderColor: INK }}
-                    >
-                      <X size={16} />
-                    </button>
-                  </div>
-                ) : (
-                  <div>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                      className="hidden"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="flex items-center justify-center gap-2 border-2 border-dashed py-3 px-4 w-full bg-white text-xs font-bold transition-colors hover:bg-neutral-50"
-                      style={{ borderColor: INK, color: INK }}
-                    >
-                      <Upload size={16} color={TEAL} /> Upload Photo (Max 1MB)
-                    </button>
-                  </div>
-                )}
-              </div>
-
               {errorMsg && (
                 <p className={`${questBody.className} text-xs font-bold`} style={{ color: VERMILION }}>
                   {errorMsg}
                 </p>
               )}
 
-              <AppButton type="submit" className="mt-2 w-full py-3.5 text-sm md:py-4 md:text-base">
-                Next
+              <AppButton type="submit" disabled={checking} className="mt-2 w-full py-3.5 text-sm md:py-4 md:text-base">
+                {checking ? "Checking Email…" : "Next"}
               </AppButton>
             </form>
           </div>

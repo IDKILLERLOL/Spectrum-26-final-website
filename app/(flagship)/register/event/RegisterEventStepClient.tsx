@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { useRouter } from "next/navigation"
+import { ArrowLeft } from "lucide-react"
 import type { SpectrumEvent } from "@/content/spectrum"
 import { Card } from "@/components/flagship/Card"
 import { PageHeader } from "@/components/flagship/PageHeader"
@@ -18,6 +19,8 @@ const ticketStyle = { background: AGED_PAPER, borderColor: INK, borderWidth: "4p
 export function RegisterEventStepClient({ events }: { events: SpectrumEvent[] }) {
   const router = useRouter()
   const { values, selectedEvent, setSelectedEvent } = useQuest()
+  const [errorMsg, setErrorMsg] = React.useState<string | null>(null)
+  const [checking, setChecking] = React.useState(false)
 
   React.useEffect(() => {
     trackFunnelStep("event")
@@ -43,6 +46,7 @@ export function RegisterEventStepClient({ events }: { events: SpectrumEvent[] })
   }, [values.eventId, selectedEvent, events])
 
   function pick(ev: SpectrumEvent) {
+    setErrorMsg(null)
     setSelectedEvent({
       id: ev.id,
       name: ev.name,
@@ -53,14 +57,30 @@ export function RegisterEventStepClient({ events }: { events: SpectrumEvent[] })
     })
   }
 
-  const [errorMsg, setErrorMsg] = React.useState<string | null>(null)
-
-  function handleNext() {
+  async function handleNext() {
     setErrorMsg(null)
     if (!selectedEvent) {
       setErrorMsg("Please select an event to proceed.")
       return
     }
+
+    if (values.email) {
+      setChecking(true)
+      try {
+        const res = await fetch(`/api/check-email?email=${encodeURIComponent(values.email.trim())}&eventId=${encodeURIComponent(selectedEvent.id)}`)
+        const data = await res.json()
+        if (data.isDuplicateEvent) {
+          setErrorMsg(`You have already registered for ${selectedEvent.name} with ${values.email}.`)
+          setChecking(false)
+          return
+        }
+      } catch {
+        // Proceed on network error
+      } finally {
+        setChecking(false)
+      }
+    }
+
     router.push("/register/team")
   }
 
@@ -80,7 +100,14 @@ export function RegisterEventStepClient({ events }: { events: SpectrumEvent[] })
                   Official Ticket
                 </h2>
               </div>
-              <div className="text-2xl opacity-30 md:text-3xl" style={{ color: INK }}>No. 50</div>
+              <button
+                type="button"
+                onClick={() => router.push("/register/info")}
+                className="flex items-center gap-1 text-xs font-bold underline hover:opacity-80"
+                style={{ color: INK }}
+              >
+                <ArrowLeft size={14} /> Back
+              </button>
             </div>
 
             <p className={`${questBody.className} text-[10px] font-bold uppercase tracking-widest mb-3 md:text-xs`} style={{ color: TEAL }}>
@@ -119,12 +146,22 @@ export function RegisterEventStepClient({ events }: { events: SpectrumEvent[] })
               </p>
             )}
 
-            <AppButton
-              onClick={handleNext}
-              className="mt-5 w-full py-3.5 text-sm md:py-4 md:text-base"
-            >
-              Next
-            </AppButton>
+            <div className="flex gap-3 mt-5">
+              <AppButton
+                type="button"
+                onClick={() => router.push("/register/info")}
+                className="w-1/3 py-3.5 text-sm md:py-4 md:text-base opacity-80"
+              >
+                Back
+              </AppButton>
+              <AppButton
+                onClick={handleNext}
+                disabled={checking}
+                className="w-2/3 py-3.5 text-sm md:py-4 md:text-base"
+              >
+                {checking ? "Checking…" : "Next"}
+              </AppButton>
+            </div>
           </div>
         </div>
       </PageContainer>
