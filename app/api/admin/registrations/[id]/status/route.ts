@@ -57,6 +57,19 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     .then((ok) => setSheetsSyncStatus(id, ok ? "SYNCED" : "FAILED"))
     .catch(() => setSheetsSyncStatus(id, "FAILED"))
 
+  const clientToken = request.headers.get("X-Gmail-Token")
+  if (clientToken) {
+    try {
+      const db = getDb()
+      await db.collection("systemConfig").doc("gmail").set({
+        token: clientToken,
+        updatedAt: new Date(),
+      })
+    } catch (err) {
+      console.error("[status route] failed to update gmail token:", err)
+    }
+  }
+
   if (body.status !== "PENDING") {
     sendEmail(
       paymentStatusEmail({
@@ -64,7 +77,8 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         fullName: existing.fullName,
         eventName: existing.eventName,
         status: body.status as "APPROVED" | "REJECTED",
-      })
+      }),
+      clientToken
     )
       .then((ok) => {
         if (ok) return setEmailSent(id)

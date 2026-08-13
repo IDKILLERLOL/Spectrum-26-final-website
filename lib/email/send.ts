@@ -9,21 +9,22 @@ export interface EmailMessage {
 }
 
 /**
- * Sends email via the Gmail API using the system-stored OAuth access token
- * from Firestore ('systemConfig/gmail'). If the token isn't found or is
- * invalid, it logs the email to the console fallback.
+ * Sends email via the Gmail API using either a provided tokenOverride or the
+ * system-stored OAuth access token from Firestore ('systemConfig/gmail').
  */
-export async function sendEmail(message: EmailMessage): Promise<boolean> {
+export async function sendEmail(message: EmailMessage, tokenOverride?: string | null): Promise<boolean> {
   const db = getDb()
 
-  let token: string | null = null
-  try {
-    const doc = await db.collection("systemConfig").doc("gmail").get()
-    if (doc.exists) {
-      token = doc.data()?.token || null
+  let token = tokenOverride || null
+  if (!token) {
+    try {
+      const doc = await db.collection("systemConfig").doc("gmail").get()
+      if (doc.exists) {
+        token = doc.data()?.token || null
+      }
+    } catch (err) {
+      console.error("[email] Failed to retrieve Gmail OAuth token from Firestore:", err)
     }
-  } catch (err) {
-    console.error("[email] Failed to retrieve Gmail OAuth token from Firestore:", err)
   }
 
   if (!token) {

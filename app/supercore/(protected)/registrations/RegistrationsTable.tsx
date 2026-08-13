@@ -23,10 +23,14 @@ export function RegistrationsTable({ initialRegistrations }: { initialRegistrati
 
   async function togglePaidStatus(id: string, newStatus: "APPROVED" | "PENDING") {
     setBusyId(id)
+    const token = typeof window !== "undefined" ? localStorage.getItem("spectrum_gmail_token") : null
     try {
       const res = await fetch(`/api/admin/registrations/${id}/status`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { "X-Gmail-Token": token } : {}),
+        },
         body: JSON.stringify({ status: newStatus }),
       })
       if (res.ok) {

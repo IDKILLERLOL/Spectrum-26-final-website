@@ -33,6 +33,10 @@ export default function AdminLoginPage() {
         return
       }
 
+      if (accessToken) {
+        localStorage.setItem("spectrum_gmail_token", accessToken)
+      }
+
       trackAdminLogin("success")
       router.push("/supercore/registrations")
     } catch (err) {
