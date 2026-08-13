@@ -23,61 +23,7 @@ import {
 } from "@/components/flagship/tokens"
 import { questDisplay, questBody } from "@/components/flagship/fonts"
 
-type TabId = "schedule" | "timeline" | "venue" | "calendar" | "notifications"
-
-const eventDate = new Date(EVENT_DATE_ISO)
-
-function MonthCalendar() {
-  const year = eventDate.getFullYear()
-  const month = eventDate.getMonth()
-  const firstDay = new Date(year, month, 1).getDay()
-  const daysInMonth = new Date(year, month + 1, 0).getDate()
-  const eventDay = eventDate.getDate()
-  const cells = [
-    ...Array(firstDay).fill(null),
-    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
-  ]
-
-  return (
-    <Card className="p-4 md:p-6">
-      <p
-        className={`${questBody.className} mb-3 text-center text-xs font-bold`}
-        style={{ color: NAVY }}
-      >
-        {eventDate.toLocaleString("en-US", { month: "long", year: "numeric" })}
-      </p>
-      <div className="grid grid-cols-7 gap-1 text-center">
-        {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
-          <span
-            key={i}
-            className={`${questBody.className} text-[9px] opacity-50`}
-            style={{ color: NAVY }}
-          >
-            {d}
-          </span>
-        ))}
-        {cells.map((day, i) => (
-          <span
-            key={i}
-            className={`${day === eventDay ? questDisplay.className : questBody.className} flex aspect-square items-center justify-center rounded-full text-[10px]`}
-            style={
-              day === eventDay
-                ? {
-                    background: MARIGOLD,
-                    color: NAVY,
-                    fontWeight: 700,
-                    boxShadow: `1px 1px 0px ${VERMILION}`,
-                  }
-                : { color: NAVY, opacity: day ? 0.8 : 0 }
-            }
-          >
-            {day ?? ""}
-          </span>
-        ))}
-      </div>
-    </Card>
-  )
-}
+type TabId = "schedule" | "timeline" | "venue" | "notifications"
 
 /** Hand-chalked timetable on a wooden-framed blackboard — desi-retro schoolroom motif
  *  shared by the Schedule and Timeline panels. */
@@ -121,7 +67,6 @@ export function SchedulePageClient({ schedule }: { schedule: ScheduleItem[] }) {
               { id: "schedule", label: "Schedule" },
               { id: "timeline", label: "Timeline" },
               { id: "venue", label: "Venue" },
-              { id: "calendar", label: "Calendar" },
               { id: "notifications", label: "Alerts" },
             ]}
             active={tab}
@@ -242,29 +187,7 @@ export function SchedulePageClient({ schedule }: { schedule: ScheduleItem[] }) {
             </div>
           )}
 
-          {tab === "calendar" && (
-            <div className="flex flex-col gap-3 md:gap-4">
-              <MonthCalendar />
-              <Card className="p-4 md:p-6">
-                {schedule.map((item) => (
-                  <div key={item.title} className="flex justify-between py-1">
-                    <span
-                      className={`${questBody.className} text-[11px]`}
-                      style={{ color: NAVY }}
-                    >
-                      {item.title}
-                    </span>
-                    <span
-                      className={`${questBody.className} text-[11px] font-bold`}
-                      style={{ color: PINK }}
-                    >
-                      {item.time}
-                    </span>
-                  </div>
-                ))}
-              </Card>
-            </div>
-          )}
+
 
           {tab === "notifications" && (
             <div className="flex flex-col gap-3 md:gap-4">
