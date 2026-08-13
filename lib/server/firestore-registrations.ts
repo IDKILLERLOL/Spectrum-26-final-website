@@ -4,6 +4,7 @@ import { getDb } from "@/lib/firebase/admin"
 import { hashRegistrationKey } from "./hash-email"
 import type { FirestoreRegistration, PaymentStatus } from "@/types/firestore"
 import type { RegistrationInput } from "@/lib/validation/registration"
+import { fetchFromSheet } from "@/lib/google/apps-script"
 
 const COLLECTION = "registrations"
 
@@ -249,8 +250,41 @@ export async function listRegistrations(filters?: {
 
     return results
   } catch (err: any) {
-    console.warn("[listRegistrations] Error or Quota limit reached:", err?.message || err)
-    let res = cachedRegistrations
+    console.warn("[listRegistrations] Error or Quota limit reached, fetching from Google Sheets...", err?.message || err)
+    if (cachedRegistrations.length > 0) {
+      let res = cachedRegistrations
+      if (filters?.eventId) res = res.filter((r) => r.eventId === filters.eventId)
+      if (filters?.paymentStatus) res = res.filter((r) => r.paymentStatus === filters.paymentStatus)
+      return res
+    }
+
+    // Direct Google Sheets fallback
+    const sheetRows = await fetchFromSheet()
+    const sheetResults: (FirestoreRegistration & { id: string })[] = sheetRows.map((r: any, idx: number) => ({
+      id: r.id || `sheet_reg_${idx + 1}`,
+      userEmail: r.email || r.userEmail || "",
+      fullName: r.fullName || r.name || "Participant",
+      phone: r.phone || "",
+      collegeName: r.collegeName || r.college || "",
+      year: r.year || "FY",
+      eventId: r.eventId || r.eventName?.toLowerCase().replace(/\s+/g, "-") || "code-clash",
+      eventName: r.eventName || "Code Clash",
+      teamMembers: Array.isArray(r.teamMembers) ? r.teamMembers : [],
+      teamSize: r.teamSize || 1,
+      paymentRefId: r.paymentRefId || r.upiTransactionRef || "",
+      amountPaid: r.amountPaid || 0,
+      paymentStatus: r.paymentStatus || "PENDING",
+      pictureUrl: r.pictureUrl || r.paymentScreenshot || "",
+      checkedIn: Boolean(r.checkedIn),
+      paymentVerifiedBy: r.paymentVerifiedBy || null,
+      paymentVerifiedAt: r.paymentVerifiedAt || null,
+      sheetsSyncStatus: "SYNCED",
+      emailSentAt: r.emailSentAt || null,
+      createdAt: r.createdAt || new Date().toISOString(),
+      updatedAt: r.updatedAt || new Date().toISOString(),
+    }))
+
+    let res = sheetResults
     if (filters?.eventId) res = res.filter((r) => r.eventId === filters.eventId)
     if (filters?.paymentStatus) res = res.filter((r) => r.paymentStatus === filters.paymentStatus)
     return res

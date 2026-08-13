@@ -29,6 +29,29 @@ export async function syncToSheet(payload: object): Promise<boolean> {
   }
 }
 
+export async function fetchFromSheet(): Promise<any[]> {
+  const url = process.env.APPS_SCRIPT_URL || process.env.VITE_GOOGLE_SHEETS_WEBAPP_URL
+  if (!url) {
+    console.warn("[apps-script] APPS_SCRIPT_URL not configured.")
+    return []
+  }
+
+  try {
+    const res = await fetch(`${url}?action=readRegistrations`, {
+      method: "GET",
+      headers: { "Accept": "application/json" },
+      redirect: "follow",
+      signal: AbortSignal.timeout(10000),
+    })
+    if (!res.ok) return []
+    const data = await res.json()
+    return Array.isArray(data) ? data : (data.registrations || [])
+  } catch (err) {
+    console.error("[apps-script] fetchFromSheet failed:", err)
+    return []
+  }
+}
+
 interface RegistrationSheetRow {
   type: "registration"
   id: string
