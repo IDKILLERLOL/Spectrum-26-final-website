@@ -18,12 +18,12 @@ export async function sendEmail(message: EmailMessage, tokenOverride?: string | 
   let token = tokenOverride || null
   if (!token) {
     try {
-      // 1. Try environment variables for OAuth auto-refresh
-      const clientId = process.env.GMAIL_CLIENT_ID
+      const clientId = process.env.GMAIL_CLIENT_ID || process.env.NEXT_PUBLIC_GMAIL_CLIENT_ID
       const clientSecret = process.env.GMAIL_CLIENT_SECRET
       const refreshToken = process.env.GMAIL_REFRESH_TOKEN
 
       if (clientId && clientSecret && refreshToken) {
+        console.log("[email] Exchanging refresh token for access token using env credentials...")
         const refreshRes = await fetch("https://oauth2.googleapis.com/token", {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -37,24 +37,29 @@ export async function sendEmail(message: EmailMessage, tokenOverride?: string | 
         const refreshData = await refreshRes.json()
         if (refreshRes.ok && refreshData.access_token) {
           token = refreshData.access_token
+          console.log("[email] Successfully acquired new access token.")
+        } else {
+          console.warn("[email] OAuth token refresh failed:", refreshData)
         }
       }
 
-      // 2. Fall back to Firestore document 'systemConfig/gmail'
       if (!token) {
         const doc = await db.collection("systemConfig").doc("gmail").get()
         if (doc.exists) {
           const docData = doc.data()
           token = docData?.token || null
-          // If stored doc has refresh_token credentials, exchange for access_token
-          if (!token && docData?.refreshToken && docData?.clientId && docData?.clientSecret) {
+          const docClientId = docData?.clientId || clientId
+          const docClientSecret = docData?.clientSecret || clientSecret
+          const docRefreshToken = docData?.refreshToken || refreshToken
+
+          if (!token && docRefreshToken && docClientId && docClientSecret) {
             const refreshRes = await fetch("https://oauth2.googleapis.com/token", {
               method: "POST",
               headers: { "Content-Type": "application/x-www-form-urlencoded" },
               body: new URLSearchParams({
-                client_id: docData.clientId,
-                client_secret: docData.clientSecret,
-                refresh_token: docData.refreshToken,
+                client_id: docClientId,
+                client_secret: docClientSecret,
+                refresh_token: docRefreshToken,
                 grant_type: "refresh_token",
               }),
             })
