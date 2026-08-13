@@ -47,7 +47,11 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       paymentRefId: existing.paymentRefId,
       amountPaid: existing.amountPaid,
       paymentStatus: body.status,
-      createdAt: existing.createdAt.toDate().toISOString(),
+      createdAt: existing.createdAt
+        ? (typeof (existing.createdAt as any).toDate === "function"
+          ? (existing.createdAt as any).toDate().toISOString()
+          : new Date(existing.createdAt as any).toISOString())
+        : new Date().toISOString(),
     })
   )
     .then((ok) => setSheetsSyncStatus(id, ok ? "SYNCED" : "FAILED"))

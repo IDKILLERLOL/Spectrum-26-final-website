@@ -65,9 +65,69 @@ export async function createRegistration(input: CreateRegistrationInput): Promis
 }
 
 export async function getRegistration(id: string): Promise<(FirestoreRegistration & { id: string }) | null> {
-  const doc = await getDb().collection(COLLECTION).doc(id).get()
+  const db = getDb()
+  const doc = await db.collection(COLLECTION).doc(id).get()
   if (!doc.exists) return null
-  return { id: doc.id, ...(doc.data() as FirestoreRegistration) }
+
+  const regData = doc.data()!
+
+  // Resolve leader user info
+  let fullName = ""
+  let phone = ""
+  let collegeName = ""
+  if (regData.leaderId) {
+    const userDoc = await db.collection("users").doc(regData.leaderId).get()
+    if (userDoc.exists) {
+      fullName = userDoc.data()?.name || ""
+      phone = userDoc.data()?.phone || ""
+      collegeName = userDoc.data()?.college || ""
+    }
+  }
+
+  // Resolve event details
+  let eventName = regData.eventId || ""
+  let eventFee = 0
+  if (regData.eventId) {
+    const eventDoc = await db.collection("events").doc(regData.eventId).get()
+    if (eventDoc.exists) {
+      eventName = eventDoc.data()?.name || regData.eventId
+      eventFee = eventDoc.data()?.price || 0
+    }
+  }
+
+  // Resolve team members
+  const membersSnap = await db.collection("teamMembers")
+    .where("registrationId", "==", doc.id)
+    .where("status", "==", "ACTIVE")
+    .get()
+
+  const teamMembers: { name: string }[] = []
+  membersSnap.forEach((mDoc) => {
+    teamMembers.push({ name: mDoc.data().name || "" })
+  })
+
+  return {
+    id: doc.id,
+    userEmail: regData.userEmail || regData.leaderId || "",
+    fullName: fullName || regData.fullName || "",
+    phone: phone || regData.phone || "",
+    collegeName: collegeName || regData.collegeName || "",
+    year: regData.year || "FY",
+    eventId: regData.eventId || "",
+    eventName: eventName,
+    teamMembers: teamMembers,
+    teamSize: regData.teamSize || (teamMembers.length || 1),
+    paymentRefId: regData.upiTransactionRef || regData.paymentRefId || "",
+    amountPaid: regData.amountPaid || eventFee,
+    paymentStatus: regData.feeStatus === "PAID" ? "APPROVED" : (regData.paymentStatus || "PENDING"),
+    checkedIn: regData.checkedIn || false,
+    paymentVerifiedBy: regData.paymentVerifiedBy || regData.lastEditedBy || null,
+    paymentVerifiedAt: regData.paymentVerifiedAt || regData.lastEditedAt || null,
+    sheetsSyncStatus: regData.sheetsSyncStatus || "PENDING",
+    emailSentAt: regData.emailSentAt || null,
+    createdAt: regData.createdAt || null,
+    updatedAt: regData.updatedAt || regData.lastEditedAt || null,
+  }
 }
 
 export async function listRegistrations(filters?: {
