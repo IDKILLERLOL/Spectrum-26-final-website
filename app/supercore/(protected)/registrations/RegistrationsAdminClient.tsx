@@ -126,8 +126,10 @@ export function RegistrationsAdminClient({
   const reload = useCallback(async () => {
     setLoading(true)
     try {
-      const freshRegistrations = await listRegistrations()
-      const rowData: RowView[] = freshRegistrations.map(reg => ({ reg }))
+      const res = await fetch("/api/admin/registrations")
+      if (!res.ok) throw new Error("Failed to fetch registrations")
+      const data = await res.json()
+      const rowData: RowView[] = data.registrations.map((reg: any) => ({ reg }))
       setRows(rowData)
       setLastUpdated(new Date().toLocaleTimeString())
     } catch (err) {
