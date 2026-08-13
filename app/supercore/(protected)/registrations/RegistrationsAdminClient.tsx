@@ -413,7 +413,6 @@ export function RegistrationsAdminClient({
         <table className="w-full text-left text-sm border-collapse">
           <thead>
             <tr className="text-left text-xs font-medium text-neutral-400">
-              <th className="whitespace-nowrap px-4 py-3">Reg ID</th>
               <th className="whitespace-nowrap px-4 py-3">Event</th>
               <th className="whitespace-nowrap px-4 py-3">Team</th>
               <th className="whitespace-nowrap px-4 py-3">Leader</th>
@@ -433,9 +432,6 @@ export function RegistrationsAdminClient({
                   onClick={() => setExpandedId(expandedId === reg.id ? null : reg.id)}
                   className="hover:bg-neutral-800/50 cursor-pointer transition-colors"
                 >
-                  <td className="px-4 py-3 whitespace-nowrap text-sm font-mono">
-                    {reg.id.slice(0, 8)}...
-                  </td>
                   <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
                     {reg.eventName}
                   </td>
@@ -546,6 +542,14 @@ export function RegistrationsAdminClient({
                         </div>
                         <div className="border border-neutral-700 rounded p-3">
                           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <div>
+                              <p className="text-xs text-neutral-500 mb-1">Registration ID</p>
+                              <p className="text-sm font-mono font-medium text-amber-400 select-all">{reg.id}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-neutral-500 mb-1">Team ID</p>
+                              <p className="text-sm font-mono font-medium text-amber-400 select-all">team_{reg.id.slice(0, 8)}</p>
+                            </div>
                             <div>
                               <p className="text-xs text-neutral-500 mb-1">Full Name</p>
                               <p className="text-sm font-medium">{reg.fullName}</p>
