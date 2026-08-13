@@ -6,14 +6,42 @@ import type { AdminWhitelistEntry } from "@/types/firestore"
 
 const COLLECTION = "adminWhitelist"
 
+const whitelistCache = new Map<string, { result: boolean; timestamp: number }>()
+const CACHE_TTL_MS = 60 * 1000 // 1 minute in-memory cache
+
 export async function isWhitelisted(email: string): Promise<boolean> {
-  const doc = await getDb().collection(COLLECTION).doc(hashEmail(email)).get()
-  return doc.exists
+  const normalizedEmail = email.toLowerCase().trim()
+  const cached = whitelistCache.get(normalizedEmail)
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+    return cached.result
+  }
+
+  try {
+    const doc = await getDb().collection(COLLECTION).doc(hashEmail(normalizedEmail)).get()
+    const result = doc.exists
+    whitelistCache.set(normalizedEmail, { result, timestamp: Date.now() })
+    return result
+  } catch (err: any) {
+    console.warn("[firestore-admin-whitelist] isWhitelisted error/quota fallback:", err?.message || err)
+    // Fallback for bootstrap admin email if Firestore hits quota limit
+    const bootstrapEmail = process.env.VITE_BOOTSTRAP_ADMIN_EMAIL || "i.doshi30@gmail.com"
+    if (normalizedEmail === bootstrapEmail.toLowerCase().trim()) {
+      return true
+    }
+    // Return cached if available even if expired
+    if (cached) return cached.result
+    return false
+  }
 }
 
 export async function isWhitelistEmpty(): Promise<boolean> {
-  const snap = await getDb().collection(COLLECTION).limit(1).get()
-  return snap.empty
+  try {
+    const snap = await getDb().collection(COLLECTION).limit(1).get()
+    return snap.empty
+  } catch (err: any) {
+    console.warn("[firestore-admin-whitelist] isWhitelistEmpty error/quota fallback:", err?.message || err)
+    return false
+  }
 }
 
 export async function addToWhitelist(email: string, addedBy: string): Promise<void> {
