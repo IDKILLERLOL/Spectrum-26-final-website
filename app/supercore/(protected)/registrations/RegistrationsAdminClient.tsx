@@ -274,10 +274,21 @@ export function RegistrationsAdminClient({
     }
   }
 
-  const formatDateTime = (dateString: string | null): string => {
-    if (!dateString) return '-'
+  const formatDateTime = (val: any): string => {
+    if (!val) return '-'
     try {
-      return new Date(dateString).toLocaleString()
+      let date: Date
+      if (typeof val === "object" && typeof val._seconds === "number") {
+        date = new Date(val._seconds * 1000)
+      } else if (typeof val === "object" && typeof val.seconds === "number") {
+        date = new Date(val.seconds * 1000)
+      } else if (typeof val === "number") {
+        date = new Date(val)
+      } else {
+        date = new Date(val)
+      }
+      if (isNaN(date.getTime())) return '-'
+      return date.toLocaleString()
     } catch {
       return '-'
     }

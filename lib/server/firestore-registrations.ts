@@ -220,8 +220,8 @@ export async function listRegistrations(filters?: {
       paymentVerifiedAt: regData.paymentVerifiedAt || regData.lastEditedAt || null,
       sheetsSyncStatus: regData.sheetsSyncStatus || "PENDING",
       emailSentAt: regData.emailSentAt || null,
-      createdAt: regData.createdAt || null,
-      updatedAt: regData.updatedAt || regData.lastEditedAt || null,
+      createdAt: regData.createdAt?.toDate ? regData.createdAt.toDate().toISOString() : (typeof regData.createdAt === "string" ? regData.createdAt : null),
+      updatedAt: regData.updatedAt?.toDate ? regData.updatedAt.toDate().toISOString() : (typeof regData.updatedAt === "string" ? regData.updatedAt : null),
     }
 
     // Filter by options if supplied
