@@ -66,11 +66,13 @@ export function RegistrationsAdminClient({
   const [selectedPaymentStatus, setSelectedPaymentStatus] = useState<PaymentStatus | 'all'>('all')
   const [selectedCheckInStatus, setSelectedCheckInStatus] = useState<CheckInStatus>('all')
   const [sortBy, setSortBy] = useState<string>('date-desc')
+  const [lastUpdated, setLastUpdated] = useState("")
 
   // Initialize rows from registrations prop
   useEffect(() => {
     const rowData: RowView[] = registrations.map(reg => ({ reg }))
     setRows(rowData)
+    setLastUpdated(new Date().toLocaleTimeString())
   }, [registrations])
 
   // Client-side filter & sort on pre-fetched data
@@ -127,6 +129,7 @@ export function RegistrationsAdminClient({
       const freshRegistrations = await listRegistrations()
       const rowData: RowView[] = freshRegistrations.map(reg => ({ reg }))
       setRows(rowData)
+      setLastUpdated(new Date().toLocaleTimeString())
     } catch (err) {
       console.error('[admin] Failed to reload registrations:', err)
     } finally {
@@ -738,7 +741,7 @@ export function RegistrationsAdminClient({
           Showing {filtered().length} of {rows.length} registrations
         </div>
         <div>
-          Last updated: {new Date().toLocaleTimeString()}
+          Last updated: {lastUpdated}
         </div>
       </div>
     </div>
