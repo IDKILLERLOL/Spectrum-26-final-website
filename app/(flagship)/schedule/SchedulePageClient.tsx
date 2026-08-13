@@ -67,7 +67,6 @@ export function SchedulePageClient({ schedule }: { schedule: ScheduleItem[] }) {
               { id: "schedule", label: "Schedule" },
               { id: "timeline", label: "Timeline" },
               { id: "venue", label: "Venue" },
-              { id: "notifications", label: "Alerts" },
             ]}
             active={tab}
             onChange={setTab}
@@ -189,41 +188,6 @@ export function SchedulePageClient({ schedule }: { schedule: ScheduleItem[] }) {
 
 
 
-          {tab === "notifications" && (
-            <div className="flex flex-col gap-3 md:gap-4">
-              {notifications.map((n) => (
-                <Card
-                  key={n.title}
-                  className="relative flex items-start gap-3 p-4 pt-5"
-                >
-                  <span
-                    className="absolute -top-2 -left-2 flex size-6 shrink-0 items-center justify-center rounded-full border-2"
-                    style={{
-                      background: MARIGOLD,
-                      borderColor: NAVY,
-                      boxShadow: `1px 1px 0px ${NAVY}`,
-                    }}
-                  >
-                    <Bell size={12} color={NAVY} fill={NAVY} />
-                  </span>
-                  <div>
-                    <p
-                      className={`${questDisplay.className} text-xs`}
-                      style={{ color: NAVY }}
-                    >
-                      {n.title}
-                    </p>
-                    <p
-                      className={`${questBody.className} text-[11px] opacity-70`}
-                      style={{ color: NAVY }}
-                    >
-                      {n.body}
-                    </p>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          )}
         </div>
       </PageContainer>
     </>

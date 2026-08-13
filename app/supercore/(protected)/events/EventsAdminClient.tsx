@@ -31,6 +31,7 @@ interface FormState {
   description: string
   rules: string
   prizes: string
+  prizePool: string
   registrationOpen: boolean
   registrationEndsAt: string
   imageUrl: string
@@ -53,6 +54,7 @@ const emptyForm: FormState = {
   description: "",
   rules: "",
   prizes: "",
+  prizePool: "",
   registrationOpen: true,
   registrationEndsAt: "",
   imageUrl: "",
@@ -76,6 +78,7 @@ function toFormState(ev: SpectrumEvent): FormState {
     description: ev.description,
     rules: ev.rules.join("\n"),
     prizes: ev.prizes.map((p) => `${p.place}:${p.reward}`).join("\n"),
+    prizePool: ev.prizePool ?? "",
     registrationOpen: ev.registrationOpen,
     registrationEndsAt: ev.registrationEndsAt ? ev.registrationEndsAt.slice(0, 16) : "",
     imageUrl: ev.imageUrl ?? "",
@@ -110,6 +113,7 @@ function buildPayload(f: FormState) {
         const [place, ...rest] = line.split(":")
         return { place: (place ?? "").trim(), reward: rest.join(":").trim() }
       }),
+    prizePool: f.prizePool.trim() || undefined,
     registrationOpen: f.registrationOpen,
     registrationEndsAt: f.registrationEndsAt ? new Date(f.registrationEndsAt).toISOString() : undefined,
     imageUrl: f.imageUrl.trim() || null,
@@ -224,6 +228,10 @@ function EventForm({
       <div className="flex flex-col gap-1">
         <label className={labelClass}>Image URL</label>
         <input className={inputClass} value={form.imageUrl} onChange={(e) => set("imageUrl", e.target.value)} />
+      </div>
+      <div className="flex flex-col gap-1">
+        <label className={labelClass}>Prize Pool (e.g. ₹5,000 / Leave blank to hide)</label>
+        <input className={inputClass} value={form.prizePool} onChange={(e) => set("prizePool", e.target.value)} placeholder="₹5,000" />
       </div>
       <div className="col-span-2 flex items-end gap-2 md:col-span-1">
         <label className="flex items-center gap-2 text-xs text-neutral-300">

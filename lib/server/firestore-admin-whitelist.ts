@@ -28,8 +28,16 @@ export async function removeFromWhitelist(email: string): Promise<void> {
 }
 
 export async function listWhitelist(): Promise<(AdminWhitelistEntry & { id: string })[]> {
-  const snap = await getDb().collection(COLLECTION).orderBy("addedAt", "desc").get()
-  return snap.docs.map((d) => ({ id: d.id, ...(d.data() as AdminWhitelistEntry) }))
+  const snap = await getDb().collection(COLLECTION).get()
+  return snap.docs.map((d) => {
+    const data = d.data() || {}
+    return {
+      id: d.id,
+      email: data.email || "",
+      addedBy: data.addedBy || "unknown",
+      addedAt: data.addedAt || null,
+    } as any
+  })
 }
 
 /**

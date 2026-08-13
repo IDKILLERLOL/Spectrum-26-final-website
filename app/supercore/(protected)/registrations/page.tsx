@@ -1,26 +1,41 @@
+import { getAdminSession } from "@/lib/auth/require-admin"
 import { listRegistrations } from "@/lib/server/firestore-registrations"
-import { RegistrationsTable, type SerializedRegistration } from "./RegistrationsTable"
+import RegistrationsAdminClient from "./RegistrationsAdminClient"
+
+export const dynamic = "force-dynamic"
+
+function serializeTimestamps(obj: any): any {
+  if (obj === null || obj === undefined) return obj
+  if (typeof obj.toDate === "function") {
+    return obj.toDate().toISOString()
+  }
+  if (typeof obj === "object" && "_seconds" in obj && "_nanoseconds" in obj) {
+    return new Date(obj._seconds * 1000).toISOString()
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(serializeTimestamps)
+  }
+  if (typeof obj === "object") {
+    const serialized: any = {}
+    for (const key of Object.keys(obj)) {
+      serialized[key] = serializeTimestamps(obj[key])
+    }
+    return serialized
+  }
+  return obj
+}
 
 export default async function AdminRegistrationsPage() {
-  const registrations = await listRegistrations()
-
-  // Firestore Timestamp instances aren't serializable across the Server->Client
-  // boundary — convert to plain ISO strings before passing down as props.
-  const serialized: SerializedRegistration[] = registrations.map((r) => ({
-    ...r,
-    createdAt: r.createdAt.toDate().toISOString(),
-    updatedAt: r.updatedAt.toDate().toISOString(),
-    paymentVerifiedAt: r.paymentVerifiedAt ? r.paymentVerifiedAt.toDate().toISOString() : null,
-    emailSentAt: r.emailSentAt ? r.emailSentAt.toDate().toISOString() : null,
-  }))
+  const session = await getAdminSession()
+  
+  // Fetch all registrations with events and team members already populated
+  const rawRegistrations = await listRegistrations()
+  const registrations = serializeTimestamps(rawRegistrations)
 
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-xl font-bold">Registrations</h1>
-      <p className="text-sm text-neutral-400">
-        Verify each 12-digit UPI reference against your bank statement, then approve or reject.
-      </p>
-      <RegistrationsTable initialRegistrations={serialized} />
-    </div>
+    <RegistrationsAdminClient 
+      registrations={registrations}
+      adminEmail={session?.email ?? ""}
+    />
   )
 }

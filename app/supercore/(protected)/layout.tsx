@@ -1,13 +1,13 @@
 import Link from "next/link"
 import { requireAdminSession } from "@/lib/auth/require-admin"
+import { AutoLogoutOnUnload } from "./AutoLogoutOnUnload"
 
 const NAV = [
-  { href: "/supercore/dashboard", label: "Dashboard" },
   { href: "/supercore/registrations", label: "Registrations" },
   { href: "/supercore/events", label: "Events" },
+  { href: "/supercore/sponsors", label: "Sponsors" },
   { href: "/supercore/schedule", label: "Schedule" },
   { href: "/supercore/winners", label: "Winners" },
-  { href: "/supercore/users", label: "Users" },
   { href: "/supercore/whitelist", label: "Whitelist" },
   { href: "/supercore/audit-logs", label: "Audit Logs" },
   { href: "/supercore/settings", label: "Settings" },
@@ -18,12 +18,9 @@ export default async function ProtectedAdminLayout({ children }: { children: Rea
 
   return (
     <div className="min-h-dvh bg-neutral-950 text-neutral-100">
-      <header className="sticky top-0 z-20 border-b border-neutral-800 bg-neutral-950/95 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3">
-          <span className="font-mono text-sm font-bold tracking-wide text-amber-400">SUPERCORE</span>
-          <span className="text-xs text-neutral-400">{session.email}</span>
-        </div>
-        <nav className="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-5 pb-2 text-xs">
+      <AutoLogoutOnUnload />
+      <header className="sticky top-0 z-20 border-b border-neutral-800 bg-neutral-950/95 backdrop-blur py-3">
+        <nav className="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-5 text-xs">
           {NAV.map((item) => (
             <Link
               key={item.href}

@@ -5,16 +5,12 @@ import Link from "next/link"
 import { motion } from "motion/react"
 import {
   site,
-  highlights,
-  quickLinks,
-  socialLinks,
 } from "@/content/spectrum"
 import type { SpectrumEvent } from "@/content/spectrum"
 import { useCountdown, pad2 } from "@/hooks/use-countdown"
 import { useReducedMotion } from "@/hooks/use-reduced-motion"
 import { AppButton } from "@/components/flagship/AppButton"
 import { Card } from "@/components/flagship/Card"
-import { resolveIcon } from "@/components/flagship/icon-map"
 import {
   CREAM,
   NAVY,
@@ -28,7 +24,7 @@ import {
   hoardingShadow,
 } from "@/components/flagship/tokens"
 import { questDisplay, questBody } from "@/components/flagship/fonts"
-import { ChevronRight, Star, Megaphone } from "lucide-react"
+import { Megaphone } from "lucide-react"
 
 function HeroBackground() {
   const reduced = useReducedMotion()
@@ -213,23 +209,6 @@ function Hero() {
           View Schedule
         </AppButton>
       </div>
-
-      <Card className="mx-auto mt-5 flex w-full max-w-[24rem] flex-col gap-2 p-4 text-left lg:max-w-[46rem] lg:gap-3 lg:p-6">
-        <Link href="/events" className="flex items-center justify-between">
-          <span className={`${questBody.className} text-xs font-bold`} style={{ color: NAVY }}>
-            Epic Rewards Await
-          </span>
-          <span className={`${questBody.className} text-[10px] underline`} style={{ color: PINK }}>
-            View Prizes
-          </span>
-        </Link>
-        <p className={`${questBody.className} text-[11px] opacity-70`} style={{ color: NAVY }}>
-          {site.date} · {site.venue}
-        </p>
-        <p className={`${questBody.className} flex items-center gap-1.5 text-[11px]`} style={{ color: NAVY }}>
-          <Star size={12} fill={PINK} color={PINK} /> Unforgettable Memories
-        </p>
-      </Card>
     </section>
   )
 }
@@ -287,90 +266,11 @@ function FeaturedEvents({ events }: { events: SpectrumEvent[] }) {
   )
 }
 
-function Highlights() {
-  return (
-    <section className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 py-12 sm:px-5 md:px-10 lg:gap-7 lg:py-16">
-      <h2 className={`${questDisplay.className} text-xl md:text-3xl lg:text-4xl`} style={{ color: NAVY }}>
-        Highlights
-      </h2>
-      <div className="grid justify-center grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4 lg:gap-6">
-        {highlights.map((h) => (
-          <Card key={h.title} className="w-full max-w-[22rem] p-4 lg:p-6">
-            <p className={`${questBody.className} text-sm font-bold lg:text-lg`} style={{ color: NAVY }}>
-              {h.title}
-            </p>
-            <p className={`${questBody.className} text-xs opacity-70 lg:text-sm`} style={{ color: NAVY }}>
-              {h.description}
-            </p>
-          </Card>
-        ))}
-      </div>
-      <Card className="w-full max-w-3xl p-4 lg:p-6" style={{ background: NAVY }}>
-        <p className={`${questBody.className} text-xs font-bold text-white lg:text-base`}>{site.date}</p>
-        <p className={`${questBody.className} text-[11px] opacity-70 text-white lg:text-sm`}>{site.venue}</p>
-      </Card>
-    </section>
-  )
-}
-
-function QuickLinks() {
-  return (
-    <section className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-10 sm:px-5 md:px-10">
-      <h2 className={`${questDisplay.className} text-xl md:text-3xl`} style={{ color: NAVY }}>
-        Quick Links
-      </h2>
-      <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-        {quickLinks.map((link) => {
-          const Icon = resolveIcon(link.icon)
-          return (
-            <Link key={link.label} href={link.href}>
-              <Card className="flex items-center gap-3 p-4">
-                <Icon size={18} color={PINK} />
-                <div className="flex-1">
-                  <p className={`${questBody.className} text-sm font-bold`} style={{ color: NAVY }}>
-                    {link.label}
-                  </p>
-                  <p className={`${questBody.className} text-[11px] opacity-70`} style={{ color: NAVY }}>
-                    {link.description}
-                  </p>
-                </div>
-                <ChevronRight size={16} color={NAVY} className="opacity-40" />
-              </Card>
-            </Link>
-          )
-        })}
-      </div>
-
-      <p className={`${questBody.className} mt-2 text-center text-[10px] uppercase tracking-wide opacity-60`} style={{ color: NAVY }}>
-        Follow Us
-      </p>
-      <div className="flex justify-center gap-3">
-        {socialLinks.map((s) => {
-          const Icon = resolveIcon(s.icon)
-          return (
-            <a
-              key={s.platform}
-              href={s.href}
-              aria-label={s.platform}
-              className="flex size-10 items-center justify-center border-[3px]"
-              style={{ borderColor: NAVY, background: CREAM }}
-            >
-              <Icon size={16} color={NAVY} />
-            </a>
-          )
-        })}
-      </div>
-    </section>
-  )
-}
-
 export function HomePageClient({ events }: { events: SpectrumEvent[] }) {
   return (
     <>
       <Hero />
       <FeaturedEvents events={events} />
-      <Highlights />
-      <QuickLinks />
     </>
   )
 }

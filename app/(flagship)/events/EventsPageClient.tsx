@@ -86,6 +86,11 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
                     <p className={`${questBody.className} text-[10px] opacity-60`} style={{ color: NAVY }}>
                       {ev.format}
                     </p>
+                    {ev.prizePool && (
+                      <p className={`${questBody.className} mt-1 text-xs font-bold`} style={{ color: PINK }}>
+                        Prize Pool: {ev.prizePool}
+                      </p>
+                    )}
                   </div>
                 </Card>
               </Link>

@@ -9,7 +9,6 @@ export const SESSION_COOKIE_OPTIONS = {
   secure: process.env.NODE_ENV === "production",
   sameSite: "lax" as const,
   path: "/",
-  maxAge: SESSION_MAX_AGE_MS / 1000,
 }
 
 /** Verifies a client Firebase ID token (from signInWithPopup) and mints a long-lived session cookie. */

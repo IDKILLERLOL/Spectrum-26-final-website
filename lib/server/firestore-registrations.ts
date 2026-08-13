@@ -177,13 +177,27 @@ export async function listRegistrations(filters?: {
       teamMembers.push({ name: mDoc.data().name || "" })
     })
 
+    if (teamMembers.length === 0 && Array.isArray(regData.teamMembers)) {
+      regData.teamMembers.forEach((m: any) => {
+        const memberName = typeof m === "string" ? m : (m?.name || "")
+        if (memberName) teamMembers.push({ name: memberName })
+      })
+    } else if (teamMembers.length === 0 && Array.isArray(regData.members)) {
+      regData.members.forEach((m: any) => {
+        const memberName = typeof m === "string" ? m : (m?.name || "")
+        if (memberName) teamMembers.push({ name: memberName })
+      })
+    }
+
+    const userEmail = regData.userEmail || regData.email || regData.leaderEmail || regData.leaderId || ""
+
     // Construct unified new schema item dynamically
     const doc: FirestoreRegistration & { id: string } = {
       id: regDoc.id,
-      userEmail: regData.userEmail || regData.leaderId || "",
-      fullName: fullName,
-      phone: phone,
-      collegeName: collegeName,
+      userEmail: userEmail,
+      fullName: fullName || regData.fullName || regData.name || "",
+      phone: phone || regData.phone || "",
+      collegeName: collegeName || regData.collegeName || regData.college || "",
       year: regData.year || "FY",
       eventId: regData.eventId || "",
       eventName: eventName,

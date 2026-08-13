@@ -87,6 +87,7 @@ export function EventDetailPageClient({ event }: { event: SpectrumEvent }) {
                 </span>
               </div>
               <Row label="Registration Fee" value={event.fee} />
+              {event.prizePool && <Row label="Prize Pool" value={event.prizePool} />}
               <Row label="Registration Ends" value={event.registrationEnds} />
               <div className="border-t-[2px] pt-3" style={{ borderColor: `${NAVY}22` }}>
                 <p className={`${questBody.className} text-[10px] uppercase opacity-60 md:text-xs`} style={{ color: NAVY }}>

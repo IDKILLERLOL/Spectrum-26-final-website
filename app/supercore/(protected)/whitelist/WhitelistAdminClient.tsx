@@ -36,10 +36,11 @@ export function WhitelistAdminClient({ whitelist }: { whitelist: WhitelistRow[] 
     startTransition(() => router.refresh())
   }
 
-  async function handleRemove(targetEmail: string) {
-    if (!confirm(`Remove "${targetEmail}" from the admin whitelist?`)) return
+  async function handleRemove(id: string, targetEmail?: string) {
+    const label = targetEmail || "this entry"
+    if (!confirm(`Remove "${label}" from the admin whitelist?`)) return
     setError(null)
-    const res = await fetch(`/api/admin/whitelist/${encodeURIComponent(targetEmail)}`, { method: "DELETE" })
+    const res = await fetch(`/api/admin/whitelist/${encodeURIComponent(id || targetEmail || "")}`, { method: "DELETE" })
     if (!res.ok) {
       const data = await res.json().catch(() => ({}))
       setError(data.error ?? "Failed to remove email.")
@@ -84,12 +85,12 @@ export function WhitelistAdminClient({ whitelist }: { whitelist: WhitelistRow[] 
           <tbody>
             {whitelist.map((entry) => (
               <tr key={entry.id} className="border-b border-neutral-800 last:border-0 hover:bg-neutral-900/50">
-                <td className="px-3 py-2 text-amber-400">{entry.email}</td>
-                <td className="px-3 py-2">{entry.addedBy}</td>
+                <td className="px-3 py-2 text-amber-400">{entry.email || "(no email)"}</td>
+                <td className="px-3 py-2">{entry.addedBy || "-"}</td>
                 <td className="px-3 py-2 text-right">
                   <button
                     className={btnDangerClass}
-                    onClick={() => handleRemove(entry.email)}
+                    onClick={() => handleRemove(entry.id, entry.email)}
                     disabled={isPending}
                   >
                     Remove

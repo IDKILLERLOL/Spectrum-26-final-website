@@ -52,6 +52,7 @@ function toSpectrumEvent(id: string, doc: FirestoreEvent): SpectrumEvent {
     }),
     registrationEndsAt: endsAt.toISOString(),
     registrationOpen: doc.registrationOpen,
+    prizePool: doc.prizePool,
     imageUrl: doc.imageUrl,
   }
 }
@@ -107,6 +108,7 @@ export interface CreateEventInput {
   description?: string
   rules?: string[]
   prizes?: { place: string; reward: string }[]
+  prizePool?: string
   registrationOpen?: boolean
   registrationEndsAt?: string // ISO
   imageUrl?: string | null
@@ -118,7 +120,7 @@ export async function createEvent(input: CreateEventInput): Promise<string> {
   const id = input.id?.trim() || slugify(input.name)
   const now = Timestamp.now()
 
-  const doc: FirestoreEvent = {
+  const doc: FirestoreEvent & { prizePool?: string } = {
     id,
     order: input.order ?? 0,
     index: input.index ?? "00",
@@ -137,6 +139,7 @@ export async function createEvent(input: CreateEventInput): Promise<string> {
     description: input.description ?? "",
     rules: input.rules ?? [],
     prizes: input.prizes ?? [],
+    prizePool: input.prizePool,
     registrationOpen: input.registrationOpen ?? true,
     registrationEndsAt: Timestamp.fromDate(new Date(input.registrationEndsAt ?? Date.now())),
     imageUrl: input.imageUrl ?? null,

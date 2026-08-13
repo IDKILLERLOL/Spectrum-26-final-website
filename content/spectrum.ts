@@ -55,6 +55,7 @@ export interface SpectrumEvent {
   registrationEnds: string // display string, derived from registrationEndsAt
   registrationEndsAt: string // ISO timestamp, real gating value
   registrationOpen: boolean
+  prizePool?: string
   imageUrl: string | null
 }
 

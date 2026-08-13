@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { useRouter } from "next/navigation"
-import { signInWithPopup } from "firebase/auth"
+import { signInWithPopup, GoogleAuthProvider } from "firebase/auth"
 import { getClientAuth, googleProvider } from "@/lib/firebase/client"
 import { trackAdminLogin } from "@/lib/analytics/track"
 
@@ -34,7 +34,7 @@ export default function AdminLoginPage() {
       }
 
       trackAdminLogin("success")
-      router.push("/supercore/dashboard")
+      router.push("/supercore/registrations")
     } catch (err) {
       console.error("[admin login]", err)
       trackAdminLogin("failure")

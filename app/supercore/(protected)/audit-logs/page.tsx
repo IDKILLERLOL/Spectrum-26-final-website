@@ -1,5 +1,20 @@
 import { listAuditLogs } from "@/lib/server/firestore-audit"
 
+function toLocaleDateTimeString(val: any): string {
+  if (!val) return "—"
+  try {
+    if (typeof val.toDate === "function") {
+      return val.toDate().toLocaleString("en-IN")
+    }
+    if (typeof val === "object" && typeof val._seconds === "number") {
+      return new Date(val._seconds * 1000).toLocaleString("en-IN")
+    }
+    return new Date(val).toLocaleString("en-IN")
+  } catch {
+    return "—"
+  }
+}
+
 export default async function AuditLogsPage() {
   const logs = await listAuditLogs(200)
 
@@ -20,7 +35,7 @@ export default async function AuditLogsPage() {
           <tbody>
             {logs.map((log) => (
               <tr key={log.id} className="border-b border-neutral-900">
-                <td className="p-3 text-neutral-400">{log.createdAt.toDate().toLocaleString("en-IN")}</td>
+                <td className="p-3 text-neutral-400">{toLocaleDateTimeString(log.createdAt)}</td>
                 <td className="p-3">{log.actorEmail}</td>
                 <td className="p-3 font-mono text-amber-400">{log.action}</td>
                 <td className="p-3 text-neutral-400">
