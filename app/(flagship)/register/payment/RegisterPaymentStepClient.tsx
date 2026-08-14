@@ -124,14 +124,7 @@ export function RegisterPaymentStepClient({ upiVpa }: { upiVpa: string }) {
             </div>
 
             <div className="flex flex-col items-center gap-3 mb-6">
-              <div 
-                className="overflow-hidden border-2 flex items-center justify-center bg-white" 
-                style={{ borderColor: INK, width: "240px", height: "240px" }}
-              >
-                <div style={{ transform: "scale(1.4)" }} className="flex items-center justify-center">
-                  <Image src="/payment-qr.jpg" alt="UPI payment QR code" width={200} height={200} unoptimized />
-                </div>
-              </div>
+              <Image src="/payment-qr.jpg" alt="UPI payment QR code" width={200} height={200} className="border-2" style={{ borderColor: INK }} unoptimized />
               <p className={`${questDisplay.className} text-lg`} style={{ color: VERMILION }}>
                 ₹{selectedEvent.feeNumeric}
               </p>
