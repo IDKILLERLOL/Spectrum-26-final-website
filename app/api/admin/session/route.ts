@@ -16,7 +16,7 @@ const STATIC_ADMIN_EMAILS = new Set([
  */
 export async function POST(request: Request) {
   try {
-    let body: { idToken?: string; accessToken?: string | null }
+    let body: { idToken?: string; accessToken?: string | null; email?: string | null }
     try {
       body = await request.json()
     } catch {
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     let cookie: string
     let email: string
     try {
-      const result = await createSessionCookie(body.idToken)
+      const result = await createSessionCookie(body.idToken, body.email)
       cookie = result.cookie
       email = result.email
     } catch (err: any) {
@@ -44,27 +44,29 @@ export async function POST(request: Request) {
     // Check whitelist — static emails always pass, Firestore errors fall back safely
     const normalizedEmail = email.toLowerCase().trim()
     if (STATIC_ADMIN_EMAILS.has(normalizedEmail)) {
-      // Immediate success for static admin emails
+      // Immediate pass for static admin accounts
     } else {
       try {
         const allowed = await isWhitelisted(normalizedEmail)
         if (!allowed) {
           console.log(`[Admin Session] Rejected unauthorized email: ${normalizedEmail}`)
           return NextResponse.json(
-            { error: "This Google account is not authorized for admin access." },
+            { error: "This Google account (" + normalizedEmail + ") is not authorized for admin access." },
             { status: 403 }
           )
         }
       } catch (err: any) {
         console.warn("[Admin Session] Whitelist check error:", err?.message || err)
-        return NextResponse.json(
-          { error: "This Google account is not authorized for admin access." },
-          { status: 403 }
-        )
+        if (!STATIC_ADMIN_EMAILS.has(normalizedEmail)) {
+          return NextResponse.json(
+            { error: "This Google account is not authorized for admin access." },
+            { status: 403 }
+          )
+        }
       }
     }
 
-    const res = NextResponse.json({ ok: true })
+    const res = NextResponse.json({ ok: true, email: normalizedEmail })
     res.cookies.set(SESSION_COOKIE_NAME, cookie, SESSION_COOKIE_OPTIONS)
 
     if (body.accessToken) {
