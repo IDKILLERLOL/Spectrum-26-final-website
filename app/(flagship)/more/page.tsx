@@ -2,6 +2,8 @@ import Link from "next/link"
 import {
   Info,
   Users,
+  Heart,
+  Trophy,
   Image as ImageIcon,
   Mail,
   ChevronRight,
@@ -9,7 +11,7 @@ import {
 import { Card } from "@/components/flagship/Card"
 import { PageHeader } from "@/components/flagship/PageHeader"
 import { PageContainer } from "@/components/flagship/PageContainer"
-import { NAVY, PINK } from "@/components/flagship/tokens"
+import { NAVY, PINK, TEAL } from "@/components/flagship/tokens"
 import { questBody } from "@/components/flagship/fonts"
 
 interface Tile {
@@ -21,6 +23,8 @@ interface Tile {
 const tiles: Tile[] = [
   { label: "About Us", href: "/more/about", icon: Info },
   { label: "Our Team", href: "/more/team", icon: Users },
+  { label: "Our Sponsors", href: "/more/sponsors", icon: Heart },
+  { label: "Winners & Hall of Fame", href: "/more/winners", icon: Trophy },
   { label: "Gallery", href: "/more/gallery", icon: ImageIcon },
   { label: "Contact", href: "/more/contact", icon: Mail },
 ]

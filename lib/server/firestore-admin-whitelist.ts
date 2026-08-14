@@ -4,8 +4,6 @@ import { getDb } from "@/lib/firebase/admin"
 import { hashEmail } from "./hash-email"
 import type { AdminWhitelistEntry } from "@/types/firestore"
 
-import { syncToSheet, buildWhitelistRow } from "@/lib/google/apps-script"
-
 const COLLECTION = "adminWhitelist"
 
 /** Always-authorized admin accounts — no Firestore or env var needed. */
@@ -43,7 +41,6 @@ export async function isWhitelisted(email: string): Promise<boolean> {
   }
 }
 
-
 export async function isWhitelistEmpty(): Promise<boolean> {
   try {
     const snap = await getDb().collection(COLLECTION).limit(1).get()
@@ -57,53 +54,47 @@ export async function isWhitelistEmpty(): Promise<boolean> {
 export async function addToWhitelist(email: string, addedBy: string): Promise<void> {
   const normalized = email.toLowerCase().trim()
   whitelistCache.set(normalized, { result: true, timestamp: Date.now() })
-  
   try {
     await getDb()
       .collection(COLLECTION)
       .doc(hashEmail(normalized))
       .set({ email: normalized, addedAt: Timestamp.now(), addedBy })
   } catch (err) {
-    console.warn("[addToWhitelist] Firestore fallback warning:", err)
-  }
-
-  // Sync to Google Sheets Whitelist tab (best-effort — never crash sign-in)
-  try {
-    await syncToSheet(buildWhitelistRow(normalized, "ADD", addedBy))
-  } catch (err) {
-    console.warn("[addToWhitelist] syncToSheet failed (non-fatal):", err)
+    console.warn("[addToWhitelist] Firestore warning:", err)
   }
 }
 
 export async function removeFromWhitelist(email: string): Promise<void> {
   const normalized = email.toLowerCase().trim()
   whitelistCache.delete(normalized)
-
   try {
     await getDb().collection(COLLECTION).doc(hashEmail(normalized)).delete()
   } catch (err) {
-    console.warn("[removeFromWhitelist] Firestore fallback warning:", err)
-  }
-
-  // Sync to Google Sheets Whitelist tab (best-effort — never crash operations)
-  try {
-    await syncToSheet(buildWhitelistRow(normalized, "REMOVE", "admin"))
-  } catch (err) {
-    console.warn("[removeFromWhitelist] syncToSheet failed (non-fatal):", err)
+    console.warn("[removeFromWhitelist] Firestore warning:", err)
   }
 }
 
 export async function listWhitelist(): Promise<(AdminWhitelistEntry & { id: string })[]> {
-  const snap = await getDb().collection(COLLECTION).get()
-  return snap.docs.map((d) => {
-    const data = d.data() || {}
-    return {
-      id: d.id,
-      email: data.email || "",
-      addedBy: data.addedBy || "unknown",
-      addedAt: data.addedAt || null,
-    } as any
-  })
+  try {
+    const snap = await getDb().collection(COLLECTION).get()
+    return snap.docs.map((d) => {
+      const data = d.data() || {}
+      return {
+        id: d.id,
+        email: data.email || "",
+        addedBy: data.addedBy || "unknown",
+        addedAt: data.addedAt || null,
+      } as any
+    })
+  } catch (err) {
+    console.warn("[listWhitelist] Error or Quota limit reached:", err)
+    return Array.from(STATIC_ADMIN_EMAILS).map((email, idx) => ({
+      id: `static_${idx}`,
+      email,
+      addedBy: "system",
+      addedAt: new Date().toISOString(),
+    })) as any
+  }
 }
 
 /**

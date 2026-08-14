@@ -1,51 +1,63 @@
 import { NextResponse } from "next/server"
 import { createSessionCookie, SESSION_COOKIE_NAME, SESSION_COOKIE_OPTIONS } from "@/lib/auth/session"
+import { isWhitelisted, bootstrapIfEmpty } from "@/lib/server/firestore-admin-whitelist"
+import { getDb } from "@/lib/firebase/admin"
 
 /**
- * Hardcoded admin allowlist — sign-in never touches Firestore or Firebase Admin SDK.
- * Keep this in sync with lib/server/firestore-admin-whitelist.ts STATIC_ADMIN_EMAILS.
+ * Called after client-side Firebase Google sign-in. Verifies the ID token,
+ * checks (or bootstraps) the adminWhitelist, and — only if allowed — sets the
+ * session cookie. This is where "Google-authenticated but not whitelisted"
+ * sign-ins actually get rejected.
  */
-const STATIC_ADMIN_EMAILS = new Set([
-  "i.doshi30@gmail.com",
-  "theperfectgamer1812@gmail.com",
-  "galamann939@gmail.com",
-  "prathampoladia12@gmail.com",
-  "saraiyamahir009@gmail.com",
-])
-
 export async function POST(request: Request) {
-  // Parse body
-  let body: { idToken?: string }
+  let body: { idToken?: string; accessToken?: string | null }
   try {
     body = await request.json()
   } catch {
-    return NextResponse.json({ error: "Invalid request body." }, { status: 400 })
+    return NextResponse.json({ error: "Invalid request." }, { status: 400 })
   }
 
   if (!body.idToken) {
     return NextResponse.json({ error: "Missing idToken." }, { status: 400 })
   }
 
-  // Decode & sign session — pure crypto, no external calls
   let cookie: string
   let email: string
   try {
     const result = await createSessionCookie(body.idToken)
     cookie = result.cookie
     email = result.email
-  } catch (err: any) {
-    return NextResponse.json({ error: err?.message ?? "Failed to decode token." }, { status: 401 })
+  } catch (err) {
+    console.error("[POST /api/admin/session] token verification failed:", err)
+    return NextResponse.json({ error: "Could not verify Google sign-in." }, { status: 401 })
   }
 
-  // Whitelist check — purely in-memory, zero external dependencies
-  if (!STATIC_ADMIN_EMAILS.has(email.toLowerCase().trim())) {
-    return NextResponse.json(
-      { error: "This Google account is not authorized for admin access." },
-      { status: 403 }
-    )
+  const bootstrapped = await bootstrapIfEmpty(email)
+  if (!bootstrapped) {
+    const allowed = await isWhitelisted(email)
+    if (!allowed) {
+      console.log(`[Admin Session] Rejected unauthorized admin access attempt for email: ${email}`);
+      return NextResponse.json(
+        { error: "This Google account is not authorized for admin access." },
+        { status: 403 }
+      )
+    }
   }
 
-  const res = NextResponse.json({ ok: true })
+  const res = NextResponse.json({ ok: true, bootstrapped })
   res.cookies.set(SESSION_COOKIE_NAME, cookie, SESSION_COOKIE_OPTIONS)
+
+  if (body.accessToken) {
+    try {
+      const db = getDb()
+      await db.collection("systemConfig").doc("gmail").set({
+        token: body.accessToken,
+        updatedAt: new Date(),
+      })
+    } catch (err) {
+      console.error("[POST /api/admin/session] failed to save gmail token to Firestore:", err)
+    }
+  }
+
   return res
 }

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server"
 import { getAdminSession } from "@/lib/auth/require-admin"
 import { getDb } from "@/lib/firebase/admin"
+import { writeAuditLog } from "@/lib/server/firestore-audit"
+
 export async function POST(request: Request) {
   const session = await getAdminSession()
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
@@ -16,6 +18,13 @@ export async function POST(request: Request) {
       token,
       updatedAt: new Date().toISOString(),
       updatedBy: session.email,
+    })
+
+    await writeAuditLog({
+      actorEmail: session.email,
+      action: "SAVE_GMAIL_TOKEN",
+      targetCollection: "systemConfig",
+      targetId: "gmail",
     })
 
     return NextResponse.json({ ok: true })

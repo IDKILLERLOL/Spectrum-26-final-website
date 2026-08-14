@@ -19,7 +19,16 @@ function toScheduleItem(doc: FirestoreScheduleItem): ScheduleItem {
 
 /** Falls back to static content/spectrum.ts data if the Admin SDK isn't configured or the read fails. */
 export async function getSchedule(): Promise<ScheduleItem[]> {
-  return staticSchedule
+  if (!isAdminConfigured()) return staticSchedule
+
+  try {
+    const snap = await getDb().collection(COLLECTION).orderBy("order", "asc").get()
+    if (snap.empty) return staticSchedule
+    return snap.docs.map((d) => toScheduleItem(d.data() as FirestoreScheduleItem))
+  } catch (err) {
+    console.error("[firestore-schedule] getSchedule failed, falling back to static data:", err)
+    return staticSchedule
+  }
 }
 
 export interface CreateScheduleItemInput {

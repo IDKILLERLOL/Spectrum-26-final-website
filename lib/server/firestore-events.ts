@@ -64,11 +64,29 @@ function toSpectrumEvent(id: string, doc: FirestoreEvent): SpectrumEvent {
  * this keeps the public site working throughout backend setup instead of 500ing.
  */
 export async function getEvents(): Promise<SpectrumEvent[]> {
-  return staticEvents
+  if (!isAdminConfigured()) return staticEvents
+
+  try {
+    const snap = await getDb().collection(COLLECTION).orderBy("order", "asc").get()
+    if (snap.empty) return staticEvents
+    return snap.docs.map((d) => toSpectrumEvent(d.id, d.data() as FirestoreEvent))
+  } catch (err) {
+    console.error("[firestore-events] getEvents failed, falling back to static data:", err)
+    return staticEvents
+  }
 }
 
 export async function getEvent(id: string): Promise<SpectrumEvent | null> {
-  return staticEvents.find((e) => e.id === id) ?? null
+  if (!isAdminConfigured()) return staticEvents.find((e) => e.id === id) ?? null
+
+  try {
+    const doc = await getDb().collection(COLLECTION).doc(id).get()
+    if (!doc.exists) return staticEvents.find((e) => e.id === id) ?? null
+    return toSpectrumEvent(doc.id, doc.data() as FirestoreEvent)
+  } catch (err) {
+    console.error("[firestore-events] getEvent failed, falling back to static data:", err)
+    return staticEvents.find((e) => e.id === id) ?? null
+  }
 }
 
 export interface CreateEventInput {
