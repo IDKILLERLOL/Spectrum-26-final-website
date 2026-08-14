@@ -28,7 +28,9 @@ export default function ContactPage() {
           </p>
           <div className="flex flex-col gap-4 text-left">
             <Row icon={<Mail size={18} color={VERMILION} />} label={contact.email} />
-            <Row icon={<Phone size={18} color={VERMILION} />} label={contact.phone} />
+            {contact.phone.split("\n").map((phoneNum, index) => (
+              <Row key={index} icon={<Phone size={18} color={VERMILION} />} label={phoneNum} />
+            ))}
             <Row icon={<MapPin size={18} color={VERMILION} />} label={contact.location} />
           </div>
         </div>
