@@ -124,7 +124,16 @@ export function RegisterPaymentStepClient({ upiVpa }: { upiVpa: string }) {
             </div>
 
             <div className="flex flex-col items-center gap-3 mb-6">
-              <Image src="/payment-qr.jpg" alt="UPI payment QR code" width={200} height={200} className="border-2" style={{ borderColor: INK }} unoptimized />
+              {qrDataUrl ? (
+                <Image src={qrDataUrl} alt="UPI payment QR code" width={200} height={200} className="border-2" style={{ borderColor: INK }} unoptimized />
+              ) : (
+                <div
+                  className="flex size-[200px] items-center justify-center border-2 text-center text-xs"
+                  style={{ borderColor: INK, color: INK }}
+                >
+                  {upiVpa ? "Generating QR…" : "QR unavailable — pay via VPA below"}
+                </div>
+              )}
               <p className={`${questDisplay.className} text-lg`} style={{ color: VERMILION }}>
                 ₹{selectedEvent.feeNumeric}
               </p>
