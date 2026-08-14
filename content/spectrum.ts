@@ -255,14 +255,10 @@ export const partners: Partner[] = [
 export interface TeamMember {
   name: string
   role: string
+  imageUrl?: string
 }
 
-export const team: TeamMember[] = [
-  { name: "Ayush B.", role: "Tech Head" },
-  { name: "Riya S.", role: "Design Head" },
-  { name: "Sahil M.", role: "Operations Head" },
-  { name: "Neha K.", role: "Marketing Head" },
-]
+export const team: TeamMember[] = []
 
 export interface OrganizerInfo {
   institutionName: string

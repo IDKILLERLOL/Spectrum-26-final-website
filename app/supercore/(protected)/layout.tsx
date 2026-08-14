@@ -5,6 +5,7 @@ import { AutoLogoutOnUnload } from "./AutoLogoutOnUnload"
 const NAV = [
   { href: "/supercore/registrations", label: "Registrations" },
   { href: "/supercore/events", label: "Events" },
+  { href: "/supercore/team", label: "Team" },
   { href: "/supercore/sponsors", label: "Sponsors" },
   { href: "/supercore/schedule", label: "Schedule" },
   { href: "/supercore/winners", label: "Winners" },

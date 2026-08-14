@@ -4,11 +4,13 @@ import * as React from "react"
 import Link from "next/link"
 import type { SpectrumEvent } from "@/content/spectrum"
 import { site } from "@/content/spectrum"
-import { Trophy } from "lucide-react"
+import { Trophy, ArrowRight } from "lucide-react"
 import { Card } from "@/components/flagship/Card"
 import { PageHeader } from "@/components/flagship/PageHeader"
 import { PageContainer } from "@/components/flagship/PageContainer"
-import { NAVY, INK, PINK, MUSTARD, hoardingShadow, softHoardingShadow } from "@/components/flagship/tokens"
+import { AppButton } from "@/components/flagship/AppButton"
+import { useQuest } from "@/components/flagship/quest-context"
+import { NAVY, INK, PINK, MUSTARD, VERMILION, hoardingShadow, softHoardingShadow } from "@/components/flagship/tokens"
 import { questDisplay, questBody } from "@/components/flagship/fonts"
 import { trackEventCardView, trackEventCardClick } from "@/lib/analytics/track"
 
@@ -32,13 +34,15 @@ function StallAwning({ color }: { color: string }) {
 }
 
 export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
+  const { openQuest } = useQuest()
+
   React.useEffect(() => {
     events.forEach((ev) => trackEventCardView(ev.id, ev.name))
   }, [events])
 
   return (
     <>
-      <PageHeader title="Events & Prizes" subtitle="Choose your battleground and win big." back={false} />
+      <PageHeader title="Events & Prizes" subtitle="Choose your battleground and register now." back={false} />
       <PageContainer width="wide">
         <div className="flex flex-col gap-8 px-5 py-6">
           
@@ -68,32 +72,54 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
           </div>
 
           {/* Events Grid */}
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:gap-5">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4 lg:gap-5">
             {events.map((ev) => (
-              <Link key={ev.id} href={`/events/${ev.id}`} onClick={() => trackEventCardClick(ev.id, ev.name)}>
-                <Card className="relative flex h-40 flex-col justify-between p-4 pt-7 transition-all hover:-translate-y-0.5 hover:shadow-lg" style={{ borderColor: ev.color }}>
-                  <StallAwning color={ev.color} />
+              <Card
+                key={ev.id}
+                className="relative flex flex-col justify-between p-4 pt-7 transition-all hover:-translate-y-0.5 hover:shadow-lg cursor-pointer"
+                style={{ borderColor: ev.color }}
+                onClick={() => {
+                  trackEventCardClick(ev.id, ev.name)
+                  openQuest(ev.id)
+                }}
+              >
+                <StallAwning color={ev.color} />
+                <div className="flex items-center justify-between">
                   <span
                     className={`${questDisplay.className} flex size-8 items-center justify-center border-2 text-[10px] text-white`}
                     style={{ background: ev.color, borderColor: INK, boxShadow: softHoardingShadow }}
                   >
                     {ev.index}
                   </span>
-                  <div>
-                    <p className={`${questBody.className} text-sm font-bold`} style={{ color: NAVY }}>
-                      {ev.name}
+                  <span className={`${questBody.className} text-[10px] font-bold uppercase px-2 py-0.5 text-white`} style={{ background: VERMILION }}>
+                    Register
+                  </span>
+                </div>
+                <div className="my-2">
+                  <p className={`${questBody.className} text-base font-bold`} style={{ color: NAVY }}>
+                    {ev.name}
+                  </p>
+                  <p className={`${questBody.className} text-xs opacity-60`} style={{ color: NAVY }}>
+                    {ev.format} • {ev.fee}
+                  </p>
+                  {ev.prizePool && (
+                    <p className={`${questBody.className} mt-1 text-xs font-bold`} style={{ color: PINK }}>
+                      Prize Pool: {ev.prizePool}
                     </p>
-                    <p className={`${questBody.className} text-[10px] opacity-60`} style={{ color: NAVY }}>
-                      {ev.format}
-                    </p>
-                    {ev.prizePool && (
-                      <p className={`${questBody.className} mt-1 text-xs font-bold`} style={{ color: PINK }}>
-                        Prize Pool: {ev.prizePool}
-                      </p>
-                    )}
-                  </div>
-                </Card>
-              </Link>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    openQuest(ev.id)
+                  }}
+                  className={`${questBody.className} flex items-center justify-center gap-1.5 w-full py-2 text-xs font-bold text-white border-2`}
+                  style={{ background: ev.color, borderColor: INK }}
+                >
+                  Register Now <ArrowRight size={14} />
+                </button>
+              </Card>
             ))}
           </div>
 

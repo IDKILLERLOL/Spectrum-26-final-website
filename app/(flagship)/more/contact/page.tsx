@@ -1,116 +1,80 @@
-"use client"
-
-import * as React from "react"
 import { Mail, Phone, MapPin } from "lucide-react"
 import { contact } from "@/content/spectrum"
 import { PageHeader } from "@/components/flagship/PageHeader"
-import { AppButton } from "@/components/flagship/AppButton"
 import { PageContainer } from "@/components/flagship/PageContainer"
-import { NAVY, TEAL, VERMILION, INK } from "@/components/flagship/tokens"
+import { NAVY, TEAL, VERMILION, INK, hoardingShadow } from "@/components/flagship/tokens"
 import { questDisplay, questBody } from "@/components/flagship/fonts"
 
 export default function ContactPage() {
-  const [name, setName] = React.useState("")
-  const [email, setEmail] = React.useState("")
-  const [message, setMessage] = React.useState("")
-  const [sending, setSending] = React.useState(false)
-  const [sent, setSent] = React.useState(false)
-
-  const fieldStyle: React.CSSProperties = { borderColor: INK, color: INK }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setSending(true)
-    await new Promise((r) => setTimeout(r, 650))
-    setSending(false)
-    setSent(true)
-  }
+  const mapEmbedUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3770.0076211786676!2d72.83446057596001!3d19.106263950325414!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7c9c676018b43%3A0x75f39a04a6217435!2sShri%20Bhagubhai%20Mafatlal%20Polytechnic!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin"
 
   return (
     <>
-      <PageHeader title="Get In Touch" subtitle="We'd love to hear from you!" />
+      <PageHeader title="Venue & Contact" subtitle="Find us in Mumbai or get in touch!" />
       <PageContainer
         width="narrow"
-        className="flex flex-col gap-4 px-5 py-4 md:grid md:grid-cols-2 md:items-start md:gap-8 md:py-8"
+        className="flex flex-col gap-6 px-5 py-6 md:py-10"
       >
-        {/* Enquiries hoarding board */}
-        <div className="border-4 border-dashed p-6 text-center" style={{ borderColor: TEAL, background: "#FFFDF6" }}>
-          <p className={`${questDisplay.className} mb-3 text-xs uppercase tracking-widest`} style={{ color: TEAL }}>
-            Enquiries
+        {/* Contact info card */}
+        <div
+          className="border-4 border-dashed p-6"
+          style={{ borderColor: TEAL, background: "#FFFDF6", boxShadow: hoardingShadow }}
+        >
+          <p
+            className={`${questDisplay.className} mb-4 text-xs uppercase tracking-widest text-center md:text-left`}
+            style={{ color: TEAL }}
+          >
+            Enquiries & Venue
           </p>
-          <div className="flex flex-col gap-3 text-left">
-            <Row icon={<Mail size={16} color={VERMILION} />} label={contact.email} />
-            <Row icon={<Phone size={16} color={VERMILION} />} label={contact.phone} />
-            <Row icon={<MapPin size={16} color={VERMILION} />} label={contact.location} />
+          <div className="flex flex-col gap-4 text-left">
+            <Row icon={<Mail size={18} color={VERMILION} />} label={contact.email} />
+            <Row icon={<Phone size={18} color={VERMILION} />} label={contact.phone} />
+            <Row icon={<MapPin size={18} color={VERMILION} />} label={contact.location} />
           </div>
         </div>
 
-        {sent ? (
-          <div className="border-4 p-4 text-center" style={{ borderColor: INK, background: "#FFFDF6", boxShadow: `4px 4px 0px ${INK}` }}>
-            <p className={questDisplay.className} style={{ color: NAVY, fontSize: "0.95rem" }}>
-              Message sent!
-            </p>
-            <p className={`${questBody.className} text-xs opacity-70`} style={{ color: NAVY }}>
-              We&apos;ll get back to you soon.
-            </p>
+        {/* Embedded Google Map */}
+        <div
+          className="flex flex-col gap-2 border-4 p-2 bg-white"
+          style={{ borderColor: INK, boxShadow: hoardingShadow }}
+        >
+          <div className="flex items-center justify-between px-2 py-1">
+            <span className={`${questDisplay.className} text-xs uppercase tracking-wider`} style={{ color: NAVY }}>
+              Google Maps Location
+            </span>
+            <a
+              href="https://maps.app.goo.gl/ShriBhagubhaiMafatlal"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`${questBody.className} text-[11px] font-bold underline hover:opacity-80`}
+              style={{ color: VERMILION }}
+            >
+              Open in Google Maps ↗
+            </a>
           </div>
-        ) : (
-          <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-            <Field label="Your Name">
-              <input
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className={`${questBody.className} border-b-2 bg-transparent px-1 py-1.5 text-sm font-bold outline-none`}
-                style={fieldStyle}
-              />
-            </Field>
-            <Field label="Email Address">
-              <input
-                required
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className={`${questBody.className} border-b-2 bg-transparent px-1 py-1.5 text-sm font-bold outline-none`}
-                style={fieldStyle}
-              />
-            </Field>
-            <Field label="Message">
-              <textarea
-                required
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                rows={3}
-                className={`${questBody.className} resize-none border-b-2 bg-transparent px-1 py-1.5 text-sm font-bold outline-none`}
-                style={fieldStyle}
-              />
-            </Field>
-            <AppButton type="submit" disabled={sending} className="mt-1 w-full py-3.5 text-sm">
-              {sending ? "Sending…" : "Send Message"}
-            </AppButton>
-          </form>
-        )}
+          <div className="relative w-full h-[320px] md:h-[400px] border-2 border-neutral-900 overflow-hidden">
+            <iframe
+              title="Shri Bhagubhai Mafatlal Polytechnic Map"
+              src={mapEmbedUrl}
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+          </div>
+        </div>
       </PageContainer>
     </>
   )
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="flex flex-col gap-1">
-      <label className={`${questBody.className} text-[10px] font-bold uppercase tracking-wide`} style={{ color: TEAL }}>
-        {label}
-      </label>
-      {children}
-    </div>
-  )
-}
-
 function Row({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
-    <div className="flex items-center gap-3">
-      {icon}
-      <span className={`${questBody.className} text-xs`} style={{ color: NAVY }}>
+    <div className="flex items-start gap-3">
+      <span className="mt-0.5 shrink-0">{icon}</span>
+      <span className={`${questBody.className} text-sm font-bold md:text-base`} style={{ color: NAVY }}>
         {label}
       </span>
     </div>

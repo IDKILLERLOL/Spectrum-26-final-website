@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { PageHeader } from "@/components/flagship/PageHeader"
 import { PageContainer } from "@/components/flagship/PageContainer"
 import { StepProgress } from "@/components/flagship/StepProgress"
@@ -12,6 +12,20 @@ import { questDisplay, questBody } from "@/components/flagship/fonts"
 import { trackFunnelStep } from "@/lib/analytics/track"
 
 const ticketStyle = { background: AGED_PAPER, borderColor: INK, borderWidth: "4px", boxShadow: hoardingShadow }
+
+function EventParamSync() {
+  const searchParams = useSearchParams()
+  const eventParam = searchParams.get("event")
+  const { setField } = useQuest()
+
+  React.useEffect(() => {
+    if (eventParam) {
+      setField("eventId", eventParam)
+    }
+  }, [eventParam, setField])
+
+  return null
+}
 
 function Field({
   label,
@@ -81,6 +95,9 @@ export default function RegisterInfoStep() {
 
   return (
     <>
+      <React.Suspense fallback={null}>
+        <EventParamSync />
+      </React.Suspense>
       <PageHeader title="Register" />
       <PageContainer width="narrow">
         <StepProgress step={1} />

@@ -236,27 +236,34 @@ function FeaturedEvents({ events }: { events: SpectrumEvent[] }) {
       </h2>
       <div className="grid justify-center gap-5 sm:grid-cols-2 xl:grid-cols-4 lg:gap-6">
         {events.map((ev) => (
-          <Card key={ev.id} className="relative w-full max-w-[19rem] overflow-visible p-4 sm:min-h-[12rem] lg:max-w-[21rem] lg:p-6 xl:min-h-[14rem]">
-            <EventAwning color={ev.color} />
-            <span
-              className={`${questDisplay.className} mb-2 inline-flex size-7 items-center justify-center text-[9px] text-white lg:size-9 lg:text-xs`}
-              style={{ background: ev.color }}
-            >
-              {ev.index}
-            </span>
-            <h3 className={`${questBody.className} text-sm font-bold lg:text-lg`} style={{ color: NAVY }}>
-              {ev.name}
-            </h3>
-            <p className={`${questBody.className} mt-1 text-[11px] opacity-70 lg:text-sm`} style={{ color: NAVY }}>
-              {ev.tag}
-            </p>
-            <p className={`${questBody.className} mt-2 text-[10px] opacity-60 lg:text-xs`} style={{ color: NAVY }}>
-              {ev.format}
-            </p>
-            <p className={`${questBody.className} text-xs font-bold lg:text-sm`} style={{ color: PINK }}>
-              {ev.fee}
-            </p>
-          </Card>
+          <Link key={ev.id} href={`/register/info?event=${ev.id}`}>
+            <Card className="relative w-full max-w-[19rem] overflow-visible p-4 transition-transform hover:-translate-y-1 sm:min-h-[12rem] lg:max-w-[21rem] lg:p-6 xl:min-h-[14rem] cursor-pointer">
+              <EventAwning color={ev.color} />
+              <div className="flex items-center justify-between">
+                <span
+                  className={`${questDisplay.className} mb-2 inline-flex size-7 items-center justify-center text-[9px] text-white lg:size-9 lg:text-xs`}
+                  style={{ background: ev.color }}
+                >
+                  {ev.index}
+                </span>
+                <span className={`${questBody.className} text-[9px] font-bold uppercase px-2 py-0.5 text-white`} style={{ background: VERMILION }}>
+                  Register ↗
+                </span>
+              </div>
+              <h3 className={`${questBody.className} text-sm font-bold lg:text-lg`} style={{ color: NAVY }}>
+                {ev.name}
+              </h3>
+              <p className={`${questBody.className} mt-1 text-[11px] opacity-70 lg:text-sm`} style={{ color: NAVY }}>
+                {ev.tag}
+              </p>
+              <p className={`${questBody.className} mt-2 text-[10px] opacity-60 lg:text-xs`} style={{ color: NAVY }}>
+                {ev.format}
+              </p>
+              <p className={`${questBody.className} text-xs font-bold lg:text-sm`} style={{ color: PINK }}>
+                {ev.fee}
+              </p>
+            </Card>
+          </Link>
         ))}
       </div>
       <AppButton href="/events" className="w-full py-3 text-xs md:w-auto md:self-center md:px-10 lg:py-4 lg:text-sm">
