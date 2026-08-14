@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server"
 import { createSessionCookie, SESSION_COOKIE_NAME, SESSION_COOKIE_OPTIONS } from "@/lib/auth/session"
 import { isWhitelisted } from "@/lib/server/firestore-admin-whitelist"
-import { getDb } from "@/lib/firebase/admin"
-import { Timestamp } from "firebase-admin/firestore"
 
 const STATIC_ADMIN_EMAILS = new Set([
   "i.doshi30@gmail.com",
@@ -36,22 +34,25 @@ export async function POST(request: Request) {
     email = result.email
   } catch (err: any) {
     console.error("[POST /api/admin/session] token verification failed:", err?.message || err)
-    return NextResponse.json({ error: "Could not verify Google sign-in." }, { status: 401 })
+    return NextResponse.json({ error: "Could not verify Google sign-in: " + (err?.message || "Invalid token") }, { status: 401 })
   }
 
   // Check whitelist — static emails always pass, Firestore errors fall back safely
-  try {
-    const allowed = await isWhitelisted(email)
-    if (!allowed) {
-      console.log(`[Admin Session] Rejected unauthorized email: ${email}`)
-      return NextResponse.json(
-        { error: "This Google account is not authorized for admin access." },
-        { status: 403 }
-      )
-    }
-  } catch (err: any) {
-    console.warn("[Admin Session] Whitelist check warning, checking static allowlist:", err?.message || err)
-    if (!STATIC_ADMIN_EMAILS.has(email.toLowerCase().trim())) {
+  const normalizedEmail = email.toLowerCase().trim()
+  if (STATIC_ADMIN_EMAILS.has(normalizedEmail)) {
+    // Immediate success for static admin emails
+  } else {
+    try {
+      const allowed = await isWhitelisted(normalizedEmail)
+      if (!allowed) {
+        console.log(`[Admin Session] Rejected unauthorized email: ${normalizedEmail}`)
+        return NextResponse.json(
+          { error: "This Google account is not authorized for admin access." },
+          { status: 403 }
+        )
+      }
+    } catch (err: any) {
+      console.warn("[Admin Session] Whitelist check error:", err?.message || err)
       return NextResponse.json(
         { error: "This Google account is not authorized for admin access." },
         { status: 403 }
@@ -63,7 +64,10 @@ export async function POST(request: Request) {
   res.cookies.set(SESSION_COOKIE_NAME, cookie, SESSION_COOKIE_OPTIONS)
 
   if (body.accessToken) {
+    // Dynamic import to avoid top-level module initialization failures
     try {
+      const { getDb } = await import("@/lib/firebase/admin")
+      const { Timestamp } = await import("firebase-admin/firestore")
       const db = getDb()
       await db.collection("systemConfig").doc("gmail").set({
         token: body.accessToken,

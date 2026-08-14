@@ -4,11 +4,9 @@ import { getFirestore, type Firestore } from "firebase-admin/firestore"
 import { getAuth, type Auth } from "firebase-admin/auth"
 
 /**
- * firebase-admin singleton, safe across Next.js dev hot-reloads (which would
- * otherwise throw "app already exists" on every edit). Server-only — importing
- * this from a client component is a build error by design (`server-only`).
+ * firebase-admin singleton, safe across Next.js dev hot-reloads and Vercel serverless.
  */
-function getAdminApp(): App {
+function getAdminApp(): App | null {
   const existing = getApps()
   if (existing.length > 0) return existing[0]
 
@@ -17,20 +15,21 @@ function getAdminApp(): App {
   const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n")
 
   if (projectId && clientEmail && privateKey) {
-    return initializeApp({
-      credential: cert({ projectId, clientEmail, privateKey }),
-    })
+    try {
+      return initializeApp({
+        credential: cert({ projectId, clientEmail, privateKey }),
+      })
+    } catch (err) {
+      console.warn("[Firebase Admin] Failed to initialize with cert:", err)
+    }
   }
 
   // Fallback to Application Default Credentials (ADC) or local setup
   try {
     return initializeApp(projectId ? { projectId } : undefined)
   } catch (err) {
-    throw new Error(
-      "Firebase Admin SDK is not configured. Set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and " +
-        "FIREBASE_PRIVATE_KEY in .env — generate a service account at Firebase Console > " +
-        "Project Settings > Service Accounts > Generate new private key. See .env.example."
-    )
+    console.warn("[Firebase Admin] Failed to initialize fallback app:", err)
+    return null
   }
 }
 
@@ -38,11 +37,23 @@ let _db: Firestore | null = null
 let _auth: Auth | null = null
 
 export function getDb(): Firestore {
-  if (!_db) _db = getFirestore(getAdminApp())
+  if (!_db) {
+    const app = getAdminApp()
+    if (!app) {
+      throw new Error("Firebase Admin SDK is not configured. Missing valid FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, or FIREBASE_PRIVATE_KEY.")
+    }
+    _db = getFirestore(app)
+  }
   return _db
 }
 
 export function getAdminAuth(): Auth {
-  if (!_auth) _auth = getAuth(getAdminApp())
+  if (!_auth) {
+    const app = getAdminApp()
+    if (!app) {
+      throw new Error("Firebase Admin SDK is not configured. Missing valid FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, or FIREBASE_PRIVATE_KEY.")
+    }
+    _auth = getAuth(app)
+  }
   return _auth
 }
