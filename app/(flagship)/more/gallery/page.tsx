@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback, useRef } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion, AnimatePresence } from "motion/react"
 import { galleryTiles } from "@/content/spectrum"
 import { PageHeader } from "@/components/flagship/PageHeader"
 import { PageContainer } from "@/components/flagship/PageContainer"
