@@ -1,12 +1,10 @@
 "use client"
 
 import * as React from "react"
-import { MapPin, Bell } from "lucide-react"
+import { MapPin, Navigation } from "lucide-react"
 import {
-  notifications,
   site,
   venueMapsUrl,
-  EVENT_DATE_ISO,
 } from "@/content/spectrum"
 import type { ScheduleItem } from "@/content/spectrum"
 import { Card } from "@/components/flagship/Card"
@@ -16,17 +14,19 @@ import { AppButton } from "@/components/flagship/AppButton"
 import { SegmentedTabs } from "@/components/flagship/SegmentedTabs"
 import {
   NAVY,
-  PINK,
   CREAM,
   MARIGOLD,
   VERMILION,
+  INK,
+  hoardingShadow,
 } from "@/components/flagship/tokens"
 import { questDisplay, questBody } from "@/components/flagship/fonts"
 
-type TabId = "schedule" | "timeline" | "venue" | "notifications"
+type TabId = "schedule" | "timeline" | "venue"
 
-/** Hand-chalked timetable on a wooden-framed blackboard — desi-retro schoolroom motif
- *  shared by the Schedule and Timeline panels. */
+const MAP_EMBED_URL = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3770.0076211786676!2d72.83446057596001!3d19.106263950325414!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7c9c676018b43%3A0x75f39a04a6217435!2sShri%20Bhagubhai%20Mafatlal%20Polytechnic!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin"
+
+/** Hand-chalked timetable on a wooden-framed blackboard */
 function Chalkboard({
   children,
   className = "",
@@ -66,7 +66,7 @@ export function SchedulePageClient({ schedule }: { schedule: ScheduleItem[] }) {
             tabs={[
               { id: "schedule", label: "Schedule" },
               { id: "timeline", label: "Timeline" },
-              { id: "venue", label: "Venue" },
+              { id: "venue", label: "Venue & Map" },
             ]}
             active={tab}
             onChange={setTab}
@@ -147,47 +147,60 @@ export function SchedulePageClient({ schedule }: { schedule: ScheduleItem[] }) {
           )}
 
           {tab === "venue" && (
-            <div className="flex flex-col gap-3 md:gap-4">
-              <Card
-                className="flex h-40 items-center justify-center"
-                style={{
-                  background:
-                    "repeating-linear-gradient(45deg, #E8E0CC 0 10px, #F5EFE1 10px 20px)",
-                }}
-              >
-                <MapPin size={32} color={PINK} />
-              </Card>
+            <div className="flex flex-col gap-4">
               <div
-                className="relative border-2 border-dashed p-4"
-                style={{ borderColor: VERMILION, color: NAVY }}
+                className="relative border-4 border-dashed p-4 md:p-5"
+                style={{ borderColor: VERMILION, color: NAVY, background: "#FFFDF6", boxShadow: hoardingShadow }}
               >
                 <span
                   className={`${questDisplay.className} absolute -top-3 left-3 px-2 text-[10px] uppercase tracking-widest`}
                   style={{ background: CREAM, color: VERMILION }}
                 >
-                  Venue Stamp
+                  Official Venue
                 </span>
-                <p
-                  className={`${questDisplay.className} text-sm`}
-                  style={{ color: NAVY }}
-                >
+                <p className={`${questDisplay.className} text-base md:text-lg`} style={{ color: NAVY }}>
                   {site.host}
                 </p>
-                <p
-                  className={`${questBody.className} mt-1 text-xs opacity-70`}
-                  style={{ color: NAVY }}
-                >
+                <p className={`${questBody.className} mt-1 text-xs md:text-sm font-bold opacity-80`} style={{ color: NAVY }}>
                   {site.venue}
                 </p>
               </div>
-              <AppButton href={venueMapsUrl} className="w-full py-3 text-xs">
-                Get Directions
+
+              {/* Embedded Google Map */}
+              <Card className="flex flex-col p-2 gap-2 overflow-hidden" style={{ borderColor: INK, boxShadow: hoardingShadow }}>
+                <div className="flex items-center justify-between px-2 py-1">
+                  <span className={`${questDisplay.className} text-xs uppercase tracking-wider flex items-center gap-1.5`} style={{ color: NAVY }}>
+                    <MapPin size={14} color={VERMILION} /> Shri Bhagubhai Mafatlal Polytechnic
+                  </span>
+                  <a
+                    href={venueMapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`${questBody.className} text-[11px] font-bold underline hover:opacity-80 flex items-center gap-1`}
+                    style={{ color: VERMILION }}
+                  >
+                    Open Map <Navigation size={12} />
+                  </a>
+                </div>
+                <div className="relative w-full h-[320px] md:h-[400px] border-2 border-neutral-900 overflow-hidden">
+                  <iframe
+                    title="Shri Bhagubhai Mafatlal Polytechnic Google Map"
+                    src={MAP_EMBED_URL}
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  />
+                </div>
+              </Card>
+
+              <AppButton href={venueMapsUrl} className="w-full py-3.5 text-xs md:text-sm">
+                Get Directions on Google Maps ↗
               </AppButton>
             </div>
           )}
-
-
-
         </div>
       </PageContainer>
     </>

@@ -29,7 +29,7 @@ export default function AdminLoginPage() {
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
         trackAdminLogin("failure")
-        setError(data.error ?? "Sign-in failed.")
+        setError(data.error ?? `Sign-in failed (HTTP ${res.status}).`)
         return
       }
 
@@ -39,10 +39,12 @@ export default function AdminLoginPage() {
 
       trackAdminLogin("success")
       router.push("/supercore/registrations")
-    } catch (err) {
+    } catch (err: any) {
       console.error("[admin login]", err)
       trackAdminLogin("failure")
-      setError("Google sign-in failed. Please try again.")
+      const code = err?.code ? ` (${err.code})` : ""
+      const msg = err?.message || String(err)
+      setError(`Google sign-in error${code}: ${msg}`)
     } finally {
       setSigningIn(false)
     }
@@ -53,12 +55,12 @@ export default function AdminLoginPage() {
       <div className="flex w-full max-w-sm flex-col gap-4 text-center">
         <h1 className="font-mono text-lg font-bold tracking-wide text-amber-400">SUPERCORE</h1>
         <p className="text-sm text-neutral-400">Sign in with an authorized Google account.</p>
-        {error && <p className="text-xs text-red-400">{error}</p>}
+        {error && <p className="text-xs font-semibold text-red-400 bg-red-950/40 p-3 border border-red-800/50 rounded break-words">{error}</p>}
         <button
           type="button"
           onClick={handleGoogleSignIn}
           disabled={signingIn}
-          className="rounded bg-white py-3 text-sm font-bold text-neutral-950 disabled:opacity-40"
+          className="rounded bg-white py-3 text-sm font-bold text-neutral-950 hover:bg-neutral-200 transition-colors disabled:opacity-40"
         >
           {signingIn ? "Signing in…" : "Sign in with Google"}
         </button>
