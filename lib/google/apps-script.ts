@@ -105,6 +105,150 @@ export async function syncToSheet(payload: object): Promise<boolean> {
       }
     }
 
+async function appendAndMerge(
+  spreadsheetId: string,
+  tabName: string,
+  rowsToAppend: any[][],
+  token: string
+): Promise<boolean> {
+  const encodedTab = encodeURIComponent(tabName)
+  let appendUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodedTab}!A:L:append?valueInputOption=USER_ENTERED`
+  
+  try {
+    let apiRes = await fetch(appendUrl, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        majorDimension: "ROWS",
+        values: rowsToAppend
+      })
+    })
+
+    // If tab doesn't exist, create it, add headers, and retry
+    if (!apiRes.ok && tabName !== "A:L" && tabName !== "Sheet1") {
+      console.log(`[apps-script] Tab '${tabName}' not found. Creating sheet tab...`)
+      const createRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          requests: [
+            {
+              addSheet: {
+                properties: {
+                  title: tabName
+                }
+              }
+            }
+          ]
+        })
+      })
+
+      if (createRes.ok) {
+        // Add headers first
+        const headers = [
+          "Event Name", "Team/Leader Name", "Role", "Name", "Email", 
+          "Phone", "College", "Fee Status", "Transaction ID / Ref", 
+          "Payment Screenshot", "Checked In", "Registered At"
+        ]
+        const headersUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodedTab}!A1:L1?valueInputOption=USER_ENTERED`
+        await fetch(headersUrl, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            majorDimension: "ROWS",
+            values: [headers]
+          })
+        })
+
+        // Now retry the append
+        apiRes = await fetch(appendUrl, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            majorDimension: "ROWS",
+            values: rowsToAppend
+          })
+        })
+      }
+    }
+
+    if (apiRes.ok) {
+      console.log(`[apps-script] Appended successfully to tab '${tabName}'`)
+      
+      // Perform cell merge if multiple rows
+      if (rowsToAppend.length > 1) {
+        try {
+          const resData = await apiRes.json()
+          const updatedRange = resData.updates?.updatedRange
+          if (updatedRange) {
+            const rangeMatch = updatedRange.match(/A(\d+):L(\d+)/)
+            if (rangeMatch) {
+              const startRowIndex = parseInt(rangeMatch[1]) - 1
+              const endRowIndex = parseInt(rangeMatch[2])
+
+              // Fetch sheetId
+              const metaRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}?fields=sheets.properties`, {
+                headers: { Authorization: `Bearer ${token}` }
+              })
+              let sheetId = 0
+              if (metaRes.ok) {
+                const metaData = await metaRes.json()
+                const sheetObj = metaData.sheets?.find((s: any) => s.properties?.title === tabName)
+                if (sheetObj) {
+                  sheetId = sheetObj.properties.sheetId || 0
+                }
+              }
+
+              const mergeColumns = [0, 1, 7, 8, 9, 10, 11]
+              const requests = mergeColumns.map(colIndex => ({
+                mergeCells: {
+                  range: {
+                    sheetId,
+                    startRowIndex,
+                    endRowIndex,
+                    startColumnIndex: colIndex,
+                    endColumnIndex: colIndex + 1
+                  },
+                  mergeType: "MERGE_ALL"
+                }
+              }))
+
+              console.log(`[apps-script] Merging team cells on '${tabName}' from row ${startRowIndex + 1} to ${endRowIndex}...`)
+              await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`, {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ requests })
+              })
+            }
+          }
+        } catch (mergeErr) {
+          console.warn(`[apps-script] Cell merge on '${tabName}' failed:`, mergeErr)
+        }
+      }
+      return true
+    }
+  } catch (err) {
+    console.error(`[apps-script] appendAndMerge failed for '${tabName}':`, err)
+  }
+  return false
+}
+
+// Inside syncToSheet
     if (token) {
       console.log("[apps-script] Attempting direct Google Sheets REST API append...")
       let rowsToAppend: any[][] = []
@@ -155,105 +299,15 @@ export async function syncToSheet(payload: object): Promise<boolean> {
         ])
       }
 
-      let tabName = "All Registrations"
-      let appendUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent("All Registrations!A:L")}:append?valueInputOption=USER_ENTERED`
-      try {
-        let apiRes = await fetch(appendUrl, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            majorDimension: "ROWS",
-            values: rowsToAppend
-          })
-        })
-        if (!apiRes.ok) {
-          console.log("[apps-script] Direct sync to 'All Registrations' tab failed, trying default first tab A:L...")
-          tabName = "Sheet1"
-          appendUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent("A:L")}:append?valueInputOption=USER_ENTERED`
-          apiRes = await fetch(appendUrl, {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              majorDimension: "ROWS",
-              values: rowsToAppend
-            })
-          })
-        }
+      // Sync to master sheet tab
+      const masterOk = await appendAndMerge(spreadsheetId, "All Registrations", rowsToAppend, token)
 
-        if (apiRes.ok) {
-          console.log(`[apps-script] Direct Google Sheets API sync succeeded (${tabName})!`)
-          
-          // Merge cells if there are multiple rows
-          if (rowsToAppend.length > 1) {
-            try {
-              const resData = await apiRes.json()
-              const updatedRange = resData.updates?.updatedRange
-              if (updatedRange) {
-                // Parse range e.g. "All Registrations!A11:L14" or "A11:L14"
-                const rangeMatch = updatedRange.match(/A(\d+):L(\d+)/)
-                if (rangeMatch) {
-                  const startRowIndex = parseInt(rangeMatch[1]) - 1
-                  const endRowIndex = parseInt(rangeMatch[2])
-                  
-                  // Fetch sheet properties to get the correct sheetId for merging
-                  const metaRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}?fields=sheets.properties`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                  })
-                  let sheetId = 0
-                  if (metaRes.ok) {
-                    const metaData = await metaRes.json()
-                    // Try to match tabName exactly, or match the parsed tab name from updatedRange
-                    const parsedTabName = updatedRange.includes("!") ? updatedRange.split("!")[0].replace(/^'|'$/g, "") : tabName
-                    const sheetObj = metaData.sheets?.find((s: any) => s.properties?.title === parsedTabName || s.properties?.title === tabName)
-                    if (sheetObj) {
-                      sheetId = sheetObj.properties.sheetId || 0
-                    }
-                  }
-
-                  // Columns to merge: Event Name (0), Team Name (1), Fee Status (7), Transaction ID (8), Screenshot (9), Checked In (10), Registered At (11)
-                  const mergeColumns = [0, 1, 7, 8, 9, 10, 11]
-                  const requests = mergeColumns.map(colIndex => ({
-                    mergeCells: {
-                      range: {
-                        sheetId,
-                        startRowIndex,
-                        endRowIndex,
-                        startColumnIndex: colIndex,
-                        endColumnIndex: colIndex + 1
-                      },
-                      mergeType: "MERGE_ALL"
-                    }
-                  }))
-
-                  console.log(`[apps-script] Merging team cells from row ${startRowIndex + 1} to ${endRowIndex} on sheetId ${sheetId}...`)
-                  await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`, {
-                    method: "POST",
-                    headers: {
-                      Authorization: `Bearer ${token}`,
-                      "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ requests })
-                  })
-                }
-              }
-            } catch (mergeErr) {
-              console.warn("[apps-script] Cell merge error (non-fatal):", mergeErr)
-            }
-          }
-          return true
-        } else {
-          const errBody = await apiRes.json().catch(() => ({}))
-          console.warn("[apps-script] Direct Google Sheets API sync failed on both tabs, falling back to Apps Script...", errBody)
-        }
-      } catch (apiErr) {
-        console.warn("[apps-script] Direct Google Sheets API fetch error, falling back...", apiErr)
+      // Sync to event-specific sheet tab if it's a registration
+      if (p.type === "registration" && p.eventName) {
+        await appendAndMerge(spreadsheetId, p.eventName, rowsToAppend, token)
       }
+
+      if (masterOk) return true
     }
 
     const res = await fetch(url, {
