@@ -79,7 +79,8 @@ export async function sendEmail(message: EmailMessage, tokenOverride?: string | 
   }
 
   if (!token) {
-    const appsScriptUrl = process.env.APPS_SCRIPT_URL || process.env.VITE_GOOGLE_SHEETS_WEBAPP_URL
+    const rawUrl = process.env.APPS_SCRIPT_URL || process.env.VITE_GOOGLE_SHEETS_WEBAPP_URL
+    const appsScriptUrl = rawUrl ? rawUrl.replace(/^["']|["']$/g, "") : ""
     if (appsScriptUrl) {
       console.log(`[email] Dispatching email to ${message.to} via Apps Script Web App...`)
       try {
@@ -148,7 +149,8 @@ export async function sendEmail(message: EmailMessage, tokenOverride?: string | 
       console.warn("[email] Gmail API send failed:", err)
       
       // Fallback: Dispatch email via Google Apps Script Web App (MailApp.sendEmail)
-      const appsScriptUrl = process.env.APPS_SCRIPT_URL || process.env.VITE_GOOGLE_SHEETS_WEBAPP_URL
+      const rawUrl = process.env.APPS_SCRIPT_URL || process.env.VITE_GOOGLE_SHEETS_WEBAPP_URL
+      const appsScriptUrl = rawUrl ? rawUrl.replace(/^["']|["']$/g, "") : ""
       if (appsScriptUrl) {
         console.log(`[email] Relay email to ${message.to} via Apps Script Web App...`)
         const relayRes = await fetch(appsScriptUrl, {
@@ -171,7 +173,7 @@ export async function sendEmail(message: EmailMessage, tokenOverride?: string | 
 
       if (res.status === 401) {
         console.warn("[email] Gmail API access token expired. Clearing token from Firestore.")
-        await db.collection("systemConfig").doc("gmail").delete()
+        await getDb().collection("systemConfig").doc("gmail").delete()
       }
       return false
     }

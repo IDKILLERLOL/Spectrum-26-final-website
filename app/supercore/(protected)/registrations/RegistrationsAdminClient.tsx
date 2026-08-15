@@ -20,6 +20,7 @@ interface RegistrationData {
   year: string
   eventId: string
   eventName: string
+  teamName?: string
   teamMembers: { name: string }[]
   teamSize: number
   paymentRefId: string
@@ -656,7 +657,7 @@ export function RegistrationsAdminClient({
             {/* Empty state */}
             {filtered().length === 0 && (
               <tr>
-                <td colSpan="10" className="px-4 py-6 text-center text-neutral-500">
+                <td colSpan={10} className="px-4 py-6 text-center text-neutral-500">
                   No registrations found matching your filters
                 </td>
               </tr>

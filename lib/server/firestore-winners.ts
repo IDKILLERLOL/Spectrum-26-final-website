@@ -30,7 +30,7 @@ export async function getCurrentEditionWinners(): Promise<EventWinners[]> {
     const byEvent = new Map<string, EventWinners>()
     for (const doc of snap.docs) {
       const w = doc.data() as FirestoreWinner
-      const entry = byEvent.get(w.eventId) ?? { eventId: w.eventId, winners: [] }
+      const entry = byEvent.get(w.eventId) ?? { eventId: w.eventId, winners: [] as any[] }
       entry.winners.push({ place: w.place, teamName: w.teamName })
       byEvent.set(w.eventId, entry)
     }

@@ -8,7 +8,8 @@ import "server-only"
  * returned boolean and update `sheetsSyncStatus` accordingly.
  */
 export async function syncToSheet(payload: object): Promise<boolean> {
-  const url = process.env.APPS_SCRIPT_URL || process.env.VITE_GOOGLE_SHEETS_WEBAPP_URL
+  const rawUrl = process.env.APPS_SCRIPT_URL || process.env.VITE_GOOGLE_SHEETS_WEBAPP_URL
+  const url = rawUrl ? rawUrl.replace(/^["']|["']$/g, "") : ""
   if (!url) {
     console.warn("[apps-script] APPS_SCRIPT_URL not configured, skipping sync.")
     return false
@@ -30,7 +31,8 @@ export async function syncToSheet(payload: object): Promise<boolean> {
 }
 
 export async function fetchFromSheet(): Promise<any[]> {
-  const url = process.env.APPS_SCRIPT_URL || process.env.VITE_GOOGLE_SHEETS_WEBAPP_URL
+  const rawUrl = process.env.APPS_SCRIPT_URL || process.env.VITE_GOOGLE_SHEETS_WEBAPP_URL
+  const url = rawUrl ? rawUrl.replace(/^["']|["']$/g, "") : ""
   if (!url) {
     console.warn("[apps-script] APPS_SCRIPT_URL not configured.")
     return []

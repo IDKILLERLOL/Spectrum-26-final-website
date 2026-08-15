@@ -118,7 +118,7 @@ export function RegistrationsTable({ initialRegistrations }: { initialRegistrati
                 <td className="p-3 opacity-80">{r.userEmail}</td>
                 <td className="p-3 font-semibold">{r.eventName}</td>
                 <td className="p-3 opacity-80">
-                  {r.teamSize} ({r.teamMembers?.map((m) => m.name).join(", ") || "solo"})
+                  {r.teamSize} ({r.teamMembers?.map((m: any) => m.name).join(", ") || "solo"})
                 </td>
                 <td className="p-3 font-mono font-bold">{r.paymentRefId}</td>
                 <td className="p-3 font-bold">₹{r.amountPaid}</td>

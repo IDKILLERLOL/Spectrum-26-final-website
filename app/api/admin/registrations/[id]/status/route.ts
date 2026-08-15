@@ -5,6 +5,7 @@ import { writeAuditLog } from "@/lib/server/firestore-audit"
 import { syncToSheet, buildRegistrationRow } from "@/lib/google/apps-script"
 import { sendEmail } from "@/lib/email/send"
 import { paymentStatusEmail } from "@/lib/email/templates"
+import { getDb } from "@/lib/firebase/admin"
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getAdminSession()
