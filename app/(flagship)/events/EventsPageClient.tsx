@@ -13,7 +13,7 @@ import { useQuest } from "@/components/flagship/quest-context"
 import { NAVY, INK, PINK, MUSTARD, VERMILION, hoardingShadow, softHoardingShadow } from "@/components/flagship/tokens"
 import { questDisplay, questBody } from "@/components/flagship/fonts"
 import { trackEventCardView, trackEventCardClick } from "@/lib/analytics/track"
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@radix-ui/react-dialog"
+import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, DialogClose } from "@radix-ui/react-dialog"
 
 /** Scalloped canvas awning strip — alternating the event's own accent colour with white. */
 function StallAwning({ color }: { color: string }) {
@@ -137,14 +137,14 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
         </DialogTrigger>
         <DialogContent className="w-full max-w-lg sm:max-w-xl p-6 bg-white border-4 shadow-lg"
                        style={{ borderColor: INK }}>
-          <DialogHeader className="mb-4">
+          <div className="mb-4">
             <DialogTitle className={questDisplay.className} style={{ color: NAVY }}>
               {selectedEvent?.name}
             </DialogTitle>
             <DialogClose className="btn-ghost" aria-label="Close">
               <X size={24} className="h-6 w-6 stroke-current" />
             </DialogClose>
-          </DialogHeader>
+          </div>
           <DialogDescription className="space-y-4">
             <div className="flex items-center gap-3">
               <span
