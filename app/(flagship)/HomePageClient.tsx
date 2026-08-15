@@ -65,7 +65,7 @@ function HeroBackground() {
 /** Strung row of marigold-orange circles along the top edge of the Hero — mela/wedding garland motif. */
 function MarigoldGarland() {
   return (
-    <div className="absolute top-0 left-0 right-0 z-10 flex h-8 overflow-hidden opacity-90 pointer-events-none lg:h-10">
+    <div className="absolute top-0 left-0 right-0 z-10 flex h-10 overflow-hidden opacity-90 pointer-events-none lg:h-12">
       {Array.from({ length: 80 }).map((_, i) => (
         <div
           key={i}
@@ -82,7 +82,7 @@ function Marquee() {
   const reduced = useReducedMotion()
   return (
     <div
-      className="relative w-full overflow-hidden border-y-4 py-1.5 my-6 lg:py-2"
+      className="relative w-full overflow-hidden border-y-4 py-2.5 my-6 lg:py-3"
       style={{ borderColor: INK, background: MUSTARD, color: INK }}
     >
       <motion.div
@@ -146,7 +146,7 @@ function Hero() {
   const cd = useCountdown()
   const reduced = useReducedMotion()
   return (
-    <section className="relative overflow-hidden pb-12 pt-12 text-center sm:pt-16 lg:pb-16 lg:pt-20">
+    <section className="relative overflow-hidden pb-12 pt-16 text-center sm:pt-20 lg:pb-16">
       <HeroBackground />
       <MarigoldGarland />
       <DdLoader />
@@ -162,12 +162,12 @@ function Hero() {
         <div className="absolute bottom-1 left-1 w-4 h-4 border-b-4 border-l-4" style={{ borderColor: VERMILION }} />
         <div className="absolute bottom-1 right-1 w-4 h-4 border-b-4 border-r-4" style={{ borderColor: VERMILION }} />
 
-        <p className={`${questBody.className} text-[10px] uppercase tracking-[0.25em] sm:text-xs lg:text-sm`} style={{ color: NAVY }}>
+        <p className={`${questBody.className} text-[9px] uppercase tracking-[0.25em] sm:text-xs lg:text-sm`} style={{ color: NAVY }}>
           {site.eyebrow}
         </p>
         <h1
-          className={questDisplay.className}
-          style={{ color: NAVY, fontSize: "clamp(1.9rem, 4.6vw, 4.5rem)", lineHeight: 1.08, textShadow: `2px 2px 0px ${MUSTARD}, 4px 4px 0px ${INK}` }}
+          className={`${questDisplay.className} text-3xl sm:text-4xl md:text-5xl lg:text-7xl`}
+          style={{ color: NAVY, lineHeight: 1.08, textShadow: `2px 2px 0px ${MUSTARD}, 4px 4px 0px ${INK}` }}
         >
           {site.shortName}
           <br />
@@ -188,10 +188,10 @@ function Hero() {
             ["Sec", cd.seconds],
           ].map(([label, value]) => (
             <div key={label as string} className="flex flex-col items-center justify-center">
-              <div className={questDisplay.className} style={{ color: NAVY, fontSize: "clamp(1.5rem, 3.5vw, 2.75rem)", lineHeight: 1.1 }}>
+              <div className={questDisplay.className} style={{ color: NAVY, fontSize: "clamp(1.4rem, 3.5vw, 2.75rem)", lineHeight: 1.1 }}>
                 {pad2(value as number)}
               </div>
-              <div className={`${questBody.className} mt-1 text-[9px] font-bold uppercase tracking-wider lg:text-xs opacity-75`} style={{ color: NAVY }}>
+              <div className={`${questBody.className} mt-1 text-[8px] font-bold uppercase tracking-wider lg:text-xs opacity-75`} style={{ color: NAVY }}>
                 {label}
               </div>
             </div>
@@ -201,11 +201,11 @@ function Hero() {
 
       <Marquee />
 
-      <div className="mx-auto mt-6 flex flex-col sm:flex-row w-[calc(100%-2rem)] max-w-[24rem] gap-3 lg:max-w-[46rem] lg:gap-4">
-        <AppButton href="/events" className="w-full py-3.5 text-xs lg:py-4 lg:text-sm">
+      <div className="mx-auto mt-6 flex flex-row w-[calc(100%-2rem)] max-w-[24rem] gap-2 sm:gap-3 lg:max-w-[46rem] lg:gap-4">
+        <AppButton href="/events" className="flex-1 px-2.5 py-3 text-[10px] xs:text-xs sm:text-sm lg:py-4 lg:text-sm">
           Explore Events
         </AppButton>
-        <AppButton href="/schedule" variant="outline" className="w-full py-3.5 text-xs lg:py-4 lg:text-sm">
+        <AppButton href="/schedule" variant="outline" className="flex-1 px-2.5 py-3 text-[10px] xs:text-xs sm:text-sm lg:py-4 lg:text-sm">
           View Schedule
         </AppButton>
       </div>
