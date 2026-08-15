@@ -1,4 +1,52 @@
 import "server-only"
+import crypto from "crypto"
+
+export async function getServiceAccountToken(): Promise<string | null> {
+  const serviceAccount = {
+    project_id: "spectrum-1-2026",
+    client_email: "github-action-1117616876@spectrum-1-2026.iam.gserviceaccount.com",
+    private_key: "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDCu69rt20SSxra\nMSs0oH4djEr6xU4GRk3d+R1wYD+Vc2LO+tVYiv5z5vskR/oUGygavXlzbgaKaZ42\nvoAFpCxBgmjj93uZBQDZaI3lLJ/4jbmHWpFwuLqdNRvrgJpxU7f69RyJs9mH4Fx0\nHkWnPekM7hR5a+5FFtHYDFMe7PZT4Ut8I3lJDiXQsDa3U8eRLqoZ3mpDBEg7Btfa\nAatZhg3WGFT3GKROgEbbxHTHpmBlVzF4iB4f3HneWHg0PN92UH6E/+R0X+dcSVrX\nR9zG3LAWbWzizDsLyXs028vl6Y2g0BoJr9g8dlqg/qGpSd7jo3vDSV55HS9GiGdY\nUAkjpHi1AgMBAAECggEAO6ca+bha5Tu0ohplzd1MROjxHxjJ6gonWFQzvHT/hVyv\nbBBSwqjxgbfEPzz9UqNvCaH5Tm7p+gSYvtRki1XbaMX2M79gUWPC+taYgRfGeXGQ\n3/HSk+FC6V2Xi/D9XrHyriHf+B7sCD+mkrujQrQobBmSlA+IEgoHhlNgMx0L6G2W\nkuC2i1GV94lXaN/79hCmXRSZXbpAK0zsusqyaF7NQPz71S2omBu+MZPhcrMogZek\n25ure1fc3R1+oGlwwfQF/1W0Kwc1T44ocvR7mxfKeg1QeoZWhSnNazN7ynaYJspK\ncgH9TkOPovaP/W367bUYAKB6npZ4xMYZ2mXEvDi9EQKBgQDtLggDi2s5xoqVArN/\n9rSlSxmWJTc2BhacN81wVYkelxCS/zCfdxv0xcD78TxAbghy/qs5y4AWum96mlyV\nNZYOFq5tix3Chu40GIlDPISpCivTreGrt9Nba/xWH5qb13eQQ+Fr6LgDDXyVeg+y\nCAQ+cggJk3NZmvb48hWPVjL1NwKBgQDSL2kfy4Io4C2AA2Mp5EZYFCaGdJFEh7Ud\nzHHHmboLdI7p4O89O08Fj1Svr/K6wp3Funsf6tZkMu1HR9t7BcFTXZeNpozdFWAm\nX7VIs3ZoPf1sBGypznlhkeBxKMVY9FAbPQ2g6UhXL91puttms/BeWPN0bkuITa4d\nPf1HiTq3cwKBgQCYCtYgT5OhKeFUvLKM6X3MKGRyl9DY1PZRloQf6vVHoteBJA3r\na9OECfE4kOBq/R51eUQSfJ3T9BfapHGNRRi4V1nh5zhgp1a0FraHX5g7NMX7oI/2\nIJVhGcxc+U2HcYy38ovjPQAZFOA0glblbbYqwbbdTKS5YFnKJIYlqMBp6QKBgQCr\nVyzaV3seuUk+LwS6lLVnfd2+A+6cMAjMZupl7YKFbhpGvDAq+Vs8zBAcPFGiP56A\nHrnaVgU5n25gikp4akOkIwq11YzFeXRtM95DitC+v7IESUMP1hqLGHEfrj3aeyeG\nXOnsP9/R+1oCo+nROmR7dQXZ50O5tKF4gx0jINJ10wKBgQDUIu+keQ/czr27ExwS\nx1a9FzhtC7asU7wMA18aV4m9F0RWaPZc6LECV+Xi0yXsOpUnXo0qJi/tbkq0+8AO\n/aG0ynVJcadt/OgzzkiNiUGI/pAFYzsFXkeilSoyUpyR0BG6VCtgAC5oTEw3RrN9\nW+Va7sNX9qs/NOLl0RkszDe3IQ==\n-----END PRIVATE KEY-----\n"
+  }
+
+  try {
+    const iat = Math.floor(Date.now() / 1000)
+    const exp = iat + 3600
+    const header = Buffer.from(JSON.stringify({ alg: "RS256", typ: "JWT" })).toString("base64url")
+    const claim = Buffer.from(JSON.stringify({
+      iss: serviceAccount.client_email,
+      scope: "https://www.googleapis.com/auth/spreadsheets",
+      aud: "https://oauth2.googleapis.com/token",
+      exp,
+      iat
+    })).toString("base64url")
+
+    const sign = crypto.createSign("RSA-SHA256")
+    sign.update(`${header}.${claim}`)
+    const signature = sign.sign(serviceAccount.private_key, "base64url")
+    const jwt = `${header}.${claim}.${signature}`
+
+    const res = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+        assertion: jwt
+      })
+    })
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}))
+      console.error("[service-account-auth] Google token exchange failed:", err)
+      return null
+    }
+
+    const data = await res.json()
+    return data.access_token || null
+  } catch (err) {
+    console.error("[service-account-auth] Failed to sign JWT:", err)
+    return null
+  }
+}
 
 /**
  * POSTs a row payload to the Google Apps Script Web App, which appends it to
@@ -31,13 +79,20 @@ export async function syncToSheet(payload: object): Promise<boolean> {
       return false
     }
 
-    // Try Google Sheets REST API directly if we have a saved admin OAuth token
+    // Try Google Service Account first, fallback to user OAuth token
     let token: string | null = null
     try {
-      const { getSystemGmailToken } = await import("@/lib/server/firestore-registrations")
-      token = await getSystemGmailToken()
-    } catch {
-      // Ignored
+      token = await getServiceAccountToken()
+    } catch (saErr) {
+      console.warn("[apps-script] Service account token generation failed, trying user token...", saErr)
+    }
+    if (!token) {
+      try {
+        const { getSystemGmailToken } = await import("@/lib/server/firestore-registrations")
+        token = await getSystemGmailToken()
+      } catch {
+        // Ignored
+      }
     }
 
     if (token) {
@@ -145,13 +200,20 @@ export async function fetchFromSheet(): Promise<any[]> {
 
     if (!spreadsheetId) return []
 
-    // Try Google Sheets REST API directly if we have a saved admin OAuth token
+    // Try Google Service Account first, fallback to user OAuth token
     let token: string | null = null
     try {
-      const { getSystemGmailToken } = await import("@/lib/server/firestore-registrations")
-      token = await getSystemGmailToken()
-    } catch {
-      // Ignored
+      token = await getServiceAccountToken()
+    } catch (saErr) {
+      console.warn("[apps-script] Service account token generation failed, trying user token...", saErr)
+    }
+    if (!token) {
+      try {
+        const { getSystemGmailToken } = await import("@/lib/server/firestore-registrations")
+        token = await getSystemGmailToken()
+      } catch {
+        // Ignored
+      }
     }
 
     if (token) {
