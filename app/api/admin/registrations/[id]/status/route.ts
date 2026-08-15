@@ -53,19 +53,22 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   }
 
   if (body.status !== "PENDING") {
-    sendEmail(
-      paymentStatusEmail({
-        to: existing.userEmail,
-        fullName: existing.fullName,
-        eventName: existing.eventName,
-        status: body.status as "APPROVED" | "REJECTED",
-      }),
-      clientToken
-    )
-      .then((ok) => {
-        if (ok) return setEmailSent(id)
-      })
-      .catch(() => {})
+    try {
+      const ok = await sendEmail(
+        paymentStatusEmail({
+          to: existing.userEmail,
+          fullName: existing.fullName,
+          eventName: existing.eventName,
+          status: body.status as "APPROVED" | "REJECTED",
+        }),
+        clientToken || undefined
+      )
+      if (ok) {
+        await setEmailSent(id)
+      }
+    } catch (err) {
+      console.error("[status route] failed to send email:", err)
+    }
   }
 
   return NextResponse.json({ ok: true, registration: updated })

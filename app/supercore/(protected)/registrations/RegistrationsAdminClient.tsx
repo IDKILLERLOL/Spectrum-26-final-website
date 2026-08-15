@@ -211,16 +211,24 @@ export function RegistrationsAdminClient({
   const handleSyncAll = useCallback(async () => {
     setSyncing(true)
     try {
-      // In a real implementation, this would sync all registrations to Google Sheets
-      // For now, we'll just show a toast or notification
-      alert('Sync all to Google Sheets not yet implemented')
+      const res = await fetch("/api/admin/sync-sheets", { method: "POST" })
+      if (!res.ok) {
+        throw new Error(`Server returned status ${res.status}`)
+      }
+      const data = await res.json()
+      if (data.ok) {
+        alert(`Successfully synced ${data.synced} of ${data.total} registrations to Google Sheets.`)
+        await reload()
+      } else {
+        alert("Failed to sync registrations: " + (data.message || "Unknown error"))
+      }
     } catch (err) {
       console.error('[admin] Sync all error:', err)
       alert('Failed to sync registrations. Please try again.')
     } finally {
       setSyncing(false)
     }
-  }, [])
+  }, [reload])
 
   const handleExportCSV = useCallback(() => {
     const cols = [
