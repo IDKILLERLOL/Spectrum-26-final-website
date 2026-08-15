@@ -67,9 +67,9 @@ export async function syncToSheet(payload: object): Promise<boolean> {
         ]
       }
 
-      const appendUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent("All Registrations!A:L")}:append?valueInputOption=USER_ENTERED`
+      let appendUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent("All Registrations!A:L")}:append?valueInputOption=USER_ENTERED`
       try {
-        const apiRes = await fetch(appendUrl, {
+        let apiRes = await fetch(appendUrl, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -81,11 +81,29 @@ export async function syncToSheet(payload: object): Promise<boolean> {
           })
         })
         if (apiRes.ok) {
-          console.log("[apps-script] Direct Google Sheets API sync succeeded!")
+          console.log("[apps-script] Direct Google Sheets API sync succeeded (All Registrations)!")
           return true
         } else {
-          const errBody = await apiRes.json().catch(() => ({}))
-          console.warn("[apps-script] Direct Google Sheets API sync failed, falling back to Apps Script...", errBody)
+          console.log("[apps-script] Direct sync to 'All Registrations' tab failed, trying default first tab A:L...")
+          appendUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent("A:L")}:append?valueInputOption=USER_ENTERED`
+          apiRes = await fetch(appendUrl, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              majorDimension: "ROWS",
+              values: [valuesArray]
+            })
+          })
+          if (apiRes.ok) {
+            console.log("[apps-script] Direct Google Sheets API sync succeeded (default tab)!")
+            return true
+          } else {
+            const errBody = await apiRes.json().catch(() => ({}))
+            console.warn("[apps-script] Direct Google Sheets API sync failed on both tabs, falling back to Apps Script...", errBody)
+          }
         }
       } catch (apiErr) {
         console.warn("[apps-script] Direct Google Sheets API fetch error, falling back...", apiErr)
@@ -138,14 +156,24 @@ export async function fetchFromSheet(): Promise<any[]> {
 
     if (token) {
       console.log("[apps-script] Attempting direct Google Sheets REST API read...")
-      const readUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent("All Registrations!A:L")}`
+      let readUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent("All Registrations!A:L")}`
       try {
-        const apiRes = await fetch(readUrl, {
+        let apiRes = await fetch(readUrl, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`
           }
         })
+        if (!apiRes.ok) {
+          console.log("[apps-script] Direct read from 'All Registrations' tab failed, trying default first tab A:L...")
+          readUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent("A:L")}`
+          apiRes = await fetch(readUrl, {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          })
+        }
         if (apiRes.ok) {
           const data = await apiRes.json()
           const rows = data.values || []
@@ -161,7 +189,7 @@ export async function fetchFromSheet(): Promise<any[]> {
           }
           return []
         } else {
-          console.warn("[apps-script] Direct Google Sheets API read failed, falling back to Apps Script...")
+          console.warn("[apps-script] Direct Google Sheets API read failed on both tabs, falling back to Apps Script...")
         }
       } catch (apiErr) {
         console.warn("[apps-script] Direct Google Sheets API read error, falling back...", apiErr)
