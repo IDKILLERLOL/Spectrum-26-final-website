@@ -27,10 +27,19 @@ export default function ContactPage() {
             Enquiries & Venue
           </p>
           <div className="flex flex-col gap-4 text-left">
-            <Row icon={<Mail size={18} color={VERMILION} />} label={contact.email} />
-            {contact.phone.split("\n").map((phoneNum, index) => (
-              <Row key={index} icon={<Phone size={18} color={VERMILION} />} label={phoneNum} />
-            ))}
+            <a href={`mailto:${contact.email}`} className="hover:underline w-fit">
+              <Row icon={<Mail size={18} color={VERMILION} />} label={contact.email} />
+            </a>
+            {contact.phone.split("\n").map((phoneNum, index) => {
+              const parts = phoneNum.split("-")
+              const numberOnly = parts[0].trim()
+              const cleanedNumber = numberOnly.replace(/\s+/g, "")
+              return (
+                <a key={index} href={`tel:${cleanedNumber}`} className="hover:underline w-fit">
+                  <Row icon={<Phone size={18} color={VERMILION} />} label={phoneNum} />
+                </a>
+              )
+            })}
             <Row icon={<MapPin size={18} color={VERMILION} />} label={contact.location} />
           </div>
         </div>
