@@ -167,7 +167,7 @@ export default function RegisterTeamStep() {
               </div>
               <button
                 type="button"
-                onClick={() => router.push("/register/event")}
+                onClick={() => router.push("/register/info")}
                 className="flex items-center gap-1 text-xs font-bold underline hover:opacity-80"
                 style={{ color: INK }}
               >
@@ -335,7 +335,7 @@ export default function RegisterTeamStep() {
               <div className="flex gap-3 mt-2">
                 <AppButton
                   type="button"
-                  onClick={() => router.push("/register/event")}
+                  onClick={() => router.push("/register/info")}
                   className="w-1/3 py-3.5 text-sm md:py-4 md:text-base opacity-80"
                 >
                   Back

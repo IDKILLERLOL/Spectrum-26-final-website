@@ -34,9 +34,27 @@ function StallAwning({ color }: { color: string }) {
   )
 }
 
+const eventNumbers: Record<string, string> = {
+  "dual-debug": "1",
+  "tech-duo-1": "1",
+  "singularity-strike": "2",
+  "tech-solo-1": "2",
+  "fifa": "3",
+  "non-tech-1": "3",
+  "bgmi": "4",
+  "non-tech-3": "4",
+}
+
 export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
   const { openQuest } = useQuest()
   const [selectedEvent, setSelectedEvent] = React.useState<SpectrumEvent | null>(null)
+  const [openAccordion, setOpenAccordion] = React.useState<string | null>("round-0")
+
+  React.useEffect(() => {
+    if (selectedEvent) {
+      setOpenAccordion("round-0")
+    }
+  }, [selectedEvent])
 
   React.useEffect(() => {
     events.forEach((ev) => trackEventCardView(ev.id, ev.name))
@@ -80,73 +98,59 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
 
           {/* Events Grid */}
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {events.map((ev) => (
-              <Card
-                key={ev.id}
-                className="relative flex flex-col justify-between p-5 pt-8 transition-all hover:-translate-y-0.5 hover:shadow-lg cursor-pointer"
-                style={{ borderColor: ev.color }}
-                onClick={() => {
-                  trackEventCardClick(ev.id, ev.name)
-                  setSelectedEvent(ev)
-                }}
-              >
-                <StallAwning color={ev.color} />
-                <div className="flex items-center justify-between">
-                  <span
-                    className={`${questDisplay.className} flex size-8 items-center justify-center border-2 text-[10px] text-white`}
-                    style={{ background: ev.color, borderColor: INK, boxShadow: softHoardingShadow }}
-                  >
-                    {ev.index}
-                  </span>
-                  <span className={`${questBody.className} text-[10px] font-bold uppercase px-2 py-0.5 text-white`} style={{ background: VERMILION }}>
-                    Register
-                  </span>
-                </div>
-                <div className="my-3 flex-grow">
-                  <p className={`${questBody.className} text-lg font-bold`} style={{ color: NAVY }}>
-                    {ev.name}
-                  </p>
-                  <p className={`${questBody.className} text-xs opacity-60`} style={{ color: NAVY }}>
-                    {ev.format} • {ev.fee}
-                  </p>
-                  {ev.prizePool && (
-                    <p className={`${questBody.className} mt-1 text-xs font-bold`} style={{ color: PINK }}>
-                      Prize Pool: {ev.prizePool}
-                    </p>
-                  )}
-
-                  {/* Round by Round details / Description */}
-                  <p className={`${questBody.className} mt-4 text-xs leading-relaxed opacity-85`} style={{ color: NAVY }}>
-                    {ev.description}
-                  </p>
-
-                  {/* Prizes Card inside the Event Card */}
-                  {ev.prizes && ev.prizes.length > 0 && (
-                    <div className="mt-4">
-                      <p className={`${questDisplay.className} text-[10px] uppercase tracking-widest mb-1.5`} style={{ color: VERMILION }}>
-                        Prizes
-                      </p>
-                      <div className="flex flex-col gap-1.5 border-2 border-dashed p-3 bg-[#FFFDF6]" style={{ borderColor: ev.color }}>
-                        {ev.prizes.map((p, idx) => (
-                          <div key={idx} className="flex justify-between items-center text-[10px] font-bold" style={{ color: NAVY }}>
-                            <span className={questBody.className}>{p.place}</span>
-                            <span className={questDisplay.className} style={{ color: PINK }}>{p.reward}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-                <button
-                  type="button"
-                  onClick={(e) => handleRegisterClick(ev, e)}
-                  className={`${questBody.className} mt-4 flex items-center justify-center gap-1.5 w-full py-2.5 text-xs font-bold text-white border-2`}
-                  style={{ background: ev.color, borderColor: INK }}
+            {events.map((ev) => {
+              const displayNum = eventNumbers[ev.id] || ev.index || "1"
+              return (
+                <Card
+                  key={ev.id}
+                  className="relative flex flex-col justify-between p-5 pt-8 transition-all hover:-translate-y-0.5 hover:shadow-lg cursor-pointer"
+                  style={{ borderColor: ev.color }}
+                  onClick={() => {
+                    trackEventCardClick(ev.id, ev.name)
+                    setSelectedEvent(ev)
+                  }}
                 >
-                  Register Now <ArrowRight size={14} />
-                </button>
-              </Card>
-            ))}
+                  <StallAwning color={ev.color} />
+                  <div className="flex items-center justify-between">
+                    <span
+                      className={`${questDisplay.className} flex size-8 items-center justify-center border-2 text-[10px] text-white`}
+                      style={{ background: ev.color, borderColor: INK, boxShadow: softHoardingShadow }}
+                    >
+                      {displayNum}
+                    </span>
+                    <span className={`${questBody.className} text-[10px] font-bold uppercase px-2 py-0.5 text-white`} style={{ background: VERMILION }}>
+                      Register
+                    </span>
+                  </div>
+                  <div className="my-3 flex-grow">
+                    <p className={`${questBody.className} text-lg font-bold`} style={{ color: NAVY }}>
+                      {ev.name}
+                    </p>
+                    <p className={`${questBody.className} text-xs opacity-60`} style={{ color: NAVY }}>
+                      {ev.format} • {ev.fee}
+                    </p>
+                    {ev.prizePool && (
+                      <p className={`${questBody.className} mt-1 text-xs font-bold`} style={{ color: PINK }}>
+                        Prize Pool: {ev.prizePool}
+                      </p>
+                    )}
+
+                    {/* Round by Round details / Description */}
+                    <p className={`${questBody.className} mt-4 text-xs leading-relaxed opacity-85`} style={{ color: NAVY }}>
+                      {ev.description}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={(e) => handleRegisterClick(ev, e)}
+                    className={`${questBody.className} mt-4 flex items-center justify-center gap-1.5 w-full py-2.5 text-xs font-bold text-white border-2`}
+                    style={{ background: ev.color, borderColor: INK }}
+                  >
+                    Register Now <ArrowRight size={14} />
+                  </button>
+                </Card>
+              )
+            })}
           </div>
 
         </div>
@@ -192,26 +196,32 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
                 {selectedEvent?.description}
               </p>
 
-              {/* Round by Round details */}
-              {selectedEvent?.rounds && selectedEvent.rounds.length > 0 && (
-                <div className="mt-4 space-y-3">
-                  <p className={`${questDisplay.className} text-xs uppercase tracking-widest mb-1`} style={{ color: VERMILION }}>
-                    Round by Round Details
-                  </p>
-                  <div className="space-y-3">
-                    {selectedEvent.rounds.map((round, idx) => (
-                      <div key={idx} className="border border-neutral-300 p-3 bg-neutral-50/50 rounded" style={{ borderColor: INK }}>
-                        <p className="font-bold text-xs" style={{ color: NAVY }}>{round.name}</p>
-                        <div className="mt-1.5 space-y-1 text-[11px] leading-relaxed opacity-90" style={{ color: INK }}>
+              {/* Accordion for Rounds & Prizes */}
+              <div className="mt-4 space-y-2">
+                {selectedEvent?.rounds?.map((round, idx) => {
+                  const isOpen = openAccordion === `round-${idx}`
+                  return (
+                    <div key={idx} className="border-2 bg-white" style={{ borderColor: INK }}>
+                      <button
+                        type="button"
+                        onClick={() => setOpenAccordion(isOpen ? null : `round-${idx}`)}
+                        className={`${questDisplay.className} w-full flex items-center justify-between p-3 text-xs uppercase tracking-widest text-left font-bold transition-colors hover:bg-neutral-50`}
+                        style={{ color: NAVY }}
+                      >
+                        <span>{round.name}</span>
+                        <span className="text-[10px]">{isOpen ? "▲" : "▼"}</span>
+                      </button>
+                      {isOpen && (
+                        <div className={`${questBody.className} border-t-2 p-3 text-xs leading-relaxed opacity-95 space-y-2`} style={{ borderColor: INK, color: INK }}>
                           {round.format && <p><strong>Format:</strong> {round.format}</p>}
                           {round.totalTime && <p><strong>Time:</strong> {round.totalTime}</p>}
-                          {round.problemSet && <p><strong>Problems:</strong> {round.problemSet}</p>}
+                          {round.problemSet && <p><strong>Problem Set:</strong> {round.problemSet}</p>}
                           {round.setup && <p><strong>Setup:</strong> {round.setup}</p>}
                           {round.gameplay && <p><strong>Gameplay:</strong> {round.gameplay}</p>}
                           {round.structure && round.structure.length > 0 && (
-                            <div className="mt-1">
+                            <div className="space-y-1">
                               <strong>Structure:</strong>
-                              <ul className="list-disc pl-4 mt-0.5 space-y-0.5">
+                              <ul className="list-disc pl-4 space-y-0.5">
                                 {round.structure.map((step, sIdx) => (
                                   <li key={sIdx}>{step}</li>
                                 ))}
@@ -219,13 +229,40 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
                             </div>
                           )}
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+                      )}
+                    </div>
+                  )
+                })}
 
-              {/* Rules & Rounds details */}
+                {/* Prizes as the last dropdown */}
+                {selectedEvent?.prizes && selectedEvent.prizes.length > 0 && (
+                  <div className="border-2 bg-white" style={{ borderColor: INK }}>
+                    <button
+                      type="button"
+                      onClick={() => setOpenAccordion(openAccordion === "prizes" ? null : "prizes")}
+                      className={`${questDisplay.className} w-full flex items-center justify-between p-3 text-xs uppercase tracking-widest text-left font-bold transition-colors hover:bg-neutral-50`}
+                      style={{ color: NAVY }}
+                    >
+                      <span>Prizes</span>
+                      <span className="text-[10px]">{openAccordion === "prizes" ? "▲" : "▼"}</span>
+                    </button>
+                    {openAccordion === "prizes" && (
+                      <div className={`${questBody.className} border-t-2 p-3 text-xs leading-relaxed opacity-95`} style={{ borderColor: INK, color: INK }}>
+                        <div className="flex flex-col gap-1.5 border-2 p-3 bg-[#FFFDF6]" style={{ borderColor: INK }}>
+                          {selectedEvent.prizes.map((p, idx) => (
+                            <div key={idx} className="flex justify-between items-center text-xs font-bold" style={{ color: NAVY }}>
+                              <span>{p.place}</span>
+                              <span className={questDisplay.className} style={{ color: PINK }}>{p.reward}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Rules & Guidelines */}
               {selectedEvent?.rules && selectedEvent.rules.length > 0 && (
                 <div className="mt-4">
                   <p className={`${questDisplay.className} text-xs uppercase tracking-widest mb-2`} style={{ color: VERMILION }}>
@@ -236,23 +273,6 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
                       <li key={idx} className={questBody.className}>{rule}</li>
                     ))}
                   </ul>
-                </div>
-              )}
-
-              {/* Prize details split */}
-              {selectedEvent?.prizes && selectedEvent.prizes.length > 0 && (
-                <div className="mt-4">
-                  <p className={`${questDisplay.className} text-xs uppercase tracking-widest mb-2`} style={{ color: VERMILION }}>
-                    Prize Split
-                  </p>
-                  <div className="flex flex-col gap-1.5 border-2 p-3 bg-[#FFFDF6]" style={{ borderColor: INK }}>
-                    {selectedEvent.prizes.map((p, idx) => (
-                      <div key={idx} className="flex justify-between items-center text-xs font-bold" style={{ color: NAVY }}>
-                        <span className={questBody.className}>{p.place}</span>
-                        <span className={questDisplay.className} style={{ color: PINK }}>{p.reward}</span>
-                      </div>
-                    ))}
-                  </div>
                 </div>
               )}
             </DialogDescription>

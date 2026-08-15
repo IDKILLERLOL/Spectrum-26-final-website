@@ -90,7 +90,7 @@ export default function RegisterInfoStep() {
       setChecking(false)
     }
 
-    router.push("/register/event")
+    router.push("/register/team")
   }
 
   return (
@@ -100,7 +100,7 @@ export default function RegisterInfoStep() {
       </React.Suspense>
       <PageHeader title="Register" />
       <PageContainer width="narrow">
-        <StepProgress step={1} />
+        <StepProgress step={2} />
         <div className="px-5 py-6 md:px-0 md:py-10">
           <div className="p-6 md:p-8" style={ticketStyle}>
             <div className="border-b-4 pb-4 mb-5 flex justify-between items-end md:mb-6" style={{ borderColor: INK }}>
@@ -112,7 +112,14 @@ export default function RegisterInfoStep() {
                   Official Ticket
                 </h2>
               </div>
-              <div className="text-2xl opacity-30 md:text-3xl" style={{ color: INK }}>No. 50</div>
+              <button
+                type="button"
+                onClick={() => router.push("/register")}
+                className="flex items-center gap-1 text-xs font-bold underline hover:opacity-80"
+                style={{ color: INK }}
+              >
+                Back
+              </button>
             </div>
 
             <form className={`${questBody.className} flex flex-col gap-4 md:gap-5`} onSubmit={handleNext}>
