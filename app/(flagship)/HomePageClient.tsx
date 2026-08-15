@@ -22,6 +22,7 @@ import {
   VERMILION,
   INK,
   hoardingShadow,
+  softHoardingShadow,
 } from "@/components/flagship/tokens"
 import { questDisplay, questBody } from "@/components/flagship/fonts"
 import { Megaphone } from "lucide-react"
@@ -234,34 +235,42 @@ function FeaturedEvents({ events }: { events: SpectrumEvent[] }) {
       <h2 className={`${questDisplay.className} text-xl md:text-3xl lg:text-4xl`} style={{ color: NAVY }}>
         Featured Events
       </h2>
-      <div className="grid justify-center gap-5 sm:grid-cols-2 xl:grid-cols-4 lg:gap-6">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4 lg:gap-5">
         {events.map((ev) => (
-          <Link key={ev.id} href={`/register/info?event=${ev.id}`}>
-            <Card className="relative w-full max-w-[19rem] overflow-visible p-4 transition-transform hover:-translate-y-1 sm:min-h-[12rem] lg:max-w-[21rem] lg:p-6 xl:min-h-[14rem] cursor-pointer">
+          <Link key={ev.id} href={`/register/info?event=${ev.id}`} className="block">
+            <Card
+              className="relative flex flex-col justify-between p-4 pt-7 transition-all hover:-translate-y-0.5 hover:shadow-lg cursor-pointer h-full"
+              style={{ borderColor: ev.color }}
+            >
               <EventAwning color={ev.color} />
               <div className="flex items-center justify-between">
                 <span
-                  className={`${questDisplay.className} mb-2 inline-flex size-7 items-center justify-center text-[9px] text-white lg:size-9 lg:text-xs`}
-                  style={{ background: ev.color }}
+                  className={`${questDisplay.className} flex size-8 items-center justify-center border-2 text-[10px] text-white`}
+                  style={{ background: ev.color, borderColor: INK, boxShadow: softHoardingShadow }}
                 >
                   {ev.index}
                 </span>
-                <span className={`${questBody.className} text-[9px] font-bold uppercase px-2 py-0.5 text-white`} style={{ background: VERMILION }}>
-                  Register ↗
+                <span className={`${questBody.className} text-[10px] font-bold uppercase px-2 py-0.5 text-white`} style={{ background: VERMILION }}>
+                  Register
                 </span>
               </div>
-              <h3 className={`${questBody.className} text-sm font-bold lg:text-lg`} style={{ color: NAVY }}>
-                {ev.name}
-              </h3>
-              <p className={`${questBody.className} mt-1 text-[11px] opacity-70 lg:text-sm`} style={{ color: NAVY }}>
-                {ev.tag}
-              </p>
-              <p className={`${questBody.className} mt-2 text-[10px] opacity-60 lg:text-xs`} style={{ color: NAVY }}>
-                {ev.format}
-              </p>
-              <p className={`${questBody.className} text-xs font-bold lg:text-sm`} style={{ color: PINK }}>
-                {ev.fee}
-              </p>
+              <div className="my-3">
+                <p className={`${questBody.className} text-base font-bold`} style={{ color: NAVY }}>
+                  {ev.name}
+                </p>
+                <p className={`${questBody.className} text-xs opacity-70`} style={{ color: NAVY }}>
+                  {ev.tag}
+                </p>
+                <p className={`${questBody.className} mt-1 text-xs opacity-60`} style={{ color: NAVY }}>
+                  {ev.format} • {ev.fee}
+                </p>
+              </div>
+              <div
+                className={`${questBody.className} flex items-center justify-center gap-1.5 w-full py-2 text-xs font-bold text-white border-2`}
+                style={{ background: ev.color, borderColor: INK }}
+              >
+                Register Now →
+              </div>
             </Card>
           </Link>
         ))}

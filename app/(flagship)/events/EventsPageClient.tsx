@@ -151,7 +151,6 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
             </DialogClose>
           </div>
           <DialogDescription className="space-y-4">
-            <DialogDescription className="space-y-4">
               <div className="flex items-center gap-3">
                 <span
                   className={`${questDisplay.className} flex size-10 items-center justify-center border-2 text-[12px]`}
@@ -204,7 +203,6 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
                   {selectedEvent?.description}
                 </p>
               )}
-            </DialogDescription>
           </DialogDescription>
         </div>
         </DialogContent>
