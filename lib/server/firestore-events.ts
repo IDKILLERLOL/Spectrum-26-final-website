@@ -178,7 +178,7 @@ export async function updateEvent(id: string, patch: Partial<Omit<CreateEventInp
   }
   for (const key of Object.keys(update)) if (update[key] === undefined) delete update[key]
 
-  await getDb().collection(COLLECTION).doc(id).update(update)
+  await getDb().collection(COLLECTION).doc(id).set(update, { merge: true })
 }
 
 export async function deleteEvent(id: string): Promise<void> {
