@@ -8,11 +8,9 @@ const NAV = [
   { href: "/supercore/team", label: "Team" },
   { href: "/supercore/sponsors", label: "Sponsors" },
   { href: "/supercore/schedule", label: "Schedule" },
-  { href: "/supercore/winners", label: "Winners" },
   { href: "/supercore/whitelist", label: "Whitelist" },
-  { href: "/supercore/audit-logs", label: "Audit Logs" },
   { href: "/supercore/settings", label: "Settings" },
-]
+];
 
 export default async function ProtectedAdminLayout({ children }: { children: React.ReactNode }) {
   const session = await requireAdminSession()

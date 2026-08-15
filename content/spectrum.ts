@@ -76,7 +76,7 @@ export const events: SpectrumEvent[] = [
     difficulty: 3,
     color: "#6FBF5B",
     duration: "3 Rounds",
-    description:
+    description: "A duo competition with three rounds: Swap Challenge, CodoPoly, and Snakes     description: Ladders.",
       "Dual Debug is a duo competition consisting of three rounds.\\n\\nRound 1: The Swap Challenge\\nFormat: Duo (Person A & Person B)\\nTotal Time: 65 Minutes (30m Coding + 5m Handoff + 30m Coding)\\nProblem Set: 6 Problem Statements (3 for Person A, 3 for Person B)\\nStructure:\\n- Phase 1 — Independent Coding (30 mins): Separate machines, strict silence rule.\\n- Phase 2 — The Handoff Break (5 mins): Strategy break to explain logic and progress.\\n- Phase 3 — The Swap (30 mins): Swap machines and complete/optimize partner's code.\\n\\nRound 2: CodoPoly\\nFormat: Duo (Custom Board Strategy)\\nGameplay:\\n- Matches played in groups (4 teams per match)\\n- Monopoly-style board mechanics paired with coding tasks, resource management, and problem solving.\\n\\nRound 3: Snakes & Ladders (Snakes & Treasure)\\nFormat: Duo (Life-sized Board or Simulator)\\nSetup: 100-step custom board + life-sized dice; each team starts with 1 Key\\nGameplay:\\n- Dice roll determines task difficulty (1 = Easiest --> 6 = Hardest) to reverse engineer code/outputs.\\n- Ladder Spot: Location clue leading to a Golden Key.\\n- Snake Spot: Lose 1 Key (Reaching 0 keys triggers Rapid-Fire elimination).\\n- Key Utility: Redeemable as Lifelines or Sabotage handicaps against other teams.",
     rules: [
       "Each team must have exactly 2 participants.",
@@ -212,7 +212,7 @@ export const events: SpectrumEvent[] = [
     difficulty: 5,
     color: "#FF6F61",
     duration: "3 Rounds",
-    description:
+    description: "A solo competition with three rounds: Quantum Query, Binary Bingo, and The Overdrive Buzzer.",
       "Singularity Strike is a solo competition with three rounds.\\n\\nRound 1: Quantum Query (Speed Trivia / Quiz)\\nFormat: Solo\\n- Rapid elimination round testing core CS fundamentals, tech trivia, and syntax knowledge under a strict time constraint.\\n\\nRound 2: Binary Bingo (Logic Matrix)\\nFormat: Solo\\n- Strategic task-matrix challenge where participants solve mini-coding problems or output puzzles to claim squares on their personal grid and complete winning lines.\\n\\nRound 3: The Overdrive Buzzer (Final Showdown)\\nFormat: Solo (Head-to-Head Finale)\\n- Live individual buzzer battle featuring rapid-fire logic traps, code analysis, and algorithmic sprints with point deductions for wrong answers.",
     rules: [
       "Individual participation only, no teams.",
@@ -231,6 +231,19 @@ export const events: SpectrumEvent[] = [
     imageUrl: null,
   },
 ]
+
+export const EVENT_ROUNDS: Record<string, Array<{title: string; content: string}>> = {
+  "dual-debug": [
+    { title: "Round 1: The Swap Challenge", content: "Format: Duo (Person A & Person B)\\nTotal Time: 65 Minutes (30m Coding + 5m Handoff + 30m Coding)\\nProblem Set: 6 Problem Statements (3 for Person A, 3 for Person B)\\nStructure:\\n- Phase 1 — Independent Coding (30 mins): Separate machines, strict silence rule.\\n- Phase 2 — The Handoff Break (5 mins): Strategy break to explain logic and progress.\\n- Phase 3 — The Swap (30 mins): Swap machines and complete/optimize partner's code." },
+    { title: "Round 2: CodoPoly", content: "Format: Duo (Custom Board Strategy)\\nGameplay:\\n- Matches played in groups (4 teams per match)\\n- Monopoly-style board mechanics paired with coding tasks, resource management, and problem solving." },
+    { title: "Round 3: Snakes & Ladders (Snakes & Treasure)", content: "Format: Duo (Life-sized Board or Simulator)\\nSetup: 100-step custom board + life-sized dice; each team starts with 1 Key\\nGameplay:\\n- Dice roll determines task difficulty (1 = Easiest --> 6 = Hardest) to reverse engineer code/outputs.\\n- Ladder Spot: Location clue leading to a Golden Key.\\n- Snake Spot: Lose 1 Key (Reaching 0 keys triggers Rapid-Fire elimination).\\n- Key Utility: Redeemable as Lifelines or Sabotage handicaps against other teams." }
+  ],
+  "singularity-strike": [
+    { title: "Round 1: Quantum Query (Speed Trivia / Quiz)", content: "Format: Solo\\n- Rapid elimination round testing core CS fundamentals, tech trivia, and syntax knowledge under a strict time constraint." },
+    { title: "Round 2: Binary Bingo (Logic Matrix)", content: "Format: Solo\\n- Strategic task-matrix challenge where participants solve mini-coding problems or output puzzles to claim squares on their personal grid and complete winning lines." },
+    { title: "Round 3: The Overdrive Buzzer (Final Showdown)", content: "Format: Solo (Head-to-Head Finale)\\n- Live individual buzzer battle featuring rapid-fire logic traps, code analysis, and algorithmic sprints with point deductions for wrong answers." }
+  ]
+};
 
 export interface ScheduleItem {
   date: string // "2026-09-30" — enables grouping/sorting by date

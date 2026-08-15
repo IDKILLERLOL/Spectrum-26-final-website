@@ -1,0 +1,9 @@
+const NAV = [
+  { href: "/supercore/registrations", label: "Registrations" },
+  { href: "/supercore/events", label: "Events" },
+  { href: "/supercore/team", label: "Team" },
+  { href: "/supercore/sponsors", label: "Sponsors" },
+  { href: "/supercore/schedule", label: "Schedule" },
+  { href: "/supercore/whitelist", label: "Whitelist" },
+  { href: "/supercore/settings", label: "Settings" },
+];
