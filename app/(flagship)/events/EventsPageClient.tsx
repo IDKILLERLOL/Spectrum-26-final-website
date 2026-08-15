@@ -48,11 +48,11 @@ const eventNumbers: Record<string, string> = {
 export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
   const { openQuest } = useQuest()
   const [selectedEvent, setSelectedEvent] = React.useState<SpectrumEvent | null>(null)
-  const [openAccordion, setOpenAccordion] = React.useState<string | null>("round-0")
+  const [openAccordion, setOpenAccordion] = React.useState<string | null>(null)
 
   React.useEffect(() => {
     if (selectedEvent) {
-      setOpenAccordion("round-0")
+      setOpenAccordion(null)
     }
   }, [selectedEvent])
 
@@ -163,8 +163,8 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
           </>
         </DialogTrigger>
         <DialogContent className="fixed inset-0 z-50 flex items-center justify-center" aria-hidden={!selectedEvent}>
-          <div className="relative w-full max-w-lg sm:max-w-xl p-6 bg-white border-4 shadow-lg" style={{ borderColor: INK }}>
-            <div className="mb-4 flex items-center justify-between">
+          <div className="relative w-full max-w-lg sm:max-w-xl p-6 bg-white border-4 shadow-lg max-h-[85vh] flex flex-col" style={{ borderColor: INK }}>
+            <div className="mb-4 flex items-center justify-between shrink-0">
               <DialogTitle className={`${questDisplay.className} text-lg md:text-xl`} style={{ color: NAVY }}>
                 {selectedEvent?.name}
               </DialogTitle>
@@ -172,7 +172,7 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
                 <X size={20} style={{ color: NAVY }} />
               </DialogClose>
             </div>
-            <DialogDescription className="space-y-4 text-left">
+            <DialogDescription className="space-y-4 text-left overflow-y-auto pr-1 flex-1">
               <div className="flex items-center gap-3">
                 <span
                   className={`${questDisplay.className} flex size-10 items-center justify-center border-2 text-[12px] text-white`}
@@ -278,7 +278,7 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
             </DialogDescription>
 
             {/* Footer with actions */}
-            <div className="mt-6 flex items-center justify-end gap-3 border-t-2 pt-4" style={{ borderColor: INK }}>
+            <div className="mt-6 flex items-center justify-end gap-3 border-t-2 pt-4 shrink-0" style={{ borderColor: INK }}>
               <DialogClose asChild>
                 <button
                   type="button"
