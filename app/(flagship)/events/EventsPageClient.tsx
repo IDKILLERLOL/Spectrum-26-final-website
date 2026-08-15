@@ -213,6 +213,23 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
                   {selectedEvent?.description}
                 </p>
               )}
+
+              {/* Prize details split */}
+              {selectedEvent?.prizes && selectedEvent.prizes.length > 0 && (
+                <div className="mt-4">
+                  <p className={`${questDisplay.className} text-xs uppercase tracking-widest mb-2`} style={{ color: VERMILION }}>
+                    Prize Split
+                  </p>
+                  <div className="flex flex-col gap-1.5 border-2 p-3 bg-[#FFFDF6]" style={{ borderColor: INK }}>
+                    {selectedEvent.prizes.map((p, idx) => (
+                      <div key={idx} className="flex justify-between items-center text-xs font-bold" style={{ color: NAVY }}>
+                        <span className={questBody.className}>{p.place}</span>
+                        <span className={questDisplay.className} style={{ color: PINK }}>{p.reward}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </DialogDescription>
 
             {/* Footer with actions */}
