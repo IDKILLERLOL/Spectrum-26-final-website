@@ -5,14 +5,16 @@ import { AppButton } from "@/components/flagship/AppButton"
 import { PageContainer } from "@/components/flagship/PageContainer"
 import { NAVY, VERMILION, TEAL, CREAM, INK, hoardingShadow } from "@/components/flagship/tokens"
 import { questDisplay, questBody } from "@/components/flagship/fonts"
+import { isAdminConfigured } from "@/lib/firebase/admin"
 
-export const revalidate = 60
+export const dynamic = "force-dynamic"
 
 export default async function SponsorsPage() {
-  const dynamicSponsors = await listSponsors()
+  const isConfigured = isAdminConfigured()
+  const dynamicSponsors = isConfigured ? await listSponsors() : []
   
   // Format items for display: pull tier from custom fields or fallback
-  const displaySponsors = dynamicSponsors.length > 0
+  const displaySponsors = isConfigured
     ? dynamicSponsors.map((s) => ({
         name: s.name,
         tier: s.fields.tier || s.fields.Tier || "Partner",
@@ -29,7 +31,11 @@ export default async function SponsorsPage() {
       <PageHeader title="Our Sponsors" subtitle="Powered by amazing partners." />
       <PageContainer width="narrow" className="flex flex-col gap-3 px-5 py-4 md:py-8">
         <div className="flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-3">
-        {displaySponsors.map((s) => {
+        {displaySponsors.length === 0 ? (
+          <p className={`${questBody.className} text-sm opacity-60 col-span-2 py-4`}>
+            No sponsors listed at the moment.
+          </p>
+        ) : displaySponsors.map((s) => {
           const extraFields = Object.entries(s.fields || {}).filter(([k]) => k.toLowerCase() !== "tier")
 
           return (
