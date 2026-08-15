@@ -18,9 +18,12 @@ async function main() {
   initializeApp({ credential: cert({ projectId, clientEmail, privateKey }) })
   const db = getFirestore()
   
-  console.log("Deleting event 'code-clash' from Firestore...")
-  await db.collection("events").doc("code-clash").delete()
-  console.log("Event deleted successfully.")
+  const idsToDelete = ["tech-duo-1", "tech-solo-1", "non-tech-1", "non-tech-3"]
+  for (const id of idsToDelete) {
+    console.log(`Deleting old event doc '${id}' from Firestore...`)
+    await db.collection("events").doc(id).delete()
+  }
+  console.log("All duplicate events deleted successfully.")
 }
 
 main().catch(console.error)

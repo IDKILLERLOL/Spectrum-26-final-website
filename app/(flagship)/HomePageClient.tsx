@@ -63,23 +63,6 @@ function HeroBackground() {
   )
 }
 
-/** Strung row of marigold-orange circles along the top edge of the Hero — mela/wedding garland motif. */
-function MarigoldGarland() {
-  return (
-    <div className="absolute top-0 left-0 right-0 z-10 flex flex-col overflow-hidden opacity-90 pointer-events-none">
-      {/* Marigold beads */}
-      <div className="flex h-8 overflow-hidden lg:h-10">
-        {Array.from({ length: 80 }).map((_, i) => (
-          <div
-            key={i}
-            className="h-8 w-8 flex-shrink-0 rounded-full border-2 -ml-2 first:ml-0 shadow-sm lg:h-10 lg:w-10"
-            style={{ background: `radial-gradient(circle, #F4A300 40%, #D97700 80%)`, borderColor: "#A54A00" }}
-          />
-        ))}
-      </div>
-    </div>
-  )
-}
 
 /** "HORN PLEASE" style infinite ticker — truck-back nostalgia, carries the event date/venue. */
 function Marquee() {
@@ -184,7 +167,6 @@ function Hero() {
   return (
     <section className="relative overflow-hidden pb-0 pt-12 text-center sm:pb-12 sm:pt-20 lg:pb-16 min-h-0 sm:min-h-[calc(100dvh-4rem)] flex flex-col justify-center items-center w-full">
       <HeroBackground />
-      <MarigoldGarland />
       <DdLoader />
 
       <motion.div
