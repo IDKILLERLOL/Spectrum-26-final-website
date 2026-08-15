@@ -66,7 +66,11 @@ export function RegistrationsAdminClient({
   const [selectedPaymentStatus, setSelectedPaymentStatus] = useState<PaymentStatus | 'all'>('all')
   const [selectedCheckInStatus, setSelectedCheckInStatus] = useState<CheckInStatus>('all')
   const [sortBy, setSortBy] = useState<string>('date-desc')
-  const [lastUpdated, setLastUpdated] = useState(() => new Date().toLocaleTimeString())
+  const [lastUpdated, setLastUpdated] = useState("")
+
+  useEffect(() => {
+    setLastUpdated(new Date().toLocaleTimeString())
+  }, [])
 
   // Client-side filter & sort on pre-fetched data
   const filtered = useCallback(() => {
