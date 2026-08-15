@@ -285,7 +285,7 @@ async function appendAndMerge(
           p.collegeName || "",
           p.paymentStatus || "PENDING",
           p.paymentRefId || "",
-          "", // Screenshot
+          p.pictureUrl || "", // Screenshot
           "No", // Checked In
           formattedDate
         ])
@@ -302,7 +302,7 @@ async function appendAndMerge(
               m.collegeName || m.college || "",
               p.paymentStatus || "PENDING",
               p.paymentRefId || "",
-              "", // Screenshot
+              p.pictureUrl || "", // Screenshot
               "No", // Checked In
               formattedDate
             ])
@@ -465,6 +465,11 @@ interface RegistrationSheetRow {
   paymentStatus: string
   createdAt: string
   teamName?: string
+  pictureUrl?: string
+  phone?: string
+  collegeName?: string
+  year?: string
+  teamMembers?: any[]
 }
 
 export function buildRegistrationRow(input: RegistrationSheetRow) {

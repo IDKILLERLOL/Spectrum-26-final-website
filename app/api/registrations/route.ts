@@ -71,6 +71,7 @@ export async function POST(request: Request) {
           paymentStatus: "PENDING",
           createdAt: new Date().toISOString(),
           teamName: input.teamName || "",
+          pictureUrl: input.pictureUrl || "",
           teamMembers: input.teamMembers.map((str) => {
             try {
               const parsed = JSON.parse(str)

@@ -43,6 +43,7 @@ export async function POST() {
         paymentStatus: reg.paymentStatus,
         createdAt: typeof reg.createdAt === "string" ? reg.createdAt : (reg.createdAt as any)?.toDate?.()?.toISOString() || new Date().toISOString(),
         teamName: reg.teamName || "",
+        pictureUrl: reg.pictureUrl || "",
         teamMembers: reg.teamMembers?.map((m: any) => ({
           name: m.name,
           email: m.email || "",
