@@ -133,7 +133,8 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
       {/* Event Details Modal */}
       <Dialog open={!!selectedEvent} onOpenChange={(open) => { if (!open) setSelectedEvent(null); }}>
         <DialogTrigger asChild>
-          <div style={{ position: 'fixed', inset: 0 }} />
+          <>
+          </>
         </DialogTrigger>
         <DialogContent className="fixed inset-0 z-50 flex items-center justify-center"
                aria-hidden={!selectedEvent}>
