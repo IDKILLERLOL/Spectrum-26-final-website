@@ -192,11 +192,44 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
                 {selectedEvent?.description}
               </p>
 
+              {/* Round by Round details */}
+              {selectedEvent?.rounds && selectedEvent.rounds.length > 0 && (
+                <div className="mt-4 space-y-3">
+                  <p className={`${questDisplay.className} text-xs uppercase tracking-widest mb-1`} style={{ color: VERMILION }}>
+                    Round by Round Details
+                  </p>
+                  <div className="space-y-3">
+                    {selectedEvent.rounds.map((round, idx) => (
+                      <div key={idx} className="border border-neutral-300 p-3 bg-neutral-50/50 rounded" style={{ borderColor: INK }}>
+                        <p className="font-bold text-xs" style={{ color: NAVY }}>{round.name}</p>
+                        <div className="mt-1.5 space-y-1 text-[11px] leading-relaxed opacity-90" style={{ color: INK }}>
+                          {round.format && <p><strong>Format:</strong> {round.format}</p>}
+                          {round.totalTime && <p><strong>Time:</strong> {round.totalTime}</p>}
+                          {round.problemSet && <p><strong>Problems:</strong> {round.problemSet}</p>}
+                          {round.setup && <p><strong>Setup:</strong> {round.setup}</p>}
+                          {round.gameplay && <p><strong>Gameplay:</strong> {round.gameplay}</p>}
+                          {round.structure && round.structure.length > 0 && (
+                            <div className="mt-1">
+                              <strong>Structure:</strong>
+                              <ul className="list-disc pl-4 mt-0.5 space-y-0.5">
+                                {round.structure.map((step, sIdx) => (
+                                  <li key={sIdx}>{step}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Rules & Rounds details */}
               {selectedEvent?.rules && selectedEvent.rules.length > 0 && (
                 <div className="mt-4">
                   <p className={`${questDisplay.className} text-xs uppercase tracking-widest mb-2`} style={{ color: VERMILION }}>
-                    Rules & Rounds
+                    Rules & Guidelines
                   </p>
                   <ul className="list-disc pl-4 space-y-1 text-xs leading-relaxed" style={{ color: NAVY }}>
                     {selectedEvent.rules.map((rule, idx) => (

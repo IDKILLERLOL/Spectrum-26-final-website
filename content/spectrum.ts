@@ -57,6 +57,15 @@ export interface SpectrumEvent {
   registrationOpen: boolean
   prizePool?: string
   imageUrl: string | null
+  rounds?: {
+    name: string
+    format?: string
+    totalTime?: string
+    problemSet?: string
+    gameplay?: string
+    setup?: string
+    structure?: string[]
+  }[]
 }
 
 export const events: SpectrumEvent[] = [
@@ -92,6 +101,30 @@ export const events: SpectrumEvent[] = [
     registrationEndsAt: REGISTRATION_ENDS_ISO,
     registrationOpen: true,
     imageUrl: null,
+    rounds: [
+      {
+        name: "Round 1: The Swap Challenge",
+        format: "Duo (Person A & Person B)",
+        totalTime: "65 Minutes (30m Coding + 5m Handoff + 30m Coding)",
+        problemSet: "6 Problem Statements (3 for Person A, 3 for Person B)",
+        structure: [
+          "Phase 1 — Independent Coding (30 mins): Separate machines, strict silence rule.",
+          "Phase 2 — The Handoff Break (5 mins): Strategy break to explain logic and progress.",
+          "Phase 3 — The Swap (30 mins): Swap machines and complete/optimize partner's code."
+        ]
+      },
+      {
+        name: "Round 2: CodoPoly",
+        format: "Duo (Custom Board Strategy)",
+        gameplay: "Matches played in groups (4 teams per match). Monopoly-style board mechanics paired with coding tasks, resource management, and problem solving."
+      },
+      {
+        name: "Round 3: Snakes & Ladders (Snakes & Treasure)",
+        format: "Duo (Life-sized Board or Simulator)",
+        setup: "100-step custom board + life-sized dice; each team starts with 1 Key",
+        gameplay: "Dice roll determines task difficulty (1 = Easiest --> 6 = Hardest) to reverse engineer code/outputs. Ladder Spot: Location clue leading to a Golden Key. Snake Spot: Lose 1 Key (Reaching 0 keys triggers Rapid-Fire elimination). Key Utility: Redeemable as Lifelines or Sabotage handicaps against other teams."
+      }
+    ]
   },
   {
     id: "fifa",
@@ -193,6 +226,23 @@ export const events: SpectrumEvent[] = [
     registrationEndsAt: REGISTRATION_ENDS_ISO,
     registrationOpen: true,
     imageUrl: null,
+    rounds: [
+      {
+        name: "Round 1: Quantum Query (Speed Trivia / Quiz)",
+        format: "Solo",
+        gameplay: "Rapid elimination round testing core CS fundamentals, tech trivia, and syntax knowledge under a strict time constraint."
+      },
+      {
+        name: "Round 2: Binary Bingo (Logic Matrix)",
+        format: "Solo",
+        gameplay: "Strategic task-matrix challenge where participants solve mini-coding problems or output puzzles to claim squares on their personal grid and complete winning lines."
+      },
+      {
+        name: "Round 3: The Overdrive Buzzer (Final Showdown)",
+        format: "Solo (Head-to-Head Finale)",
+        gameplay: "Live individual buzzer battle featuring rapid-fire logic traps, code analysis, and algorithmic sprints with point deductions for wrong answers."
+      }
+    ]
   },
 ]
 
