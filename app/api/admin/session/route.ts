@@ -89,8 +89,15 @@ export async function POST(request: Request) {
     return res
   } catch (globalErr: any) {
     console.error("[POST /api/admin/session] Fatal unhandled error:", globalErr)
+    // Provide a more helpful message if it's a Firebase admin config issue
+    const errMsg = globalErr?.message || String(globalErr)
+    let userError = "Session creation error: " + errMsg
+    if (errMsg.includes("Firebase Admin SDK is not configured") ||
+        errMsg.includes("Missing valid FIREBASE_PROJECT_ID")) {
+      userError = "Server misconfiguration: Firebase Admin SDK not initialized. Check FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY."
+    }
     return NextResponse.json(
-      { error: "Session creation error: " + (globalErr?.message || String(globalErr)) },
+      { error: userError },
       { status: 500 }
     )
   }
