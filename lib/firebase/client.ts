@@ -27,6 +27,22 @@ const firebaseConfig = {
  * to call-time means it only ever runs from the browser click handler.
  */
 export function getClientAuth() {
+  // Check if all required config values are present
+  const missing = []
+  if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY) missing.push('NEXT_PUBLIC_FIREBASE_API_KEY')
+  if (!process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN) missing.push('NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN')
+  if (!process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID) missing.push('NEXT_PUBLIC_FIREBASE_PROJECT_ID')
+  if (!process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET) missing.push('NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET')
+  if (!process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID) missing.push('NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID')
+  if (!process.env.NEXT_PUBLIC_FIREBASE_APP_ID) missing.push('NEXT_PUBLIC_FIREBASE_APP_ID')
+
+  if (missing.length > 0) {
+    throw new Error(
+      `Missing Firebase client environment variables: ${missing.join(', ')}. ` +
+      `Please fill them in .env.local (see .env.example).`
+    )
+  }
+
   const app = getApps().length ? getApp() : initializeApp(firebaseConfig)
   return getAuth(app)
 }
