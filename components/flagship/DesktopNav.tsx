@@ -92,19 +92,20 @@ export function DesktopNav() {
                     style={{ borderColor: INK, background: AGED_PAPER }}
                   >
                     {[
-                      { href: "/more/sponsors", label: "Sponsors" },
-                      { href: "/more/team", label: "Team" },
-                      { href: "/more/gallery", label: "Gallery" },
-                      { href: "/more/about", label: "About" },
-                      { href: "/more/contact", label: "Contact" },
+                      { href: "/more/sponsors", label: "Sponsors", icon: Trophy },
+                      { href: "/more/team", label: "Team", icon: Users },
+                      { href: "/more/gallery", label: "Gallery", icon: Image },
+                      { href: "/more/about", label: "About", icon: Info },
+                      { href: "/more/contact", label: "Contact", icon: Phone },
                     ].map((item) => (
                       <Link
                         key={item.href}
                         href={item.href}
                         onClick={() => setMoreOpen(false)}
-                        className="px-4 py-2.5 text-xs font-bold uppercase hover:bg-neutral-200 transition-colors"
+                        className="px-4 py-2.5 text-xs font-bold uppercase hover:bg-neutral-200 transition-colors flex items-center gap-2"
                         style={{ color: INK }}
                       >
+                        <item.icon size={14} />
                         {item.label}
                       </Link>
                     ))}
