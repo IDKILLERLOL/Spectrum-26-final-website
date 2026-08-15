@@ -25,19 +25,58 @@ export async function getCurrentEditionWinners(): Promise<EventWinners[]> {
 
   try {
     const snap = await getDb().collection(COLLECTION).where("edition", "==", site.name).get()
-    if (snap.empty) return staticWinners
+    
+    // Create a map keyed by `${eventId}-${place}`
+    const dbWinnersMap = new Map<string, string>() // maps eventId-place to teamName
+    snap.docs.forEach((doc) => {
+      const data = doc.data()
+      if (!data.deleted) {
+        dbWinnersMap.set(`${data.eventId}-${data.place}`, data.teamName)
+      } else {
+        dbWinnersMap.set(`${data.eventId}-${data.place}`, "__DELETED__")
+      }
+    })
 
-    const byEvent = new Map<string, EventWinners>()
-    for (const doc of snap.docs) {
-      const w = doc.data() as FirestoreWinner
-      const entry = byEvent.get(w.eventId) ?? { eventId: w.eventId, winners: [] as any[] }
-      entry.winners.push({ place: w.place, teamName: w.teamName })
-      byEvent.set(w.eventId, entry)
+    const mergedWinnersMap = new Map<string, EventWinners>()
+
+    // 1. Merge static default winners
+    for (const staticEventWins of staticWinners) {
+      const eventId = staticEventWins.eventId
+      const winnersList: WinnerEntry[] = []
+      
+      for (const w of staticEventWins.winners) {
+        const key = `${eventId}-${w.place}`
+        if (dbWinnersMap.has(key)) {
+          const dbTeamName = dbWinnersMap.get(key)!
+          if (dbTeamName !== "__DELETED__") {
+            winnersList.push({ place: w.place, teamName: dbTeamName })
+          }
+          dbWinnersMap.delete(key) // Handled
+        } else {
+          winnersList.push(w)
+        }
+      }
+      
+      if (winnersList.length > 0) {
+        mergedWinnersMap.set(eventId, { eventId, winners: winnersList })
+      }
     }
-    for (const entry of byEvent.values()) {
-      entry.winners.sort((a, b) => PLACE_ORDER[a.place] - PLACE_ORDER[b.place])
+
+    // 2. Add remaining custom winners from DB
+    for (const [key, teamName] of dbWinnersMap.entries()) {
+      if (teamName === "__DELETED__") continue
+      const [eventId, place] = key.split("-")
+      const entry = mergedWinnersMap.get(eventId) ?? { eventId, winners: [] }
+      entry.winners.push({ place: place as any, teamName })
+      mergedWinnersMap.set(eventId, entry)
     }
-    return Array.from(byEvent.values())
+
+    // 3. Sort winners inside each event
+    for (const entry of mergedWinnersMap.values()) {
+      entry.winners.sort((a, b) => (PLACE_ORDER[a.place] ?? 9) - (PLACE_ORDER[b.place] ?? 9))
+    }
+
+    return Array.from(mergedWinnersMap.values())
   } catch (err) {
     console.error("[firestore-winners] getCurrentEditionWinners failed, falling back to static data:", err)
     return staticWinners
@@ -87,11 +126,24 @@ export async function createWinner(input: CreateWinnerInput): Promise<string> {
 
 export async function updateWinner(id: string, patch: Partial<Omit<CreateWinnerInput, "createdBy">>): Promise<void> {
   const update: Record<string, unknown> = { ...patch, updatedAt: Timestamp.now() }
+  delete (update as any).id
   for (const key of Object.keys(update)) if (update[key] === undefined) delete update[key]
 
-  await getDb().collection(COLLECTION).doc(id).update(update)
+  await getDb().collection(COLLECTION).doc(id).set(update, { merge: true })
 }
 
 export async function deleteWinner(id: string): Promise<void> {
+  // If it's a static winner (contains a hyphen in generated ID format), we can write a tombstone
+  const snap = await getDb().collection(COLLECTION).doc(id).get()
+  if (snap.exists) {
+    const data = snap.data()
+    if (data) {
+      const isStatic = staticWinners.some((sw) => sw.eventId === data.eventId && sw.winners.some((w) => w.place === data.place))
+      if (isStatic) {
+        await getDb().collection(COLLECTION).doc(id).set({ ...data, deleted: true, updatedAt: Timestamp.now() })
+        return
+      }
+    }
+  }
   await getDb().collection(COLLECTION).doc(id).delete()
 }

@@ -42,11 +42,11 @@ export async function saveSponsor(id: string | null, name: string, fields: Recor
   const db = getDb()
   const now = Timestamp.now()
   if (id) {
-    await db.collection(COLLECTION).doc(id).update({
+    await db.collection(COLLECTION).doc(id).set({
       name,
       fields,
       updatedAt: now,
-    })
+    }, { merge: true })
   } else {
     await db.collection(COLLECTION).add({
       name,

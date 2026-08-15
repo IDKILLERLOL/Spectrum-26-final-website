@@ -22,9 +22,38 @@ export async function getSchedule(): Promise<ScheduleItem[]> {
   if (!isAdminConfigured()) return staticSchedule
 
   try {
-    const snap = await getDb().collection(COLLECTION).orderBy("order", "asc").get()
-    if (snap.empty) return staticSchedule
-    return snap.docs.map((d) => toScheduleItem(d.data() as FirestoreScheduleItem))
+    const snap = await getDb().collection(COLLECTION).get()
+    
+    const dbScheduleMap = new Map<string, any>()
+    snap.docs.forEach((d) => {
+      dbScheduleMap.set(d.id, d.data())
+    })
+
+    const mergedSchedule: ScheduleItem[] = []
+    
+    // 1. Merge static defaults
+    for (const staticItem of staticSchedule) {
+      const staticId = `${staticItem.date}-${staticItem.order}`
+      if (dbScheduleMap.has(staticId)) {
+        const dbDoc = dbScheduleMap.get(staticId)
+        if (!dbDoc.deleted) {
+          mergedSchedule.push(toScheduleItem(dbDoc as FirestoreScheduleItem))
+        }
+        dbScheduleMap.delete(staticId)
+      } else {
+        mergedSchedule.push(staticItem)
+      }
+    }
+
+    // 2. Add remaining custom schedule items
+    for (const dbDoc of dbScheduleMap.values()) {
+      if (!dbDoc.deleted) {
+        mergedSchedule.push(toScheduleItem(dbDoc as FirestoreScheduleItem))
+      }
+    }
+
+    // 3. Sort by order
+    return mergedSchedule.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
   } catch (err) {
     console.error("[firestore-schedule] getSchedule failed, falling back to static data:", err)
     return staticSchedule
@@ -61,11 +90,17 @@ export async function createScheduleItem(input: CreateScheduleItemInput): Promis
 
 export async function updateScheduleItem(id: string, patch: Partial<CreateScheduleItemInput>): Promise<void> {
   const update: Record<string, unknown> = { ...patch, updatedAt: Timestamp.now() }
+  delete (update as any).id
   for (const key of Object.keys(update)) if (update[key] === undefined) delete update[key]
 
-  await getDb().collection(COLLECTION).doc(id).update(update)
+  await getDb().collection(COLLECTION).doc(id).set(update, { merge: true })
 }
 
 export async function deleteScheduleItem(id: string): Promise<void> {
-  await getDb().collection(COLLECTION).doc(id).delete()
+  const isStatic = staticSchedule.some((item) => `${item.date}-${item.order}` === id)
+  if (isStatic) {
+    await getDb().collection(COLLECTION).doc(id).set({ deleted: true, updatedAt: Timestamp.now() })
+  } else {
+    await getDb().collection(COLLECTION).doc(id).delete()
+  }
 }
