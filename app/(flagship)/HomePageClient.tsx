@@ -88,7 +88,7 @@ function Marquee() {
     <>HORN PLEASE <Megaphone size={12} className="inline" /> {site.date} <Megaphone size={12} className="inline" /> {site.venue} <Megaphone size={12} className="inline" />{" "}</>
   )
   return (
-    <div className="w-full my-6 flex flex-col items-center">
+    <div className="w-full mt-14 mb-0 flex flex-col items-center">
       {/* Top sawtooth border */}
       <div className="w-full h-2.5 flex overflow-hidden pointer-events-none" style={{ background: CREAM }}>
         {Array.from({ length: 120 }).map((_, i) => (
@@ -182,7 +182,7 @@ function Hero() {
   const cd = useCountdown()
   const reduced = useReducedMotion()
   return (
-    <section className="relative overflow-hidden pb-4 pt-12 text-center sm:pb-12 sm:pt-20 lg:pb-16 min-h-0 sm:min-h-[calc(100dvh-4rem)] flex flex-col justify-center items-center w-full">
+    <section className="relative overflow-hidden pb-0 pt-12 text-center sm:pb-12 sm:pt-20 lg:pb-16 min-h-0 sm:min-h-[calc(100dvh-4rem)] flex flex-col justify-center items-center w-full">
       <HeroBackground />
       <MarigoldGarland />
       <DdLoader />
