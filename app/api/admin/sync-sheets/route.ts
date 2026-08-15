@@ -21,12 +21,23 @@ export async function POST() {
         id: reg.id,
         fullName: reg.fullName,
         email: reg.userEmail,
+        phone: reg.phone || "",
+        collegeName: reg.collegeName || "",
+        year: reg.year || "",
         eventName: reg.eventName,
         teamSize: reg.teamSize,
         paymentRefId: reg.paymentRefId,
         amountPaid: reg.amountPaid,
         paymentStatus: reg.paymentStatus,
         createdAt: typeof reg.createdAt === "string" ? reg.createdAt : (reg.createdAt as any)?.toDate?.()?.toISOString() || new Date().toISOString(),
+        teamName: reg.teamName || "",
+        teamMembers: reg.teamMembers?.map((m: any) => ({
+          name: m.name,
+          email: m.email || "",
+          phone: m.phone || "",
+          collegeName: m.college || m.collegeName || "",
+          year: m.year || "",
+        })) || []
       })
     )
     await setSheetsSyncStatus(reg.id, ok ? "SYNCED" : "FAILED")
