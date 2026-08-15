@@ -31,57 +31,57 @@ function Field({ label, className = "", ...inputProps }: { label: string } & Rea
   )
 }
 
-const MEMBER_LABELS = ["Partner Name", "Member 2 Name", "Member 3 Name"]
-
 export default function RegisterTeamStep() {
   const router = useRouter()
   const { values, setField, selectedEvent } = useQuest()
 
   const memberCount = Math.max(0, (selectedEvent?.capacity ?? 1) - 1)
 
-  const [bgmiMembers, setBgmiMembers] = React.useState([
-    { name: "", email: "", phone: "", college: "", year: "" },
-    { name: "", email: "", phone: "", college: "", year: "" },
-    { name: "", email: "", phone: "", college: "", year: "" },
-  ])
+  // Generic local state for team members based on memberCount
+  const [localMembers, setLocalMembers] = React.useState<Array<{ name: string; email: string; phone: string; college: string; year: string }>>([])
 
   React.useEffect(() => {
     trackFunnelStep("team", selectedEvent?.id)
   }, [])
 
-  // Sync team members size for non-BGMI, or sync BGMI members to values.teamMembers
+  // Initialize and load members
   React.useEffect(() => {
-    if (selectedEvent?.id === "bgmi") {
-      const next = bgmiMembers.map((m) => JSON.stringify(m))
+    if (selectedEvent) {
+      const count = Math.max(0, selectedEvent.capacity - 1)
+      const initial = Array.from({ length: count }, (_, i) => {
+        try {
+          if (values.teamMembers[i]) {
+            const parsed = JSON.parse(values.teamMembers[i])
+            if (parsed && typeof parsed === "object" && parsed.name) {
+              return {
+                name: parsed.name || "",
+                email: parsed.email || "",
+                phone: parsed.phone || "",
+                college: parsed.college || "",
+                year: parsed.year || "",
+              }
+            }
+          }
+        } catch {
+          // Ignored
+        }
+        return { name: "", email: "", phone: "", college: "", year: "" }
+      })
+      setLocalMembers(initial)
+    }
+  }, [selectedEvent])
+
+  // Sync back to context
+  React.useEffect(() => {
+    if (memberCount > 0) {
+      const next = localMembers.map((m) => JSON.stringify(m))
       setField("teamMembers", next)
     } else {
-      if (values.teamMembers.length !== memberCount) {
-        const next = [...values.teamMembers]
-        next.length = memberCount
-        setField("teamMembers", next.map((v) => v ?? ""))
+      if (values.teamMembers.length !== 0) {
+        setField("teamMembers", [])
       }
     }
-  }, [selectedEvent, bgmiMembers, memberCount])
-
-  // Populate BGMI local state on mount if values already exist
-  React.useEffect(() => {
-    if (selectedEvent?.id === "bgmi" && values.teamMembers.length === 3) {
-      try {
-        const parsed = values.teamMembers.map((m) => JSON.parse(m))
-        if (parsed.every((p) => p && typeof p === "object" && "name" in p)) {
-          setBgmiMembers(parsed)
-        }
-      } catch {
-        // Keep defaults
-      }
-    }
-  }, [])
-
-  function setMember(index: number, value: string) {
-    const next = [...values.teamMembers]
-    next[index] = value
-    setField("teamMembers", next)
-  }
+  }, [localMembers, memberCount])
 
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null)
 
@@ -89,7 +89,11 @@ export default function RegisterTeamStep() {
     e.preventDefault()
     setErrorMsg(null)
 
-    if (selectedEvent?.id === "bgmi") {
+    if (memberCount > 0) {
+      if (!values.teamName || !values.teamName.trim()) {
+        setErrorMsg("Please enter team name.")
+        return
+      }
       if (!values.collegeName || !values.collegeName.trim()) {
         setErrorMsg("Please enter leader's college name.")
         return
@@ -98,9 +102,9 @@ export default function RegisterTeamStep() {
         setErrorMsg("Please select leader's academic year.")
         return
       }
-      for (let i = 0; i < 3; i++) {
-        const m = bgmiMembers[i]
-        if (!m.name.trim() || !m.email.trim() || !m.phone.trim() || !m.college.trim() || !m.year) {
+      for (let i = 0; i < memberCount; i++) {
+        const m = localMembers[i]
+        if (!m || !m.name.trim() || !m.email.trim() || !m.phone.trim() || !m.college.trim() || !m.year) {
           setErrorMsg(`Please fill in all details for Member ${i + 2}.`)
           return
         }
@@ -114,12 +118,9 @@ export default function RegisterTeamStep() {
         }
       }
     } else {
-      if (memberCount > 0) {
-        const missing = values.teamMembers.slice(0, memberCount).some((m) => !m || !m.trim())
-        if (missing) {
-          setErrorMsg("Please enter all required team member names.")
-          return
-        }
+      if (!values.collegeName || !values.collegeName.trim()) {
+        setErrorMsg("Please enter college name.")
+        return
       }
       if (!values.year) {
         setErrorMsg("Please select your academic year.")
@@ -175,22 +176,32 @@ export default function RegisterTeamStep() {
             </div>
 
             <form className={`${questBody.className} flex flex-col gap-4 md:gap-5`} onSubmit={handleSubmit}>
-              {selectedEvent?.id === "bgmi" ? (
+              {memberCount > 0 ? (
                 <div className="space-y-6">
+                  {/* Team Name Input */}
+                  <div className="border-2 p-4 bg-white/70" style={{ borderColor: INK, boxShadow: softHoardingShadow }}>
+                    <Field
+                      label="Team Name *"
+                      placeholder="Enter team / squad name"
+                      value={values.teamName}
+                      onChange={(e) => setField("teamName", e.target.value)}
+                    />
+                  </div>
+
                   {/* Leader Card (Member 1) */}
                   <div className="border-2 p-4 bg-white/50" style={{ borderColor: INK, boxShadow: softHoardingShadow }}>
                     <p className={`${questDisplay.className} text-xs uppercase tracking-widest mb-3`} style={{ color: VERMILION }}>
-                      Squad Leader (Member 1)
+                      Team Leader (Member 1)
                     </p>
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                      <Field label="Full Name" value={values.fullName} disabled className="bg-neutral-100 opacity-70" />
-                      <Field label="Email" value={values.email} disabled className="bg-neutral-100 opacity-70" />
-                      <Field label="Phone" value={values.phone} disabled className="bg-neutral-100 opacity-70" />
-                      <Field 
-                        label="College *" 
-                        placeholder="Enter college name" 
-                        value={values.collegeName} 
-                        onChange={(e) => setField("collegeName", e.target.value)} 
+                      <Field label="Full Name" value={values.fullName} disabled className="bg-neutral-100/50 opacity-70" />
+                      <Field label="Email" value={values.email} disabled className="bg-neutral-100/50 opacity-70" />
+                      <Field label="Phone" value={values.phone} disabled className="bg-neutral-100/50 opacity-70" />
+                      <Field
+                        label="College *"
+                        placeholder="Enter college name"
+                        value={values.collegeName}
+                        onChange={(e) => setField("collegeName", e.target.value)}
                       />
                       <div className="flex flex-col gap-1">
                         <label className={`${questBody.className} text-[10px] font-bold uppercase md:text-xs`} style={{ color: TEAL }}>
@@ -211,53 +222,53 @@ export default function RegisterTeamStep() {
                     </div>
                   </div>
 
-                  {/* Team Members Cards (2, 3, 4) */}
-                  {bgmiMembers.map((member, i) => (
+                  {/* Team Members Cards */}
+                  {localMembers.map((member, i) => (
                     <div key={i} className="border-2 p-4 bg-white/50" style={{ borderColor: INK, boxShadow: softHoardingShadow }}>
                       <p className={`${questDisplay.className} text-xs uppercase tracking-widest mb-3`} style={{ color: VERMILION }}>
                         Squad Member {i + 2}
                       </p>
                       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                        <Field 
-                          label="Full Name *" 
-                          placeholder="Enter name" 
-                          value={member.name} 
+                        <Field
+                          label="Full Name *"
+                          placeholder="Enter name"
+                          value={member.name}
                           onChange={(e) => {
-                            const next = [...bgmiMembers]
+                            const next = [...localMembers]
                             next[i] = { ...member, name: e.target.value }
-                            setBgmiMembers(next)
-                          }} 
+                            setLocalMembers(next)
+                          }}
                         />
-                        <Field 
-                          label="Email *" 
-                          placeholder="Enter email" 
+                        <Field
+                          label="Email *"
+                          placeholder="Enter email"
                           type="email"
-                          value={member.email} 
+                          value={member.email}
                           onChange={(e) => {
-                            const next = [...bgmiMembers]
+                            const next = [...localMembers]
                             next[i] = { ...member, email: e.target.value }
-                            setBgmiMembers(next)
-                          }} 
+                            setLocalMembers(next)
+                          }}
                         />
-                        <Field 
-                          label="Phone *" 
-                          placeholder="Enter phone" 
-                          value={member.phone} 
+                        <Field
+                          label="Phone *"
+                          placeholder="Enter phone"
+                          value={member.phone}
                           onChange={(e) => {
-                            const next = [...bgmiMembers]
+                            const next = [...localMembers]
                             next[i] = { ...member, phone: e.target.value }
-                            setBgmiMembers(next)
-                          }} 
+                            setLocalMembers(next)
+                          }}
                         />
-                        <Field 
-                          label="College *" 
-                          placeholder="Enter college" 
-                          value={member.college} 
+                        <Field
+                          label="College *"
+                          placeholder="Enter college"
+                          value={member.college}
                           onChange={(e) => {
-                            const next = [...bgmiMembers]
+                            const next = [...localMembers]
                             next[i] = { ...member, college: e.target.value }
-                            setBgmiMembers(next)
-                          }} 
+                            setLocalMembers(next)
+                          }}
                         />
                         <div className="flex flex-col gap-1">
                           <label className={`${questBody.className} text-[10px] font-bold uppercase md:text-xs`} style={{ color: TEAL }}>
@@ -266,9 +277,9 @@ export default function RegisterTeamStep() {
                           <select
                             value={member.year}
                             onChange={(e) => {
-                              const next = [...bgmiMembers]
+                              const next = [...localMembers]
                               next[i] = { ...member, year: e.target.value }
-                              setBgmiMembers(next)
+                              setLocalMembers(next)
                             }}
                             className="border-2 p-1.5 text-sm outline-none font-bold bg-white"
                             style={{ borderColor: INK, color: INK }}
@@ -285,22 +296,11 @@ export default function RegisterTeamStep() {
                 </div>
               ) : (
                 <>
-                  {memberCount === 0 && (
-                    <p className={`${questBody.className} text-xs opacity-60`} style={{ color: INK }}>
-                      Solo event — no team members needed.
-                    </p>
-                  )}
-                  {Array.from({ length: memberCount }).map((_, i) => (
-                    <Field
-                      key={i}
-                      label={MEMBER_LABELS[i] ?? `Member ${i + 1} Name`}
-                      placeholder={`Enter ${MEMBER_LABELS[i] ?? `member ${i + 1}`}`}
-                      value={values.teamMembers[i] ?? ""}
-                      onChange={(e) => setMember(i, e.target.value)}
-                    />
-                  ))}
+                  <p className={`${questBody.className} text-xs opacity-60`} style={{ color: INK }}>
+                    Solo event — no team members needed.
+                  </p>
                   <Field
-                    label="College Name (optional)"
+                    label="College Name *"
                     placeholder="Enter College Name"
                     value={values.collegeName}
                     onChange={(e) => setField("collegeName", e.target.value)}

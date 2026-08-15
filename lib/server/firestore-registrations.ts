@@ -42,6 +42,7 @@ export async function createRegistration(input: CreateRegistrationInput): Promis
     year: input.year,
     eventId: input.eventId,
     eventName: input.eventName,
+    teamName: (input as any).teamName || "",
     teamMembers: input.teamMembers.map((str) => {
       try {
         const parsed = JSON.parse(str)

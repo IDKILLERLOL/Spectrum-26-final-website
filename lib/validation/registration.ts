@@ -10,6 +10,7 @@ export const registrationSchema = z.object({
   email: z.string().trim().email("Enter a valid email address.").toLowerCase(),
   phone: z.string().trim().min(7, "Enter a valid phone number."),
   eventId: z.string().trim().min(1, "Select an event."),
+  teamName: z.string().trim().optional().default(""),
   teamMembers: z.array(z.string().trim().min(1, "Team member name can't be empty.")).max(3),
   collegeName: z.string().trim().optional().default(""),
   year: z.string().trim().min(1, "Select your year."),

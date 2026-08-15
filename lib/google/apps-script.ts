@@ -28,7 +28,7 @@ export async function syncToSheet(payload: object): Promise<boolean> {
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({ ...payload, spreadsheetId }),
+      body: JSON.stringify({ ...payload, spreadsheetId, sheetId: spreadsheetId }),
       redirect: "follow",
       signal: AbortSignal.timeout(15000),
     })
@@ -92,6 +92,7 @@ interface RegistrationSheetRow {
   amountPaid: number
   paymentStatus: string
   createdAt: string
+  teamName?: string
 }
 
 export function buildRegistrationRow(input: RegistrationSheetRow) {

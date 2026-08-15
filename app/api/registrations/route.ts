@@ -67,6 +67,7 @@ export async function POST(request: Request) {
           amountPaid: event.feeNumeric,
           paymentStatus: "PENDING",
           createdAt: new Date().toISOString(),
+          teamName: input.teamName || "",
         })
       )
         .then((ok) => {

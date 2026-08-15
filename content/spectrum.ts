@@ -460,6 +460,7 @@ export interface QuestFormValues {
   email: string
   phone: string
   eventId: EventId | ""
+  teamName: string // optional for solo, required for team events
   teamMembers: string[] // sized to selectedEvent.capacity - 1; [] solo, [x] duo, [x,y,z] squad
   collegeName: string // optional at validation layer, kept as string (not string|undefined) for controlled inputs
   year: string
@@ -472,6 +473,7 @@ export const questFormDefaults: QuestFormValues = {
   email: "",
   phone: "",
   eventId: "",
+  teamName: "",
   teamMembers: [],
   collegeName: "",
   year: "",
