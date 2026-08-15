@@ -118,7 +118,7 @@ export async function sendEmail(message: EmailMessage, tokenOverride?: string | 
   const festName = "SPECTRUM 26"
 
   const rawMessage = [
-    `From: ${festName} <${senderEmail}>`,
+    `From: ${festName}`,
     `To: ${message.to}`,
     `Subject: ${message.subject}`,
     "Content-Type: text/html; charset=utf-8",

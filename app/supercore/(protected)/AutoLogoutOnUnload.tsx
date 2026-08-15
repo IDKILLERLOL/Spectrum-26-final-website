@@ -1,12 +1,19 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 
 export function AutoLogoutOnUnload() {
   const router = useRouter()
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (!mounted) return
+
     const justLoggedIn = sessionStorage.getItem("just_logged_in")
     if (justLoggedIn === "true") {
       // First mount after direct login redirect: keep session, clear flag for future loads
@@ -16,7 +23,7 @@ export function AutoLogoutOnUnload() {
       document.cookie = "spectrum_admin_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;"
       router.replace("/supercore/login")
     }
-  }, [router])
+  }, [mounted, router])
 
   return null
 }

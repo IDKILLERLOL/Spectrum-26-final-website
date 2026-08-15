@@ -26,7 +26,7 @@ export async function POST() {
         paymentRefId: reg.paymentRefId,
         amountPaid: reg.amountPaid,
         paymentStatus: reg.paymentStatus,
-        createdAt: reg.createdAt.toDate().toISOString(),
+        createdAt: typeof reg.createdAt === "string" ? reg.createdAt : (reg.createdAt as any)?.toDate?.()?.toISOString() || new Date().toISOString(),
       })
     )
     await setSheetsSyncStatus(reg.id, ok ? "SYNCED" : "FAILED")

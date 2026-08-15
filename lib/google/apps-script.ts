@@ -16,7 +16,15 @@ export async function syncToSheet(payload: object): Promise<boolean> {
   }
 
   try {
-    const spreadsheetId = process.env.GOOGLE_SHEETS_ID || process.env.VITE_GOOGLE_SHEETS_ID || ""
+    let spreadsheetId = process.env.GOOGLE_SHEETS_ID || process.env.VITE_GOOGLE_SHEETS_ID || ""
+    if (!spreadsheetId) {
+      try {
+        const { getSystemSpreadsheetId } = await import("@/lib/server/firestore-registrations")
+        spreadsheetId = (await getSystemSpreadsheetId()) || ""
+      } catch {
+        // Fallback ignored
+      }
+    }
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
@@ -40,7 +48,15 @@ export async function fetchFromSheet(): Promise<any[]> {
   }
 
   try {
-    const spreadsheetId = process.env.GOOGLE_SHEETS_ID || process.env.VITE_GOOGLE_SHEETS_ID || ""
+    let spreadsheetId = process.env.GOOGLE_SHEETS_ID || process.env.VITE_GOOGLE_SHEETS_ID || ""
+    if (!spreadsheetId) {
+      try {
+        const { getSystemSpreadsheetId } = await import("@/lib/server/firestore-registrations")
+        spreadsheetId = (await getSystemSpreadsheetId()) || ""
+      } catch {
+        // Fallback ignored
+      }
+    }
     let fetchUrl = url.includes("?") ? `${url}&action=readRegistrations` : `${url}?action=readRegistrations`
     if (spreadsheetId) {
       fetchUrl += `&spreadsheetId=${spreadsheetId}`
