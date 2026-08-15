@@ -184,24 +184,26 @@ export function DesktopNav() {
           transform: isOpen ? "translateX(0)" : "translateX(-100%)",
         }}
       >
-        <button
-          type="button"
-          onClick={() => setIsOpen(false)}
-          className="absolute top-4 right-4 flex items-center justify-center p-2 border-2 hover:bg-neutral-200 transition-colors"
-          style={{ borderColor: INK, background: AGED_PAPER }}
-          aria-label="Close menu"
-        >
-          <X size={18} color={INK} />
-        </button>
-
-        <div className="flex flex-col gap-6 mt-8 overflow-y-auto max-h-[75dvh] pr-1">
+        <div className="flex items-center justify-between border-b-2 pb-4 mb-4 shrink-0" style={{ borderColor: INK }}>
           <Link
             href="/"
-            className={`${questDisplay.className} border-b-2 pb-4 mb-2`}
-            style={{ color: INK, fontSize: "1.5rem", borderColor: INK }}
+            className={questDisplay.className}
+            style={{ color: INK, fontSize: "1.5rem" }}
           >
             Spectrum <span style={{ color: VERMILION }}>5.0</span>
           </Link>
+          <button
+            type="button"
+            onClick={() => setIsOpen(false)}
+            className="flex items-center justify-center p-2 border-2 hover:bg-neutral-200 transition-colors animate-none"
+            style={{ borderColor: INK, background: AGED_PAPER }}
+            aria-label="Close menu"
+          >
+            <X size={18} color={INK} />
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-6 overflow-y-auto max-h-[65dvh] pr-1 flex-1">
 
           <nav className={`${questBody.className} flex flex-col gap-2.5 text-base font-bold uppercase tracking-wide`}>
             {MOBILE_LINKS.map(({ href, label, icon: Icon }) => {
