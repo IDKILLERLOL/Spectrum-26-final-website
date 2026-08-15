@@ -138,73 +138,109 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
           <>
           </>
         </DialogTrigger>
-        <DialogContent className="fixed inset-0 z-50 flex items-center justify-center"
-               aria-hidden={!selectedEvent}>
-  <div className="relative w-full max-w-lg sm:max-w-xl p-6 bg-white border-4 shadow-lg"
-       style={{ borderColor: INK }}>
-          <div className="mb-4">
-            <DialogTitle className={questDisplay.className} style={{ color: NAVY }}>
-              {selectedEvent?.name}
-            </DialogTitle>
-            <DialogClose className="btn-ghost" aria-label="Close">
-              <X size={24} className="h-6 w-6 stroke-current" />
-            </DialogClose>
-          </div>
-          <DialogDescription className="space-y-4">
+        <DialogContent className="fixed inset-0 z-50 flex items-center justify-center" aria-hidden={!selectedEvent}>
+          <div className="relative w-full max-w-lg sm:max-w-xl p-6 bg-white border-4 shadow-lg" style={{ borderColor: INK }}>
+            <div className="mb-4 flex items-center justify-between">
+              <DialogTitle className={`${questDisplay.className} text-lg md:text-xl`} style={{ color: NAVY }}>
+                {selectedEvent?.name}
+              </DialogTitle>
+              <DialogClose className="btn-ghost p-1 hover:opacity-75" aria-label="Close">
+                <X size={20} style={{ color: NAVY }} />
+              </DialogClose>
+            </div>
+            <DialogDescription className="space-y-4 text-left">
               <div className="flex items-center gap-3">
                 <span
-                  className={`${questDisplay.className} flex size-10 items-center justify-center border-2 text-[12px]`}
+                  className={`${questDisplay.className} flex size-10 items-center justify-center border-2 text-[12px] text-white`}
                   style={{ background: selectedEvent?.color, borderColor: INK }}
                 >
                   {selectedEvent?.index}
                 </span>
                 <div>
-                  <p className={`${questBody.className} text-sm font-medium opacity-80`}>
+                  <p className={`${questBody.className} text-sm font-bold`} style={{ color: NAVY }}>
                     {selectedEvent?.format} • {selectedEvent?.fee}
                   </p>
                   {selectedEvent?.prizePool && (
-                    <p className={`${questBody.className} mt-1 text-xs font-bold`} style={{ color: PINK }}>
+                    <p className={`${questBody.className} mt-0.5 text-xs font-bold`} style={{ color: PINK }}>
                       Prize Pool: {selectedEvent?.prizePool}
                     </p>
                   )}
                 </div>
               </div>
+
               {selectedEvent && EVENT_ROUNDS[selectedEvent.id] ? (
-                <>
-                  <p className={`${questBody.className} mt-4 text-base font-bold`} style={{ color: NAVY }}>
-                    Rounds
+                <div className="mt-4">
+                  <p className={`${questDisplay.className} text-xs uppercase tracking-widest mb-3`} style={{ color: VERMILION }}>
+                    Round Details
                   </p>
-                  {EVENT_ROUNDS[selectedEvent.id].map((round, idx) => (
-                    <div key={idx} className="mb-4">
-                      <button
-                        onClick={() => setExpandedRound(expandedRound === round.title ? null : round.title)}
-                        className={`w-full text-left rounded border border-neutral-800 bg-neutral-900 p-3 ${expandedRound === round.title ? 'border-amber-400 bg-amber-900' : ''}`}
-                      >
-                        <div className="flex justify-between">
-                          <span className={questDisplay.className}>{round.title}</span>
-                          {expandedRound === round.title ? <X size={16} className="ml-2" /> : <ChevronDown size={16} className="ml-2" />}
-                        </div>
-                      </button>
-                      {expandedRound === round.title && (
-                        <div className="mt-3 p-3 rounded border border-neutral-700 bg-neutral-800">
-                          <p className={questBody.className}>{round.content.split('\\n').map((line, i) => (
-                            <React.Fragment key={i}>
-                              {line}
-                              <br />
-                            </React.Fragment>
-                          ))}</p>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </>
+                  <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto pr-1">
+                    {EVENT_ROUNDS[selectedEvent.id].map((round, idx) => (
+                      <div key={idx} className="w-full">
+                        <button
+                          type="button"
+                          onClick={() => setExpandedRound(expandedRound === round.title ? null : round.title)}
+                          className="w-full text-left p-3 border-2 transition-all flex items-center justify-between hover:bg-neutral-50"
+                          style={{
+                            borderColor: INK,
+                            background: expandedRound === round.title ? selectedEvent.color : "#FFFDF6",
+                            color: expandedRound === round.title ? "#fff" : NAVY,
+                          }}
+                        >
+                          <span className={`${questDisplay.className} text-xs font-bold uppercase tracking-wider`}>{round.title}</span>
+                          {expandedRound === round.title ? <X size={16} /> : <ChevronDown size={16} />}
+                        </button>
+                        {expandedRound === round.title && (
+                          <div
+                            className="p-3 border-2 border-t-0"
+                            style={{ borderColor: INK, background: "#FFFDF6", color: NAVY }}
+                          >
+                            <p className={`${questBody.className} text-xs leading-relaxed`}>
+                              {round.content.split('\\n').map((line, i) => (
+                                <React.Fragment key={i}>
+                                  {line}
+                                  <br />
+                                </React.Fragment>
+                              ))}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
               ) : (
-                <p className={`${questBody.className} text-lg leading-relaxed opacity-90`} style={{ color: NAVY }}>
+                <p className={`${questBody.className} text-sm leading-relaxed opacity-90`} style={{ color: NAVY }}>
                   {selectedEvent?.description}
                 </p>
               )}
-          </DialogDescription>
-        </div>
+            </DialogDescription>
+
+            {/* Footer with actions */}
+            <div className="mt-6 flex items-center justify-end gap-3 border-t-2 pt-4" style={{ borderColor: INK }}>
+              <DialogClose asChild>
+                <button
+                  type="button"
+                  className={`${questBody.className} border-2 px-5 py-2.5 text-xs font-bold uppercase hover:bg-neutral-50`}
+                  style={{ borderColor: INK, color: NAVY, background: "#FFFDF6" }}
+                >
+                  Back
+                </button>
+              </DialogClose>
+              {selectedEvent && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    setSelectedEvent(null)
+                    handleRegisterClick(selectedEvent, e)
+                  }}
+                  className={`${questBody.className} border-2 px-5 py-2.5 text-xs font-bold uppercase text-white hover:opacity-90 flex items-center gap-1.5`}
+                  style={{ background: selectedEvent.color, borderColor: INK }}
+                >
+                  Register Now <ArrowRight size={14} />
+                </button>
+              )}
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </>

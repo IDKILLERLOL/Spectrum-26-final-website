@@ -13,8 +13,6 @@ export interface EmailMessage {
  * system-stored OAuth access token from Firestore ('systemConfig/gmail').
  */
 export async function sendEmail(message: EmailMessage, tokenOverride?: string | null): Promise<boolean> {
-  const db = getDb()
-
   let token = tokenOverride || null
   if (!token) {
     try {
@@ -44,30 +42,35 @@ export async function sendEmail(message: EmailMessage, tokenOverride?: string | 
       }
 
       if (!token) {
-        const doc = await db.collection("systemConfig").doc("gmail").get()
-        if (doc.exists) {
-          const docData = doc.data()
-          token = docData?.token || null
-          const docClientId = docData?.clientId || clientId
-          const docClientSecret = docData?.clientSecret || clientSecret
-          const docRefreshToken = docData?.refreshToken || refreshToken
+        try {
+          const db = getDb()
+          const doc = await db.collection("systemConfig").doc("gmail").get()
+          if (doc.exists) {
+            const docData = doc.data()
+            token = docData?.token || null
+            const docClientId = docData?.clientId || clientId
+            const docClientSecret = docData?.clientSecret || clientSecret
+            const docRefreshToken = docData?.refreshToken || refreshToken
 
-          if (!token && docRefreshToken && docClientId && docClientSecret) {
-            const refreshRes = await fetch("https://oauth2.googleapis.com/token", {
-              method: "POST",
-              headers: { "Content-Type": "application/x-www-form-urlencoded" },
-              body: new URLSearchParams({
-                client_id: docClientId,
-                client_secret: docClientSecret,
-                refresh_token: docRefreshToken,
-                grant_type: "refresh_token",
-              }),
-            })
-            const refreshData = await refreshRes.json()
-            if (refreshRes.ok && refreshData.access_token) {
-              token = refreshData.access_token
+            if (!token && docRefreshToken && docClientId && docClientSecret) {
+              const refreshRes = await fetch("https://oauth2.googleapis.com/token", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: new URLSearchParams({
+                  client_id: docClientId,
+                  client_secret: docClientSecret,
+                  refresh_token: docRefreshToken,
+                  grant_type: "refresh_token",
+                }),
+              })
+              const refreshData = await refreshRes.json()
+              if (refreshRes.ok && refreshData.access_token) {
+                token = refreshData.access_token
+              }
             }
           }
+        } catch (dbErr) {
+          console.warn("[email] Failed to retrieve Gmail config from Firestore:", dbErr)
         }
       }
     } catch (err) {
