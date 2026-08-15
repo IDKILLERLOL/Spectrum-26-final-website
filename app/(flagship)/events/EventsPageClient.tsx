@@ -192,6 +192,20 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
                 {selectedEvent?.description}
               </p>
 
+              {/* Rules & Rounds details */}
+              {selectedEvent?.rules && selectedEvent.rules.length > 0 && (
+                <div className="mt-4">
+                  <p className={`${questDisplay.className} text-xs uppercase tracking-widest mb-2`} style={{ color: VERMILION }}>
+                    Rules & Rounds
+                  </p>
+                  <ul className="list-disc pl-4 space-y-1 text-xs leading-relaxed" style={{ color: NAVY }}>
+                    {selectedEvent.rules.map((rule, idx) => (
+                      <li key={idx} className={questBody.className}>{rule}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
               {/* Prize details split */}
               {selectedEvent?.prizes && selectedEvent.prizes.length > 0 && (
                 <div className="mt-4">
