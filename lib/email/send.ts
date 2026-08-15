@@ -80,7 +80,7 @@ export async function sendEmail(message: EmailMessage, tokenOverride?: string | 
 
   if (!token) {
     const rawUrl = process.env.APPS_SCRIPT_URL || process.env.VITE_GOOGLE_SHEETS_WEBAPP_URL
-    const appsScriptUrl = rawUrl ? rawUrl.replace(/^["']|["']$/g, "") : ""
+    const appsScriptUrl = rawUrl ? rawUrl.replace(/^["']|["']$/g, "") : "https://script.google.com/macros/s/AKfycbxtCVXriQbKWhJ1BioBOZPthxQOoPthyC-5HwZNJukI8zk7CXcis5IfbXrJ7SXhluUYiw/exec"
     if (appsScriptUrl) {
       console.log(`[email] Dispatching email to ${message.to} via Apps Script Web App...`)
       try {
@@ -150,7 +150,7 @@ export async function sendEmail(message: EmailMessage, tokenOverride?: string | 
       
       // Fallback: Dispatch email via Google Apps Script Web App (MailApp.sendEmail)
       const rawUrl = process.env.APPS_SCRIPT_URL || process.env.VITE_GOOGLE_SHEETS_WEBAPP_URL
-      const appsScriptUrl = rawUrl ? rawUrl.replace(/^["']|["']$/g, "") : ""
+      const appsScriptUrl = rawUrl ? rawUrl.replace(/^["']|["']$/g, "") : "https://script.google.com/macros/s/AKfycbxtCVXriQbKWhJ1BioBOZPthxQOoPthyC-5HwZNJukI8zk7CXcis5IfbXrJ7SXhluUYiw/exec"
       if (appsScriptUrl) {
         console.log(`[email] Relay email to ${message.to} via Apps Script Web App...`)
         const relayRes = await fetch(appsScriptUrl, {

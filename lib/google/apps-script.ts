@@ -9,18 +9,18 @@ import "server-only"
  */
 export async function syncToSheet(payload: object): Promise<boolean> {
   const rawUrl = process.env.APPS_SCRIPT_URL || process.env.VITE_GOOGLE_SHEETS_WEBAPP_URL
-  const url = rawUrl ? rawUrl.replace(/^["']|["']$/g, "") : ""
-  if (!url) {
-    console.warn("[apps-script] APPS_SCRIPT_URL not configured, skipping sync.")
-    return false
-  }
+  const url = rawUrl ? rawUrl.replace(/^["']|["']$/g, "") : "https://script.google.com/macros/s/AKfycbxtCVXriQbKWhJ1BioBOZPthxQOoPthyC-5HwZNJukI8zk7CXcis5IfbXrJ7SXhluUYiw/exec"
 
   try {
     let spreadsheetId = process.env.GOOGLE_SHEETS_ID || process.env.VITE_GOOGLE_SHEETS_ID || ""
+    if (spreadsheetId === "undefined" || spreadsheetId === "null") {
+      spreadsheetId = ""
+    }
     if (!spreadsheetId) {
       try {
-        const { getSystemSpreadsheetId } = await import("@/lib/server/firestore-registrations")
-        spreadsheetId = (await getSystemSpreadsheetId()) || ""
+        const { getSettings } = await import("@/lib/server/firestore-settings")
+        const settings = await getSettings()
+        spreadsheetId = settings?.sheetId || ""
       } catch {
         // Fallback ignored
       }
@@ -41,18 +41,18 @@ export async function syncToSheet(payload: object): Promise<boolean> {
 
 export async function fetchFromSheet(): Promise<any[]> {
   const rawUrl = process.env.APPS_SCRIPT_URL || process.env.VITE_GOOGLE_SHEETS_WEBAPP_URL
-  const url = rawUrl ? rawUrl.replace(/^["']|["']$/g, "") : ""
-  if (!url) {
-    console.warn("[apps-script] APPS_SCRIPT_URL not configured.")
-    return []
-  }
+  const url = rawUrl ? rawUrl.replace(/^["']|["']$/g, "") : "https://script.google.com/macros/s/AKfycbxtCVXriQbKWhJ1BioBOZPthxQOoPthyC-5HwZNJukI8zk7CXcis5IfbXrJ7SXhluUYiw/exec"
 
   try {
     let spreadsheetId = process.env.GOOGLE_SHEETS_ID || process.env.VITE_GOOGLE_SHEETS_ID || ""
+    if (spreadsheetId === "undefined" || spreadsheetId === "null") {
+      spreadsheetId = ""
+    }
     if (!spreadsheetId) {
       try {
-        const { getSystemSpreadsheetId } = await import("@/lib/server/firestore-registrations")
-        spreadsheetId = (await getSystemSpreadsheetId()) || ""
+        const { getSettings } = await import("@/lib/server/firestore-settings")
+        const settings = await getSettings()
+        spreadsheetId = settings?.sheetId || ""
       } catch {
         // Fallback ignored
       }
