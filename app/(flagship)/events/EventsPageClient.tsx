@@ -135,8 +135,10 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
         <DialogTrigger asChild>
           <div />
         </DialogTrigger>
-        <DialogContent className="w-full max-w-lg sm:max-w-xl p-6 bg-white border-4 shadow-lg"
-                       style={{ borderColor: INK }}>
+        <DialogContent className="fixed inset-0 z-50 flex items-center justify-center"
+               aria-hidden={!selectedEvent}>
+  <div className="relative w-full max-w-lg sm:max-w-xl p-6 bg-white border-4 shadow-lg"
+       style={{ borderColor: INK }}>
           <div className="mb-4">
             <DialogTitle className={questDisplay.className} style={{ color: NAVY }}>
               {selectedEvent?.name}
@@ -210,6 +212,7 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
               </button>
             </div>
           </DialogDescription>
+        </div>
         </DialogContent>
       </Dialog>
     </>
