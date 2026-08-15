@@ -78,9 +78,11 @@ function MarigoldGarland() {
   )
 }
 
-/** "HORN PLEASE" style infinite ticker — truck-back nostalgia, carries the event date/venue. */
 function Marquee() {
   const reduced = useReducedMotion()
+  const content = (
+    <>HORN PLEASE <Megaphone size={12} className="inline" /> {site.date} <Megaphone size={12} className="inline" /> {site.venue} <Megaphone size={12} className="inline" />{" "}</>
+  )
   return (
     <div
       className="relative w-full overflow-hidden border-y-4 py-2.5 my-6 lg:py-3"
@@ -89,14 +91,13 @@ function Marquee() {
       <motion.div
         className={`${questBody.className} flex whitespace-nowrap text-xs font-bold uppercase tracking-widest lg:text-sm`}
         animate={reduced ? undefined : { x: ["0%", "-50%"] }}
-        transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+        transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
       >
-        <span className="px-4">
-          <>HORN PLEASE <Megaphone size={12} className="inline" /> {site.date} <Megaphone size={12} className="inline" /> {site.venue} <Megaphone size={12} className="inline" />{" "}</>
-        </span>
-        <span className="px-4">
-          <>HORN PLEASE <Megaphone size={12} className="inline" /> {site.date} <Megaphone size={12} className="inline" /> {site.venue} <Megaphone size={12} className="inline" />{" "}</>
-        </span>
+        {Array.from({ length: 8 }).map((_, i) => (
+          <span key={i} className="px-8">
+            {content}
+          </span>
+        ))}
       </motion.div>
     </div>
   )
