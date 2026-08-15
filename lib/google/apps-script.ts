@@ -48,6 +48,16 @@ export async function getServiceAccountToken(): Promise<string | null> {
   }
 }
 
+function formatDateTime(date: Date): string {
+  const d = date.getDate()
+  const m = date.getMonth() + 1
+  const y = date.getFullYear()
+  const hrs = String(date.getHours()).padStart(2, "0")
+  const mins = String(date.getMinutes()).padStart(2, "0")
+  const secs = String(date.getSeconds()).padStart(2, "0")
+  return `${d}/${m}/${y}, ${hrs}:${mins}:${secs}`
+}
+
 /**
  * POSTs a row payload to the Google Apps Script Web App, which appends it to
  * the linked Spreadsheet as an offline, immutable ledger of transactions.
@@ -100,6 +110,9 @@ export async function syncToSheet(payload: object): Promise<boolean> {
       let rowsToAppend: any[][] = []
       const p = payload as any
       if (p.type === "registration") {
+        const parsedDate = new Date(p.createdAt || Date.now())
+        const formattedDate = formatDateTime(parsedDate)
+
         // Leader row
         rowsToAppend.push([
           p.eventName || "",
@@ -113,7 +126,7 @@ export async function syncToSheet(payload: object): Promise<boolean> {
           p.paymentRefId || "",
           "", // Screenshot
           "No", // Checked In
-          p.createdAt || new Date().toISOString()
+          formattedDate
         ])
         // Member rows
         if (p.teamMembers && Array.isArray(p.teamMembers)) {
@@ -130,7 +143,7 @@ export async function syncToSheet(payload: object): Promise<boolean> {
               p.paymentRefId || "",
               "", // Screenshot
               "No", // Checked In
-              p.createdAt || new Date().toISOString()
+              formattedDate
             ])
           }
         }
