@@ -37,26 +37,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   })
 
   // Fire-and-forget: a Sheets outage should never block the admin's approve/reject action.
-  syncToSheet(
-    buildRegistrationRow({
-      type: "registration",
-      id,
-      fullName: existing.fullName,
-      email: existing.userEmail,
-      eventName: existing.eventName,
-      teamSize: existing.teamSize,
-      paymentRefId: existing.paymentRefId,
-      amountPaid: existing.amountPaid,
-      paymentStatus: body.status,
-      createdAt: existing.createdAt
-        ? (typeof (existing.createdAt as any).toDate === "function"
-          ? (existing.createdAt as any).toDate().toISOString()
-          : new Date(existing.createdAt as any).toISOString())
-        : new Date().toISOString(),
-    })
-  )
-    .then((ok) => setSheetsSyncStatus(id, ok ? "SYNCED" : "FAILED"))
-    .catch(() => setSheetsSyncStatus(id, "FAILED"))
+
 
   const clientToken = request.headers.get("X-Gmail-Token")
   if (clientToken) {

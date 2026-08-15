@@ -4,8 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import type { SpectrumEvent } from "@/content/spectrum"
 import { site } from "@/content/spectrum"
-import { EVENT_ROUNDS } from "@/content/spectrum"
-import { Trophy, ArrowRight, X, ChevronDown } from "lucide-react"
+import { Trophy, ArrowRight, X } from "lucide-react"
 import { Card } from "@/components/flagship/Card"
 import { PageHeader } from "@/components/flagship/PageHeader"
 import { PageContainer } from "@/components/flagship/PageContainer"
@@ -38,7 +37,6 @@ function StallAwning({ color }: { color: string }) {
 export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
   const { openQuest } = useQuest()
   const [selectedEvent, setSelectedEvent] = React.useState<SpectrumEvent | null>(null)
-  const [expandedRound, setExpandedRound] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     events.forEach((ev) => trackEventCardView(ev.id, ev.name))
@@ -168,51 +166,9 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
                 </div>
               </div>
 
-              {selectedEvent && EVENT_ROUNDS[selectedEvent.id] ? (
-                <div className="mt-4">
-                  <p className={`${questDisplay.className} text-xs uppercase tracking-widest mb-3`} style={{ color: VERMILION }}>
-                    Round Details
-                  </p>
-                  <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto pr-1">
-                    {EVENT_ROUNDS[selectedEvent.id].map((round, idx) => (
-                      <div key={idx} className="w-full">
-                        <button
-                          type="button"
-                          onClick={() => setExpandedRound(expandedRound === round.title ? null : round.title)}
-                          className="w-full text-left p-3 border-2 transition-all flex items-center justify-between hover:bg-neutral-50"
-                          style={{
-                            borderColor: INK,
-                            background: expandedRound === round.title ? selectedEvent.color : "#FFFDF6",
-                            color: expandedRound === round.title ? "#fff" : NAVY,
-                          }}
-                        >
-                          <span className={`${questDisplay.className} text-xs font-bold uppercase tracking-wider`}>{round.title}</span>
-                          {expandedRound === round.title ? <X size={16} /> : <ChevronDown size={16} />}
-                        </button>
-                        {expandedRound === round.title && (
-                          <div
-                            className="p-3 border-2 border-t-0"
-                            style={{ borderColor: INK, background: "#FFFDF6", color: NAVY }}
-                          >
-                            <p className={`${questBody.className} text-xs leading-relaxed`}>
-                              {round.content.split('\\n').map((line, i) => (
-                                <React.Fragment key={i}>
-                                  {line}
-                                  <br />
-                                </React.Fragment>
-                              ))}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <p className={`${questBody.className} text-sm leading-relaxed opacity-90`} style={{ color: NAVY }}>
-                  {selectedEvent?.description}
-                </p>
-              )}
+              <p className={`${questBody.className} text-sm leading-relaxed opacity-90`} style={{ color: NAVY }}>
+                {selectedEvent?.description}
+              </p>
 
               {/* Prize details split */}
               {selectedEvent?.prizes && selectedEvent.prizes.length > 0 && (

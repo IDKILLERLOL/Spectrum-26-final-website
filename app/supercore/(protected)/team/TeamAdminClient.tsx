@@ -101,13 +101,41 @@ export function TeamAdminClient({ initialMembers }: { initialMembers: TeamMember
     setDeletingId(id)
     setError(null)
 
+    // Store current members state in case we need to revert
+    const prevMembers = [...members]
+
     try {
       const res = await fetch(`/api/admin/team/${id}`, { method: "DELETE" })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error ?? "Failed to delete member.")
+
+      // Optimistically remove from list
       setMembers((prev) => prev.filter((m) => m.id !== id))
+
+      // Refresh list from server to ensure consistency
+      const listRes = await fetch("/api/admin/team")
+      if (listRes.ok) {
+        const listData = await listRes.json()
+        if (listData) {
+          // Check if the deleted member is still in the list (meaning deletion didn't persist)
+          const stillExists = listData.some((m: { id: string }) => m.id === id)
+          if (stillExists) {
+            // Deletion didn't persist, revert optimistic update and show error
+            setMembers(prevMembers)
+            throw new Error("Deletion did not persist. Please try again.")
+          }
+          // Deletion persisted, update with server list (should be same as optimistic)
+          setMembers(listData)
+        }
+      } else {
+        setError("Failed to refresh team member list.")
+        // Revert optimistic update on failure to refresh
+        setMembers(prevMembers)
+      }
     } catch (err: unknown) {
       setError((err as Error).message)
+      // Revert optimistic update on any error
+      setMembers(prevMembers)
     } finally {
       setDeletingId(null)
     }

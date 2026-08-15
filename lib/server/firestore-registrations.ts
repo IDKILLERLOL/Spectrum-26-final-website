@@ -1,6 +1,6 @@
 import "server-only"
 import { Timestamp } from "firebase-admin/firestore"
-import { getDb } from "@/lib/firebase/admin"
+import { getDb, isAdminConfigured } from "@/lib/firebase/admin"
 import { hashRegistrationKey } from "./hash-email"
 import type { FirestoreRegistration, PaymentStatus } from "@/types/firestore"
 import type { RegistrationInput } from "@/lib/validation/registration"
@@ -26,6 +26,9 @@ interface CreateRegistrationInput extends RegistrationInput {
  * race condition — this is atomic at the Firestore level.
  */
 export async function createRegistration(input: CreateRegistrationInput): Promise<string> {
+  if (!isAdminConfigured()) {
+    throw new Error("Firebase Admin SDK not configured. Check FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY.")
+  }
   const db = getDb()
   const id = hashRegistrationKey(input.eventId, input.email)
   const ref = db.collection(COLLECTION).doc(id)
@@ -66,6 +69,9 @@ export async function createRegistration(input: CreateRegistrationInput): Promis
 }
 
 export async function getRegistration(id: string): Promise<(FirestoreRegistration & { id: string }) | null> {
+  if (!isAdminConfigured()) {
+    throw new Error("Firebase Admin SDK not configured. Check FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY.")
+  }
   const db = getDb()
   const doc = await db.collection(COLLECTION).doc(id).get()
   if (!doc.exists) return null
@@ -139,6 +145,9 @@ export async function listRegistrations(filters?: {
   eventId?: string
   paymentStatus?: PaymentStatus
 }): Promise<(FirestoreRegistration & { id: string })[]> {
+  if (!isAdminConfigured()) {
+    throw new Error("Firebase Admin SDK not configured. Check FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY.")
+  }
   const db = getDb()
 
   // Return cached result if within TTL

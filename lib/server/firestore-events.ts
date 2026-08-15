@@ -73,28 +73,34 @@ function toSpectrumEvent(id: string, doc: FirestoreEvent): SpectrumEvent {
  * this keeps the public site working throughout backend setup instead of 500ing.
  */
 export async function getEvents(): Promise<SpectrumEvent[]> {
-  if (!isAdminConfigured()) return staticEvents
+  if (!isAdminConfigured()) {
+    console.warn("[getEvents] Firebase Admin SDK not configured. Returning empty array.")
+    return []
+  }
 
   try {
     const snap = await getDb().collection(COLLECTION).orderBy("order", "asc").get()
-    if (snap.empty) return staticEvents
+    if (snap.empty) return []
     return snap.docs.map((d) => toSpectrumEvent(d.id, d.data() as FirestoreEvent))
   } catch (err) {
-    console.error("[firestore-events] getEvents failed, falling back to static data:", err)
-    return staticEvents
+    console.error("[firestore-events] getEvents failed:", err)
+    return []
   }
 }
 
 export async function getEvent(id: string): Promise<SpectrumEvent | null> {
-  if (!isAdminConfigured()) return staticEvents.find((e) => e.id === id) ?? null
+  if (!isAdminConfigured()) {
+    console.warn(`[getEvent] Firebase Admin SDK not configured for id ${id}. Returning null.`)
+    return null
+  }
 
   try {
     const doc = await getDb().collection(COLLECTION).doc(id).get()
-    if (!doc.exists) return staticEvents.find((e) => e.id === id) ?? null
+    if (!doc.exists) return null
     return toSpectrumEvent(doc.id, doc.data() as FirestoreEvent)
   } catch (err) {
-    console.error("[firestore-events] getEvent failed, falling back to static data:", err)
-    return staticEvents.find((e) => e.id === id) ?? null
+    console.error(`[firestore-events] getEvent failed for id ${id}:`, err)
+    return null
   }
 }
 
@@ -125,6 +131,9 @@ export interface CreateEventInput {
 
 /** Admin write: doc ID is either an explicit `id`, or a slug derived from `name`. */
 export async function createEvent(input: CreateEventInput): Promise<string> {
+  if (!isAdminConfigured()) {
+    throw new Error("Firebase Admin SDK not configured. Check FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY.")
+  }
   const db = getDb()
   const id = input.id?.trim() || slugify(input.name)
   const now = Timestamp.now()
@@ -167,6 +176,9 @@ export async function createEvent(input: CreateEventInput): Promise<string> {
 }
 
 export async function updateEvent(id: string, patch: Partial<Omit<CreateEventInput, "id">>): Promise<void> {
+  if (!isAdminConfigured()) {
+    throw new Error("Firebase Admin SDK not configured. Check FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY.")
+  }
   const { registrationEndsAt, ...rest } = patch
   const update: Record<string, unknown> = { ...rest, updatedAt: Timestamp.now() }
   delete update.id // Ensure we do not write document id as a normal field during updates
@@ -182,5 +194,8 @@ export async function updateEvent(id: string, patch: Partial<Omit<CreateEventInp
 }
 
 export async function deleteEvent(id: string): Promise<void> {
+  if (!isAdminConfigured()) {
+    throw new Error("Firebase Admin SDK not configured. Check FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY.")
+  }
   await getDb().collection(COLLECTION).doc(id).delete()
 }

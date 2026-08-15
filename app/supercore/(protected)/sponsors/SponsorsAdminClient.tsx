@@ -116,20 +116,42 @@ export function SponsorsAdminClient({ initialSponsors }: { initialSponsors: Spon
     setDeletingId(id)
     setError(null)
 
+    // Store current sponsors state in case we need to revert
+    const prevSponsors = [...sponsors]
+
     try {
       const res = await fetch(`/api/admin/sponsors/${id}`, { method: "DELETE" })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error ?? "Failed to delete sponsor.")
 
+      // Optimistically remove from list
       setSponsors((prev) => prev.filter((s) => s.id !== id))
+
+      // Refresh list from server to ensure consistency
       const listRes = await fetch("/api/admin/sponsors")
-      const listData = await listRes.json()
-      if (listRes.ok && listData.sponsors) {
-        setSponsors(listData.sponsors)
+      if (listRes.ok) {
+        const listData = await listRes.json()
+        if (listData.sponsors) {
+          // Check if the deleted sponsor is still in the list (meaning deletion didn't persist)
+          const stillExists = listData.sponsors.some((s: SponsorItem) => s.id === id)
+          if (stillExists) {
+            // Deletion didn't persist, revert optimistic update and show error
+            setSponsors(prevSponsors)
+            throw new Error("Deletion did not persist. Please try again.")
+          }
+          // Deletion persisted, update with server list (should be same as optimistic)
+          setSponsors(listData.sponsors)
+        }
+        startTransition(() => router.refresh())
+      } else {
+        setError("Failed to refresh sponsor list.")
+        // Revert optimistic update on failure to refresh
+        setSponsors(prevSponsors)
       }
-      startTransition(() => router.refresh())
     } catch (err: any) {
       setError(err.message || "Failed to delete sponsor.")
+      // Revert optimistic update on any error
+      setSponsors(prevSponsors)
     } finally {
       setDeletingId(null)
     }
