@@ -74,17 +74,46 @@ function toSpectrumEvent(id: string, doc: FirestoreEvent): SpectrumEvent {
  */
 export async function getEvents(): Promise<SpectrumEvent[]> {
   if (!isAdminConfigured()) {
-    console.warn("[getEvents] Firebase Admin SDK not configured. Returning empty array.")
-    return []
+    console.warn("[getEvents] Firebase Admin SDK not configured. Returning static fallback.")
+    return staticEvents
   }
 
   try {
-    const snap = await getDb().collection(COLLECTION).orderBy("order", "asc").get()
-    if (snap.empty) return []
-    return snap.docs.map((d) => toSpectrumEvent(d.id, d.data() as FirestoreEvent))
+    const snap = await getDb().collection(COLLECTION).get()
+    
+    // Create a map of database documents
+    const dbEventsMap = new Map<string, any>()
+    snap.docs.forEach((d) => {
+      dbEventsMap.set(d.id, d.data())
+    })
+
+    const mergedEvents: SpectrumEvent[] = []
+    
+    // 1. Merge static default events (overwritten by DB changes if they exist, unless soft-deleted)
+    for (const staticEv of staticEvents) {
+      if (dbEventsMap.has(staticEv.id)) {
+        const dbDoc = dbEventsMap.get(staticEv.id)
+        if (!dbDoc.deleted) {
+          mergedEvents.push(toSpectrumEvent(staticEv.id, dbDoc as FirestoreEvent))
+        }
+        dbEventsMap.delete(staticEv.id) // Remove to avoid duplicate processing
+      } else {
+        mergedEvents.push(staticEv)
+      }
+    }
+
+    // 2. Add remaining custom events created via the database
+    for (const [docId, dbDoc] of dbEventsMap.entries()) {
+      if (!dbDoc.deleted) {
+        mergedEvents.push(toSpectrumEvent(docId, dbDoc as FirestoreEvent))
+      }
+    }
+
+    // 3. Sort by order ascending
+    return mergedEvents.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
   } catch (err) {
-    console.error("[firestore-events] getEvents failed:", err)
-    return []
+    console.error("[firestore-events] getEvents failed, returning static fallback:", err)
+    return staticEvents
   }
 }
 
@@ -197,5 +226,12 @@ export async function deleteEvent(id: string): Promise<void> {
   if (!isAdminConfigured()) {
     throw new Error("Firebase Admin SDK not configured. Check FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY.")
   }
-  await getDb().collection(COLLECTION).doc(id).delete()
+  const isStatic = staticEvents.some((e) => e.id === id)
+  if (isStatic) {
+    // Write soft delete / tombstone document to Firestore so it does not fall back to static
+    await getDb().collection(COLLECTION).doc(id).set({ id, deleted: true, updatedAt: Timestamp.now() })
+  } else {
+    // Custom events can be deleted completely
+    await getDb().collection(COLLECTION).doc(id).delete()
+  }
 }
