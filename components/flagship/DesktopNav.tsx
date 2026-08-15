@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Home, Gamepad2, CalendarDays, MoreHorizontal } from "lucide-react"
+import { Home, Gamepad2, CalendarDays, MoreHorizontal, X } from "lucide-react"
 import { INK, VERMILION, MUSTARD, AGED_PAPER } from "./tokens"
 import { questDisplay, questBody } from "./fonts"
 
@@ -124,6 +124,16 @@ export function DesktopNav() {
           transform: isOpen ? "translateX(0)" : "translateX(100%)",
         }}
       >
+        <button
+          type="button"
+          onClick={() => setIsOpen(false)}
+          className="absolute top-4 right-4 flex items-center justify-center p-2 border-2 hover:bg-neutral-200 transition-colors"
+          style={{ borderColor: INK, background: AGED_PAPER }}
+          aria-label="Close menu"
+        >
+          <X size={18} color={INK} />
+        </button>
+
         <div className="flex flex-col gap-8 mt-12">
           <Link
             href="/"
