@@ -30,7 +30,7 @@ export async function createRegistration(input: CreateRegistrationInput): Promis
     throw new Error("Firebase Admin SDK not configured. Check FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY.")
   }
   const db = getDb()
-  const id = hashRegistrationKey(input.eventId, input.email)
+  const id = db.collection(COLLECTION).doc().id
   const ref = db.collection(COLLECTION).doc(id)
   const now = Timestamp.now()
 
@@ -56,14 +56,7 @@ export async function createRegistration(input: CreateRegistrationInput): Promis
     updatedAt: now,
   }
 
-  try {
-    await ref.create(doc)
-  } catch (err) {
-    const code = (err as { code?: number })?.code
-    // Firestore Admin SDK gRPC status 6 = ALREADY_EXISTS
-    if (code === 6) throw new DuplicateRegistrationError()
-    throw err
-  }
+  await ref.set(doc)
 
   return id
 }
