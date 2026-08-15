@@ -118,18 +118,26 @@ export async function getEvents(): Promise<SpectrumEvent[]> {
 }
 
 export async function getEvent(id: string): Promise<SpectrumEvent | null> {
+  const staticEv = staticEvents.find((e) => e.id === id)
+
   if (!isAdminConfigured()) {
-    console.warn(`[getEvent] Firebase Admin SDK not configured for id ${id}. Returning null.`)
-    return null
+    console.warn(`[getEvent] Firebase Admin SDK not configured for id ${id}. Returning static fallback if it exists.`)
+    return staticEv || null
   }
 
   try {
     const doc = await getDb().collection(COLLECTION).doc(id).get()
-    if (!doc.exists) return null
-    return toSpectrumEvent(doc.id, doc.data() as FirestoreEvent)
+    if (!doc.exists) {
+      return staticEv || null
+    }
+    const data = doc.data()
+    if (data?.deleted) {
+      return null
+    }
+    return toSpectrumEvent(doc.id, data as FirestoreEvent)
   } catch (err) {
     console.error(`[firestore-events] getEvent failed for id ${id}:`, err)
-    return null
+    return staticEv || null
   }
 }
 
