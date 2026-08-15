@@ -36,7 +36,31 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     metadata: { eventName: existing.eventName, userEmail: existing.userEmail },
   })
 
-  // Fire-and-forget: a Sheets outage should never block the admin's approve/reject action.
+  // Sync status updates to Google Sheets so the sheet is always in sync with the DB
+  try {
+    const createdAtStr = existing.createdAt instanceof Date 
+      ? existing.createdAt.toISOString() 
+      : (existing.createdAt as any)?.toDate?.()?.toISOString() || new Date().toISOString()
+
+    await syncToSheet(
+      buildRegistrationRow({
+        type: "registration",
+        id,
+        fullName: existing.fullName,
+        email: existing.userEmail,
+        eventName: existing.eventName,
+        teamSize: existing.teamSize,
+        paymentRefId: existing.paymentRefId,
+        amountPaid: existing.amountPaid,
+        paymentStatus: body.status,
+        createdAt: createdAtStr,
+      })
+    ).then((ok) => {
+      setSheetsSyncStatus(id, ok ? "SYNCED" : "FAILED")
+    })
+  } catch (err) {
+    console.error("[status route] sheets sync failed:", err)
+  }
 
 
   const clientToken = request.headers.get("X-Gmail-Token")
