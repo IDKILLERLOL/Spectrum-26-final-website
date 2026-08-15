@@ -73,41 +73,19 @@ export function SchedulePageClient({ schedule }: { schedule: ScheduleItem[] }) {
           />
 
           {tab === "schedule" && (
-            <Chalkboard className="md:p-8">
-              <p
-                className={`${questDisplay.className} mb-3 text-sm tracking-wide text-white/95`}
+            <Chalkboard className="md:p-8 flex flex-col items-center justify-center py-16 md:py-24 text-center">
+              <h2
+                className={`${questDisplay.className} text-4xl md:text-5xl text-white/95 tracking-wide`}
                 style={chalkGlow}
               >
-                {site.date}
+                30th September
+              </h2>
+              <p
+                className={`${questBody.className} mt-3 text-sm italic tracking-widest text-white/70 uppercase`}
+                style={chalkGlow}
+              >
+                to be announced soon
               </p>
-              <div className="flex flex-col gap-3">
-                {schedule.map((item, i) => (
-                  <div
-                    key={item.title}
-                    className={`flex items-baseline justify-between gap-3 ${i !== schedule.length - 1 ? "border-b border-dashed border-white/15 pb-3" : ""}`}
-                  >
-                    <span
-                      className={`${questBody.className} shrink-0 text-[11px] font-bold text-white/90`}
-                      style={chalkGlow}
-                    >
-                      {item.time}
-                    </span>
-                    <div className="flex-1 text-right">
-                      <p
-                        className={`${questDisplay.className} text-xs text-white/95`}
-                        style={chalkGlow}
-                      >
-                        {item.title}
-                      </p>
-                      <p
-                        className={`${questBody.className} text-[10px] italic text-white/70`}
-                      >
-                        {item.description}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
             </Chalkboard>
           )}
 
