@@ -66,39 +66,73 @@ function HeroBackground() {
 /** Strung row of marigold-orange circles along the top edge of the Hero — mela/wedding garland motif. */
 function MarigoldGarland() {
   return (
-    <div className="absolute top-0 left-0 right-0 z-10 flex h-10 overflow-hidden opacity-90 pointer-events-none lg:h-12">
-      {Array.from({ length: 80 }).map((_, i) => (
-        <div
-          key={i}
-          className="h-8 w-8 flex-shrink-0 rounded-full border-2 -ml-2 first:ml-0 shadow-sm lg:h-10 lg:w-10"
-          style={{ background: `radial-gradient(circle, #F4A300 40%, #D97700 80%)`, borderColor: "#A54A00" }}
-        />
-      ))}
+    <div className="absolute top-0 left-0 right-0 z-10 flex flex-col overflow-hidden opacity-90 pointer-events-none">
+      {/* Marigold beads */}
+      <div className="flex h-8 overflow-hidden lg:h-10">
+        {Array.from({ length: 80 }).map((_, i) => (
+          <div
+            key={i}
+            className="h-8 w-8 flex-shrink-0 rounded-full border-2 -ml-2 first:ml-0 shadow-sm lg:h-10 lg:w-10"
+            style={{ background: `radial-gradient(circle, #F4A300 40%, #D97700 80%)`, borderColor: "#A54A00" }}
+          />
+        ))}
+      </div>
     </div>
   )
 }
 
+/** "HORN PLEASE" style infinite ticker — truck-back nostalgia, carries the event date/venue. */
 function Marquee() {
   const reduced = useReducedMotion()
   const content = (
     <>HORN PLEASE <Megaphone size={12} className="inline" /> {site.date} <Megaphone size={12} className="inline" /> {site.venue} <Megaphone size={12} className="inline" />{" "}</>
   )
   return (
-    <div
-      className="relative w-full overflow-hidden border-y-4 py-2.5 my-6 lg:py-3"
-      style={{ borderColor: INK, background: MUSTARD, color: INK }}
-    >
-      <motion.div
-        className={`${questBody.className} flex whitespace-nowrap text-xs font-bold uppercase tracking-widest lg:text-sm`}
-        animate={reduced ? undefined : { x: ["0%", "-50%"] }}
-        transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-      >
-        {Array.from({ length: 8 }).map((_, i) => (
-          <span key={i} className="px-8">
-            {content}
-          </span>
+    <div className="w-full my-6 flex flex-col items-center">
+      {/* Top sawtooth border */}
+      <div className="w-full h-2.5 flex overflow-hidden pointer-events-none" style={{ background: CREAM }}>
+        {Array.from({ length: 120 }).map((_, i) => (
+          <div
+            key={i}
+            className="w-4 h-full flex-shrink-0"
+            style={{
+              background: i % 2 === 0 ? VERMILION : MUSTARD,
+              clipPath: "polygon(50% 100%, 0 0, 100% 0)",
+            }}
+          />
         ))}
-      </motion.div>
+      </div>
+
+      <div
+        className="relative w-full overflow-hidden border-y-4 py-2.5 lg:py-3"
+        style={{ borderColor: INK, background: MUSTARD, color: INK }}
+      >
+        <motion.div
+          className={`${questBody.className} flex whitespace-nowrap text-xs font-bold uppercase tracking-widest lg:text-sm`}
+          animate={reduced ? undefined : { x: ["0%", "-50%"] }}
+          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+        >
+          {Array.from({ length: 8 }).map((_, i) => (
+            <span key={i} className="px-8">
+              {content}
+            </span>
+          ))}
+        </motion.div>
+      </div>
+
+      {/* Bottom sawtooth border (inverted pointing up) */}
+      <div className="w-full h-2.5 flex overflow-hidden pointer-events-none" style={{ background: CREAM }}>
+        {Array.from({ length: 120 }).map((_, i) => (
+          <div
+            key={i}
+            className="w-4 h-full flex-shrink-0"
+            style={{
+              background: i % 2 === 0 ? VERMILION : MUSTARD,
+              clipPath: "polygon(50% 0, 0 100%, 100% 100%)",
+            }}
+          />
+        ))}
+      </div>
     </div>
   )
 }
@@ -148,13 +182,13 @@ function Hero() {
   const cd = useCountdown()
   const reduced = useReducedMotion()
   return (
-    <section className="relative overflow-hidden pb-12 pt-16 text-center sm:pt-20 lg:pb-16 min-h-[calc(100dvh-4rem)] flex flex-col justify-center items-center w-full">
+    <section className="relative overflow-hidden pb-4 pt-12 text-center sm:pb-12 sm:pt-20 lg:pb-16 min-h-0 sm:min-h-[calc(100dvh-4rem)] flex flex-col justify-center items-center w-full">
       <HeroBackground />
       <MarigoldGarland />
       <DdLoader />
 
       <motion.div
-        className="relative z-10 mx-auto w-[calc(100%-2rem)] max-w-[24rem] border-4 bg-white p-4 sm:p-6 lg:max-w-[46rem] lg:p-9"
+        className="relative z-10 mx-auto w-[calc(100%-1.5rem)] max-w-[26rem] border-4 bg-white p-8 min-h-[540px] flex flex-col justify-center gap-7 sm:p-6 sm:min-h-0 sm:block lg:max-w-[46rem] lg:p-9"
         style={{ borderColor: INK, boxShadow: hoardingShadow }}
         animate={reduced ? undefined : { rotate: [-1, 1, -1] }}
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
@@ -164,23 +198,25 @@ function Hero() {
         <div className="absolute bottom-1 left-1 w-4 h-4 border-b-4 border-l-4" style={{ borderColor: VERMILION }} />
         <div className="absolute bottom-1 right-1 w-4 h-4 border-b-4 border-r-4" style={{ borderColor: VERMILION }} />
 
-        <p className={`${questBody.className} text-[9px] uppercase tracking-[0.25em] sm:text-xs lg:text-sm`} style={{ color: NAVY }}>
-          {site.eyebrow}
-        </p>
-        <h1
-          className={`${questDisplay.className} text-3xl sm:text-4xl md:text-5xl lg:text-7xl`}
-          style={{ color: NAVY, lineHeight: 1.08, textShadow: `2px 2px 0px ${MUSTARD}, 4px 4px 0px ${INK}` }}
-        >
-          {site.shortName}
-          <br />
-          <span style={{ color: PINK }}>{site.version}</span>
-        </h1>
-        <p className={`${questBody.className} mx-auto mt-3 max-w-md text-xs leading-relaxed sm:text-sm lg:text-lg`} style={{ color: NAVY }}>
-          {site.tagline} {site.subTagline}
-        </p>
+        <div>
+          <p className={`${questBody.className} text-xs uppercase tracking-[0.25em] sm:text-xs lg:text-sm`} style={{ color: NAVY }}>
+            {site.eyebrow}
+          </p>
+          <h1
+            className={`${questDisplay.className} text-5xl sm:text-4xl md:text-5xl lg:text-7xl mt-3 sm:mt-1`}
+            style={{ color: NAVY, lineHeight: 1.08, textShadow: `2px 2px 0px ${MUSTARD}, 4px 4px 0px ${INK}` }}
+          >
+            {site.shortName}
+            <br />
+            <span style={{ color: PINK }}>{site.version}</span>
+          </h1>
+          <p className={`${questBody.className} mx-auto mt-4 sm:mt-3 max-w-md text-base leading-relaxed sm:text-sm lg:text-lg`} style={{ color: NAVY }}>
+            {site.tagline} {site.subTagline}
+          </p>
+        </div>
 
-        <Card className="mt-5 grid w-full grid-cols-4 gap-1 p-2.5 sm:gap-2 sm:p-4 text-center lg:mt-7 lg:p-6" style={{ boxShadow: questShadowLg }}>
-          <p className={`${questBody.className} col-span-4 mb-2 text-[10px] font-bold uppercase tracking-widest sm:text-xs lg:text-sm`} style={{ color: NAVY }}>
+        <Card className="mt-7 sm:mt-5 grid w-full grid-cols-4 gap-1 p-2.5 sm:gap-2 sm:p-4 text-center lg:mt-7 lg:p-6" style={{ boxShadow: questShadowLg }}>
+          <p className={`${questBody.className} col-span-4 mb-2 text-xs font-bold uppercase tracking-widest sm:text-[10px] lg:text-sm`} style={{ color: NAVY }}>
             The Battle Begins In
           </p>
           {[
@@ -190,27 +226,28 @@ function Hero() {
             ["Sec", cd.seconds],
           ].map(([label, value]) => (
             <div key={label as string} className="flex flex-col items-center justify-center">
-              <div className={questDisplay.className} style={{ color: NAVY, fontSize: "clamp(1.4rem, 3.5vw, 2.75rem)", lineHeight: 1.1 }}>
+              <div className={questDisplay.className} style={{ color: NAVY, fontSize: "clamp(2rem, 3.5vw, 2.75rem)", lineHeight: 1.1 }}>
                 {pad2(value as number)}
               </div>
-              <div className={`${questBody.className} mt-1 text-[8px] font-bold uppercase tracking-wider lg:text-xs opacity-75`} style={{ color: NAVY }}>
+              <div className={`${questBody.className} mt-1 text-[10px] font-bold uppercase tracking-wider sm:text-[8px] lg:text-xs opacity-75`} style={{ color: NAVY }}>
                 {label}
               </div>
             </div>
           ))}
         </Card>
+
+        {/* Buttons now moved inside the Hero card */}
+        <div className="mt-8 sm:mt-6 flex flex-col sm:flex-row gap-3 sm:gap-3 w-full">
+          <AppButton href="/events" className="flex-1 w-full py-4 text-base sm:py-3 sm:text-[10px] xs:sm:text-xs lg:py-4 lg:text-sm">
+            Explore Events
+          </AppButton>
+          <AppButton href="/schedule" variant="outline" className="flex-1 w-full py-4 text-base sm:py-3 sm:text-[10px] xs:sm:text-xs lg:py-4 lg:text-sm">
+            View Schedule
+          </AppButton>
+        </div>
       </motion.div>
 
       <Marquee />
-
-      <div className="mx-auto mt-6 flex flex-row w-[calc(100%-2rem)] max-w-[24rem] gap-2 sm:gap-3 lg:max-w-[46rem] lg:gap-4">
-        <AppButton href="/events" className="flex-1 px-2.5 py-3 text-[10px] xs:text-xs sm:text-sm lg:py-4 lg:text-sm">
-          Explore Events
-        </AppButton>
-        <AppButton href="/schedule" variant="outline" className="flex-1 px-2.5 py-3 text-[10px] xs:text-xs sm:text-sm lg:py-4 lg:text-sm">
-          View Schedule
-        </AppButton>
-      </div>
     </section>
   )
 }
@@ -240,7 +277,7 @@ function FeaturedEvents({ events }: { events: SpectrumEvent[] }) {
         {events.map((ev) => (
           <Link key={ev.id} href={`/register/info?event=${ev.id}`} className="block">
             <Card
-              className="relative flex flex-col justify-between p-4 pt-7 transition-all hover:-translate-y-0.5 hover:shadow-lg cursor-pointer h-full"
+              className="relative flex flex-col justify-between p-5 pt-8 min-h-[260px] sm:p-4 sm:pt-7 sm:min-h-0 transition-all hover:-translate-y-0.5 hover:shadow-lg cursor-pointer h-full"
               style={{ borderColor: ev.color }}
             >
               <EventAwning color={ev.color} />
