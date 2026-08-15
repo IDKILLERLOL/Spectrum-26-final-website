@@ -79,11 +79,11 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
           </div>
 
           {/* Events Grid */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4 lg:gap-5">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {events.map((ev) => (
               <Card
                 key={ev.id}
-                className="relative flex flex-col justify-between p-4 pt-7 transition-all hover:-translate-y-0.5 hover:shadow-lg cursor-pointer"
+                className="relative flex flex-col justify-between p-5 pt-8 transition-all hover:-translate-y-0.5 hover:shadow-lg cursor-pointer"
                 style={{ borderColor: ev.color }}
                 onClick={() => {
                   trackEventCardClick(ev.id, ev.name)
@@ -102,8 +102,8 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
                     Register
                   </span>
                 </div>
-                <div className="my-2">
-                  <p className={`${questBody.className} text-base font-bold`} style={{ color: NAVY }}>
+                <div className="my-3 flex-grow">
+                  <p className={`${questBody.className} text-lg font-bold`} style={{ color: NAVY }}>
                     {ev.name}
                   </p>
                   <p className={`${questBody.className} text-xs opacity-60`} style={{ color: NAVY }}>
@@ -114,11 +114,33 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
                       Prize Pool: {ev.prizePool}
                     </p>
                   )}
+
+                  {/* Round by Round details / Description */}
+                  <p className={`${questBody.className} mt-4 text-xs leading-relaxed opacity-85`} style={{ color: NAVY }}>
+                    {ev.description}
+                  </p>
+
+                  {/* Prizes Card inside the Event Card */}
+                  {ev.prizes && ev.prizes.length > 0 && (
+                    <div className="mt-4">
+                      <p className={`${questDisplay.className} text-[10px] uppercase tracking-widest mb-1.5`} style={{ color: VERMILION }}>
+                        Prizes
+                      </p>
+                      <div className="flex flex-col gap-1.5 border-2 border-dashed p-3 bg-[#FFFDF6]" style={{ borderColor: ev.color }}>
+                        {ev.prizes.map((p, idx) => (
+                          <div key={idx} className="flex justify-between items-center text-[10px] font-bold" style={{ color: NAVY }}>
+                            <span className={questBody.className}>{p.place}</span>
+                            <span className={questDisplay.className} style={{ color: PINK }}>{p.reward}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <button
                   type="button"
                   onClick={(e) => handleRegisterClick(ev, e)}
-                  className={`${questBody.className} flex items-center justify-center gap-1.5 w-full py-2 text-xs font-bold text-white border-2`}
+                  className={`${questBody.className} mt-4 flex items-center justify-center gap-1.5 w-full py-2.5 text-xs font-bold text-white border-2`}
                   style={{ background: ev.color, borderColor: INK }}
                 >
                   Register Now <ArrowRight size={14} />
