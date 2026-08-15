@@ -4,7 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import type { SpectrumEvent } from "@/content/spectrum"
 import { site } from "@/content/spectrum"
-import { Trophy, ArrowRight } from "lucide-react"
+import { Trophy, ArrowRight, X } from "lucide-react"
 import { Card } from "@/components/flagship/Card"
 import { PageHeader } from "@/components/flagship/PageHeader"
 import { PageContainer } from "@/components/flagship/PageContainer"
@@ -13,6 +13,7 @@ import { useQuest } from "@/components/flagship/quest-context"
 import { NAVY, INK, PINK, MUSTARD, VERMILION, hoardingShadow, softHoardingShadow } from "@/components/flagship/tokens"
 import { questDisplay, questBody } from "@/components/flagship/fonts"
 import { trackEventCardView, trackEventCardClick } from "@/lib/analytics/track"
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@radix-ui/react-dialog"
 
 /** Scalloped canvas awning strip — alternating the event's own accent colour with white. */
 function StallAwning({ color }: { color: string }) {
@@ -35,17 +36,23 @@ function StallAwning({ color }: { color: string }) {
 
 export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
   const { openQuest } = useQuest()
+  const [selectedEvent, setSelectedEvent] = React.useState<SpectrumEvent | null>(null)
 
   React.useEffect(() => {
     events.forEach((ev) => trackEventCardView(ev.id, ev.name))
   }, [events])
+
+  const handleRegisterClick = (ev: SpectrumEvent, e: React.MouseEvent) => {
+    e.stopPropagation()
+    openQuest(ev.id)
+  }
 
   return (
     <>
       <PageHeader title="Events & Prizes" subtitle="Choose your battleground and register now." back={false} />
       <PageContainer width="wide">
         <div className="flex flex-col gap-8 px-5 py-6">
-          
+
           {/* Merged Prize Pool Hero Section */}
           <div className="mx-auto w-full max-w-2xl flex flex-col sm:flex-row items-center gap-6 border-4 bg-white p-6 rounded-lg"
                style={{ borderColor: INK, boxShadow: hoardingShadow }}>
@@ -80,7 +87,7 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
                 style={{ borderColor: ev.color }}
                 onClick={() => {
                   trackEventCardClick(ev.id, ev.name)
-                  openQuest(ev.id)
+                  setSelectedEvent(ev)
                 }}
               >
                 <StallAwning color={ev.color} />
@@ -110,10 +117,7 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
                 </div>
                 <button
                   type="button"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    openQuest(ev.id)
-                  }}
+                  onClick={(e) => handleRegisterClick(ev, e)}
                   className={`${questBody.className} flex items-center justify-center gap-1.5 w-full py-2 text-xs font-bold text-white border-2`}
                   style={{ background: ev.color, borderColor: INK }}
                 >
@@ -125,6 +129,89 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
 
         </div>
       </PageContainer>
+
+      {/* Event Details Modal */}
+      <Dialog open={!!selectedEvent} onOpenChange={(open) => { if (!open) setSelectedEvent(null); }}>
+        <DialogTrigger asChild>
+          <div />
+        </DialogTrigger>
+        <DialogContent className="w-full max-w-lg sm:max-w-xl p-6 bg-white border-4 shadow-lg"
+                       style={{ borderColor: INK }}>
+          <DialogHeader className="mb-4">
+            <DialogTitle className={questDisplay.className} style={{ color: NAVY }}>
+              {selectedEvent?.name}
+            </DialogTitle>
+            <DialogClose className="btn-ghost" aria-label="Close">
+              <X size={24} className="h-6 w-6 stroke-current" />
+            </DialogClose>
+          </DialogHeader>
+          <DialogDescription className="space-y-4">
+            <div className="flex items-center gap-3">
+              <span
+                className={`${questDisplay.className} flex size-10 items-center justify-center border-2 text-[12px]`}
+                style={{ background: selectedEvent?.color, borderColor: INK }}
+              >
+                {selectedEvent?.index}
+              </span>
+              <div>
+                <p className={`${questBody.className} text-sm font-medium opacity-80`}>
+                  {selectedEvent?.format} • {selectedEvent?.fee}
+                </p>
+                {selectedEvent?.prizePool && (
+                  <p className={`${questBody.className} mt-1 text-xs font-bold`} style={{ color: PINK }}>
+                    Prize Pool: {selectedEvent?.prizePool}
+                  </p>
+                )}
+              </div>
+            </div>
+            <p className={`${questBody.className} mt-4 text-base font-bold`} style={{ color: NAVY }}>
+              Description
+            </p>
+            <p className={`${questBody.className} text-lg leading-relaxed opacity-90`} style={{ color: NAVY }}>
+              {selectedEvent?.description}
+            </p>
+            {selectedEvent?.rules && selectedEvent?.rules.length > 0 && (
+              <>
+                <p className={`${questBody.className} mt-4 text-base font-bold`} style={{ color: NAVY }}>
+                  Rules
+                </p>
+                <ol className={`${questBody.className} mt-2 list-decimal space-y-2`} style={{ color: NAVY, paddingLeft: 5 }}>
+                  {selectedEvent?.rules.map((rule, idx) => (
+                    <li key={idx}>{rule}</li>
+                  ))}
+                </ol>
+              </>
+            )}
+            {selectedEvent?.prizes && selectedEvent?.prizes.length > 0 && (
+              <>
+                <p className={`${questBody.className} mt-4 text-base font-bold`} style={{ color: NAVY }}>
+                  Prizes
+                </p>
+                <ul className={`${questBody.className} mt-2 list-disc space-y-1`} style={{ color: NAVY, paddingLeft: 5 }}>
+                  {selectedEvent?.prizes.map((prize, idx) => (
+                    <li key={idx}>
+                      {prize.place}: {prize.reward}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={() => {
+                  if (selectedEvent) {
+                    openQuest(selectedEvent.id)
+                  }
+                }}
+                className={`${questBody.className} flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-bold text-white border-2`}
+                style={{ background: selectedEvent?.color, borderColor: INK }}
+              >
+                Register Now <ArrowRight size={14} />
+              </button>
+            </div>
+          </DialogDescription>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }
