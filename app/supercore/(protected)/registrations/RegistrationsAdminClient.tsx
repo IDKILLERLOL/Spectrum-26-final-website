@@ -648,7 +648,9 @@ export function RegistrationsAdminClient({
                                   </div>
                                   <div>
                                     <p className="text-sm font-medium">{member.name}</p>
-                                    <p className="text-xs text-neutral-500">Team Member</p>
+                                    <p className="text-xs text-neutral-500">
+                                      {[(member as any).email, (member as any).phone, (member as any).college, (member as any).year].filter(Boolean).join(" | ") || "Team Member"}
+                                    </p>
                                   </div>
                                 </div>
                               ))}

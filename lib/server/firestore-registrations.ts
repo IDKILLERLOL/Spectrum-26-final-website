@@ -42,7 +42,23 @@ export async function createRegistration(input: CreateRegistrationInput): Promis
     year: input.year,
     eventId: input.eventId,
     eventName: input.eventName,
-    teamMembers: input.teamMembers.map((name) => ({ name })),
+    teamMembers: input.teamMembers.map((str) => {
+      try {
+        const parsed = JSON.parse(str)
+        if (parsed && typeof parsed === "object" && parsed.name) {
+          return {
+            name: parsed.name,
+            email: parsed.email || "",
+            phone: parsed.phone || "",
+            college: parsed.college || "",
+            year: parsed.year || "",
+          }
+        }
+      } catch {
+        // Not a JSON string (e.g. other events)
+      }
+      return { name: str }
+    }),
     teamSize: 1 + input.teamMembers.length,
     paymentRefId: input.paymentRefId,
     pictureUrl: input.pictureUrl || "",
