@@ -111,6 +111,20 @@ async function appendAndMerge(
   rowsToAppend: any[][],
   token: string
 ): Promise<boolean> {
+  const allowedTabs = new Set([
+    "All Registrations",
+    "Singularity Strike",
+    "Dual Debug",
+    "FIFA",
+    "BGMI",
+    "Sheet1",
+    "A:L"
+  ])
+  if (!allowedTabs.has(tabName)) {
+    console.log(`[apps-script] Skipping append/create for irrelevant sheet tab name: '${tabName}'`)
+    return true // Return true since it is an intentional skip
+  }
+
   const encodedTab = encodeURIComponent(tabName)
   let appendUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodedTab}!A:L:append?valueInputOption=USER_ENTERED`
   
@@ -444,13 +458,13 @@ interface RegistrationSheetRow {
 export function buildRegistrationRow(input: RegistrationSheetRow) {
   let eventName = input.eventName
   const lower = eventName.toLowerCase().trim()
-  if (lower === "singularity-strike" || lower === "singularity_strike" || lower === "code clash" || lower === "code_clash") {
+  if (lower === "singularity-strike" || lower === "singularity_strike" || lower === "code clash" || lower === "code_clash" || lower === "tech-solo-1") {
     eventName = "Singularity Strike"
-  } else if (lower === "fifa" || lower === "fc26" || lower === "fc_26") {
+  } else if (lower === "fifa" || lower === "fc26" || lower === "fc_26" || lower === "non-tech-1") {
     eventName = "FIFA"
-  } else if (lower === "dual-debug" || lower === "dual_debug") {
+  } else if (lower === "dual-debug" || lower === "dual_debug" || lower === "tech-duo-1") {
     eventName = "Dual Debug"
-  } else if (lower === "bgmi") {
+  } else if (lower === "bgmi" || lower === "non-tech-3") {
     eventName = "BGMI"
   }
   return { ...input, eventName }
