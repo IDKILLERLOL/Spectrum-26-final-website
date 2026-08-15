@@ -1,6 +1,4 @@
 import "server-only"
-import { Timestamp } from "firebase-admin/firestore"
-import { getDb } from "@/lib/firebase/admin"
 import { hashEmail } from "./hash-email"
 import type { AdminWhitelistEntry } from "@/types/firestore"
 
@@ -30,6 +28,7 @@ export async function isWhitelisted(email: string): Promise<boolean> {
   }
 
   try {
+    const { getDb } = await import("@/lib/firebase/admin")
     const doc = await getDb().collection(COLLECTION).doc(hashEmail(normalizedEmail)).get()
     const result = doc.exists
     whitelistCache.set(normalizedEmail, { result, timestamp: Date.now() })
@@ -43,6 +42,7 @@ export async function isWhitelisted(email: string): Promise<boolean> {
 
 export async function isWhitelistEmpty(): Promise<boolean> {
   try {
+    const { getDb } = await import("@/lib/firebase/admin")
     const snap = await getDb().collection(COLLECTION).limit(1).get()
     return snap.empty
   } catch (err: any) {
@@ -55,6 +55,8 @@ export async function addToWhitelist(email: string, addedBy: string): Promise<vo
   const normalized = email.toLowerCase().trim()
   whitelistCache.set(normalized, { result: true, timestamp: Date.now() })
   try {
+    const { getDb } = await import("@/lib/firebase/admin")
+    const { Timestamp } = await import("firebase-admin/firestore")
     await getDb()
       .collection(COLLECTION)
       .doc(hashEmail(normalized))
@@ -68,6 +70,7 @@ export async function removeFromWhitelist(email: string): Promise<void> {
   const normalized = email.toLowerCase().trim()
   whitelistCache.delete(normalized)
   try {
+    const { getDb } = await import("@/lib/firebase/admin")
     await getDb().collection(COLLECTION).doc(hashEmail(normalized)).delete()
   } catch (err) {
     console.warn("[removeFromWhitelist] Firestore warning:", err)
@@ -76,6 +79,7 @@ export async function removeFromWhitelist(email: string): Promise<void> {
 
 export async function listWhitelist(): Promise<(AdminWhitelistEntry & { id: string })[]> {
   try {
+    const { getDb } = await import("@/lib/firebase/admin")
     const snap = await getDb().collection(COLLECTION).get()
     return snap.docs.map((d) => {
       const data = d.data() || {}
