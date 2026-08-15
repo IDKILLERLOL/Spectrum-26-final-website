@@ -16,10 +16,11 @@ export async function syncToSheet(payload: object): Promise<boolean> {
   }
 
   try {
+    const spreadsheetId = process.env.GOOGLE_SHEETS_ID || process.env.VITE_GOOGLE_SHEETS_ID || ""
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ ...payload, spreadsheetId }),
       redirect: "follow",
       signal: AbortSignal.timeout(15000),
     })
@@ -39,7 +40,11 @@ export async function fetchFromSheet(): Promise<any[]> {
   }
 
   try {
-    const fetchUrl = url.includes("?") ? `${url}&action=readRegistrations` : `${url}?action=readRegistrations`
+    const spreadsheetId = process.env.GOOGLE_SHEETS_ID || process.env.VITE_GOOGLE_SHEETS_ID || ""
+    let fetchUrl = url.includes("?") ? `${url}&action=readRegistrations` : `${url}?action=readRegistrations`
+    if (spreadsheetId) {
+      fetchUrl += `&spreadsheetId=${spreadsheetId}`
+    }
     const res = await fetch(fetchUrl, {
       method: "GET",
       headers: { "Accept": "application/json" },

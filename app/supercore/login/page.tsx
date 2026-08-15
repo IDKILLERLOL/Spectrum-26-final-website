@@ -43,6 +43,7 @@ export default function AdminLoginPage() {
       if (accessToken) {
         localStorage.setItem("spectrum_gmail_token", accessToken)
       }
+      sessionStorage.setItem("just_logged_in", "true")
 
       trackAdminLogin("success")
       window.location.href = "/supercore/registrations"
