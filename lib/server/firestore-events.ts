@@ -21,7 +21,8 @@ function isAdminConfigured(): boolean {
   )
 }
 
-function toSpectrumEvent(id: string, doc: FirestoreEvent): SpectrumEvent {
+function toSpectrumEvent(id: string, doc: any): SpectrumEvent {
+  const staticEv = staticEvents.find((e) => e.id === id)
   let endsAt = new Date()
   if (doc.registrationEndsAt) {
     if (typeof (doc.registrationEndsAt as any).toDate === "function") {
@@ -51,6 +52,7 @@ function toSpectrumEvent(id: string, doc: FirestoreEvent): SpectrumEvent {
     description: doc.description ?? "",
     rules: doc.rules ?? [],
     prizes: doc.prizes ?? [],
+    rounds: doc.rounds ?? staticEv?.rounds ?? [],
     registrationEnds: endsAt.toLocaleString("en-IN", {
       day: "numeric",
       month: "short",
