@@ -22,26 +22,35 @@ function isAdminConfigured(): boolean {
 }
 
 function toSpectrumEvent(id: string, doc: FirestoreEvent): SpectrumEvent {
-  const endsAt = doc.registrationEndsAt.toDate()
+  let endsAt = new Date()
+  if (doc.registrationEndsAt) {
+    if (typeof (doc.registrationEndsAt as any).toDate === "function") {
+      endsAt = (doc.registrationEndsAt as any).toDate()
+    } else if (doc.registrationEndsAt instanceof Date) {
+      endsAt = doc.registrationEndsAt
+    } else {
+      endsAt = new Date(doc.registrationEndsAt as any)
+    }
+  }
   return {
     id,
-    index: doc.index,
-    order: doc.order,
-    category: doc.category,
+    index: doc.index ?? "00",
+    order: doc.order ?? 0,
+    category: doc.category ?? "",
     name: doc.name,
-    shortName: doc.shortName,
-    tag: doc.tag,
-    format: doc.format,
-    fee: doc.fee,
-    feeNumeric: doc.feeNumeric,
-    capacity: doc.capacity,
-    teamSize: doc.teamSize,
-    difficulty: doc.difficulty,
-    color: doc.color,
-    duration: doc.duration,
-    description: doc.description,
-    rules: doc.rules,
-    prizes: doc.prizes,
+    shortName: doc.shortName ?? doc.name,
+    tag: doc.tag ?? "",
+    format: doc.format ?? "",
+    fee: doc.fee ?? `₹${doc.feeNumeric}`,
+    feeNumeric: doc.feeNumeric ?? 0,
+    capacity: doc.capacity ?? 0,
+    teamSize: doc.teamSize ?? String(doc.capacity ?? 0),
+    difficulty: doc.difficulty ?? 1,
+    color: doc.color ?? "#f59e0b",
+    duration: doc.duration ?? "",
+    description: doc.description ?? "",
+    rules: doc.rules ?? [],
+    prizes: doc.prizes ?? [],
     registrationEnds: endsAt.toLocaleString("en-IN", {
       day: "numeric",
       month: "short",
@@ -51,7 +60,7 @@ function toSpectrumEvent(id: string, doc: FirestoreEvent): SpectrumEvent {
       hour12: true,
     }),
     registrationEndsAt: endsAt.toISOString(),
-    registrationOpen: doc.registrationOpen,
+    registrationOpen: doc.registrationOpen ?? true,
     prizePool: doc.prizePool,
     imageUrl: doc.imageUrl,
   }
@@ -141,7 +150,13 @@ export async function createEvent(input: CreateEventInput): Promise<string> {
     prizes: input.prizes ?? [],
     prizePool: input.prizePool,
     registrationOpen: input.registrationOpen ?? true,
-    registrationEndsAt: Timestamp.fromDate(new Date(input.registrationEndsAt ?? Date.now())),
+    registrationEndsAt: (() => {
+      if (input.registrationEndsAt) {
+        const d = new Date(input.registrationEndsAt)
+        if (!isNaN(d.getTime())) return Timestamp.fromDate(d)
+      }
+      return Timestamp.fromDate(new Date())
+    })(),
     imageUrl: input.imageUrl ?? null,
     createdAt: now,
     updatedAt: now,
@@ -154,7 +169,13 @@ export async function createEvent(input: CreateEventInput): Promise<string> {
 export async function updateEvent(id: string, patch: Partial<Omit<CreateEventInput, "id">>): Promise<void> {
   const { registrationEndsAt, ...rest } = patch
   const update: Record<string, unknown> = { ...rest, updatedAt: Timestamp.now() }
-  if (registrationEndsAt) update.registrationEndsAt = Timestamp.fromDate(new Date(registrationEndsAt))
+  delete update.id // Ensure we do not write document id as a normal field during updates
+  if (registrationEndsAt) {
+    const d = new Date(registrationEndsAt)
+    if (!isNaN(d.getTime())) {
+      update.registrationEndsAt = Timestamp.fromDate(d)
+    }
+  }
   for (const key of Object.keys(update)) if (update[key] === undefined) delete update[key]
 
   await getDb().collection(COLLECTION).doc(id).update(update)
