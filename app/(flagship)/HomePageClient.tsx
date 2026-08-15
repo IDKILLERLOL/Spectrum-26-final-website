@@ -146,7 +146,7 @@ function Hero() {
   const cd = useCountdown()
   const reduced = useReducedMotion()
   return (
-    <section className="relative overflow-hidden pb-12 pt-16 text-center sm:pt-20 lg:pb-16">
+    <section className="relative overflow-hidden pb-12 pt-16 text-center sm:pt-20 lg:pb-16 min-h-[calc(100dvh-4rem)] flex flex-col justify-center items-center w-full">
       <HeroBackground />
       <MarigoldGarland />
       <DdLoader />
