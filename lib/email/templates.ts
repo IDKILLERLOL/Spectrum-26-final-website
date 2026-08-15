@@ -22,7 +22,7 @@ Payment reference: ${input.paymentRefId}
 
 Your registration is confirmed.
 
-${site.venue} — ${site.date}
+${site.venue} - ${site.date}
 
 See you there!
 Team ${site.name}`
@@ -37,11 +37,11 @@ Team ${site.name}`
     <li>Payment reference: ${input.paymentRefId}</li>
   </ul>
   <p>Your registration is confirmed. We look forward to seeing you at the event!</p>
-  <p>${site.venue} — ${site.date}</p>
+  <p>${site.venue} - ${site.date}</p>
   <p>See you there!<br/>Team ${site.name}</p>
 </div>`
 
-  return { to: input.to, subject: `Registration confirmed — ${input.eventName}`, html, text }
+  return { to: input.to, subject: `Registration confirmed - ${input.eventName}`, html, text }
 }
 
 interface PaymentStatusInput {
@@ -64,7 +64,7 @@ ${headline}
 
 ${body}
 
-${site.venue} — ${site.date}
+${site.venue} - ${site.date}
 
 Team ${site.name}`
 
@@ -72,9 +72,9 @@ Team ${site.name}`
   <h2>${headline}</h2>
   <p>Hi ${input.fullName},</p>
   <p>${body}</p>
-  <p>${site.venue} — ${site.date}</p>
+  <p>${site.venue} - ${site.date}</p>
   <p>Team ${site.name}</p>
 </div>`
 
-  return { to: input.to, subject: `${headline} — ${input.eventName}`, html, text }
+  return { to: input.to, subject: `${headline} - ${input.eventName}`, html, text }
 }
