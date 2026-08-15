@@ -117,6 +117,9 @@ async function appendAndMerge(
     "Dual Debug",
     "FIFA",
     "BGMI",
+    "Audit Logs",
+    "Whitelist",
+    "Sponsors",
     "Sheet1",
     "A:L"
   ])
@@ -313,12 +316,21 @@ async function appendAndMerge(
         ])
       }
 
-      // Sync to master sheet tab
-      const masterOk = await appendAndMerge(spreadsheetId, "All Registrations", rowsToAppend, token)
-
-      // Sync to event-specific sheet tab if it's a registration
-      if (p.type === "registration" && p.eventName) {
-        await appendAndMerge(spreadsheetId, p.eventName, rowsToAppend, token)
+      // Sync to respective sheet tab
+      let masterOk = false
+      if (p.type === "registration") {
+        masterOk = await appendAndMerge(spreadsheetId, "All Registrations", rowsToAppend, token)
+        if (p.eventName) {
+          await appendAndMerge(spreadsheetId, p.eventName, rowsToAppend, token)
+        }
+      } else {
+        let tabName = "Audit Logs"
+        if (p.type === "whitelist") {
+          tabName = "Whitelist"
+        } else if (p.type === "sponsor") {
+          tabName = "Sponsors"
+        }
+        masterOk = await appendAndMerge(spreadsheetId, tabName, rowsToAppend, token)
       }
 
       if (masterOk) return true
