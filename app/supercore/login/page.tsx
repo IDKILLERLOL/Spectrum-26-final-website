@@ -10,14 +10,18 @@ export default function AdminLoginPage() {
   const [signingIn, setSigningIn] = React.useState(false)
 
   async function handleGoogleSignIn() {
+    console.log('[Admin Login] Starting Google sign-in')
     setSigningIn(true)
     setError(null)
     try {
       const auth = getClientAuth()
+      console.log('[Admin Login] Auth obtained')
       const result = await signInWithPopup(auth, googleProvider)
+      console.log('[Admin Login] SignInWithPopup result:', result)
       const credential = GoogleAuthProvider.credentialFromResult(result)
       const accessToken = credential?.accessToken ?? null
       const idToken = await result.user.getIdToken(true)
+      console.log('[Admin Login] ID token obtained')
       const userEmail = result.user.email
 
       const res = await fetch("/api/admin/session", {
@@ -25,8 +29,10 @@ export default function AdminLoginPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ idToken, accessToken, email: userEmail }),
       })
+      console.log('[Admin Login] Fetch response status:', res.status)
 
       const data = await res.json().catch(() => ({}))
+      console.log('[Admin Login] Fetch response data:', data)
 
       if (!res.ok) {
         trackAdminLogin("failure")

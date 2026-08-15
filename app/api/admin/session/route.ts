@@ -16,6 +16,7 @@ const STATIC_ADMIN_EMAILS = new Set([
  */
 export async function POST(request: Request) {
   try {
+    console.log('[Admin Session] POST request received')
     let body: { idToken?: string; accessToken?: string | null; email?: string | null }
     try {
       body = await request.json()
@@ -33,6 +34,7 @@ export async function POST(request: Request) {
       const result = await createSessionCookie(body.idToken, body.email)
       cookie = result.cookie
       email = result.email
+      console.log('[Admin Session] Session cookie created for email:', email)
     } catch (err: any) {
       console.error("[POST /api/admin/session] token verification failed:", err?.message || err)
       return NextResponse.json(

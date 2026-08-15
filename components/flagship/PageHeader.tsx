@@ -19,10 +19,16 @@ export function PageHeader({ title, subtitle, back = true }: PageHeaderProps) {
         type="button"
         onClick={() => router.back()}
         aria-label="Go back"
-        className="flex size-9 shrink-0 items-center justify-center border-[3px] md:size-11 hover:bg-neutral-200 transition-colors"
+        className="group flex h-9 w-9 shrink-0 items-center justify-start overflow-hidden border-[3px] px-1.5 transition-all duration-300 ease-in-out hover:w-[4.6rem] md:h-11 md:w-11 md:px-2.5 md:hover:w-24 hover:bg-neutral-100"
         style={{ borderColor: NAVY }}
       >
-        <ChevronLeft size={18} color={NAVY} />
+        <ChevronLeft size={18} color={NAVY} className="shrink-0" />
+        <span 
+          className={`${questBody.className} text-[10px] md:text-xs font-bold uppercase tracking-wider opacity-0 transition-opacity duration-200 group-hover:opacity-100 ml-1`} 
+          style={{ color: NAVY }}
+        >
+          Back
+        </span>
       </button>
       <div>
         <h1 className={`${questDisplay.className} text-lg md:text-3xl`} style={{ color: NAVY }}>

@@ -48,6 +48,7 @@ function fromBase64url(str: string): string {
  * Decodes a Firebase ID token (JWT) safely using native Buffer decoding.
  */
 export function decodeFirebaseIdToken(idToken: string): { email: string } {
+  console.log('[Session] Decoding ID token...')
   const parts = idToken.split(".")
   if (parts.length !== 3) throw new Error("Invalid ID token format.")
 
@@ -63,8 +64,9 @@ export function decodeFirebaseIdToken(idToken: string): { email: string } {
   if (!email || typeof email !== "string") {
     throw new Error("No email found in Google ID token.")
   }
-
-  return { email: email.toLowerCase().trim() }
+  const emailLower = email.toLowerCase().trim()
+  console.log('[Session] Decoded email:', emailLower)
+  return { email: emailLower }
 }
 
 /** Mints a signed session cookie */
@@ -83,6 +85,7 @@ export async function createSessionCookie(
       throw err
     }
   }
+  console.log('[Session] Creating session cookie for email:', email)
 
   const secret = getSecret()
   const exp = Math.floor(Date.now() / 1000) + SESSION_MAX_AGE_SECONDS
