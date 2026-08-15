@@ -443,12 +443,15 @@ interface RegistrationSheetRow {
 
 export function buildRegistrationRow(input: RegistrationSheetRow) {
   let eventName = input.eventName
-  if (eventName === "singularity-strike" || eventName === "singularity_strike") {
-    eventName = "Code Clash"
-  } else if (eventName === "fc26" || eventName === "fc_26") {
+  const lower = eventName.toLowerCase().trim()
+  if (lower === "singularity-strike" || lower === "singularity_strike" || lower === "code clash" || lower === "code_clash") {
+    eventName = "Singularity Strike"
+  } else if (lower === "fifa" || lower === "fc26" || lower === "fc_26") {
     eventName = "FIFA"
-  } else if (eventName === "dual-debug" || eventName === "dual_debug") {
+  } else if (lower === "dual-debug" || lower === "dual_debug") {
     eventName = "Dual Debug"
+  } else if (lower === "bgmi") {
+    eventName = "BGMI"
   }
   return { ...input, eventName }
 }
