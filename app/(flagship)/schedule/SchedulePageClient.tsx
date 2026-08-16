@@ -90,37 +90,19 @@ export function SchedulePageClient({ schedule }: { schedule: ScheduleItem[] }) {
           )}
 
           {tab === "timeline" && (
-            <Chalkboard className="md:p-8">
-              <ol
-                className="flex flex-col gap-5 border-l-[3px] pl-4"
-                style={{ borderColor: MARIGOLD }}
+            <Chalkboard className="md:p-8 flex flex-col items-center justify-center py-16 md:py-24 text-center">
+              <h2
+                className={`${questDisplay.className} text-4xl md:text-5xl text-white/95 tracking-wide`}
+                style={chalkGlow}
               >
-                {schedule.map((item) => (
-                  <li key={item.title} className="relative">
-                    <span
-                      className="absolute -left-[22px] top-1 size-3 rounded-full"
-                      style={{ background: VERMILION }}
-                    />
-                    <p
-                      className={`${questBody.className} text-xs font-bold`}
-                      style={{ color: MARIGOLD }}
-                    >
-                      {item.time}
-                    </p>
-                    <p
-                      className={`${questDisplay.className} text-sm text-white/95`}
-                      style={chalkGlow}
-                    >
-                      {item.title}
-                    </p>
-                    <p
-                      className={`${questBody.className} text-xs italic text-white/70`}
-                    >
-                      {item.description}
-                    </p>
-                  </li>
-                ))}
-              </ol>
+                Timeline
+              </h2>
+              <p
+                className={`${questBody.className} mt-3 text-sm italic tracking-widest text-white/70 uppercase`}
+                style={chalkGlow}
+              >
+                to be announced soon
+              </p>
             </Chalkboard>
           )}
 

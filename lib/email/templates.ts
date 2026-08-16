@@ -20,28 +20,28 @@ Team size: ${input.teamSize}
 Amount paid: ₹${input.amountPaid}
 Payment reference: ${input.paymentRefId}
 
-Your payment is now pending verification by our team. You'll get another email once it's confirmed.
+Your registration is confirmed.
 
-${site.venue} — ${site.date}
+${site.venue} - ${site.date}
 
 See you there!
 Team ${site.name}`
 
   const html = `<div style="font-family:sans-serif;max-width:480px;margin:0 auto">
-  <h2>Registration received</h2>
+  <h2>Registration confirmed!</h2>
   <p>Hi ${input.fullName},</p>
-  <p>We've received your registration for <strong>${input.eventName}</strong> at ${site.name}.</p>
+  <p>Your registration for <strong>${input.eventName}</strong> at ${site.name} has been verified and confirmed.</p>
   <ul>
     <li>Team size: ${input.teamSize}</li>
     <li>Amount paid: ₹${input.amountPaid}</li>
     <li>Payment reference: ${input.paymentRefId}</li>
   </ul>
-  <p>Your payment is now <strong>pending verification</strong> by our team. You'll get another email once it's confirmed.</p>
-  <p>${site.venue} — ${site.date}</p>
+  <p>Your registration is confirmed. We look forward to seeing you at the event!</p>
+  <p>${site.venue} - ${site.date}</p>
   <p>See you there!<br/>Team ${site.name}</p>
 </div>`
 
-  return { to: input.to, subject: `Registration received — ${input.eventName}`, html, text }
+  return { to: input.to, subject: `Registration confirmed - ${input.eventName}`, html, text }
 }
 
 interface PaymentStatusInput {
@@ -64,7 +64,7 @@ ${headline}
 
 ${body}
 
-${site.venue} — ${site.date}
+${site.venue} - ${site.date}
 
 Team ${site.name}`
 
@@ -72,9 +72,9 @@ Team ${site.name}`
   <h2>${headline}</h2>
   <p>Hi ${input.fullName},</p>
   <p>${body}</p>
-  <p>${site.venue} — ${site.date}</p>
+  <p>${site.venue} - ${site.date}</p>
   <p>Team ${site.name}</p>
 </div>`
 
-  return { to: input.to, subject: `${headline} — ${input.eventName}`, html, text }
+  return { to: input.to, subject: `${headline} - ${input.eventName}`, html, text }
 }

@@ -21,27 +21,38 @@ function isAdminConfigured(): boolean {
   )
 }
 
-function toSpectrumEvent(id: string, doc: FirestoreEvent): SpectrumEvent {
-  const endsAt = doc.registrationEndsAt.toDate()
+function toSpectrumEvent(id: string, doc: any): SpectrumEvent {
+  const staticEv = staticEvents.find((e) => e.id === id)
+  let endsAt = new Date()
+  if (doc.registrationEndsAt) {
+    if (typeof (doc.registrationEndsAt as any).toDate === "function") {
+      endsAt = (doc.registrationEndsAt as any).toDate()
+    } else if (doc.registrationEndsAt instanceof Date) {
+      endsAt = doc.registrationEndsAt
+    } else {
+      endsAt = new Date(doc.registrationEndsAt as any)
+    }
+  }
   return {
     id,
-    index: doc.index,
-    order: doc.order,
-    category: doc.category,
+    index: doc.index ?? "00",
+    order: doc.order ?? 0,
+    category: doc.category ?? "",
     name: doc.name,
-    shortName: doc.shortName,
-    tag: doc.tag,
-    format: doc.format,
-    fee: doc.fee,
-    feeNumeric: doc.feeNumeric,
-    capacity: doc.capacity,
-    teamSize: doc.teamSize,
-    difficulty: doc.difficulty,
-    color: doc.color,
-    duration: doc.duration,
-    description: doc.description,
-    rules: doc.rules,
-    prizes: doc.prizes,
+    shortName: doc.shortName ?? doc.name,
+    tag: doc.tag ?? "",
+    format: doc.format ?? "",
+    fee: doc.fee ?? `₹${doc.feeNumeric}`,
+    feeNumeric: doc.feeNumeric ?? 0,
+    capacity: doc.capacity ?? 0,
+    teamSize: doc.teamSize ?? String(doc.capacity ?? 0),
+    difficulty: doc.difficulty ?? 1,
+    color: doc.color ?? "#f59e0b",
+    duration: doc.duration ?? "",
+    description: doc.description ?? "",
+    rules: doc.rules ?? [],
+    prizes: doc.prizes ?? [],
+    rounds: doc.rounds ?? staticEv?.rounds ?? [],
     registrationEnds: endsAt.toLocaleString("en-IN", {
       day: "numeric",
       month: "short",
@@ -51,7 +62,7 @@ function toSpectrumEvent(id: string, doc: FirestoreEvent): SpectrumEvent {
       hour12: true,
     }),
     registrationEndsAt: endsAt.toISOString(),
-    registrationOpen: doc.registrationOpen,
+    registrationOpen: doc.registrationOpen ?? true,
     prizePool: doc.prizePool,
     imageUrl: doc.imageUrl,
   }
@@ -64,28 +75,71 @@ function toSpectrumEvent(id: string, doc: FirestoreEvent): SpectrumEvent {
  * this keeps the public site working throughout backend setup instead of 500ing.
  */
 export async function getEvents(): Promise<SpectrumEvent[]> {
-  if (!isAdminConfigured()) return staticEvents
+  if (!isAdminConfigured()) {
+    console.warn("[getEvents] Firebase Admin SDK not configured. Returning static fallback.")
+    return staticEvents
+  }
 
   try {
-    const snap = await getDb().collection(COLLECTION).orderBy("order", "asc").get()
-    if (snap.empty) return staticEvents
-    return snap.docs.map((d) => toSpectrumEvent(d.id, d.data() as FirestoreEvent))
+    const snap = await getDb().collection(COLLECTION).get()
+    
+    // Create a map of database documents
+    const dbEventsMap = new Map<string, any>()
+    snap.docs.forEach((d) => {
+      dbEventsMap.set(d.id, d.data())
+    })
+
+    const mergedEvents: SpectrumEvent[] = []
+    
+    // 1. Merge static default events (overwritten by DB changes if they exist, unless soft-deleted)
+    for (const staticEv of staticEvents) {
+      if (dbEventsMap.has(staticEv.id)) {
+        const dbDoc = dbEventsMap.get(staticEv.id)
+        if (!dbDoc.deleted) {
+          mergedEvents.push(toSpectrumEvent(staticEv.id, dbDoc as FirestoreEvent))
+        }
+        dbEventsMap.delete(staticEv.id) // Remove to avoid duplicate processing
+      } else {
+        mergedEvents.push(staticEv)
+      }
+    }
+
+    // 2. Add remaining custom events created via the database
+    for (const [docId, dbDoc] of dbEventsMap.entries()) {
+      if (!dbDoc.deleted) {
+        mergedEvents.push(toSpectrumEvent(docId, dbDoc as FirestoreEvent))
+      }
+    }
+
+    // 3. Sort by order ascending
+    return mergedEvents.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
   } catch (err) {
-    console.error("[firestore-events] getEvents failed, falling back to static data:", err)
+    console.error("[firestore-events] getEvents failed, returning static fallback:", err)
     return staticEvents
   }
 }
 
 export async function getEvent(id: string): Promise<SpectrumEvent | null> {
-  if (!isAdminConfigured()) return staticEvents.find((e) => e.id === id) ?? null
+  const staticEv = staticEvents.find((e) => e.id === id)
+
+  if (!isAdminConfigured()) {
+    console.warn(`[getEvent] Firebase Admin SDK not configured for id ${id}. Returning static fallback if it exists.`)
+    return staticEv || null
+  }
 
   try {
     const doc = await getDb().collection(COLLECTION).doc(id).get()
-    if (!doc.exists) return staticEvents.find((e) => e.id === id) ?? null
-    return toSpectrumEvent(doc.id, doc.data() as FirestoreEvent)
+    if (!doc.exists) {
+      return staticEv || null
+    }
+    const data = doc.data()
+    if (data?.deleted) {
+      return null
+    }
+    return toSpectrumEvent(doc.id, data as FirestoreEvent)
   } catch (err) {
-    console.error("[firestore-events] getEvent failed, falling back to static data:", err)
-    return staticEvents.find((e) => e.id === id) ?? null
+    console.error(`[firestore-events] getEvent failed for id ${id}:`, err)
+    return staticEv || null
   }
 }
 
@@ -116,6 +170,9 @@ export interface CreateEventInput {
 
 /** Admin write: doc ID is either an explicit `id`, or a slug derived from `name`. */
 export async function createEvent(input: CreateEventInput): Promise<string> {
+  if (!isAdminConfigured()) {
+    throw new Error("Firebase Admin SDK not configured. Check FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY.")
+  }
   const db = getDb()
   const id = input.id?.trim() || slugify(input.name)
   const now = Timestamp.now()
@@ -141,7 +198,13 @@ export async function createEvent(input: CreateEventInput): Promise<string> {
     prizes: input.prizes ?? [],
     prizePool: input.prizePool,
     registrationOpen: input.registrationOpen ?? true,
-    registrationEndsAt: Timestamp.fromDate(new Date(input.registrationEndsAt ?? Date.now())),
+    registrationEndsAt: (() => {
+      if (input.registrationEndsAt) {
+        const d = new Date(input.registrationEndsAt)
+        if (!isNaN(d.getTime())) return Timestamp.fromDate(d)
+      }
+      return Timestamp.fromDate(new Date())
+    })(),
     imageUrl: input.imageUrl ?? null,
     createdAt: now,
     updatedAt: now,
@@ -152,14 +215,33 @@ export async function createEvent(input: CreateEventInput): Promise<string> {
 }
 
 export async function updateEvent(id: string, patch: Partial<Omit<CreateEventInput, "id">>): Promise<void> {
+  if (!isAdminConfigured()) {
+    throw new Error("Firebase Admin SDK not configured. Check FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY.")
+  }
   const { registrationEndsAt, ...rest } = patch
   const update: Record<string, unknown> = { ...rest, updatedAt: Timestamp.now() }
-  if (registrationEndsAt) update.registrationEndsAt = Timestamp.fromDate(new Date(registrationEndsAt))
+  delete update.id // Ensure we do not write document id as a normal field during updates
+  if (registrationEndsAt) {
+    const d = new Date(registrationEndsAt)
+    if (!isNaN(d.getTime())) {
+      update.registrationEndsAt = Timestamp.fromDate(d)
+    }
+  }
   for (const key of Object.keys(update)) if (update[key] === undefined) delete update[key]
 
-  await getDb().collection(COLLECTION).doc(id).update(update)
+  await getDb().collection(COLLECTION).doc(id).set(update, { merge: true })
 }
 
 export async function deleteEvent(id: string): Promise<void> {
-  await getDb().collection(COLLECTION).doc(id).delete()
+  if (!isAdminConfigured()) {
+    throw new Error("Firebase Admin SDK not configured. Check FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY.")
+  }
+  const isStatic = staticEvents.some((e) => e.id === id)
+  if (isStatic) {
+    // Write soft delete / tombstone document to Firestore so it does not fall back to static
+    await getDb().collection(COLLECTION).doc(id).set({ id, deleted: true, updatedAt: Timestamp.now() })
+  } else {
+    // Custom events can be deleted completely
+    await getDb().collection(COLLECTION).doc(id).delete()
+  }
 }

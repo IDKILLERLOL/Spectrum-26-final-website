@@ -1,7 +1,6 @@
 import "server-only"
 import { cert, getApps, initializeApp, type App } from "firebase-admin/app"
 import { getFirestore, type Firestore } from "firebase-admin/firestore"
-import { getAuth, type Auth } from "firebase-admin/auth"
 
 /**
  * firebase-admin singleton, safe across Next.js dev hot-reloads and Vercel serverless.
@@ -34,7 +33,6 @@ function getAdminApp(): App | null {
 }
 
 let _db: Firestore | null = null
-let _auth: Auth | null = null
 
 export function getDb(): Firestore {
   if (!_db) {
@@ -47,13 +45,6 @@ export function getDb(): Firestore {
   return _db
 }
 
-export function getAdminAuth(): Auth {
-  if (!_auth) {
-    const app = getAdminApp()
-    if (!app) {
-      throw new Error("Firebase Admin SDK is not configured. Missing valid FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, or FIREBASE_PRIVATE_KEY.")
-    }
-    _auth = getAuth(app)
-  }
-  return _auth
+export function isAdminConfigured(): boolean {
+  return Boolean(process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY);
 }

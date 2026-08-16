@@ -20,6 +20,7 @@ interface RegistrationData {
   year: string
   eventId: string
   eventName: string
+  teamName?: string
   teamMembers: { name: string }[]
   teamSize: number
   paymentRefId: string
@@ -66,7 +67,11 @@ export function RegistrationsAdminClient({
   const [selectedPaymentStatus, setSelectedPaymentStatus] = useState<PaymentStatus | 'all'>('all')
   const [selectedCheckInStatus, setSelectedCheckInStatus] = useState<CheckInStatus>('all')
   const [sortBy, setSortBy] = useState<string>('date-desc')
-  const [lastUpdated, setLastUpdated] = useState(() => new Date().toLocaleTimeString())
+  const [lastUpdated, setLastUpdated] = useState("")
+
+  useEffect(() => {
+    setLastUpdated(new Date().toLocaleTimeString())
+  }, [])
 
   // Client-side filter & sort on pre-fetched data
   const filtered = useCallback(() => {
@@ -206,16 +211,24 @@ export function RegistrationsAdminClient({
   const handleSyncAll = useCallback(async () => {
     setSyncing(true)
     try {
-      // In a real implementation, this would sync all registrations to Google Sheets
-      // For now, we'll just show a toast or notification
-      alert('Sync all to Google Sheets not yet implemented')
+      const res = await fetch("/api/admin/sync-sheets", { method: "POST" })
+      if (!res.ok) {
+        throw new Error(`Server returned status ${res.status}`)
+      }
+      const data = await res.json()
+      if (data.ok) {
+        alert(`Successfully synced ${data.synced} of ${data.total} registrations to Google Sheets.`)
+        await reload()
+      } else {
+        alert("Failed to sync registrations: " + (data.message || "Unknown error"))
+      }
     } catch (err) {
       console.error('[admin] Sync all error:', err)
       alert('Failed to sync registrations. Please try again.')
     } finally {
       setSyncing(false)
     }
-  }, [])
+  }, [reload])
 
   const handleExportCSV = useCallback(() => {
     const cols = [
@@ -635,7 +648,9 @@ export function RegistrationsAdminClient({
                                   </div>
                                   <div>
                                     <p className="text-sm font-medium">{member.name}</p>
-                                    <p className="text-xs text-neutral-500">Team Member</p>
+                                    <p className="text-xs text-neutral-500">
+                                      {[(member as any).email, (member as any).phone, (member as any).college, (member as any).year].filter(Boolean).join(" | ") || "Team Member"}
+                                    </p>
                                   </div>
                                 </div>
                               ))}
@@ -652,7 +667,7 @@ export function RegistrationsAdminClient({
             {/* Empty state */}
             {filtered().length === 0 && (
               <tr>
-                <td colSpan="10" className="px-4 py-6 text-center text-neutral-500">
+                <td colSpan={10} className="px-4 py-6 text-center text-neutral-500">
                   No registrations found matching your filters
                 </td>
               </tr>

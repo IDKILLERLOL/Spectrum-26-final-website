@@ -13,8 +13,6 @@ export interface EmailMessage {
  * system-stored OAuth access token from Firestore ('systemConfig/gmail').
  */
 export async function sendEmail(message: EmailMessage, tokenOverride?: string | null): Promise<boolean> {
-  const db = getDb()
-
   let token = tokenOverride || null
   if (!token) {
     try {
@@ -44,30 +42,35 @@ export async function sendEmail(message: EmailMessage, tokenOverride?: string | 
       }
 
       if (!token) {
-        const doc = await db.collection("systemConfig").doc("gmail").get()
-        if (doc.exists) {
-          const docData = doc.data()
-          token = docData?.token || null
-          const docClientId = docData?.clientId || clientId
-          const docClientSecret = docData?.clientSecret || clientSecret
-          const docRefreshToken = docData?.refreshToken || refreshToken
+        try {
+          const db = getDb()
+          const doc = await db.collection("systemConfig").doc("gmail").get()
+          if (doc.exists) {
+            const docData = doc.data()
+            token = docData?.token || null
+            const docClientId = docData?.clientId || clientId
+            const docClientSecret = docData?.clientSecret || clientSecret
+            const docRefreshToken = docData?.refreshToken || refreshToken
 
-          if (!token && docRefreshToken && docClientId && docClientSecret) {
-            const refreshRes = await fetch("https://oauth2.googleapis.com/token", {
-              method: "POST",
-              headers: { "Content-Type": "application/x-www-form-urlencoded" },
-              body: new URLSearchParams({
-                client_id: docClientId,
-                client_secret: docClientSecret,
-                refresh_token: docRefreshToken,
-                grant_type: "refresh_token",
-              }),
-            })
-            const refreshData = await refreshRes.json()
-            if (refreshRes.ok && refreshData.access_token) {
-              token = refreshData.access_token
+            if (!token && docRefreshToken && docClientId && docClientSecret) {
+              const refreshRes = await fetch("https://oauth2.googleapis.com/token", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: new URLSearchParams({
+                  client_id: docClientId,
+                  client_secret: docClientSecret,
+                  refresh_token: docRefreshToken,
+                  grant_type: "refresh_token",
+                }),
+              })
+              const refreshData = await refreshRes.json()
+              if (refreshRes.ok && refreshData.access_token) {
+                token = refreshData.access_token
+              }
             }
           }
+        } catch (dbErr) {
+          console.warn("[email] Failed to retrieve Gmail config from Firestore:", dbErr)
         }
       }
     } catch (err) {
@@ -76,7 +79,8 @@ export async function sendEmail(message: EmailMessage, tokenOverride?: string | 
   }
 
   if (!token) {
-    const appsScriptUrl = process.env.APPS_SCRIPT_URL || process.env.VITE_GOOGLE_SHEETS_WEBAPP_URL
+    const rawUrl = process.env.APPS_SCRIPT_URL || process.env.VITE_GOOGLE_SHEETS_WEBAPP_URL
+    const appsScriptUrl = rawUrl ? rawUrl.replace(/^["']|["']$/g, "") : "https://script.google.com/macros/s/AKfycbxtCVXriQbKWhJ1BioBOZPthxQOoPthyC-5HwZNJukI8zk7CXcis5IfbXrJ7SXhluUYiw/exec"
     if (appsScriptUrl) {
       console.log(`[email] Dispatching email to ${message.to} via Apps Script Web App...`)
       try {
@@ -114,7 +118,7 @@ export async function sendEmail(message: EmailMessage, tokenOverride?: string | 
   const festName = "SPECTRUM 26"
 
   const rawMessage = [
-    `From: ${festName} <${senderEmail}>`,
+    `From: ${festName}`,
     `To: ${message.to}`,
     `Subject: ${message.subject}`,
     "Content-Type: text/html; charset=utf-8",
@@ -145,7 +149,8 @@ export async function sendEmail(message: EmailMessage, tokenOverride?: string | 
       console.warn("[email] Gmail API send failed:", err)
       
       // Fallback: Dispatch email via Google Apps Script Web App (MailApp.sendEmail)
-      const appsScriptUrl = process.env.APPS_SCRIPT_URL || process.env.VITE_GOOGLE_SHEETS_WEBAPP_URL
+      const rawUrl = process.env.APPS_SCRIPT_URL || process.env.VITE_GOOGLE_SHEETS_WEBAPP_URL
+      const appsScriptUrl = rawUrl ? rawUrl.replace(/^["']|["']$/g, "") : "https://script.google.com/macros/s/AKfycbxtCVXriQbKWhJ1BioBOZPthxQOoPthyC-5HwZNJukI8zk7CXcis5IfbXrJ7SXhluUYiw/exec"
       if (appsScriptUrl) {
         console.log(`[email] Relay email to ${message.to} via Apps Script Web App...`)
         const relayRes = await fetch(appsScriptUrl, {
@@ -168,7 +173,7 @@ export async function sendEmail(message: EmailMessage, tokenOverride?: string | 
 
       if (res.status === 401) {
         console.warn("[email] Gmail API access token expired. Clearing token from Firestore.")
-        await db.collection("systemConfig").doc("gmail").delete()
+        await getDb().collection("systemConfig").doc("gmail").delete()
       }
       return false
     }

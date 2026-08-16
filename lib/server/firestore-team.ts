@@ -1,5 +1,5 @@
 import "server-only"
-import { getDb } from "@/lib/firebase/admin"
+import { getDb, isAdminConfigured } from "@/lib/firebase/admin"
 import { Timestamp } from "firebase-admin/firestore"
 
 const COLLECTION = "team"
@@ -15,6 +15,10 @@ export interface FirestoreTeamMember {
 }
 
 export async function listTeamMembers(): Promise<FirestoreTeamMember[]> {
+  if (!isAdminConfigured()) {
+    console.warn("[listTeamMembers] Firebase Admin SDK not configured. Returning empty array.")
+    return []
+  }
   try {
     const snap = await getDb().collection(COLLECTION).orderBy("createdAt", "asc").get()
     if (snap.empty) return []
@@ -42,6 +46,9 @@ export async function createTeamMember(input: {
   imageUrl?: string
   order?: number
 }): Promise<string> {
+  if (!isAdminConfigured()) {
+    throw new Error("Firebase Admin SDK not configured. Check FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY.")
+  }
   const db = getDb()
   const now = Timestamp.now()
   const ref = await db.collection(COLLECTION).add({
@@ -59,6 +66,9 @@ export async function updateTeamMember(
   id: string,
   input: Partial<{ name: string; role: string; imageUrl: string; order: number }>
 ): Promise<void> {
+  if (!isAdminConfigured()) {
+    throw new Error("Firebase Admin SDK not configured. Check FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY.")
+  }
   const db = getDb()
   const updateData: Record<string, any> = { updatedAt: Timestamp.now() }
   if (input.name !== undefined) updateData.name = input.name.trim()
@@ -69,5 +79,8 @@ export async function updateTeamMember(
 }
 
 export async function deleteTeamMember(id: string): Promise<void> {
+  if (!isAdminConfigured()) {
+    throw new Error("Firebase Admin SDK not configured. Check FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY.")
+  }
   await getDb().collection(COLLECTION).doc(id).delete()
 }

@@ -101,7 +101,7 @@ export function RegisterPaymentStepClient({ upiVpa }: { upiVpa: string }) {
     <>
       <PageHeader title="Register" />
       <PageContainer width="narrow">
-        <StepProgress step={4} />
+        <StepProgress step={3} total={3} />
         <div className="px-5 py-6 md:px-0 md:py-10">
           <div className="p-6 md:p-8" style={ticketStyle}>
             <div className="border-b-4 pb-4 mb-5 flex justify-between items-end md:mb-6" style={{ borderColor: INK }}>
@@ -115,7 +115,7 @@ export function RegisterPaymentStepClient({ upiVpa }: { upiVpa: string }) {
               </div>
               <button
                 type="button"
-                onClick={() => router.push("/register/team")}
+                onClick={() => router.push("/register/info")}
                 className="flex items-center gap-1 text-xs font-bold underline hover:opacity-80"
                 style={{ color: INK }}
               >
@@ -210,7 +210,7 @@ export function RegisterPaymentStepClient({ upiVpa }: { upiVpa: string }) {
               <div className="flex gap-3 mt-2">
                 <AppButton
                   type="button"
-                  onClick={() => router.push("/register/team")}
+                  onClick={() => router.push("/register/info")}
                   className="w-1/3 py-3.5 text-sm md:py-4 md:text-base opacity-80"
                 >
                   Back

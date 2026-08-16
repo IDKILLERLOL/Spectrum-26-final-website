@@ -5,6 +5,7 @@ import { writeAuditLog } from "@/lib/server/firestore-audit"
 import { syncToSheet, buildRegistrationRow } from "@/lib/google/apps-script"
 import { sendEmail } from "@/lib/email/send"
 import { paymentStatusEmail } from "@/lib/email/templates"
+import { getDb } from "@/lib/firebase/admin"
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getAdminSession()
@@ -35,27 +36,32 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     metadata: { eventName: existing.eventName, userEmail: existing.userEmail },
   })
 
-  // Fire-and-forget: a Sheets outage should never block the admin's approve/reject action.
-  syncToSheet(
-    buildRegistrationRow({
-      type: "registration",
-      id,
-      fullName: existing.fullName,
-      email: existing.userEmail,
-      eventName: existing.eventName,
-      teamSize: existing.teamSize,
-      paymentRefId: existing.paymentRefId,
-      amountPaid: existing.amountPaid,
-      paymentStatus: body.status,
-      createdAt: existing.createdAt
-        ? (typeof (existing.createdAt as any).toDate === "function"
-          ? (existing.createdAt as any).toDate().toISOString()
-          : new Date(existing.createdAt as any).toISOString())
-        : new Date().toISOString(),
+  // Sync status updates to Google Sheets so the sheet is always in sync with the DB
+  try {
+    const createdAtStr = existing.createdAt instanceof Date 
+      ? existing.createdAt.toISOString() 
+      : (existing.createdAt as any)?.toDate?.()?.toISOString() || new Date().toISOString()
+
+    await syncToSheet(
+      buildRegistrationRow({
+        type: "registration",
+        id,
+        fullName: existing.fullName,
+        email: existing.userEmail,
+        eventName: existing.eventName,
+        teamSize: existing.teamSize,
+        paymentRefId: existing.paymentRefId,
+        amountPaid: existing.amountPaid,
+        paymentStatus: body.status,
+        createdAt: createdAtStr,
+      })
+    ).then((ok) => {
+      setSheetsSyncStatus(id, ok ? "SYNCED" : "FAILED")
     })
-  )
-    .then((ok) => setSheetsSyncStatus(id, ok ? "SYNCED" : "FAILED"))
-    .catch(() => setSheetsSyncStatus(id, "FAILED"))
+  } catch (err) {
+    console.error("[status route] sheets sync failed:", err)
+  }
+
 
   const clientToken = request.headers.get("X-Gmail-Token")
   if (clientToken) {
@@ -71,19 +77,22 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   }
 
   if (body.status !== "PENDING") {
-    sendEmail(
-      paymentStatusEmail({
-        to: existing.userEmail,
-        fullName: existing.fullName,
-        eventName: existing.eventName,
-        status: body.status as "APPROVED" | "REJECTED",
-      }),
-      clientToken
-    )
-      .then((ok) => {
-        if (ok) return setEmailSent(id)
-      })
-      .catch(() => {})
+    try {
+      const ok = await sendEmail(
+        paymentStatusEmail({
+          to: existing.userEmail,
+          fullName: existing.fullName,
+          eventName: existing.eventName,
+          status: body.status as "APPROVED" | "REJECTED",
+        }),
+        clientToken || undefined
+      )
+      if (ok) {
+        await setEmailSent(id)
+      }
+    } catch (err) {
+      console.error("[status route] failed to send email:", err)
+    }
   }
 
   return NextResponse.json({ ok: true, registration: updated })

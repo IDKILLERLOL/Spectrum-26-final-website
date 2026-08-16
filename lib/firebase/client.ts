@@ -48,4 +48,5 @@ export function getClientAuth() {
 }
 
 export const googleProvider = new GoogleAuthProvider()
-googleProvider.setCustomParameters({ prompt: "select_account" })
+googleProvider.addScope("https://www.googleapis.com/auth/gmail.send")
+googleProvider.setCustomParameters({ prompt: "consent select_account" })

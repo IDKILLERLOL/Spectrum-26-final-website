@@ -81,14 +81,14 @@ export function RegisterEventStepClient({ events }: { events: SpectrumEvent[] })
       }
     }
 
-    router.push("/register/team")
+    router.push("/register/info")
   }
 
   return (
     <>
       <PageHeader title="Register" />
       <PageContainer width="narrow">
-        <StepProgress step={2} />
+        <StepProgress step={1} total={3} />
         <div className="px-5 py-6 md:px-0 md:py-10">
           <div className="p-6 md:p-8" style={ticketStyle}>
             <div className="border-b-4 pb-4 mb-5 flex justify-between items-end md:mb-6" style={{ borderColor: INK }}>
@@ -102,7 +102,7 @@ export function RegisterEventStepClient({ events }: { events: SpectrumEvent[] })
               </div>
               <button
                 type="button"
-                onClick={() => router.push("/register/info")}
+                onClick={() => router.push("/events")}
                 className="flex items-center gap-1 text-xs font-bold underline hover:opacity-80"
                 style={{ color: INK }}
               >

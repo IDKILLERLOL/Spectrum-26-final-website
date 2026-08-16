@@ -1,6 +1,7 @@
 import "server-only"
 import { getDb } from "@/lib/firebase/admin"
 import { Timestamp } from "firebase-admin/firestore"
+import { isAdminConfigured } from "@/lib/firebase/admin"
 
 const COLLECTION = "sponsors"
 
@@ -13,9 +14,12 @@ export interface FirestoreSponsor {
 }
 
 export async function listSponsors(): Promise<FirestoreSponsor[]> {
+  if (!isAdminConfigured()) {
+    return []
+  }
   try {
     const snap = await getDb().collection(COLLECTION).orderBy("createdAt", "desc").get()
-    const items = snap.docs.map((doc) => {
+    return snap.docs.map((doc) => {
       const data = doc.data()
       return {
         id: doc.id,
@@ -25,31 +29,24 @@ export async function listSponsors(): Promise<FirestoreSponsor[]> {
         updatedAt: data.updatedAt ? (typeof data.updatedAt.toDate === "function" ? data.updatedAt.toDate().toISOString() : data.updatedAt) : new Date().toISOString(),
       }
     })
-
-    if (items.length > 0) return items
-  } catch (err: any) {
-    console.warn("[listSponsors] Error or Quota limit reached:", err?.message || err)
+  } catch (err) {
+    console.error("[listSponsors] Error:", err)
+    return []
   }
-
-  // Fallback to static sponsors
-  return [
-    { id: "sp_1", name: "Tech Byte", fields: { tier: "Gold Sponsor" }, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-    { id: "sp_2", name: "Devfolio", fields: { tier: "Gold Sponsor" }, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-    { id: "sp_3", name: "Pixel Labs", fields: { tier: "Silver Sponsor" }, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-    { id: "sp_4", name: "Code Crafters", fields: { tier: "Silver Sponsor" }, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-    { id: "sp_5", name: "Geek Gear", fields: { tier: "Merch Partner" }, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-  ]
 }
 
 export async function saveSponsor(id: string | null, name: string, fields: Record<string, string>): Promise<void> {
+  if (!isAdminConfigured()) {
+    throw new Error("Firebase Admin SDK not configured. Check FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY.")
+  }
   const db = getDb()
   const now = Timestamp.now()
   if (id) {
-    await db.collection(COLLECTION).doc(id).update({
+    await db.collection(COLLECTION).doc(id).set({
       name,
       fields,
       updatedAt: now,
-    })
+    }, { merge: true })
   } else {
     await db.collection(COLLECTION).add({
       name,
@@ -61,5 +58,8 @@ export async function saveSponsor(id: string | null, name: string, fields: Recor
 }
 
 export async function deleteSponsor(id: string): Promise<void> {
+  if (!isAdminConfigured()) {
+    throw new Error("Firebase Admin SDK not configured. Check FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY.")
+  }
   await getDb().collection(COLLECTION).doc(id).delete()
 }

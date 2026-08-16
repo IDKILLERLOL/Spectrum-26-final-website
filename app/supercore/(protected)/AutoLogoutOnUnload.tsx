@@ -1,19 +1,29 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 
 export function AutoLogoutOnUnload() {
-  useEffect(() => {
-    // When the user reloads or navigates away, clear the admin session cookie via beacon/fetch
-    const handleUnload = () => {
-      document.cookie = "spectrum_admin_session=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;"
-    }
+  const router = useRouter()
+  const [mounted, setMounted] = useState(false)
 
-    window.addEventListener("beforeunload", handleUnload)
-    return () => {
-      window.removeEventListener("beforeunload", handleUnload)
-    }
+  useEffect(() => {
+    setMounted(true)
   }, [])
+
+  useEffect(() => {
+    if (!mounted) return
+
+    const justLoggedIn = sessionStorage.getItem("just_logged_in")
+    if (justLoggedIn === "true") {
+      // First mount after direct login redirect: keep session, clear flag for future loads
+      sessionStorage.removeItem("just_logged_in")
+    } else {
+      // Subsequent mount (F5 / reload / refresh): force logout and redirect to login
+      document.cookie = "spectrum_admin_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;"
+      router.replace("/supercore/login")
+    }
+  }, [mounted, router])
 
   return null
 }

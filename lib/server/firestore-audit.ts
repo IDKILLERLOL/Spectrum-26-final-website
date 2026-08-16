@@ -1,6 +1,6 @@
 import "server-only"
 import { Timestamp } from "firebase-admin/firestore"
-import { getDb } from "@/lib/firebase/admin"
+import { getDb, isAdminConfigured } from "@/lib/firebase/admin"
 import { syncToSheet, buildAuditLogRow } from "@/lib/google/apps-script"
 import type { AuditLogEntry } from "@/types/firestore"
 

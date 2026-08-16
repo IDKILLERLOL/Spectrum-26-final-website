@@ -1,6 +1,6 @@
 import "server-only"
 import { Timestamp } from "firebase-admin/firestore"
-import { getDb } from "@/lib/firebase/admin"
+import { getDb, isAdminConfigured } from "@/lib/firebase/admin"
 import { hashRegistrationKey } from "./hash-email"
 import type { FirestoreRegistration, PaymentStatus } from "@/types/firestore"
 import type { RegistrationInput } from "@/lib/validation/registration"
@@ -26,8 +26,11 @@ interface CreateRegistrationInput extends RegistrationInput {
  * race condition — this is atomic at the Firestore level.
  */
 export async function createRegistration(input: CreateRegistrationInput): Promise<string> {
+  if (!isAdminConfigured()) {
+    throw new Error("Firebase Admin SDK not configured. Check FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY.")
+  }
   const db = getDb()
-  const id = hashRegistrationKey(input.eventId, input.email)
+  const id = db.collection(COLLECTION).doc().id
   const ref = db.collection(COLLECTION).doc(id)
   const now = Timestamp.now()
 
@@ -39,7 +42,24 @@ export async function createRegistration(input: CreateRegistrationInput): Promis
     year: input.year,
     eventId: input.eventId,
     eventName: input.eventName,
-    teamMembers: input.teamMembers.map((name) => ({ name })),
+    teamName: (input as any).teamName || "",
+    teamMembers: input.teamMembers.map((str) => {
+      try {
+        const parsed = JSON.parse(str)
+        if (parsed && typeof parsed === "object" && parsed.name) {
+          return {
+            name: parsed.name,
+            email: parsed.email || "",
+            phone: parsed.phone || "",
+            college: parsed.college || "",
+            year: parsed.year || "",
+          }
+        }
+      } catch {
+        // Not a JSON string (e.g. other events)
+      }
+      return { name: str }
+    }),
     teamSize: 1 + input.teamMembers.length,
     paymentRefId: input.paymentRefId,
     pictureUrl: input.pictureUrl || "",
@@ -53,19 +73,15 @@ export async function createRegistration(input: CreateRegistrationInput): Promis
     updatedAt: now,
   }
 
-  try {
-    await ref.create(doc)
-  } catch (err) {
-    const code = (err as { code?: number })?.code
-    // Firestore Admin SDK gRPC status 6 = ALREADY_EXISTS
-    if (code === 6) throw new DuplicateRegistrationError()
-    throw err
-  }
+  await ref.set(doc)
 
   return id
 }
 
 export async function getRegistration(id: string): Promise<(FirestoreRegistration & { id: string }) | null> {
+  if (!isAdminConfigured()) {
+    throw new Error("Firebase Admin SDK not configured. Check FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY.")
+  }
   const db = getDb()
   const doc = await db.collection(COLLECTION).doc(id).get()
   if (!doc.exists) return null
@@ -139,6 +155,9 @@ export async function listRegistrations(filters?: {
   eventId?: string
   paymentStatus?: PaymentStatus
 }): Promise<(FirestoreRegistration & { id: string })[]> {
+  if (!isAdminConfigured()) {
+    throw new Error("Firebase Admin SDK not configured. Check FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY.")
+  }
   const db = getDb()
 
   // Return cached result if within TTL

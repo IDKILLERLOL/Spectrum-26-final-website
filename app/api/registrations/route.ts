@@ -53,39 +53,63 @@ export async function POST(request: Request) {
       year: input.year,
     })
 
-    // Fire-and-forget: never let a Sheets outage block the registration response.
-    syncToSheet(
-      buildRegistrationRow({
-        type: "registration",
-        id,
-        fullName: input.fullName,
-        email: input.email,
-        eventName: event.name,
-        teamSize: 1 + input.teamMembers.length,
-        paymentRefId: input.paymentRefId,
-        amountPaid: event.feeNumeric,
-        paymentStatus: "PENDING",
-        createdAt: new Date().toISOString(),
-      })
-    )
-      .then((ok) => setSheetsSyncStatus(id, ok ? "SYNCED" : "FAILED"))
-      .catch(() => setSheetsSyncStatus(id, "FAILED"))
-
-    // Fire-and-forget: an email-provider outage should never block the registration response.
-    sendEmail(
-      registrationReceivedEmail({
-        to: input.email,
-        fullName: input.fullName,
-        eventName: event.name,
-        teamSize: 1 + input.teamMembers.length,
-        amountPaid: event.feeNumeric,
-        paymentRefId: input.paymentRefId,
-      })
-    )
-      .then((ok) => {
-        if (ok) return setEmailSent(id)
-      })
-      .catch(() => {})
+    // Await both Sheets sync and Email delivery to prevent Vercel container pauses
+    await Promise.all([
+      syncToSheet(
+        buildRegistrationRow({
+          type: "registration",
+          id,
+          fullName: input.fullName,
+          email: input.email,
+          phone: input.phone,
+          collegeName: input.collegeName ?? "",
+          year: input.year,
+          eventName: event.name,
+          teamSize: 1 + input.teamMembers.length,
+          paymentRefId: input.paymentRefId,
+          amountPaid: event.feeNumeric,
+          paymentStatus: "PENDING",
+          createdAt: new Date().toISOString(),
+          teamName: input.teamName || "",
+          pictureUrl: input.pictureUrl || "",
+          teamMembers: input.teamMembers.map((str) => {
+            try {
+              const parsed = JSON.parse(str)
+              if (parsed && typeof parsed === "object" && parsed.name) {
+                return {
+                  name: parsed.name,
+                  email: parsed.email || "",
+                  phone: parsed.phone || "",
+                  collegeName: parsed.college || parsed.collegeName || "",
+                  year: parsed.year || "",
+                }
+              }
+            } catch {}
+            return { name: str, email: "", phone: "", collegeName: "", year: "" }
+          })
+        })
+      )
+        .then((ok) => {
+          setSheetsSyncStatus(id, ok ? "SYNCED" : "FAILED")
+        })
+        .catch(() => {
+          setSheetsSyncStatus(id, "FAILED")
+        }),
+      sendEmail(
+        registrationReceivedEmail({
+          to: input.email,
+          fullName: input.fullName,
+          eventName: event.name,
+          teamSize: 1 + input.teamMembers.length,
+          amountPaid: event.feeNumeric,
+          paymentRefId: input.paymentRefId,
+        })
+      )
+        .then((ok) => {
+          if (ok) setEmailSent(id)
+        })
+        .catch(() => {})
+    ])
 
     return NextResponse.json({ ok: true, id }, { status: 201 })
   } catch (err) {

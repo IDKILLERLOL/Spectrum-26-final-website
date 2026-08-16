@@ -11,22 +11,46 @@ export async function POST() {
 
   const registrations = await listRegistrations()
 
+  // Sort chronologically by createdAt timestamp (oldest first)
+  registrations.sort((a, b) => {
+    const timeA = typeof a.createdAt === "string" ? new Date(a.createdAt).getTime() : (a.createdAt as any)?.toDate?.()?.getTime() || 0
+    const timeB = typeof b.createdAt === "string" ? new Date(b.createdAt).getTime() : (b.createdAt as any)?.toDate?.()?.getTime() || 0
+    return timeA - timeB
+  })
+
   let synced = 0
   let failed = 0
 
   for (const reg of registrations) {
+    // Only sync new/unsynced records
+    if (reg.sheetsSyncStatus === "SYNCED") {
+      continue
+    }
+
     const ok = await syncToSheet(
       buildRegistrationRow({
         type: "registration",
         id: reg.id,
         fullName: reg.fullName,
         email: reg.userEmail,
+        phone: reg.phone || "",
+        collegeName: reg.collegeName || "",
+        year: reg.year || "",
         eventName: reg.eventName,
         teamSize: reg.teamSize,
         paymentRefId: reg.paymentRefId,
         amountPaid: reg.amountPaid,
         paymentStatus: reg.paymentStatus,
-        createdAt: reg.createdAt.toDate().toISOString(),
+        createdAt: typeof reg.createdAt === "string" ? reg.createdAt : (reg.createdAt as any)?.toDate?.()?.toISOString() || new Date().toISOString(),
+        teamName: reg.teamName || "",
+        pictureUrl: reg.pictureUrl || "",
+        teamMembers: reg.teamMembers?.map((m: any) => ({
+          name: m.name,
+          email: m.email || "",
+          phone: m.phone || "",
+          collegeName: m.college || m.collegeName || "",
+          year: m.year || "",
+        })) || []
       })
     )
     await setSheetsSyncStatus(reg.id, ok ? "SYNCED" : "FAILED")
