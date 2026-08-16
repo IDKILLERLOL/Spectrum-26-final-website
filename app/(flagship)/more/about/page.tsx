@@ -10,9 +10,13 @@ export default function AboutPage() {
     <>
       <PageHeader title="About Us" subtitle={site.aboutShort} />
       <PageContainer width="narrow" className="flex flex-col gap-4 px-5 py-4 md:py-8">
-        <Card className="flex h-32 items-center justify-center" style={{ background: SKY }}>
-          <div className="h-16 w-24" style={{ background: GREEN, clipPath: "polygon(10% 0,90% 10%,100% 60%,70% 100%,0 80%)" }} />
-        </Card>
+        <div className="w-full flex justify-center mb-2">
+          <img
+            src="/mission-removebg-preview.png"
+            alt="Our Mission"
+            className="w-full max-w-lg h-auto object-contain"
+          />
+        </div>
 
         {/* Hoarding panel with rounded corner dot flourish */}
         <div
