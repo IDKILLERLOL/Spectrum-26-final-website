@@ -72,8 +72,9 @@ export async function syncToSheet(payload: object): Promise<boolean> {
     return true
   }
 
-  const rawUrl = process.env.APPS_SCRIPT_URL || process.env.VITE_GOOGLE_SHEETS_WEBAPP_URL
+  const rawUrl = process.env.SHEETS_APPS_SCRIPT_URL || process.env.APPS_SCRIPT_URL || process.env.VITE_GOOGLE_SHEETS_WEBAPP_URL
   const url = rawUrl ? rawUrl.replace(/^["']|["']$/g, "") : "https://script.google.com/macros/s/AKfycbxtCVXriQbKWhJ1BioBOZPthxQOoPthyC-5HwZNJukI8zk7CXcis5IfbXrJ7SXhluUYiw/exec"
+  const secret = process.env.SHEETS_APPS_SCRIPT_SECRET || process.env.APPS_SCRIPT_SECRET || ""
 
   try {
     let spreadsheetId = process.env.GOOGLE_SHEETS_ID || process.env.VITE_GOOGLE_SHEETS_ID || ""
@@ -425,7 +426,7 @@ async function updateOrAppendRegistration(
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({ ...payload, spreadsheetId, sheetId: spreadsheetId }),
+      body: JSON.stringify({ ...payload, spreadsheetId, sheetId: spreadsheetId, secret, appsScriptSecret: secret }),
       redirect: "follow",
       signal: AbortSignal.timeout(15000),
     })
@@ -437,8 +438,9 @@ async function updateOrAppendRegistration(
 }
 
 export async function fetchFromSheet(): Promise<any[]> {
-  const rawUrl = process.env.APPS_SCRIPT_URL || process.env.VITE_GOOGLE_SHEETS_WEBAPP_URL
+  const rawUrl = process.env.SHEETS_APPS_SCRIPT_URL || process.env.APPS_SCRIPT_URL || process.env.VITE_GOOGLE_SHEETS_WEBAPP_URL
   const url = rawUrl ? rawUrl.replace(/^["']|["']$/g, "") : "https://script.google.com/macros/s/AKfycbxtCVXriQbKWhJ1BioBOZPthxQOoPthyC-5HwZNJukI8zk7CXcis5IfbXrJ7SXhluUYiw/exec"
+  const secret = process.env.SHEETS_APPS_SCRIPT_SECRET || process.env.APPS_SCRIPT_SECRET || ""
 
   try {
     let spreadsheetId = process.env.GOOGLE_SHEETS_ID || process.env.VITE_GOOGLE_SHEETS_ID || ""
@@ -518,6 +520,9 @@ export async function fetchFromSheet(): Promise<any[]> {
     let fetchUrl = url.includes("?") ? `${url}&action=readRegistrations` : `${url}?action=readRegistrations`
     if (spreadsheetId) {
       fetchUrl += `&spreadsheetId=${spreadsheetId}`
+    }
+    if (secret) {
+      fetchUrl += `&secret=${encodeURIComponent(secret)}&appsScriptSecret=${encodeURIComponent(secret)}`
     }
     const res = await fetch(fetchUrl, {
       method: "GET",
