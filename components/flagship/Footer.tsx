@@ -44,8 +44,6 @@ export function Footer() {
         <div className="flex items-center gap-2">
           <a
             href="https://www.instagram.com/spectrum.sbmp?igsh=MWJ4dTA5ajAzZG5zaQ=="
-            target="_blank"
-            rel="noopener noreferrer"
             className={`${questBody.className} text-xs font-bold flex items-center gap-1.5 uppercase transition-colors hover:opacity-80`}
             style={{ color: INK }}
           >
