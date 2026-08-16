@@ -14,7 +14,7 @@ export default function AboutPage() {
           <img
             src="/mission-removebg-preview.png"
             alt="Our Mission"
-            className="w-full max-w-lg h-auto object-contain"
+            className="w-full max-w-2xl h-auto object-contain"
           />
         </div>
 
