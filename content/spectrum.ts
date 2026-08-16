@@ -70,7 +70,7 @@ export const events: SpectrumEvent[] = [
     shortName: "Dual Debug",
     tag: "Duo coding face-off.",
     format: "Duo Partners",
-    fee: "₹150 / person",
+    fee: "₹150 / team",
     feeNumeric: 150,
     capacity: 2,
     teamSize: "2 Participants",
