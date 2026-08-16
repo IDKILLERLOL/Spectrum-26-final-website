@@ -94,6 +94,18 @@ export async function sendEmail(message: EmailMessage, tokenOverride?: string | 
   }
 
   if (!token) {
+    let authHeader: Record<string, string> = {}
+    try {
+      const db = getDb()
+      const settingsDoc = await db.collection("settings").doc("global").get()
+      const activeSender = settingsDoc.data()?.activeGmailSender || "sbmpspectrum@gmail.com"
+      const tokenDoc = await db.collection("gmailTokens").doc(activeSender).get()
+      const tempToken = tokenDoc.data()?.token
+      if (tempToken) {
+        authHeader = { Authorization: `Bearer ${tempToken}` }
+      }
+    } catch {}
+
     const rawUrl = process.env.APPS_SCRIPT_URL || process.env.VITE_GOOGLE_SHEETS_WEBAPP_URL
     const appsScriptUrl = rawUrl ? rawUrl.replace(/^["']|["']$/g, "") : "https://script.google.com/macros/s/AKfycbxtCVXriQbKWhJ1BioBOZPthxQOoPthyC-5HwZNJukI8zk7CXcis5IfbXrJ7SXhluUYiw/exec"
     if (appsScriptUrl) {
@@ -101,7 +113,10 @@ export async function sendEmail(message: EmailMessage, tokenOverride?: string | 
       try {
         const relayRes = await fetch(appsScriptUrl, {
           method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          headers: {
+            "Content-Type": "application/json",
+            ...authHeader
+          },
           body: JSON.stringify({
             apiKey: process.env.APPS_SCRIPT_SECRET || "SECRET123",
             type: "email",
@@ -171,7 +186,10 @@ export async function sendEmail(message: EmailMessage, tokenOverride?: string | 
         console.log(`[email] Relay email to ${message.to} via Apps Script Web App...`)
         const relayRes = await fetch(appsScriptUrl, {
           method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
           body: JSON.stringify({
             apiKey: process.env.APPS_SCRIPT_SECRET || "SECRET123",
             type: "email",
