@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Home, Gamepad2, CalendarDays, MoreHorizontal, X, Trophy, Users, Image, Info, Phone } from "lucide-react"
+import { Home, Gamepad2, CalendarDays, MoreHorizontal, X, Trophy, Users, Image, Info, Phone, Instagram } from "lucide-react"
 import { INK, VERMILION, MUSTARD, AGED_PAPER } from "./tokens"
 import { questDisplay, questBody } from "./fonts"
 
@@ -29,12 +29,24 @@ export function DesktopNav() {
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
   const [moreOpen, setMoreOpen] = useState(false)
+  const [instagramTarget, setInstagramTarget] = useState("_blank")
 
   // Close sidebar and dropdown on path change
   useEffect(() => {
     setIsOpen(false)
     setMoreOpen(false)
   }, [pathname])
+
+  // Detect restricted iframe or webview environment
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const isIframe = window.self !== window.top
+      const isWebView = /FBAN|FBAV|Instagram|LinkedIn/i.test(navigator.userAgent)
+      if (isIframe || isWebView) {
+        setInstagramTarget("_self")
+      }
+    }
+  }, [])
 
   return (
     <>
@@ -115,14 +127,25 @@ export function DesktopNav() {
             </div>
           </nav>
 
-          <button
-            type="button"
-            onClick={() => router.push("/register")}
-            className={`${questDisplay.className} border-2 px-5 py-2 text-sm transition-transform hover:-translate-y-0.5`}
-            style={{ borderColor: INK, background: VERMILION, color: AGED_PAPER, boxShadow: `3px 3px 0px ${INK}` }}
-          >
-            Register
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => router.push("/register")}
+              className={`${questDisplay.className} border-2 px-5 py-2 text-sm transition-transform hover:-translate-y-0.5`}
+              style={{ borderColor: INK, background: VERMILION, color: AGED_PAPER, boxShadow: `3px 3px 0px ${INK}` }}
+            >
+              Register
+            </button>
+            <a
+              href="https://www.instagram.com/spectrum.sbmp?igsh=MWJ4dTA5ajAzZG5zaQ=="
+              target={instagramTarget}
+              rel="noopener noreferrer"
+              className="flex size-9 items-center justify-center border-2 transition-transform hover:-translate-y-0.5"
+              style={{ background: VERMILION, borderColor: INK, color: AGED_PAPER, boxShadow: `3px 3px 0px ${INK}` }}
+            >
+              <Instagram size={18} />
+            </a>
+          </div>
         </div>
       </header>
 
@@ -162,8 +185,15 @@ export function DesktopNav() {
           Spectrum <span style={{ color: VERMILION }}>5.0</span>
         </Link>
 
-        {/* Empty layout spacer to center the logo */}
-        <div className="w-6" />
+        <a
+          href="https://www.instagram.com/spectrum.sbmp?igsh=MWJ4dTA5ajAzZG5zaQ=="
+          target={instagramTarget}
+          rel="noopener noreferrer"
+          className="flex size-8 items-center justify-center border-2 transition-transform active:scale-95"
+          style={{ background: VERMILION, borderColor: INK, color: AGED_PAPER, boxShadow: `2px 2px 0px ${INK}` }}
+        >
+          <Instagram size={16} />
+        </a>
       </header>
 
       {/* ─── MOBILE SIDEBAR & BACKDROP ─── */}
