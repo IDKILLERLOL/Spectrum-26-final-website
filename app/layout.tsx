@@ -7,9 +7,7 @@ export const metadata: Metadata = {
   title: `${site.name} — ${site.tagline}`,
   description: `${site.about} ${site.date} · ${site.venue}`,
   icons: {
-    icon: [
-      { url: "/icon-light-32x32.png" },
-    ],
+    icon: "/favicon.ico",
     apple: "/apple-icon.png",
   },
 }
