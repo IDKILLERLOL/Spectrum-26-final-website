@@ -8,8 +8,8 @@ import { Instagram } from "lucide-react"
 
 export function Footer() {
   return (
-    <footer className="w-full border-t-4 py-8 px-5 md:px-10 mt-auto shrink-0 bg-white" style={{ borderColor: INK }}>
-      <div className="mx-auto max-w-7xl flex flex-col md:flex-row items-center justify-between gap-6">
+    <footer className="w-full border-t-4 py-4 px-5 md:px-10 mt-auto shrink-0 bg-white" style={{ borderColor: INK }}>
+      <div className="mx-auto max-w-7xl flex flex-col md:flex-row items-center justify-between gap-4">
         {/* Left: Copyright */}
         <p className={`${questBody.className} text-xs font-bold text-center md:text-left`} style={{ color: INK }}>
           © 2026 Spectrum 5.0. All Rights Reserved.
@@ -41,10 +41,7 @@ export function Footer() {
         </div>
 
         {/* Right: Social Media */}
-        <div className="flex flex-col items-center md:items-end gap-2">
-          <p className={`${questDisplay.className} text-[10px] uppercase tracking-widest font-bold`} style={{ color: INK }}>
-            Social Media
-          </p>
+        <div className="flex items-center gap-2">
           <a
             href="https://www.instagram.com/"
             target="_blank"
