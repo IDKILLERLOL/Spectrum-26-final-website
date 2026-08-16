@@ -16,31 +16,44 @@ export async function sendEmail(message: EmailMessage, tokenOverride?: string | 
   let token = tokenOverride || null
   if (!token) {
     try {
-      // 1. Try Firestore systemConfig/gmail token first (updated when admin logs in)
+      // 1. Try Firestore active sender token first
       try {
         const db = getDb()
-        const doc = await db.collection("systemConfig").doc("gmail").get()
-        if (doc.exists) {
-          const docData = doc.data()
-          token = docData?.token || null
-          const docClientId = docData?.clientId
-          const docClientSecret = docData?.clientSecret
-          const docRefreshToken = docData?.refreshToken
+        // Get active sender from settings
+        const settingsDoc = await db.collection("settings").doc("global").get()
+        const activeSender = settingsDoc.data()?.activeGmailSender || "sbmpspectrum@gmail.com"
 
-          if (!token && docRefreshToken && docClientId && docClientSecret) {
-            const refreshRes = await fetch("https://oauth2.googleapis.com/token", {
-              method: "POST",
-              headers: { "Content-Type": "application/x-www-form-urlencoded" },
-              body: new URLSearchParams({
-                client_id: docClientId,
-                client_secret: docClientSecret,
-                refresh_token: docRefreshToken,
-                grant_type: "refresh_token",
-              }),
-            })
-            const refreshData = await refreshRes.json()
-            if (refreshRes.ok && refreshData.access_token) {
-              token = refreshData.access_token
+        // Fetch token for the active sender from gmailTokens
+        const tokenDoc = await db.collection("gmailTokens").doc(activeSender).get()
+        if (tokenDoc.exists) {
+          token = tokenDoc.data()?.token || null
+        }
+
+        // Fallback: Check legacy systemConfig/gmail document
+        if (!token) {
+          const doc = await db.collection("systemConfig").doc("gmail").get()
+          if (doc.exists) {
+            const docData = doc.data()
+            token = docData?.token || null
+            const docClientId = docData?.clientId
+            const docClientSecret = docData?.clientSecret
+            const docRefreshToken = docData?.refreshToken
+
+            if (!token && docRefreshToken && docClientId && docClientSecret) {
+              const refreshRes = await fetch("https://oauth2.googleapis.com/token", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: new URLSearchParams({
+                  client_id: docClientId,
+                  client_secret: docClientSecret,
+                  refresh_token: docRefreshToken,
+                  grant_type: "refresh_token",
+                }),
+              })
+              const refreshData = await refreshRes.json()
+              if (refreshRes.ok && refreshData.access_token) {
+                token = refreshData.access_token
+              }
             }
           }
         }
@@ -81,23 +94,39 @@ export async function sendEmail(message: EmailMessage, tokenOverride?: string | 
   }
 
   if (!token) {
+    let authHeader: Record<string, string> = {}
+    try {
+      const db = getDb()
+      const settingsDoc = await db.collection("settings").doc("global").get()
+      const activeSender = settingsDoc.data()?.activeGmailSender || "sbmpspectrum@gmail.com"
+      const tokenDoc = await db.collection("gmailTokens").doc(activeSender).get()
+      const tempToken = tokenDoc.data()?.token
+      if (tempToken) {
+        authHeader = { Authorization: `Bearer ${tempToken}` }
+      }
+    } catch {}
+
     const rawUrl = process.env.EMAIL_APPS_SCRIPT_URL || process.env.APPS_SCRIPT_URL || process.env.VITE_GOOGLE_SHEETS_WEBAPP_URL
     const appsScriptUrl = rawUrl ? rawUrl.replace(/^["']|["']$/g, "") : "https://script.google.com/macros/s/AKfycbxtCVXriQbKWhJ1BioBOZPthxQOoPthyC-5HwZNJukI8zk7CXcis5IfbXrJ7SXhluUYiw/exec"
-    const secret = process.env.EMAIL_APPS_SCRIPT_SECRET || process.env.APPS_SCRIPT_SECRET || ""
+    const secret = process.env.EMAIL_APPS_SCRIPT_SECRET || process.env.APPS_SCRIPT_SECRET || "SECRET123"
     if (appsScriptUrl) {
       console.log(`[email] Dispatching email to ${message.to} via Apps Script Web App...`)
       try {
         const relayRes = await fetch(appsScriptUrl, {
           method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          headers: {
+            "Content-Type": "application/json",
+            ...authHeader
+          },
           body: JSON.stringify({
+            apiKey: secret,
+            secret,
+            appsScriptSecret: secret,
             type: "email",
             to: message.to,
             subject: message.subject,
             html: message.html,
             text: message.text,
-            secret,
-            appsScriptSecret: secret,
           }),
         })
         if (relayRes.ok || relayRes.status === 302 || relayRes.status === 200) {
@@ -156,20 +185,24 @@ export async function sendEmail(message: EmailMessage, tokenOverride?: string | 
       // Fallback: Dispatch email via Google Apps Script Web App (MailApp.sendEmail)
       const rawUrl = process.env.EMAIL_APPS_SCRIPT_URL || process.env.APPS_SCRIPT_URL || process.env.VITE_GOOGLE_SHEETS_WEBAPP_URL
       const appsScriptUrl = rawUrl ? rawUrl.replace(/^["']|["']$/g, "") : "https://script.google.com/macros/s/AKfycbxtCVXriQbKWhJ1BioBOZPthxQOoPthyC-5HwZNJukI8zk7CXcis5IfbXrJ7SXhluUYiw/exec"
-      const secret = process.env.EMAIL_APPS_SCRIPT_SECRET || process.env.APPS_SCRIPT_SECRET || ""
+      const secret = process.env.EMAIL_APPS_SCRIPT_SECRET || process.env.APPS_SCRIPT_SECRET || "SECRET123"
       if (appsScriptUrl) {
         console.log(`[email] Relay email to ${message.to} via Apps Script Web App...`)
         const relayRes = await fetch(appsScriptUrl, {
           method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
           body: JSON.stringify({
+            apiKey: secret,
+            secret,
+            appsScriptSecret: secret,
             type: "email",
             to: message.to,
             subject: message.subject,
             html: message.html,
             text: message.text,
-            secret,
-            appsScriptSecret: secret,
           }),
         }).catch(() => null)
 
