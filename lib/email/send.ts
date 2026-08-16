@@ -1,6 +1,5 @@
 import "server-only"
 import { getDb } from "@/lib/firebase/admin"
-import { headers } from "next/headers"
 
 export interface EmailMessage {
   to: string
@@ -115,19 +114,7 @@ export async function sendEmail(message: EmailMessage, tokenOverride?: string | 
   }
 
   // Construct MIME email RFC 822 format
-  let domain = "spectrum-2026.com"
-  try {
-    const headersList = await headers()
-    const hostHeader = headersList.get("host") || ""
-    if (hostHeader) {
-      const baseHost = hostHeader.split(":")[0]
-      domain = baseHost.replace(/^www\./i, "")
-    }
-  } catch {
-    // Fallback if called outside HTTP request context
-  }
-
-  const senderEmail = `noreply@${domain}`
+  const senderEmail = process.env.VITE_SENDER_EMAIL || "i.doshi30@gmail.com"
   const festName = "SPECTRUM 26"
 
   const rawMessage = [
