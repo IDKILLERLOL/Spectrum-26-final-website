@@ -236,6 +236,7 @@ export async function listRegistrations(filters?: {
         year: regData.year || "FY",
         eventId: regData.eventId || "",
         eventName: eventName,
+        teamName: regData.teamName || regData.team_name || "",
         teamMembers: teamMembers,
         teamSize: teamMembers.length || 1,
         paymentRefId: regData.paymentRefId || regData.upiTransactionRef || "",
