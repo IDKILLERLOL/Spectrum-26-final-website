@@ -36,7 +36,9 @@ export default async function AdminSettingsPage() {
   try {
     const db = getDb()
     const whitelistSnap = await db.collection("adminWhitelist").get()
-    adminEmails = whitelistSnap.docs.map(doc => doc.id)
+    adminEmails = whitelistSnap.docs
+      .map(doc => doc.id)
+      .filter(email => email.includes("@"))
   } catch (err) {
     console.error("Failed to fetch admin whitelist:", err)
   }
