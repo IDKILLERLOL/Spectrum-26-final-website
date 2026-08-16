@@ -103,6 +103,7 @@ export async function sendEmail(message: EmailMessage, tokenOverride?: string | 
           method: "POST",
           headers: { "Content-Type": "text/plain;charset=utf-8" },
           body: JSON.stringify({
+            apiKey: process.env.APPS_SCRIPT_SECRET || "SECRET123",
             type: "email",
             to: message.to,
             subject: message.subject,
@@ -172,6 +173,7 @@ export async function sendEmail(message: EmailMessage, tokenOverride?: string | 
           method: "POST",
           headers: { "Content-Type": "text/plain;charset=utf-8" },
           body: JSON.stringify({
+            apiKey: process.env.APPS_SCRIPT_SECRET || "SECRET123",
             type: "email",
             to: message.to,
             subject: message.subject,

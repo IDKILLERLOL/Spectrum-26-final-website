@@ -2,6 +2,13 @@ function doPost(e) {
   try {
     var data = JSON.parse(e.postData.contents);
     
+    // Security check: validate API key
+    var SECRET_KEY = "SECRET123"; // You can change this secret key if needed
+    if (!data.apiKey || data.apiKey !== SECRET_KEY) {
+      return ContentService.createTextOutput(JSON.stringify({ status: "error", message: "Unauthorized: Invalid API key" }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+    
     // 1. Handle Email Dispatching
     if (data.type === "email") {
       GmailApp.sendEmail(data.to, data.subject, data.text, {
