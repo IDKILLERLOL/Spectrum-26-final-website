@@ -187,7 +187,7 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
               </div>
 
               <p className={`${questBody.className} text-sm leading-relaxed opacity-90`} style={{ color: NAVY }}>
-                {selectedEvent?.description}
+                {selectedEvent?.description?.split("\n\n")[0]}
               </p>
 
               {/* Accordion for Rounds & Prizes */}
