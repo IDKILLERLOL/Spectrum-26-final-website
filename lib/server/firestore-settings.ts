@@ -15,6 +15,7 @@ const fallbackSettings: SettingsDoc = {
   upiVpa: process.env.UPI_VPA ?? "",
   sheetId: "",
   registrationOpen: true,
+  activeGmailSender: "sbmpspectrum@gmail.com",
   updatedAt: Timestamp.now(),
   updatedBy: "env-fallback",
 }

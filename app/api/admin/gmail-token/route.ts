@@ -14,6 +14,12 @@ export async function POST(request: Request) {
     }
 
     const db = getDb()
+    await db.collection("gmailTokens").doc(session.email).set({
+      email: session.email,
+      token,
+      updatedAt: new Date().toISOString(),
+    })
+
     await db.collection("systemConfig").doc("gmail").set({
       token,
       updatedAt: new Date().toISOString(),

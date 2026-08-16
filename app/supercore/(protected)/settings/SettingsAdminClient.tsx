@@ -16,12 +16,13 @@ const btnSecondaryClass =
 
 type SettingsView = Omit<SettingsDoc, "updatedAt"> & { updatedAt: string }
 
-export function SettingsAdminClient({ settings }: { settings: SettingsView }) {
+export function SettingsAdminClient({ settings, adminEmails }: { settings: SettingsView; adminEmails: string[] }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [upiVpa, setUpiVpa] = useState(settings.upiVpa)
   const [sheetId, setSheetId] = useState(settings.sheetId)
   const [registrationOpen, setRegistrationOpen] = useState(settings.registrationOpen)
+  const [activeGmailSender, setActiveGmailSender] = useState(settings.activeGmailSender || "sbmpspectrum@gmail.com")
   const [error, setError] = useState<string | null>(null)
   const [saved, setSaved] = useState(false)
   const [connectingGmail, setConnectingGmail] = useState(false)
@@ -66,7 +67,7 @@ export function SettingsAdminClient({ settings }: { settings: SettingsView }) {
     const res = await fetch("/api/admin/settings", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ upiVpa, sheetId, registrationOpen }),
+      body: JSON.stringify({ upiVpa, sheetId, registrationOpen, activeGmailSender }),
     })
     if (!res.ok) {
       const data = await res.json().catch(() => ({}))
@@ -118,6 +119,24 @@ export function SettingsAdminClient({ settings }: { settings: SettingsView }) {
       </div>
 
       <form className="flex flex-col gap-4 rounded border border-neutral-800 bg-neutral-900/50 p-4" onSubmit={handleSubmit}>
+        <div className="flex flex-col gap-1">
+          <label className={labelClass}>Active Email Sender</label>
+          <select
+            className={inputClass}
+            style={{ colorScheme: "dark" }}
+            value={activeGmailSender}
+            onChange={(e) => setActiveGmailSender(e.target.value)}
+          >
+            {adminEmails.map((email) => (
+              <option key={email} value={email}>
+                {email}
+              </option>
+            ))}
+          </select>
+          <p className="text-[11px] text-neutral-400 mt-1">
+            Emails will be sent using the Gmail API connection of the selected administrator. Ensure they have clicked "Connect Gmail Account" above.
+          </p>
+        </div>
         <div className="flex flex-col gap-1">
           <label className={labelClass}>UPI VPA</label>
           <input className={inputClass} value={upiVpa} onChange={(e) => setUpiVpa(e.target.value)} placeholder="spectrum@upi" />

@@ -16,31 +16,44 @@ export async function sendEmail(message: EmailMessage, tokenOverride?: string | 
   let token = tokenOverride || null
   if (!token) {
     try {
-      // 1. Try Firestore systemConfig/gmail token first (updated when admin logs in)
+      // 1. Try Firestore active sender token first
       try {
         const db = getDb()
-        const doc = await db.collection("systemConfig").doc("gmail").get()
-        if (doc.exists) {
-          const docData = doc.data()
-          token = docData?.token || null
-          const docClientId = docData?.clientId
-          const docClientSecret = docData?.clientSecret
-          const docRefreshToken = docData?.refreshToken
+        // Get active sender from settings
+        const settingsDoc = await db.collection("settings").doc("global").get()
+        const activeSender = settingsDoc.data()?.activeGmailSender || "sbmpspectrum@gmail.com"
 
-          if (!token && docRefreshToken && docClientId && docClientSecret) {
-            const refreshRes = await fetch("https://oauth2.googleapis.com/token", {
-              method: "POST",
-              headers: { "Content-Type": "application/x-www-form-urlencoded" },
-              body: new URLSearchParams({
-                client_id: docClientId,
-                client_secret: docClientSecret,
-                refresh_token: docRefreshToken,
-                grant_type: "refresh_token",
-              }),
-            })
-            const refreshData = await refreshRes.json()
-            if (refreshRes.ok && refreshData.access_token) {
-              token = refreshData.access_token
+        // Fetch token for the active sender from gmailTokens
+        const tokenDoc = await db.collection("gmailTokens").doc(activeSender).get()
+        if (tokenDoc.exists) {
+          token = tokenDoc.data()?.token || null
+        }
+
+        // Fallback: Check legacy systemConfig/gmail document
+        if (!token) {
+          const doc = await db.collection("systemConfig").doc("gmail").get()
+          if (doc.exists) {
+            const docData = doc.data()
+            token = docData?.token || null
+            const docClientId = docData?.clientId
+            const docClientSecret = docData?.clientSecret
+            const docRefreshToken = docData?.refreshToken
+
+            if (!token && docRefreshToken && docClientId && docClientSecret) {
+              const refreshRes = await fetch("https://oauth2.googleapis.com/token", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: new URLSearchParams({
+                  client_id: docClientId,
+                  client_secret: docClientSecret,
+                  refresh_token: docRefreshToken,
+                  grant_type: "refresh_token",
+                }),
+              })
+              const refreshData = await refreshRes.json()
+              if (refreshRes.ok && refreshData.access_token) {
+                token = refreshData.access_token
+              }
             }
           }
         }

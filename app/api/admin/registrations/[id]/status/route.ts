@@ -70,6 +70,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
           fullName: existing.fullName,
           eventName: existing.eventName,
           status: body.status as "APPROVED" | "REJECTED",
+          phone: existing.phone,
+          collegeName: existing.collegeName,
+          teamName: existing.teamName,
+          teamMembers: existing.teamMembers,
         })
       )
       if (ok) {

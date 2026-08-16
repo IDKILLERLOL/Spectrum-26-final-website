@@ -103,6 +103,24 @@ export async function POST(request: Request) {
           teamSize: 1 + input.teamMembers.length,
           amountPaid: event.feeNumeric,
           paymentRefId: input.paymentRefId,
+          phone: input.phone,
+          collegeName: input.collegeName,
+          teamName: (input as any).teamName || "",
+          teamMembers: input.teamMembers.map((str) => {
+            try {
+              const parsed = JSON.parse(str)
+              if (parsed && typeof parsed === "object" && parsed.name) {
+                return {
+                  name: parsed.name,
+                  email: parsed.email || "",
+                  phone: parsed.phone || "",
+                  college: parsed.college || parsed.collegeName || "",
+                  year: parsed.year || "",
+                }
+              }
+            } catch {}
+            return { name: str }
+          })
         })
       )
         .then((ok) => {

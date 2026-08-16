@@ -22,6 +22,8 @@ function serializeTimestamps(obj: any): any {
   return obj
 }
 
+import { getDb } from "@/lib/firebase/admin"
+
 export default async function AdminSettingsPage() {
   const raw = await getSettings()
   const serialized = serializeTimestamps(raw)
@@ -29,5 +31,19 @@ export default async function AdminSettingsPage() {
     ...serialized,
     updatedAt: serialized.updatedAt || new Date().toISOString(),
   }
-  return <SettingsAdminClient settings={settings} />
+
+  let adminEmails: string[] = []
+  try {
+    const db = getDb()
+    const whitelistSnap = await db.collection("adminWhitelist").get()
+    adminEmails = whitelistSnap.docs.map(doc => doc.id)
+  } catch (err) {
+    console.error("Failed to fetch admin whitelist:", err)
+  }
+
+  if (!adminEmails.includes("sbmpspectrum@gmail.com")) {
+    adminEmails.push("sbmpspectrum@gmail.com")
+  }
+
+  return <SettingsAdminClient settings={settings} adminEmails={adminEmails} />
 }
