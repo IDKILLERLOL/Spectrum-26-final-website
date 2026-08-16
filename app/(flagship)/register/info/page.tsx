@@ -18,13 +18,24 @@ const ticketStyle = { background: AGED_PAPER, borderColor: INK, borderWidth: "4p
 function EventParamSync() {
   const searchParams = useSearchParams()
   const eventParam = searchParams.get("event")
-  const { setField } = useQuest()
+  const { setSelectedEvent } = useQuest()
 
   React.useEffect(() => {
     if (eventParam) {
-      setField("eventId", eventParam)
+      const { events: staticEvents } = require("@/content/spectrum")
+      const match = staticEvents.find((e: any) => e.id === eventParam)
+      if (match) {
+        setSelectedEvent({
+          id: match.id,
+          name: match.name,
+          capacity: match.capacity,
+          feeNumeric: match.feeNumeric,
+          fee: match.fee,
+          color: match.color,
+        })
+      }
     }
-  }, [eventParam, setField])
+  }, [eventParam, setSelectedEvent])
 
   return null
 }

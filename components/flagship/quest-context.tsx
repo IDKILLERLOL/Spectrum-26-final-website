@@ -84,7 +84,18 @@ export function QuestProvider({ children }: { children: React.ReactNode }) {
     (eventId?: EventId) => {
       if (eventId) {
         setValues((v) => ({ ...v, eventId }))
-        router.push("/register/info")
+        const match = staticEvents.find((e) => e.id === eventId)
+        if (match) {
+          setSelectedEventState({
+            id: match.id,
+            name: match.name,
+            capacity: match.capacity,
+            feeNumeric: match.feeNumeric,
+            fee: match.fee,
+            color: match.color,
+          })
+        }
+        router.push(`/register/info?event=${eventId}`)
       } else {
         router.push("/register")
       }
