@@ -97,13 +97,13 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
           </div>
 
           {/* Events Grid */}
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4 lg:gap-5">
             {events.map((ev) => {
               const displayNum = eventNumbers[ev.id] || ev.index || "1"
               return (
                 <Card
                   key={ev.id}
-                  className="relative flex flex-col justify-between p-5 pt-8 transition-all hover:-translate-y-0.5 hover:shadow-lg cursor-pointer"
+                  className="relative flex flex-col justify-between p-4 pt-7 transition-all hover:-translate-y-0.5 hover:shadow-lg cursor-pointer"
                   style={{ borderColor: ev.color }}
                   onClick={() => {
                     trackEventCardClick(ev.id, ev.name)
@@ -122,8 +122,8 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
                       Register
                     </span>
                   </div>
-                  <div className="my-3 flex-grow">
-                    <p className={`${questBody.className} text-lg font-bold`} style={{ color: NAVY }}>
+                  <div className="my-2 flex-grow">
+                    <p className={`${questBody.className} text-base font-bold`} style={{ color: NAVY }}>
                       {ev.name}
                     </p>
                     <p className={`${questBody.className} text-xs opacity-60`} style={{ color: NAVY }}>
@@ -134,11 +134,6 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
                         Prize Pool: {ev.prizePool}
                       </p>
                     )}
-
-                    {/* Round by Round details / Description */}
-                    <p className={`${questBody.className} mt-4 text-xs leading-relaxed opacity-85`} style={{ color: NAVY }}>
-                      {ev.description}
-                    </p>
                   </div>
                   <button
                     type="button"
