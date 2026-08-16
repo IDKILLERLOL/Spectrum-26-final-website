@@ -439,7 +439,7 @@ export const notifications: NotificationItem[] = [
 export const venueMapsUrl = "https://maps.google.com/?q=SVKM's+Shri+Bhagubhai+Mafatlal+Polytechnic+Vile+Parle"
 
 export const contact = {
-  email: "spectrumsbmp@gmail.com",
+  email: "sbmpspectrum@gmail.com",
   phone: `+91 90046 20948 - Dhairya Gandhi\n+91 90201 95204 - Darsh Bhagat\n+91 86574 78886 - Asiyah Patel`,
   location: "SVKM's Shri Bhagubhai Mafatlal Polytechnic & College of Engineering",
 }
