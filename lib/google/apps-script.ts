@@ -116,6 +116,7 @@ async function appendAndMerge(
     "Singularity Strike",
     "Dual Debug",
     "FIFA",
+    "FC 26",
     "BGMI",
     "Audit Logs",
     "Whitelist",
@@ -477,8 +478,8 @@ export function buildRegistrationRow(input: RegistrationSheetRow) {
   const lower = eventName.toLowerCase().trim()
   if (lower === "singularity-strike" || lower === "singularity_strike" || lower === "code clash" || lower === "code_clash" || lower === "tech-solo-1") {
     eventName = "Singularity Strike"
-  } else if (lower === "fifa" || lower === "fc26" || lower === "fc_26" || lower === "non-tech-1") {
-    eventName = "FIFA"
+  } else if (lower === "fifa" || lower === "fc26" || lower === "fc_26" || lower === "fc 26" || lower === "non-tech-1") {
+    eventName = "FC 26"
   } else if (lower === "dual-debug" || lower === "dual_debug" || lower === "tech-duo-1") {
     eventName = "Dual Debug"
   } else if (lower === "bgmi" || lower === "non-tech-3") {
