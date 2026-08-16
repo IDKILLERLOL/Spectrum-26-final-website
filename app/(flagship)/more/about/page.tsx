@@ -3,7 +3,7 @@ import { Card } from "@/components/flagship/Card"
 import { PageHeader } from "@/components/flagship/PageHeader"
 import { PageContainer } from "@/components/flagship/PageContainer"
 import { NAVY, SKY, GREEN, INK, MARIGOLD } from "@/components/flagship/tokens"
-import { questBody } from "@/components/flagship/fonts"
+import { questDisplay, questBody } from "@/components/flagship/fonts"
 
 export default function AboutPage() {
   return (
@@ -23,9 +23,20 @@ export default function AboutPage() {
           <span className="absolute -top-1.5 -right-1.5 size-3 rounded-full border-2" style={{ background: MARIGOLD, borderColor: INK }} />
           <span className="absolute -bottom-1.5 -left-1.5 size-3 rounded-full border-2" style={{ background: MARIGOLD, borderColor: INK }} />
           <span className="absolute -bottom-1.5 -right-1.5 size-3 rounded-full border-2" style={{ background: MARIGOLD, borderColor: INK }} />
-          <p className={`${questBody.className} text-sm`} style={{ color: NAVY }}>
-            {site.about}
-          </p>
+          <div className="space-y-4 text-left">
+            <h2 className={`${questDisplay.className} text-lg md:text-xl font-bold`} style={{ color: NAVY }}>
+              About Spectrum 5.0
+            </h2>
+            <p className={`${questBody.className} text-xs md:text-sm leading-relaxed`} style={{ color: NAVY }}>
+              <strong>Spectrum 5.0</strong> is a technical and gaming event designed to bring together students and enthusiasts to showcase their creativity, problem-solving abilities, competitive spirit, and technical skills. The objective of the event is to provide participants with an engaging platform where they can challenge themselves, learn from others, collaborate as a team, and demonstrate their abilities beyond the classroom.
+            </p>
+            <p className={`${questBody.className} text-xs md:text-sm leading-relaxed`} style={{ color: NAVY }}>
+              The event features a diverse range of competitions, including <strong>Dual Debug</strong>, <strong>Singularity Strike</strong>, <strong>FC 26</strong>, and <strong>BGMI</strong>, combining technical challenges with exciting gaming experiences. Participants can expect an energetic and competitive environment filled with opportunities to solve problems, test their skills, communicate effectively, and compete with fellow enthusiasts.
+            </p>
+            <p className={`${questBody.className} text-xs md:text-sm leading-relaxed`} style={{ color: NAVY }}>
+              Through Spectrum 5.0, we aim to promote <strong>innovation, coding, gaming, teamwork, creativity, and technical excellence</strong>. More than just a competition, the event is an opportunity to learn, connect, compete, and push the boundaries of what participants can achieve.
+            </p>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
