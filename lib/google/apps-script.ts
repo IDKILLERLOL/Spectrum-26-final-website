@@ -66,6 +66,12 @@ function formatDateTime(date: Date): string {
  * returned boolean and update `sheetsSyncStatus` accordingly.
  */
 export async function syncToSheet(payload: object): Promise<boolean> {
+  const pPayload = payload as any
+  if (pPayload && pPayload.type === "auditLog") {
+    console.log("[apps-script] Skipping audit log sheet synchronization.")
+    return true
+  }
+
   const rawUrl = process.env.APPS_SCRIPT_URL || process.env.VITE_GOOGLE_SHEETS_WEBAPP_URL
   const url = rawUrl ? rawUrl.replace(/^["']|["']$/g, "") : "https://script.google.com/macros/s/AKfycbxtCVXriQbKWhJ1BioBOZPthxQOoPthyC-5HwZNJukI8zk7CXcis5IfbXrJ7SXhluUYiw/exec"
 
@@ -266,6 +272,67 @@ async function appendAndMerge(
   return false
 }
 
+async function updateOrAppendRegistration(
+  spreadsheetId: string,
+  tabName: string,
+  p: any,
+  rowsToAppend: any[][],
+  token: string
+): Promise<boolean> {
+  try {
+    const eventName = p.eventName || ""
+    const teamNameOrLeaderName = p.teamName || p.fullName || ""
+    const paymentStatus = p.paymentStatus || "PENDING"
+    const paymentRefId = p.paymentRefId || ""
+
+    // Fetch existing values to look for matching event and team/leader name
+    const getUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(tabName)}!A:L`
+    const res = await fetch(getUrl, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    if (res.ok) {
+      const data = await res.json()
+      const rows = data.values || []
+      const matchEvent = eventName.toLowerCase().trim()
+      const matchTeam = teamNameOrLeaderName.toLowerCase().trim()
+      
+      const matchingRowIndices: number[] = []
+      rows.forEach((row: any[], idx: number) => {
+        const rowEvent = (row[0] || "").toLowerCase().trim()
+        const rowTeam = (row[1] || "").toLowerCase().trim()
+        if (rowEvent === matchEvent && rowTeam === matchTeam) {
+          matchingRowIndices.push(idx)
+        }
+      })
+      
+      if (matchingRowIndices.length > 0) {
+        console.log(`[apps-script] Found ${matchingRowIndices.length} existing rows for team '${teamNameOrLeaderName}' in tab '${tabName}'. Updating payment status to '${paymentStatus}'...`)
+        for (const idx of matchingRowIndices) {
+          const rowNumber = idx + 1
+          const updateUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(tabName)}!H${rowNumber}:I${rowNumber}?valueInputOption=USER_ENTERED`
+          await fetch(updateUrl, {
+            method: "PUT",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              majorDimension: "ROWS",
+              values: [[paymentStatus, paymentRefId]]
+            })
+          })
+        }
+        return true
+      }
+    }
+  } catch (err) {
+    console.warn(`[apps-script] updateOrAppendRegistration check failed for '${tabName}':`, err)
+  }
+
+  // Fallback to append if no matching row found
+  return appendAndMerge(spreadsheetId, tabName, rowsToAppend, token)
+}
+
 // Inside syncToSheet
     if (token) {
       console.log("[apps-script] Attempting direct Google Sheets REST API append...")
@@ -320,9 +387,9 @@ async function appendAndMerge(
       // Sync to respective sheet tab
       let masterOk = false
       if (p.type === "registration") {
-        masterOk = await appendAndMerge(spreadsheetId, "All Registrations", rowsToAppend, token)
+        masterOk = await updateOrAppendRegistration(spreadsheetId, "All Registrations", p, rowsToAppend, token)
         if (p.eventName) {
-          await appendAndMerge(spreadsheetId, p.eventName, rowsToAppend, token)
+          await updateOrAppendRegistration(spreadsheetId, p.eventName, p, rowsToAppend, token)
         }
       } else {
         let tabName = "Audit Logs"
