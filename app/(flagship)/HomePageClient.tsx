@@ -25,7 +25,9 @@ import {
   softHoardingShadow,
 } from "@/components/flagship/tokens"
 import { questDisplay, questBody } from "@/components/flagship/fonts"
-import { Megaphone } from "lucide-react"
+import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, DialogClose } from "@radix-ui/react-dialog"
+import { Trophy, ArrowRight, X, ChevronDown, Megaphone } from "lucide-react"
+import { useQuest } from "@/components/flagship/quest-context"
 
 function HeroBackground() {
   const reduced = useReducedMotion()
@@ -249,7 +251,7 @@ function EventAwning({ color }: { color: string }) {
   )
 }
 
-function FeaturedEvents({ events }: { events: SpectrumEvent[] }) {
+function FeaturedEvents({ events, onEventClick }: { events: SpectrumEvent[]; onEventClick: (ev: SpectrumEvent) => void }) {
   return (
     <section className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 py-12 sm:px-5 md:px-10 lg:gap-7 lg:py-16">
       <h2 className={`${questDisplay.className} text-xl md:text-3xl lg:text-4xl`} style={{ color: NAVY }}>
@@ -257,7 +259,7 @@ function FeaturedEvents({ events }: { events: SpectrumEvent[] }) {
       </h2>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4 lg:gap-5">
         {events.map((ev) => (
-          <Link key={ev.id} href={`/register/info?event=${ev.id}`} className="block">
+          <div key={ev.id} onClick={() => onEventClick(ev)} className="block">
             <Card
               className="relative flex flex-col justify-between p-5 pt-8 min-h-[260px] sm:p-4 sm:pt-7 sm:min-h-0 transition-all hover:-translate-y-0.5 hover:shadow-lg cursor-pointer h-full"
               style={{ borderColor: ev.color }}
@@ -292,7 +294,7 @@ function FeaturedEvents({ events }: { events: SpectrumEvent[] }) {
                 Register Now →
               </div>
             </Card>
-          </Link>
+          </div>
         ))}
       </div>
       <AppButton href="/events" className="w-full py-3 text-xs md:w-auto md:self-center md:px-10 lg:py-4 lg:text-sm">
@@ -303,10 +305,168 @@ function FeaturedEvents({ events }: { events: SpectrumEvent[] }) {
 }
 
 export function HomePageClient({ events }: { events: SpectrumEvent[] }) {
+  const { openQuest } = useQuest()
+  const [selectedEvent, setSelectedEvent] = React.useState<SpectrumEvent | null>(null)
+  const [openAccordion, setOpenAccordion] = React.useState<string | null>(null)
+
+  const handleRegisterClick = (ev: SpectrumEvent, e: React.MouseEvent) => {
+    e.stopPropagation()
+    openQuest(ev.id)
+  }
+
   return (
     <>
       <Hero />
-      <FeaturedEvents events={events} />
+      <FeaturedEvents events={events} onEventClick={setSelectedEvent} />
+
+      {/* Event Details Modal */}
+      <Dialog open={!!selectedEvent} onOpenChange={(open) => { if (!open) setSelectedEvent(null); }}>
+        <DialogTrigger asChild>
+          <></>
+        </DialogTrigger>
+        <DialogContent className="fixed inset-0 z-50 flex items-center justify-center" aria-hidden={!selectedEvent}>
+          <div className="relative w-full max-w-lg sm:max-w-xl p-6 bg-white border-4 shadow-lg max-h-[85vh] flex flex-col" style={{ borderColor: INK }}>
+            <div className="mb-4 flex items-center justify-between shrink-0">
+              <DialogTitle className={`${questDisplay.className} text-lg md:text-xl`} style={{ color: NAVY }}>
+                {selectedEvent?.name}
+              </DialogTitle>
+              <DialogClose className="btn-ghost p-1 hover:opacity-75" aria-label="Close">
+                <X size={20} style={{ color: NAVY }} />
+              </DialogClose>
+            </div>
+            <DialogDescription className="space-y-4 text-left overflow-y-auto pr-1 flex-1">
+              <div className="flex items-center gap-3">
+                <span
+                  className={`${questDisplay.className} flex size-10 items-center justify-center border-2 text-[12px] text-white`}
+                  style={{ background: selectedEvent?.color, borderColor: INK }}
+                >
+                  {selectedEvent?.index}
+                </span>
+                <div>
+                  <p className={`${questBody.className} text-sm font-bold`} style={{ color: NAVY }}>
+                    {selectedEvent?.format} • {selectedEvent?.fee}
+                  </p>
+                  {selectedEvent?.prizePool && (
+                    <p className={`${questBody.className} mt-0.5 text-xs font-bold`} style={{ color: PINK }}>
+                      Prize Pool: {selectedEvent?.prizePool}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <p className={`${questBody.className} text-sm leading-relaxed opacity-90`} style={{ color: NAVY }}>
+                {selectedEvent?.description}
+              </p>
+
+              {/* Accordion for Rounds & Prizes */}
+              <div className="mt-4 space-y-2">
+                {selectedEvent?.rounds?.map((round: any, idx: number) => {
+                  const isOpen = openAccordion === `round-${idx}`
+                  return (
+                    <div key={idx} className="border-2 bg-white" style={{ borderColor: INK }}>
+                      <button
+                        type="button"
+                        onClick={() => setOpenAccordion(isOpen ? null : `round-${idx}`)}
+                        className={`${questDisplay.className} w-full flex items-center justify-between p-3 text-xs uppercase tracking-widest text-left font-bold transition-colors hover:bg-neutral-50`}
+                        style={{ color: NAVY }}
+                      >
+                        <span>{round.name}</span>
+                        <span className="text-[10px]">{isOpen ? "▲" : "▼"}</span>
+                      </button>
+                      {isOpen && (
+                        <div className={`${questBody.className} border-t-2 p-3 text-xs leading-relaxed opacity-95 space-y-2`} style={{ borderColor: INK, color: INK }}>
+                          {round.format && <p><strong>Format:</strong> {round.format}</p>}
+                          {round.totalTime && <p><strong>Time:</strong> {round.totalTime}</p>}
+                          {round.problemSet && <p><strong>Problem Set:</strong> {round.problemSet}</p>}
+                          {round.setup && <p><strong>Setup:</strong> {round.setup}</p>}
+                          {round.gameplay && <p><strong>Gameplay:</strong> {round.gameplay}</p>}
+                          {round.structure && round.structure.length > 0 && (
+                            <div className="space-y-1">
+                              <strong>Structure:</strong>
+                              <ul className="list-disc pl-4 space-y-0.5">
+                                {round.structure.map((step: string, sIdx: number) => (
+                                  <li key={sIdx}>{step}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+
+                {/* Prizes as the last dropdown */}
+                {selectedEvent?.prizes && selectedEvent.prizes.length > 0 && (
+                  <div className="border-2 bg-white" style={{ borderColor: INK }}>
+                    <button
+                      type="button"
+                      onClick={() => setOpenAccordion(openAccordion === "prizes" ? null : "prizes")}
+                      className={`${questDisplay.className} w-full flex items-center justify-between p-3 text-xs uppercase tracking-widest text-left font-bold transition-colors hover:bg-neutral-50`}
+                      style={{ color: NAVY }}
+                    >
+                      <span>Prizes</span>
+                      <span className="text-[10px]">{openAccordion === "prizes" ? "▲" : "▼"}</span>
+                    </button>
+                    {openAccordion === "prizes" && (
+                      <div className={`${questBody.className} border-t-2 p-3 text-xs leading-relaxed opacity-95`} style={{ borderColor: INK, color: INK }}>
+                        <div className="flex flex-col gap-1.5 border-2 p-3 bg-[#FFFDF6]" style={{ borderColor: INK }}>
+                          {selectedEvent.prizes.map((p, idx) => (
+                            <div key={idx} className="flex justify-between items-center text-xs font-bold" style={{ color: NAVY }}>
+                              <span>{p.place}</span>
+                              <span className={questDisplay.className} style={{ color: PINK }}>{p.reward}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Rules & Guidelines */}
+              {selectedEvent?.rules && selectedEvent.rules.length > 0 && (
+                <div className="mt-4">
+                  <p className={`${questDisplay.className} text-xs uppercase tracking-widest mb-2`} style={{ color: VERMILION }}>
+                    Rules & Guidelines
+                  </p>
+                  <ul className="list-disc pl-4 space-y-1 text-xs leading-relaxed" style={{ color: NAVY }}>
+                    {selectedEvent.rules.map((rule, idx) => (
+                      <li key={idx} className={questBody.className}>{rule}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </DialogDescription>
+
+            {/* Footer with actions */}
+            <div className="mt-6 flex items-center justify-end gap-3 border-t-2 pt-4 shrink-0" style={{ borderColor: INK }}>
+              <DialogClose asChild>
+                <button
+                  type="button"
+                  className={`${questBody.className} border-2 px-5 py-2.5 text-xs font-bold uppercase hover:bg-neutral-50`}
+                  style={{ borderColor: INK, color: NAVY, background: "#FFFDF6" }}
+                >
+                  Back
+                </button>
+              </DialogClose>
+              {selectedEvent && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    setSelectedEvent(null)
+                    handleRegisterClick(selectedEvent, e)
+                  }}
+                  className={`${questBody.className} border-2 px-5 py-2.5 text-xs font-bold uppercase text-white hover:opacity-90 flex items-center gap-1.5`}
+                  style={{ background: selectedEvent.color, borderColor: INK }}
+                >
+                  Register Now <ArrowRight size={14} />
+                </button>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }
