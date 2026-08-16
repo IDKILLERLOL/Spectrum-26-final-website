@@ -175,12 +175,18 @@ async function appendAndMerge(
 
       if (createRes.ok) {
         // Add headers first
-        const headers = [
+        const isMaster = tabName === "All Registrations"
+        const headers = isMaster ? [
           "Event Name", "Team/Leader Name", "Role", "Name", "Email", 
           "Phone", "College", "Fee Status", "Transaction ID / Ref", 
           "Payment Screenshot", "Checked In", "Registered At"
+        ] : [
+          "Team Name", "Role", "Name", "Email", 
+          "Phone", "College", "Fee Status", "Transaction ID / Reference", 
+          "Payment Screen", "Checked In", "Registered At"
         ]
-        const headersUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodedTab}!A1:L1?valueInputOption=USER_ENTERED`
+        const rangeLetter = isMaster ? "L" : "K"
+        const headersUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodedTab}!A1:${rangeLetter}1?valueInputOption=USER_ENTERED`
         await fetch(headersUrl, {
           method: "PUT",
           headers: {
@@ -235,7 +241,8 @@ async function appendAndMerge(
                 }
               }
 
-              const mergeColumns = [0, 1, 7, 8, 9, 10, 11]
+              const isMaster = tabName === "All Registrations"
+              const mergeColumns = isMaster ? [0, 1, 7, 8, 9, 10, 11] : [0, 6, 7, 8, 9, 10]
               const requests = mergeColumns.map(colIndex => ({
                 mergeCells: {
                   range: {
@@ -279,6 +286,7 @@ async function updateOrAppendRegistration(
   rowsToAppend: any[][],
   token: string
 ): Promise<boolean> {
+  const isMaster = tabName === "All Registrations"
   try {
     const eventName = p.eventName || ""
     const teamNameOrLeaderName = p.teamName || p.fullName || ""
@@ -298,10 +306,17 @@ async function updateOrAppendRegistration(
       
       const matchingRowIndices: number[] = []
       rows.forEach((row: any[], idx: number) => {
-        const rowEvent = (row[0] || "").toLowerCase().trim()
-        const rowTeam = (row[1] || "").toLowerCase().trim()
-        if (rowEvent === matchEvent && rowTeam === matchTeam) {
-          matchingRowIndices.push(idx)
+        if (isMaster) {
+          const rowEvent = (row[0] || "").toLowerCase().trim()
+          const rowTeam = (row[1] || "").toLowerCase().trim()
+          if (rowEvent === matchEvent && rowTeam === matchTeam) {
+            matchingRowIndices.push(idx)
+          }
+        } else {
+          const rowTeam = (row[0] || "").toLowerCase().trim()
+          if (rowTeam === matchTeam) {
+            matchingRowIndices.push(idx)
+          }
         }
       })
       
@@ -309,7 +324,8 @@ async function updateOrAppendRegistration(
         console.log(`[apps-script] Found ${matchingRowIndices.length} existing rows for team '${teamNameOrLeaderName}' in tab '${tabName}'. Updating payment status to '${paymentStatus}'...`)
         for (const idx of matchingRowIndices) {
           const rowNumber = idx + 1
-          const updateUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(tabName)}!H${rowNumber}:I${rowNumber}?valueInputOption=USER_ENTERED`
+          const rangeStr = isMaster ? `H${rowNumber}:I${rowNumber}` : `G${rowNumber}:H${rowNumber}`
+          const updateUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(tabName)}!${rangeStr}?valueInputOption=USER_ENTERED`
           await fetch(updateUrl, {
             method: "PUT",
             headers: {
@@ -389,7 +405,9 @@ async function updateOrAppendRegistration(
       if (p.type === "registration") {
         masterOk = await updateOrAppendRegistration(spreadsheetId, "All Registrations", p, rowsToAppend, token)
         if (p.eventName) {
-          await updateOrAppendRegistration(spreadsheetId, p.eventName, p, rowsToAppend, token)
+          // Omit the first column ("Event Name") for the event-specific sheet
+          const eventSpecificRows = rowsToAppend.map((row) => row.slice(1))
+          await updateOrAppendRegistration(spreadsheetId, p.eventName, p, eventSpecificRows, token)
         }
       } else {
         let tabName = "Audit Logs"

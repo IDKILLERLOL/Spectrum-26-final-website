@@ -16,61 +16,63 @@ export async function sendEmail(message: EmailMessage, tokenOverride?: string | 
   let token = tokenOverride || null
   if (!token) {
     try {
-      const clientId = process.env.GMAIL_CLIENT_ID || process.env.NEXT_PUBLIC_GMAIL_CLIENT_ID
-      const clientSecret = process.env.GMAIL_CLIENT_SECRET
-      const refreshToken = process.env.GMAIL_REFRESH_TOKEN
+      // 1. Try Firestore systemConfig/gmail token first (updated when admin logs in)
+      try {
+        const db = getDb()
+        const doc = await db.collection("systemConfig").doc("gmail").get()
+        if (doc.exists) {
+          const docData = doc.data()
+          token = docData?.token || null
+          const docClientId = docData?.clientId
+          const docClientSecret = docData?.clientSecret
+          const docRefreshToken = docData?.refreshToken
 
-      if (clientId && clientSecret && refreshToken) {
-        console.log("[email] Exchanging refresh token for access token using env credentials...")
-        const refreshRes = await fetch("https://oauth2.googleapis.com/token", {
-          method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: new URLSearchParams({
-            client_id: clientId,
-            client_secret: clientSecret,
-            refresh_token: refreshToken,
-            grant_type: "refresh_token",
-          }),
-        })
-        const refreshData = await refreshRes.json()
-        if (refreshRes.ok && refreshData.access_token) {
-          token = refreshData.access_token
-          console.log("[email] Successfully acquired new access token.")
-        } else {
-          console.warn("[email] OAuth token refresh failed:", refreshData)
-        }
-      }
-
-      if (!token) {
-        try {
-          const db = getDb()
-          const doc = await db.collection("systemConfig").doc("gmail").get()
-          if (doc.exists) {
-            const docData = doc.data()
-            token = docData?.token || null
-            const docClientId = docData?.clientId || clientId
-            const docClientSecret = docData?.clientSecret || clientSecret
-            const docRefreshToken = docData?.refreshToken || refreshToken
-
-            if (!token && docRefreshToken && docClientId && docClientSecret) {
-              const refreshRes = await fetch("https://oauth2.googleapis.com/token", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: new URLSearchParams({
-                  client_id: docClientId,
-                  client_secret: docClientSecret,
-                  refresh_token: docRefreshToken,
-                  grant_type: "refresh_token",
-                }),
-              })
-              const refreshData = await refreshRes.json()
-              if (refreshRes.ok && refreshData.access_token) {
-                token = refreshData.access_token
-              }
+          if (!token && docRefreshToken && docClientId && docClientSecret) {
+            const refreshRes = await fetch("https://oauth2.googleapis.com/token", {
+              method: "POST",
+              headers: { "Content-Type": "application/x-www-form-urlencoded" },
+              body: new URLSearchParams({
+                client_id: docClientId,
+                client_secret: docClientSecret,
+                refresh_token: docRefreshToken,
+                grant_type: "refresh_token",
+              }),
+            })
+            const refreshData = await refreshRes.json()
+            if (refreshRes.ok && refreshData.access_token) {
+              token = refreshData.access_token
             }
           }
-        } catch (dbErr) {
-          console.warn("[email] Failed to retrieve Gmail config from Firestore:", dbErr)
+        }
+      } catch (dbErr) {
+        console.warn("[email] Failed to retrieve Gmail config from Firestore:", dbErr)
+      }
+
+      // 2. Fallback to env variables (GMAIL_REFRESH_TOKEN) if no active Firestore token is found
+      if (!token) {
+        const clientId = process.env.GMAIL_CLIENT_ID || process.env.NEXT_PUBLIC_GMAIL_CLIENT_ID
+        const clientSecret = process.env.GMAIL_CLIENT_SECRET
+        const refreshToken = process.env.GMAIL_REFRESH_TOKEN
+
+        if (clientId && clientSecret && refreshToken) {
+          console.log("[email] Exchanging refresh token for access token using env credentials...")
+          const refreshRes = await fetch("https://oauth2.googleapis.com/token", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({
+              client_id: clientId,
+              client_secret: clientSecret,
+              refresh_token: refreshToken,
+              grant_type: "refresh_token",
+            }),
+          })
+          const refreshData = await refreshRes.json()
+          if (refreshRes.ok && refreshData.access_token) {
+            token = refreshData.access_token
+            console.log("[email] Successfully acquired new access token.")
+          } else {
+            console.warn("[email] OAuth token refresh failed:", refreshData)
+          }
         }
       }
     } catch (err) {
@@ -114,7 +116,7 @@ export async function sendEmail(message: EmailMessage, tokenOverride?: string | 
   }
 
   // Construct MIME email RFC 822 format
-  const senderEmail = process.env.VITE_SENDER_EMAIL || "sbmpspectrum@gmail.com"
+  const senderEmail = "sbmpspectrum@gmail.com"
   const festName = "SPECTRUM 26"
 
   const rawMessage = [
