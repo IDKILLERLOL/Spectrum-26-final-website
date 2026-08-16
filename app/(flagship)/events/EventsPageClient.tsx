@@ -187,7 +187,14 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
               </div>
 
               <p className={`${questBody.className} text-sm leading-relaxed opacity-90`} style={{ color: NAVY }}>
-                {selectedEvent?.description?.split("\n\n")[0]}
+                {(() => {
+                  const desc = selectedEvent?.description || ""
+                  const roundOneIdx = desc.search(/round\s*1/i)
+                  if (roundOneIdx !== -1) {
+                    return desc.slice(0, roundOneIdx).trim()
+                  }
+                  return desc
+                })()}
               </p>
 
               {/* Accordion for Rounds & Prizes */}
