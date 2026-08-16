@@ -3,7 +3,7 @@
 import * as React from "react"
 import { useRouter } from "next/navigation"
 import type { EventId, QuestFormValues } from "@/content/spectrum"
-import { questFormDefaults } from "@/content/spectrum"
+import { questFormDefaults, events as staticEvents } from "@/content/spectrum"
 
 /**
  * Multi-step registration flow for the Quest Board (register/*) pages: name/email/phone
@@ -50,6 +50,23 @@ export function QuestProvider({ children }: { children: React.ReactNode }) {
   const [selectedEvent, setSelectedEventState] = React.useState<SelectedEvent | null>(null)
   const [submitting, setSubmitting] = React.useState(false)
   const [submitted, setSubmitted] = React.useState(false)
+
+  // Auto-sync selectedEvent details from eventId parameter
+  React.useEffect(() => {
+    if (values.eventId && (!selectedEvent || selectedEvent.id !== values.eventId)) {
+      const match = staticEvents.find((e) => e.id === values.eventId)
+      if (match) {
+        setSelectedEventState({
+          id: match.id,
+          name: match.name,
+          capacity: match.capacity,
+          feeNumeric: match.feeNumeric,
+          fee: match.fee,
+          color: match.color,
+        })
+      }
+    }
+  }, [values.eventId, selectedEvent])
 
   const setField = React.useCallback(
     <K extends keyof QuestFormValues>(key: K, value: QuestFormValues[K]) => {
