@@ -7,6 +7,18 @@ import Link from "next/link"
 import { Instagram } from "lucide-react"
 
 export function Footer() {
+  const [target, setTarget] = React.useState("_blank")
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const isIframe = window.self !== window.top
+      const isWebView = /FBAN|FBAV|Instagram|LinkedIn/i.test(navigator.userAgent)
+      if (isIframe || isWebView) {
+        setTarget("_self")
+      }
+    }
+  }, [])
+
   return (
     <footer className="w-full border-t-4 py-4 px-5 md:px-10 mt-auto shrink-0 bg-white" style={{ borderColor: INK }}>
       <div className="mx-auto max-w-7xl flex flex-col md:flex-row items-center justify-between gap-4">
@@ -44,6 +56,8 @@ export function Footer() {
         <div className="flex items-center gap-2">
           <a
             href="https://www.instagram.com/spectrum.sbmp?igsh=MWJ4dTA5ajAzZG5zaQ=="
+            target={target}
+            rel="noopener noreferrer"
             className={`${questBody.className} text-xs font-bold flex items-center gap-1.5 uppercase transition-colors hover:opacity-80`}
             style={{ color: INK }}
           >
