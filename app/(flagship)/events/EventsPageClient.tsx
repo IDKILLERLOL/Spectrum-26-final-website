@@ -19,14 +19,13 @@ import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, D
 function StallAwning({ color }: { color: string }) {
   return (
     <div
-      className="absolute -top-3 left-0 right-0 flex h-3 overflow-hidden"
-      style={{ borderTop: `2px solid ${INK}` }}
+      className="absolute top-0 left-0 right-0 flex h-3 overflow-hidden"
       aria-hidden="true"
     >
       {Array.from({ length: 8 }).map((_, i) => (
         <div
           key={i}
-          className="flex-1 rounded-b-sm border-b-2 border-r-2"
+          className="flex-1 rounded-b-sm border-b-2 border-r-2 last:border-r-0"
           style={{ backgroundColor: i % 2 === 0 ? color : "#fff", borderColor: INK }}
         />
       ))}
