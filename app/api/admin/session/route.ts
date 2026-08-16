@@ -5,6 +5,7 @@ import { getDb } from "@/lib/firebase/admin"
 import { Timestamp } from "firebase-admin/firestore"
 
 const STATIC_ADMIN_EMAILS = new Set([
+  "sbmpspectrum@gmail.com",
   "i.doshi30@gmail.com",
   "theperfectgamer1812@gmail.com",
   "galamann939@gmail.com",

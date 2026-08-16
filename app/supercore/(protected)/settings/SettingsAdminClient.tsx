@@ -126,7 +126,7 @@ export function SettingsAdminClient({ settings }: { settings: SettingsView }) {
           <label className={labelClass}>Google Sheet ID</label>
           <input className={inputClass} value={sheetId} onChange={(e) => setSheetId(e.target.value)} />
           <p className="text-[11px] text-amber-400 mt-1 font-mono">
-            ⚠️ IMPORTANT: Share your Google Sheet with <span className="underline select-all">i.doshi30@gmail.com</span> as an "Editor" so the sync script has write permissions.
+            ⚠️ IMPORTANT: Share your Google Sheet with <span className="underline select-all">sbmpspectrum@gmail.com</span> as an "Editor" so the sync script has write permissions.
           </p>
         </div>
         <label className="flex items-center gap-2 text-sm text-neutral-300">

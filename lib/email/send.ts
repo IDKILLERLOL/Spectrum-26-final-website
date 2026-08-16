@@ -114,7 +114,7 @@ export async function sendEmail(message: EmailMessage, tokenOverride?: string | 
   }
 
   // Construct MIME email RFC 822 format
-  const senderEmail = process.env.VITE_SENDER_EMAIL || "i.doshi30@gmail.com"
+  const senderEmail = process.env.VITE_SENDER_EMAIL || "sbmpspectrum@gmail.com"
   const festName = "SPECTRUM 26"
 
   const rawMessage = [
