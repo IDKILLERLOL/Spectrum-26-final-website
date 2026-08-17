@@ -4,6 +4,7 @@ import React, { useEffect, useRef } from "react"
 import { useReducedMotion } from "@/hooks/use-reduced-motion"
 import { INK, CREAM, MUSTARD, TEAL } from "./tokens"
 import { gsap } from "gsap"
+import { Truck } from "lucide-react"
 
 export function TruckScrollbar() {
   const reduced = useReducedMotion()
@@ -77,27 +78,12 @@ export function TruckScrollbar() {
         className="absolute w-12 h-12 flex items-center justify-center will-change-transform"
         style={{ top: 0 }}
       >
-        <svg
-          width="40"
-          height="26"
-          viewBox="0 0 40 26"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
+        <Truck
+          size={36}
+          style={{ color: INK, fill: TEAL }}
+          strokeWidth={2.2}
           className="drop-shadow-[2px_0_2px_rgba(0,0,0,0.4)]"
-        >
-          {/* Truck Cab */}
-          <path d="M26 4H34C37 4 38 6 39 10L40 15H26V4Z" fill={MUSTARD} stroke={INK} strokeWidth="1.5" />
-          {/* Cargo Box */}
-          <rect x="2" y="4" width="24" height="15" fill={TEAL} stroke={INK} strokeWidth="1.5" />
-          {/* Wheels */}
-          <circle cx="8" cy="21" r="4" fill="#1A1A1A" stroke={INK} strokeWidth="1.5" />
-          <circle cx="8" cy="21" r="1.5" fill="#FFF" className={reduced ? "" : "animate-spin"} />
-          <circle cx="20" cy="21" r="4" fill="#1A1A1A" stroke={INK} strokeWidth="1.5" />
-          <circle cx="20" cy="21" r="1.5" fill="#FFF" className={reduced ? "" : "animate-spin"} />
-          
-          {/* Small text "S-26" on cargo bed */}
-          <text x="5" y="14" fill="#FFF" fontSize="6" fontWeight="bold" fontFamily="monospace">S-26</text>
-        </svg>
+        />
       </div>
     </div>
   )

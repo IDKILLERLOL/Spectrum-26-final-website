@@ -1,9 +1,9 @@
 "use client"
 
 import * as React from "react"
-import { motion } from "motion/react"
-import { INK, CREAM, MUSTARD, VERMILION, TEAL } from "./tokens"
+import { INK, CREAM, MUSTARD, VERMILION } from "./tokens"
 import { questDisplay, questBody } from "./fonts"
+import { Car } from "lucide-react"
 
 export function RickshawLoader({ isComplete, onComplete }: { isComplete: boolean; onComplete?: () => void }) {
   const [progress, setProgress] = React.useState(0)
@@ -81,28 +81,12 @@ export function RickshawLoader({ isComplete, onComplete }: { isComplete: boolean
           >
             {/* Bounce animation */}
             <div className="animate-[bounce_0.6s_infinite_alternate] ease-in-out">
-              <svg
-                width="48"
-                height="32"
-                viewBox="0 0 48 32"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
+              <Car
+                size={36}
+                style={{ color: INK, fill: MUSTARD }}
+                strokeWidth={2.2}
                 className="drop-shadow-[0_2px_3px_rgba(0,0,0,0.5)]"
-              >
-                {/* Yellow Hood */}
-                <path d="M12 4C14 4 18 2 24 2H34C38 2 40 6 42 12L44 18H22L20 12L12 4Z" fill={MUSTARD} stroke={INK} strokeWidth="2" />
-                {/* Green Cabin Body */}
-                <path d="M4 18C4 16 6 14 8 14H44L42 26H6C4.8 26 4 25.2 4 24V18Z" fill={TEAL} stroke={INK} strokeWidth="2" />
-                {/* Window */}
-                <path d="M22 6H34L36 14H20L22 6Z" fill="#E0F2FE" stroke={INK} strokeWidth="2" />
-                {/* Front Headlight (glows) */}
-                <circle cx="43" cy="21" r="2.5" fill="#FFF" stroke={INK} strokeWidth="1.5" />
-                {/* Wheels */}
-                <circle cx="12" cy="27" r="5" fill="#333" stroke={INK} strokeWidth="2" />
-                <circle cx="12" cy="27" r="2.5" fill="#FFF" />
-                <circle cx="34" cy="27" r="5" fill="#333" stroke={INK} strokeWidth="2" />
-                <circle cx="34" cy="27" r="2.5" fill="#FFF" />
-              </svg>
+              />
             </div>
           </div>
         </div>
