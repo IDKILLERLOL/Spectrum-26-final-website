@@ -240,11 +240,14 @@ function Hero() {
 /** Mela-stall awning strip that pokes above the top edge of a Featured Event card. */
 function EventAwning({ color }: { color: string }) {
   return (
-    <div className="absolute -top-3 left-0 right-0 flex h-3" style={{ borderTop: `2px solid ${INK}` }}>
+    <div
+      className="absolute top-0 left-0 right-0 flex h-3 overflow-hidden"
+      aria-hidden="true"
+    >
       {Array.from({ length: 10 }).map((_, i) => (
         <div
           key={i}
-          className="flex-1 border-r-2 border-b-2 rounded-b-sm"
+          className="flex-1 rounded-b-sm border-b-2 border-r-2 last:border-r-0"
           style={{ backgroundColor: i % 2 === 0 ? color : "#fff", borderColor: INK }}
         />
       ))}
