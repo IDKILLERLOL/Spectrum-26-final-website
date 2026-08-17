@@ -336,7 +336,7 @@ export default function RegisterTeamStep() {
                 <AppButton
                   type="button"
                   onClick={() => router.push("/register/info")}
-                  className="w-1/3 py-3.5 text-sm md:py-4 md:text-base opacity-80"
+                  className="w-1/3 py-3.5 text-sm md:py-4 md:text-base"
                 >
                   Back
                 </AppButton>
