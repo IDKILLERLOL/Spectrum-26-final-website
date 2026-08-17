@@ -67,8 +67,16 @@ function DesiButton({
 
 function DdLoader() {
   const [show, setShow] = React.useState(true)
+  const [dimensions, setDimensions] = React.useState({ width: "100vw", height: "100vh" })
+
   React.useEffect(() => {
     const t = setTimeout(() => setShow(false), 1500)
+    if (typeof window !== "undefined") {
+      setDimensions({
+        width: `${window.screen.availWidth}px`,
+        height: `${window.screen.availHeight}px`
+      })
+    }
     return () => clearTimeout(t)
   }, [])
 
@@ -76,7 +84,8 @@ function DdLoader() {
 
   return (
     <motion.div
-      className="absolute inset-0 z-50 flex flex-col pointer-events-none"
+      className="fixed top-0 left-0 z-[60] flex flex-col pointer-events-none"
+      style={{ width: dimensions.width, height: dimensions.height }}
       animate={{ opacity: [1, 1, 0] }}
       transition={{ duration: 1.4, times: [0, 0.8, 1] }}
     >

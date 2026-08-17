@@ -162,14 +162,17 @@ export default function RegisterInfoStep() {
       }
     }
 
-    // Check duplicate email before moving to payment step
+    // Check duplicate email and team name before moving to payment step
     setChecking(true)
     try {
-      const res = await fetch(`/api/check-email?email=${encodeURIComponent(values.email.trim())}${values.eventId ? `&eventId=${encodeURIComponent(values.eventId)}` : ""}`)
+      const emailParam = encodeURIComponent(values.email.trim())
+      const eventParam = values.eventId ? `&eventId=${encodeURIComponent(values.eventId)}` : ""
+      const teamParam = values.teamName ? `&teamName=${encodeURIComponent(values.teamName.trim())}` : ""
+      const res = await fetch(`/api/check-email?email=${emailParam}${eventParam}${teamParam}`)
       const data = await res.json()
 
       if (data.registered) {
-        setErrorMsg(data.isDuplicateEvent ? (data.message || "You are already registered for this event with this email.") : "This email address is already registered in the system.")
+        setErrorMsg(data.message || "This email address is already registered in the system.")
         return
       }
     } catch {

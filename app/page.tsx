@@ -3,6 +3,7 @@ import { HomePageClient } from "./(flagship)/HomePageClient"
 import { Shell } from "@/components/flagship/Shell"
 import { QuestProvider } from "@/components/flagship/quest-context"
 import { questBody } from "@/components/flagship/fonts"
+import { TruckScrollbar } from "@/components/flagship/TruckScrollbar"
 
 export default async function HomePage() {
   const events = await getEvents()
@@ -12,6 +13,7 @@ export default async function HomePage() {
         <Shell>
           <HomePageClient events={events} />
         </Shell>
+        <TruckScrollbar />
       </QuestProvider>
     </div>
   )

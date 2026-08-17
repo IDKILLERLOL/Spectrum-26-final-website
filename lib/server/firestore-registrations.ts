@@ -34,7 +34,9 @@ export async function createRegistration(input: CreateRegistrationInput): Promis
   const ref = db.collection(COLLECTION).doc(id)
   const now = Timestamp.now()
 
-  const doc: FirestoreRegistration = {
+  const doc: any = {
+    teamId: id,
+    teamNameNormalized: ((input as any).teamName || "").toLowerCase().trim(),
     userEmail: input.email.toLowerCase(),
     fullName: input.fullName,
     phone: input.phone,

@@ -792,6 +792,8 @@ export async function createRegistration(
     const regRef = doc(collection(db, 'registrations'));
     regId = regRef.id;
     tx.set(regRef, {
+      teamId: regId,
+      teamNameNormalized: (teamName || '').toLowerCase().trim(),
       eventId,
       leaderId: leader.uid,
       feeStatus: 'PENDING',
@@ -860,6 +862,15 @@ export async function adminCreateRegistration(
   adminEmail: string,
   teamName?: string
 ): Promise<Registration> {
+  const normalized = (teamName || '').toLowerCase().trim();
+  if (normalized) {
+    const q = query(collection(db, 'registrations'), where('teamNameNormalized', '==', normalized), limit(1));
+    const snap = await getDocs(q);
+    if (!snap.empty) {
+      throw new Error('TEAM NAME ALREADY EXISTS — PLEASE CHOOSE ANOTHER NAME');
+    }
+  }
+
   // 1. Look up if leader has an existing user doc
   const userSnap = await getDocs(
     query(collection(db, 'users'), where('email', '==', leader.email))
@@ -912,6 +923,8 @@ export async function adminCreateRegistration(
     const regRef = doc(collection(db, 'registrations'));
     regId = regRef.id;
     tx.set(regRef, {
+      teamId: regId,
+      teamNameNormalized: (teamName || '').toLowerCase().trim(),
       eventId,
       leaderId: leaderUid,
       feeStatus: 'PENDING',
@@ -1653,9 +1666,19 @@ export async function updateTeamName(
   actorEmail: string,
   actorType: 'PARTICIPANT' | 'ADMIN'
 ): Promise<void> {
+  const normalized = teamName.toLowerCase().trim();
+  if (normalized) {
+    const q = query(collection(db, 'registrations'), where('teamNameNormalized', '==', normalized), limit(1));
+    const snap = await getDocs(q);
+    if (!snap.empty && snap.docs[0].id !== registrationId) {
+      throw new Error('TEAM NAME ALREADY EXISTS — PLEASE CHOOSE ANOTHER NAME');
+    }
+  }
+
   const before = await getRegistration(registrationId);
   await updateDoc(doc(db, 'registrations', registrationId), {
     teamName,
+    teamNameNormalized: normalized,
     lastEditedBy: actorEmail,
     lastEditedAt: serverTimestamp(),
   });

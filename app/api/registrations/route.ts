@@ -6,6 +6,7 @@ import { upsertUser } from "@/lib/server/firestore-users"
 import { syncToSheet, buildRegistrationRow } from "@/lib/google/apps-script"
 import { sendEmail } from "@/lib/email/send"
 import { registrationReceivedEmail } from "@/lib/email/templates"
+import { getDb } from "@/lib/firebase/admin"
 
 export async function POST(request: Request) {
   let body: unknown
@@ -36,6 +37,26 @@ export async function POST(request: Request) {
       { error: "VALIDATION", message: `This event needs exactly ${event.capacity - 1} team member(s) besides you.` },
       { status: 400 }
     )
+  }
+
+  const normalizedTeamName = input.teamName?.toLowerCase().trim()
+  if (normalizedTeamName) {
+    try {
+      const db = getDb()
+      const existingTeamQuery = await db.collection("registrations")
+        .where("teamNameNormalized", "==", normalizedTeamName)
+        .limit(1)
+        .get()
+      
+      if (!existingTeamQuery.empty) {
+        return NextResponse.json(
+          { error: "DUPLICATE_TEAM_NAME", message: "TEAM NAME ALREADY EXISTS — PLEASE CHOOSE ANOTHER NAME" },
+          { status: 400 }
+        )
+      }
+    } catch (dbErr) {
+      console.error("[POST /api/registrations] DB check failed:", dbErr)
+    }
   }
 
   try {

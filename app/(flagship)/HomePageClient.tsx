@@ -74,7 +74,7 @@ function Marquee() {
     <>HORN PLEASE <Megaphone size={12} className="inline" /> {site.date} <Megaphone size={12} className="inline" /> {site.venue} <Megaphone size={12} className="inline" />{" "}</>
   )
   return (
-    <div className="w-full mt-14 mb-0 flex flex-col items-center">
+    <div className="w-full mt-4 mb-0 flex flex-col items-center">
       {/* Top sawtooth border */}
       <div className="w-full h-2.5 flex overflow-hidden pointer-events-none" style={{ background: CREAM }}>
         {Array.from({ length: 120 }).map((_, i) => (
@@ -127,9 +127,16 @@ function Marquee() {
 function DdLoader() {
   const reduced = useReducedMotion()
   const [show, setShow] = React.useState(true)
+  const [dimensions, setDimensions] = React.useState({ width: "100vw", height: "100vh" })
 
   React.useEffect(() => {
     const t = setTimeout(() => setShow(false), 1500)
+    if (typeof window !== "undefined") {
+      setDimensions({
+        width: `${window.screen.availWidth}px`,
+        height: `${window.screen.availHeight}px`
+      })
+    }
     return () => clearTimeout(t)
   }, [])
 
@@ -138,7 +145,8 @@ function DdLoader() {
   return (
     <motion.div
       aria-hidden
-      className="absolute inset-0 z-50 flex flex-col pointer-events-none"
+      className="fixed top-0 left-0 z-[60] flex flex-col pointer-events-none"
+      style={{ width: dimensions.width, height: dimensions.height }}
       animate={{ opacity: [1, 1, 0] }}
       transition={{ duration: 1.4, times: [0, 0.8, 1] }}
     >
@@ -168,7 +176,7 @@ function Hero() {
   const cd = useCountdown()
   const reduced = useReducedMotion()
   return (
-    <section className="relative overflow-hidden pb-0 pt-12 text-center sm:pb-12 sm:pt-20 lg:pb-16 min-h-0 sm:min-h-[calc(100dvh-4rem)] flex flex-col justify-center items-center w-full">
+    <section className="relative overflow-hidden pb-6 pt-6 text-center sm:pb-8 sm:pt-10 lg:pb-10 flex flex-col justify-center items-center w-full">
       <HeroBackground />
       <DdLoader />
 
@@ -231,8 +239,6 @@ function Hero() {
           </AppButton>
         </div>
       </motion.div>
-
-      <Marquee />
     </section>
   )
 }
@@ -265,7 +271,7 @@ function FeaturedEvents({ events, onEventClick }: { events: SpectrumEvent[]; onE
         {events.map((ev) => (
           <div key={ev.id} onClick={() => onEventClick(ev)} className="block">
             <Card
-              className="relative flex flex-col justify-between p-5 pt-8 min-h-[260px] sm:p-4 sm:pt-7 sm:min-h-0 transition-all hover:-translate-y-0.5 hover:shadow-lg cursor-pointer h-full"
+              className="relative flex flex-col justify-between p-5 pt-8 min-h-[260px] sm:p-4 sm:pt-7 sm:min-h-0 transition-all hover:-translate-y-0.5 hover:shadow-lg cursor-pointer h-full border-t-0"
               style={{ borderColor: ev.color }}
             >
               <EventAwning color={ev.color} />
@@ -320,13 +326,13 @@ export function HomePageClient({ events }: { events: SpectrumEvent[] }) {
 
   return (
     <>
+      <Marquee />
       <Hero />
       <FeaturedEvents events={events} onEventClick={setSelectedEvent} />
 
-      {/* Event Details Modal */}
       <Dialog open={!!selectedEvent} onOpenChange={(open) => { if (!open) setSelectedEvent(null); }}>
         <DialogTrigger asChild>
-          <></>
+          <span className="hidden" />
         </DialogTrigger>
         <DialogContent className="fixed inset-0 z-50 flex items-center justify-center" aria-hidden={!selectedEvent}>
           <div className="relative w-full max-w-lg sm:max-w-xl p-6 bg-white border-4 shadow-lg max-h-[85vh] flex flex-col" style={{ borderColor: INK }}>

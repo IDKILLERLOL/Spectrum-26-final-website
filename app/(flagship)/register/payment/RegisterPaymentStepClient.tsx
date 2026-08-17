@@ -12,12 +12,13 @@ import { useQuest } from "@/components/flagship/quest-context"
 import { INK, TEAL, VERMILION, AGED_PAPER, hoardingShadow } from "@/components/flagship/tokens"
 import { questDisplay, questBody } from "@/components/flagship/fonts"
 import { trackFunnelStep, trackPaymentBounce } from "@/lib/analytics/track"
+import { RickshawLoader } from "@/components/flagship/RickshawLoader"
 
 const ticketStyle = { background: AGED_PAPER, borderColor: INK, borderWidth: "4px", boxShadow: hoardingShadow }
 
 export function RegisterPaymentStepClient({ upiVpa }: { upiVpa: string }) {
   const router = useRouter()
-  const { values, setField, selectedEvent, submit, submitting } = useQuest()
+  const { values, setField, selectedEvent, submit, submitting, submitted } = useQuest()
   const [qrDataUrl, setQrDataUrl] = React.useState<string | null>(null)
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
@@ -35,7 +36,7 @@ export function RegisterPaymentStepClient({ upiVpa }: { upiVpa: string }) {
       .catch(() => setQrDataUrl(null))
   }, [selectedEvent])
 
-  const isValid = /^\d{12}$/.test(values.paymentRefId)
+  const isValid = values.paymentRefId.trim().length >= 1 && values.paymentRefId.trim().length <= 50
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     setErrorMessage(null)
@@ -63,13 +64,13 @@ export function RegisterPaymentStepClient({ upiVpa }: { upiVpa: string }) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!isValid) {
-      setErrorMessage("Please enter a valid 12-digit UPI transaction reference ID.")
+      setErrorMessage("Please enter a valid transaction reference ID (up to 50 characters).")
       return
     }
     setErrorMessage(null)
     const result = await submit()
     if (result.ok) {
-      router.push("/register/confirmation")
+      // Redirection is handled by RickshawLoader's onComplete callback
     } else if (result.error === "DUPLICATE") {
       trackPaymentBounce("duplicate", selectedEvent?.id)
       setErrorMessage("You've already registered for this event with this email.")
@@ -99,6 +100,12 @@ export function RegisterPaymentStepClient({ upiVpa }: { upiVpa: string }) {
 
   return (
     <>
+      {(submitting || submitted) && (
+        <RickshawLoader 
+          isComplete={submitted} 
+          onComplete={() => router.push("/register/confirmation")} 
+        />
+      )}
       <PageHeader title="Register" />
       <PageContainer width="narrow">
         <StepProgress step={3} total={3} />
@@ -136,16 +143,14 @@ export function RegisterPaymentStepClient({ upiVpa }: { upiVpa: string }) {
             <form className={`${questBody.className} flex flex-col gap-4 md:gap-5`} onSubmit={handleSubmit}>
               <div className="flex flex-col gap-1">
                 <label className={`${questBody.className} text-[10px] font-bold uppercase md:text-xs`} style={{ color: TEAL }}>
-                  UPI Transaction Reference ID (12 digits) *
+                  UPI Transaction Reference ID *
                 </label>
                 <input
                   required
-                  inputMode="numeric"
-                  pattern="\d{12}"
-                  maxLength={12}
-                  placeholder="123456789012"
+                  maxLength={50}
+                  placeholder="Enter Transaction Reference ID"
                   value={values.paymentRefId}
-                  onChange={(e) => setField("paymentRefId", e.target.value.replace(/\D/g, "").slice(0, 12))}
+                  onChange={(e) => setField("paymentRefId", e.target.value.slice(0, 50))}
                   className="border-b-2 bg-transparent px-2 py-1 text-sm outline-none font-bold placeholder:opacity-50 md:py-1.5 md:text-base"
                   style={{ borderColor: INK, color: INK }}
                 />

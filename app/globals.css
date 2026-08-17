@@ -7,6 +7,14 @@ body {
   overscroll-behavior-y: none;
 }
 
+::-webkit-scrollbar {
+  display: none;
+}
+html {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
 body {
   margin: 0;
   -webkit-tap-highlight-color: transparent;

@@ -14,7 +14,7 @@ export const registrationSchema = z.object({
   teamMembers: z.array(z.string().trim().min(1, "Team member name can't be empty.")).max(3),
   collegeName: z.string().trim().optional().default(""),
   year: z.string().trim().min(1, "Select your year."),
-  paymentRefId: z.string().trim().regex(/^\d{12}$/, "Enter the 12-digit UPI transaction reference ID."),
+  paymentRefId: z.string().trim().min(1, "Enter a valid reference ID.").max(50, "Reference ID cannot exceed 50 characters."),
   pictureUrl: z.string().optional().default(""),
 })
 

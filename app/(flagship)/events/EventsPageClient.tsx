@@ -102,7 +102,7 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
               return (
                 <Card
                   key={ev.id}
-                  className="relative flex flex-col justify-between p-4 pt-7 transition-all hover:-translate-y-0.5 hover:shadow-lg cursor-pointer"
+                  className="relative flex flex-col justify-between p-4 pt-7 transition-all hover:-translate-y-0.5 hover:shadow-lg cursor-pointer border-t-0"
                   style={{ borderColor: ev.color }}
                   onClick={() => {
                     trackEventCardClick(ev.id, ev.name)
@@ -153,8 +153,7 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
       {/* Event Details Modal */}
       <Dialog open={!!selectedEvent} onOpenChange={(open) => { if (!open) setSelectedEvent(null); }}>
         <DialogTrigger asChild>
-          <>
-          </>
+          <span className="hidden" />
         </DialogTrigger>
         <DialogContent className="fixed inset-0 z-50 flex items-center justify-center" aria-hidden={!selectedEvent}>
           <div className="relative w-full max-w-lg sm:max-w-xl p-6 bg-white border-4 shadow-lg max-h-[85vh] flex flex-col" style={{ borderColor: INK }}>
