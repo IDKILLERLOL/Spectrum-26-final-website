@@ -5,6 +5,7 @@ import Link from "next/link"
 import { motion } from "motion/react"
 import {
   site,
+  EVENT_ROUNDS,
 } from "@/content/spectrum"
 import type { SpectrumEvent } from "@/content/spectrum"
 import { useCountdown, pad2 } from "@/hooks/use-countdown"
@@ -355,46 +356,44 @@ export function HomePageClient({ events }: { events: SpectrumEvent[] }) {
               </div>
 
               <p className={`${questBody.className} text-sm leading-relaxed opacity-90`} style={{ color: NAVY }}>
-                {selectedEvent?.description}
+                {(() => {
+                  const desc = selectedEvent?.description || ""
+                  const roundOneIdx = desc.search(/round\s*1/i)
+                  if (roundOneIdx !== -1) {
+                    return desc.slice(0, roundOneIdx).trim()
+                  }
+                  return desc
+                })()}
               </p>
 
               {/* Accordion for Rounds & Prizes */}
               <div className="mt-4 space-y-2">
-                {selectedEvent?.rounds?.map((round: any, idx: number) => {
-                  const isOpen = openAccordion === `round-${idx}`
-                  return (
-                    <div key={idx} className="border-2 bg-white" style={{ borderColor: INK }}>
-                      <button
-                        type="button"
-                        onClick={() => setOpenAccordion(isOpen ? null : `round-${idx}`)}
-                        className={`${questDisplay.className} w-full flex items-center justify-between p-3 text-xs uppercase tracking-widest text-left font-bold transition-colors hover:bg-neutral-50`}
-                        style={{ color: NAVY }}
-                      >
-                        <span>{round.name}</span>
-                        <span className="text-[10px]">{isOpen ? "▲" : "▼"}</span>
-                      </button>
-                      {isOpen && (
-                        <div className={`${questBody.className} border-t-2 p-3 text-xs leading-relaxed opacity-95 space-y-2`} style={{ borderColor: INK, color: INK }}>
-                          {round.format && <p><strong>Format:</strong> {round.format}</p>}
-                          {round.totalTime && <p><strong>Time:</strong> {round.totalTime}</p>}
-                          {round.problemSet && <p><strong>Problem Set:</strong> {round.problemSet}</p>}
-                          {round.setup && <p><strong>Setup:</strong> {round.setup}</p>}
-                          {round.gameplay && <p><strong>Gameplay:</strong> {round.gameplay}</p>}
-                          {round.structure && round.structure.length > 0 && (
-                            <div className="space-y-1">
-                              <strong>Structure:</strong>
-                              <ul className="list-disc pl-4 space-y-0.5">
-                                {round.structure.map((step: string, sIdx: number) => (
-                                  <li key={sIdx}>{step}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
+                {(() => {
+                  if (!selectedEvent) return null
+                  const normalizedId = selectedEvent.id === "tech-duo-1" ? "dual-debug" : (selectedEvent.id === "tech-solo-1" ? "singularity-strike" : selectedEvent.id)
+                  const rounds = EVENT_ROUNDS[normalizedId] || []
+                  return rounds.map((round, idx) => {
+                    const isOpen = openAccordion === `round-${idx}`
+                    return (
+                      <div key={idx} className="border-2 bg-white" style={{ borderColor: INK }}>
+                        <button
+                          type="button"
+                          onClick={() => setOpenAccordion(isOpen ? null : `round-${idx}`)}
+                          className={`${questDisplay.className} w-full flex items-center justify-between p-3 text-xs uppercase tracking-widest text-left font-bold transition-colors hover:bg-neutral-50`}
+                          style={{ color: NAVY }}
+                        >
+                          <span>{round.title}</span>
+                          <span className="text-[10px]">{isOpen ? "▲" : "▼"}</span>
+                        </button>
+                        {isOpen && (
+                          <div className={`${questBody.className} border-t-2 p-3 text-xs leading-relaxed opacity-95 whitespace-pre-line`} style={{ borderColor: INK, color: INK }}>
+                            {round.content}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })
+                })()}
 
                 {/* Prizes as the last dropdown */}
                 {selectedEvent?.prizes && selectedEvent.prizes.length > 0 && (
