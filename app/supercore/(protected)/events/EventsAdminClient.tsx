@@ -788,21 +788,30 @@ export function EventsAdminClient({
                   </td>
 
                   <td className="px-3 py-2 text-right">
-                    <button
-                      className={btnClass}
-                      onClick={() =>
-                        setEditingId(
-                          editingId === ev.id
-                            ? null
-                            : ev.id
-                        )
-                      }
-                      disabled={isPending}
-                    >
-                      {editingId === ev.id
-                        ? "Close"
-                        : "Edit"}
-                    </button>
+                    <div className="flex justify-end items-center gap-2">
+                      <button
+                        className={btnClass}
+                        onClick={() =>
+                          setEditingId(
+                            editingId === ev.id
+                              ? null
+                              : ev.id
+                          )
+                        }
+                        disabled={isPending}
+                      >
+                        {editingId === ev.id
+                          ? "Close"
+                          : "Edit"}
+                      </button>
+                      <button
+                        className="rounded border border-red-900 bg-red-950/40 px-3 py-1.5 text-xs font-medium text-red-300 hover:bg-red-900/50 hover:text-red-200 disabled:opacity-50"
+                        onClick={() => handleDelete(ev.id)}
+                        disabled={isPending}
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
 
