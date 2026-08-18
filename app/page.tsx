@@ -5,6 +5,8 @@ import { QuestProvider } from "@/components/flagship/quest-context"
 import { questBody } from "@/components/flagship/fonts"
 import { TruckScrollbar } from "@/components/flagship/TruckScrollbar"
 
+export const dynamic = "force-dynamic"
+
 export default async function HomePage() {
   const events = await getEvents()
   return (

@@ -18,11 +18,11 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json()
-    const { id, name, fields } = body
+    const { id, name, fields, tags } = body
     if (!name || typeof name !== "string") {
       return NextResponse.json({ error: "Sponsor name is required" }, { status: 400 })
     }
-    await saveSponsor(id || null, name.trim(), fields || {})
+    await saveSponsor(id || null, name.trim(), fields || {}, Array.isArray(tags) ? tags : [])
     return NextResponse.json({ ok: true })
   } catch (err) {
     console.error("[POST /api/admin/sponsors]", err)

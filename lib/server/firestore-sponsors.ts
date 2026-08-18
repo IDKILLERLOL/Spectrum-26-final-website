@@ -9,6 +9,7 @@ export interface FirestoreSponsor {
   id: string
   name: string
   fields: Record<string, string>
+  tags: string[]
   createdAt: any
   updatedAt: any
 }
@@ -25,6 +26,7 @@ export async function listSponsors(): Promise<FirestoreSponsor[]> {
         id: doc.id,
         name: data.name || "",
         fields: data.fields || {},
+        tags: data.tags || [],
         createdAt: data.createdAt ? (typeof data.createdAt.toDate === "function" ? data.createdAt.toDate().toISOString() : data.createdAt) : new Date().toISOString(),
         updatedAt: data.updatedAt ? (typeof data.updatedAt.toDate === "function" ? data.updatedAt.toDate().toISOString() : data.updatedAt) : new Date().toISOString(),
       }
@@ -35,7 +37,7 @@ export async function listSponsors(): Promise<FirestoreSponsor[]> {
   }
 }
 
-export async function saveSponsor(id: string | null, name: string, fields: Record<string, string>): Promise<void> {
+export async function saveSponsor(id: string | null, name: string, fields: Record<string, string>, tags: string[] = []): Promise<void> {
   if (!isAdminConfigured()) {
     throw new Error("Firebase Admin SDK not configured. Check FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY.")
   }
@@ -45,12 +47,14 @@ export async function saveSponsor(id: string | null, name: string, fields: Recor
     await db.collection(COLLECTION).doc(id).set({
       name,
       fields,
+      tags,
       updatedAt: now,
     }, { merge: true })
   } else {
     await db.collection(COLLECTION).add({
       name,
       fields,
+      tags,
       createdAt: now,
       updatedAt: now,
     })

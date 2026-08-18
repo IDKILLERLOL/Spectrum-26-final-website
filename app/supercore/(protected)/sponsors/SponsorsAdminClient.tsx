@@ -2,14 +2,40 @@
 
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
-import { Plus, Trash2, Edit2, Loader2 } from "lucide-react"
+import {
+  Plus, Trash2, Edit2, Loader2, Utensils, Shirt, ShoppingBag,
+  Music, Camera, Laptop, Coffee, Gift, Megaphone, Zap, Star, Globe,
+  X, Tag, MapPin
+} from "lucide-react"
+import { SPONSOR_TAGS, getSponsorTagLabel } from "@/lib/sponsor-tags"
 
 export interface SponsorItem {
   id: string
   name: string
   fields: Record<string, string>
+  tags: string[]
   createdAt: string
   updatedAt: string
+}
+
+// Lucide icon map for preset tag values (client-side only)
+const TAG_ICONS: Record<string, React.ReactNode> = {
+  food:         <Utensils size={12} />,
+  clothing:     <Shirt size={12} />,
+  accessories:  <ShoppingBag size={12} />,
+  tech:         <Laptop size={12} />,
+  music:        <Music size={12} />,
+  photography:  <Camera size={12} />,
+  coffee:       <Coffee size={12} />,
+  gifts:        <Gift size={12} />,
+  marketing:    <Megaphone size={12} />,
+  energy:       <Zap size={12} />,
+  premium:      <Star size={12} />,
+  media:        <Globe size={12} />,
+}
+
+function getTagIcon(value: string): React.ReactNode {
+  return TAG_ICONS[value] ?? <Tag size={12} />
 }
 
 const inputClass =
@@ -18,6 +44,36 @@ const btnPrimaryClass =
   "rounded border border-amber-400 bg-amber-400 px-4 py-2 text-xs font-bold text-neutral-950 hover:bg-amber-300 disabled:opacity-50 flex items-center gap-1.5"
 const btnSecondaryClass =
   "rounded border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-xs text-neutral-300 hover:bg-neutral-700"
+
+/** Renders a field value with special handling for instagram and location keys */
+function FieldValue({ fieldKey, value }: { fieldKey: string; value: string }) {
+  const key = fieldKey.toLowerCase()
+
+  if (key === "instagram") {
+    const url = value.startsWith("http") ? value : `https://instagram.com/${value.replace(/^@/, "")}`
+    return (
+      <a href={url} target="_blank" rel="noopener noreferrer" className="text-pink-400 underline hover:text-pink-300 font-mono">
+        {value}
+      </a>
+    )
+  }
+
+  if (key === "location") {
+    return (
+      <a
+        href={value}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center gap-1 rounded border border-neutral-700 bg-neutral-800 px-2 py-0.5 text-xs text-emerald-400 hover:bg-neutral-700 hover:text-emerald-300"
+      >
+        <MapPin size={11} />
+        View on Maps
+      </a>
+    )
+  }
+
+  return <span className="text-neutral-200 font-mono">{value}</span>
+}
 
 export function SponsorsAdminClient({ initialSponsors }: { initialSponsors: SponsorItem[] }) {
   const router = useRouter()
@@ -28,6 +84,8 @@ export function SponsorsAdminClient({ initialSponsors }: { initialSponsors: Spon
   // Dynamic Form State
   const [sponsorName, setSponsorName] = useState("")
   const [customFields, setCustomFields] = useState<{ key: string; value: string }[]>([])
+  const [selectedTags, setSelectedTags] = useState<string[]>([])
+  const [customTagInput, setCustomTagInput] = useState("")
   const [saving, setSaving] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -37,6 +95,8 @@ export function SponsorsAdminClient({ initialSponsors }: { initialSponsors: Spon
     setEditingId(null)
     setSponsorName("")
     setCustomFields([])
+    setSelectedTags([])
+    setCustomTagInput("")
     setError(null)
     setIsFormOpen(true)
   }
@@ -46,6 +106,8 @@ export function SponsorsAdminClient({ initialSponsors }: { initialSponsors: Spon
     setSponsorName(sponsor.name)
     const fieldsArray = Object.entries(sponsor.fields || {}).map(([key, value]) => ({ key, value }))
     setCustomFields(fieldsArray)
+    setSelectedTags(sponsor.tags || [])
+    setCustomTagInput("")
     setError(null)
     setIsFormOpen(true)
   }
@@ -64,6 +126,24 @@ export function SponsorsAdminClient({ initialSponsors }: { initialSponsors: Spon
     )
   }
 
+  function toggleTag(value: string) {
+    setSelectedTags((prev) =>
+      prev.includes(value) ? prev.filter((t) => t !== value) : [...prev, value]
+    )
+  }
+
+  function addCustomTag() {
+    const trimmed = customTagInput.trim().toLowerCase().replace(/\s+/g, "-")
+    if (trimmed && !selectedTags.includes(trimmed)) {
+      setSelectedTags((prev) => [...prev, trimmed])
+    }
+    setCustomTagInput("")
+  }
+
+  function removeTag(value: string) {
+    setSelectedTags((prev) => prev.filter((t) => t !== value))
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!sponsorName.trim()) {
@@ -74,7 +154,6 @@ export function SponsorsAdminClient({ initialSponsors }: { initialSponsors: Spon
     setSaving(true)
     setError(null)
 
-    // Build fields map from key-value pairs
     const fieldsMap: Record<string, string> = {}
     customFields.forEach(({ key, value }) => {
       const trimmedKey = key.trim()
@@ -91,6 +170,7 @@ export function SponsorsAdminClient({ initialSponsors }: { initialSponsors: Spon
           id: editingId,
           name: sponsorName.trim(),
           fields: fieldsMap,
+          tags: selectedTags,
         }),
       })
 
@@ -116,7 +196,6 @@ export function SponsorsAdminClient({ initialSponsors }: { initialSponsors: Spon
     setDeletingId(id)
     setError(null)
 
-    // Store current sponsors state in case we need to revert
     const prevSponsors = [...sponsors]
 
     try {
@@ -124,33 +203,26 @@ export function SponsorsAdminClient({ initialSponsors }: { initialSponsors: Spon
       const data = await res.json()
       if (!res.ok) throw new Error(data.error ?? "Failed to delete sponsor.")
 
-      // Optimistically remove from list
       setSponsors((prev) => prev.filter((s) => s.id !== id))
 
-      // Refresh list from server to ensure consistency
       const listRes = await fetch("/api/admin/sponsors")
       if (listRes.ok) {
         const listData = await listRes.json()
         if (listData.sponsors) {
-          // Check if the deleted sponsor is still in the list (meaning deletion didn't persist)
           const stillExists = listData.sponsors.some((s: SponsorItem) => s.id === id)
           if (stillExists) {
-            // Deletion didn't persist, revert optimistic update and show error
             setSponsors(prevSponsors)
             throw new Error("Deletion did not persist. Please try again.")
           }
-          // Deletion persisted, update with server list (should be same as optimistic)
           setSponsors(listData.sponsors)
         }
         startTransition(() => router.refresh())
       } else {
         setError("Failed to refresh sponsor list.")
-        // Revert optimistic update on failure to refresh
         setSponsors(prevSponsors)
       }
     } catch (err: any) {
       setError(err.message || "Failed to delete sponsor.")
-      // Revert optimistic update on any error
       setSponsors(prevSponsors)
     } finally {
       setDeletingId(null)
@@ -192,6 +264,73 @@ export function SponsorsAdminClient({ initialSponsors }: { initialSponsors: Spon
             />
           </div>
 
+          {/* Tags Section */}
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between border-b border-neutral-800 pb-2">
+              <span className="text-xs font-semibold uppercase text-neutral-400">Tags</span>
+            </div>
+
+            {/* Preset tags */}
+            <div className="flex flex-wrap gap-1.5">
+              {SPONSOR_TAGS.map((tag) => {
+                const active = selectedTags.includes(tag.value)
+                return (
+                  <button
+                    key={tag.value}
+                    type="button"
+                    onClick={() => toggleTag(tag.value)}
+                    className={`flex items-center gap-1 rounded px-2 py-1 text-xs font-medium border transition-colors ${
+                      active
+                        ? "border-amber-400 bg-amber-400/20 text-amber-300"
+                        : "border-neutral-700 bg-neutral-800 text-neutral-400 hover:border-neutral-600"
+                    }`}
+                  >
+                    {getTagIcon(tag.value)}
+                    {tag.label}
+                  </button>
+                )
+              })}
+            </div>
+
+            {/* Custom tag input */}
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                placeholder="Custom tag (press Enter)"
+                value={customTagInput}
+                onChange={(e) => setCustomTagInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustomTag() } }}
+                className={`${inputClass} flex-1`}
+              />
+              <button
+                type="button"
+                onClick={addCustomTag}
+                className="rounded border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-xs text-neutral-300 hover:bg-neutral-700"
+              >
+                Add
+              </button>
+            </div>
+
+            {/* Selected tags summary */}
+            {selectedTags.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {selectedTags.map((tv) => (
+                  <span
+                    key={tv}
+                    className="flex items-center gap-1 rounded bg-amber-400/20 border border-amber-400/50 px-2 py-0.5 text-xs text-amber-300"
+                  >
+                    {getTagIcon(tv)}
+                    {getSponsorTagLabel(tv)}
+                    <button type="button" onClick={() => removeTag(tv)} className="ml-0.5 text-amber-400 hover:text-red-400">
+                      <X size={10} />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Custom Fields */}
           <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between border-b border-neutral-800 pb-2">
               <span className="text-xs font-semibold uppercase text-neutral-400">Custom Field-Value Pairs</span>
@@ -203,12 +342,15 @@ export function SponsorsAdminClient({ initialSponsors }: { initialSponsors: Spon
                 <Plus size={12} /> Add Field
               </button>
             </div>
+            <p className="text-[11px] text-neutral-500">
+              Tip: Use <span className="text-pink-400 font-mono">instagram</span> as a field name to render it as a clickable link.
+            </p>
 
             {customFields.map((field, idx) => (
               <div key={idx} className="flex items-center gap-2">
                 <input
                   type="text"
-                  placeholder="Field (e.g. Email / Phone / Tier)"
+                  placeholder="Field (e.g. Email / Instagram / Tier)"
                   value={field.key}
                   onChange={(e) => handleFieldChange(idx, "key", e.target.value)}
                   className={`${inputClass} flex-1`}
@@ -280,12 +422,28 @@ export function SponsorsAdminClient({ initialSponsors }: { initialSponsors: Spon
                   </div>
                 </div>
 
+                {/* Tags */}
+                {(sponsor.tags || []).length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {(sponsor.tags || []).map((tv) => (
+                      <span
+                        key={tv}
+                        className="flex items-center gap-1 rounded bg-neutral-800 border border-neutral-700 px-2 py-0.5 text-[10px] text-neutral-400"
+                      >
+                        {getTagIcon(tv)}
+                        {getSponsorTagLabel(tv)}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Fields */}
                 <div className="flex flex-col gap-1 text-xs">
                   {fieldKeys.length > 0 ? (
                     fieldKeys.map((key) => (
                       <div key={key} className="flex justify-between py-0.5 border-b border-neutral-800/50 last:border-0">
                         <span className="text-neutral-400 font-medium">{key}:</span>
-                        <span className="text-neutral-200 font-mono">{fields[key]}</span>
+                        <FieldValue fieldKey={key} value={fields[key]} />
                       </div>
                     ))
                   ) : (
