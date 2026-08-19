@@ -6,10 +6,11 @@ const APPS_SCRIPT_URL =
   process.env.VITE_GOOGLE_SHEETS_WEBAPP_URL ||
   ""
 
-const APPS_SCRIPT_SECRET =
-  process.env.SHEETS_APPS_SCRIPT_SECRET ||
+// Must match the SECRET_KEY in the Apps Script doPost function
+const APPS_SCRIPT_API_KEY =
+  process.env.APPS_SCRIPT_API_KEY ||
   process.env.APPS_SCRIPT_SECRET ||
-  ""
+  "ishaandagoat"
 
 function cleanUrl(raw: string) {
   return raw.replace(/^["']|["']$/g, "").trim()
@@ -56,7 +57,7 @@ export async function syncToSheet(payload: object): Promise<boolean> {
   }
 
   const url = cleanUrl(APPS_SCRIPT_URL)
-  const secret = APPS_SCRIPT_SECRET
+  const apiKey = APPS_SCRIPT_API_KEY
   const spreadsheetId = await getSpreadsheetId()
 
   if (!url) {
@@ -69,77 +70,79 @@ export async function syncToSheet(payload: object): Promise<boolean> {
     return false
   }
 
-  // Build the row data the Apps Script expects
-  let enrichedPayload: object
-
-  if (p.type === "registration") {
-    const parsedDate = new Date(p.createdAt || Date.now())
-    const formattedDate = formatDateTime(parsedDate)
-
-    const leaderRow = [
-      p.eventName || "",
-      p.teamName || p.fullName || "",
-      "LEADER",
-      p.fullName || "",
-      p.email || "",
-      p.phone || "",
-      p.collegeName || "",
-      p.paymentStatus || "PENDING",
-      p.paymentRefId || "",
-      p.pictureUrl || "",
-      "No",
-      formattedDate,
-    ]
-
-    const memberRows = (p.teamMembers || []).map((m: any) => [
-      p.eventName || "",
-      p.teamName || p.fullName || "",
-      "MEMBER",
-      m.name || "",
-      m.email || "",
-      m.phone || "",
-      m.collegeName || m.college || "",
-      p.paymentStatus || "PENDING",
-      p.paymentRefId || "",
-      p.pictureUrl || "",
-      "No",
-      formattedDate,
-    ])
-
-    enrichedPayload = {
-      ...p,
-      rows: [leaderRow, ...memberRows],
-      spreadsheetId,
-      secret,
-      appsScriptSecret: secret,
-    }
-  } else {
-    enrichedPayload = {
-      ...p,
-      spreadsheetId,
-      secret,
-      appsScriptSecret: secret,
+  /** Post one payload object to the Apps Script and return success. */
+  async function post(body: object): Promise<boolean> {
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ ...body, apiKey, spreadsheetId }),
+        redirect: "follow",
+        signal: AbortSignal.timeout(15000),
+      })
+      const ok = res.ok || res.status === 302 || res.status === 200
+      if (!ok) {
+        const bodyText = await res.text().catch(() => "")
+        console.warn(`[apps-script] POST failed — status=${res.status}, body=${bodyText.slice(0, 300)}`)
+      }
+      return ok
+    } catch (err) {
+      console.error("[apps-script] POST threw:", err)
+      return false
     }
   }
 
   try {
-    console.log(`[apps-script] Syncing type='${p.type}' to sheet via Apps Script (url=${url.slice(0, 60)}...)`)
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify(enrichedPayload),
-      redirect: "follow",
-      signal: AbortSignal.timeout(15000),
-    })
+    console.log(`[apps-script] Syncing type='${p.type}' to Apps Script (${url.slice(0, 60)}...)`)
 
-    const ok = res.ok || res.status === 302 || res.status === 200
-    if (ok) {
-      console.log(`[apps-script] Sync succeeded (status=${res.status}).`)
-    } else {
-      const body = await res.text().catch(() => "")
-      console.warn(`[apps-script] Sync failed — status=${res.status}, body=${body.slice(0, 300)}`)
+    if (p.type === "registration") {
+      const parsedDate = new Date(p.createdAt || Date.now())
+      const formattedDate = formatDateTime(parsedDate)
+      const teamOrName = p.teamName || p.fullName || ""
+
+      // Leader row
+      const leaderOk = await post({
+        type: "registration",
+        eventName: p.eventName || "",
+        teamName: teamOrName,
+        role: "LEADER",
+        fullName: p.fullName || "",
+        email: p.email || "",
+        phone: p.phone || "",
+        collegeName: p.collegeName || "",
+        paymentStatus: p.paymentStatus || "PENDING",
+        paymentRefId: p.paymentRefId || "",
+        pictureUrl: p.pictureUrl || "",
+        checkedIn: "No",
+        createdAt: formattedDate,
+      })
+
+      // Member rows — one POST each
+      const members: any[] = p.teamMembers || []
+      for (const m of members) {
+        await post({
+          type: "registration",
+          eventName: p.eventName || "",
+          teamName: teamOrName,
+          role: "MEMBER",
+          fullName: m.name || "",
+          email: m.email || "",
+          phone: m.phone || "",
+          collegeName: m.college || m.collegeName || "",
+          paymentStatus: p.paymentStatus || "PENDING",
+          paymentRefId: p.paymentRefId || "",
+          pictureUrl: p.pictureUrl || "",
+          checkedIn: "No",
+          createdAt: formattedDate,
+        })
+      }
+
+      if (leaderOk) console.log(`[apps-script] Registration synced (${members.length} member(s) also sent).`)
+      return leaderOk
     }
-    return ok
+
+    // Non-registration payloads (whitelist, sponsor, etc.)
+    return await post({ ...p })
   } catch (err) {
     console.error("[apps-script] syncToSheet failed:", err)
     return false
