@@ -73,8 +73,10 @@ export default async function SponsorsPage() {
             No sponsors listed at the moment.
           </p>
         ) : displaySponsors.map((s) => {
-          // All fields except tier
-          const extraFields = Object.entries(s.fields || {}).filter(([k]) => k.toLowerCase() !== "tier")
+          // Split fields: buttons (instagram/location) vs regular key-value
+          const allFields = Object.entries(s.fields || {}).filter(([k]) => k.toLowerCase() !== "tier")
+          const buttonFields = allFields.filter(([k]) => ["instagram", "location"].includes(k.toLowerCase()))
+          const regularFields = allFields.filter(([k]) => !["instagram", "location"].includes(k.toLowerCase()))
 
           return (
             <div
@@ -82,6 +84,7 @@ export default async function SponsorsPage() {
               className="flex flex-col gap-2 border-4 p-4"
               style={{ borderColor: INK, background: "#FFFDF6", boxShadow: hoardingShadow }}
             >
+              {/* Header: name + tier badge */}
               <div className="flex items-start justify-between border-b-2 pb-2" style={{ borderColor: INK }}>
                 <span className={questDisplay.className} style={{ color: NAVY, fontSize: "1.2rem" }}>
                   {s.name}
@@ -103,50 +106,78 @@ export default async function SponsorsPage() {
                 </div>
               )}
 
-              {/* Extra fields (skip tier) */}
-              {extraFields.length > 0 && (
-                <div className="flex flex-col gap-1 pt-1 text-xs">
-                  {extraFields.map(([k, v]) => {
-                    const key = k.toLowerCase()
-                    const isInstagram = key === "instagram"
-                    const isLocation = key === "location"
-
-                    if (isInstagram) {
-                      const href = v.startsWith("http") ? v : `https://instagram.com/${v.replace(/^@/, "")}`
-                      return (
-                        <div key={k} className="flex justify-between items-center">
-                          <span className="font-bold uppercase text-[10px] opacity-70" style={{ color: TEAL }}>{k}</span>
-                          <a href={href} target="_blank" rel="noopener noreferrer" className="font-medium underline" style={{ color: "#E1306C" }}>
-                            {v}
-                          </a>
-                        </div>
-                      )
-                    }
-
-                    if (isLocation) {
-                      return (
-                        <div key={k} className="flex justify-between items-center">
-                          <span className="font-bold uppercase text-[10px] opacity-70" style={{ color: TEAL }}>{k}</span>
-                          <a
-                            href={v}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-1 rounded border-2 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide"
-                            style={{ borderColor: INK, color: INK, background: "#FFFDF6" }}
-                          >
-                            <MapPin size={10} />
-                            View on Maps
-                          </a>
-                        </div>
-                      )
-                    }
-
-                    return (
-                      <div key={k} className="flex justify-between items-center">
-                        <span className="font-bold uppercase text-[10px] opacity-70" style={{ color: TEAL }}>{k}</span>
-                        <span className="font-medium" style={{ color: INK }}>{v}</span>
+              {/* Regular key:value fields */}
+              {regularFields.length > 0 && (
+                <div className="flex flex-col gap-1.5 text-xs">
+                  {regularFields.map(([k, v]) => {
+                    const isLong = v.length > 40
+                    return isLong ? (
+                      <div key={k} className="flex flex-col gap-0.5">
+                        <span
+                          className={`${questBody.className} text-[9px] font-bold uppercase tracking-widest opacity-50`}
+                          style={{ color: INK }}
+                        >
+                          {k}
+                        </span>
+                        <span className={`${questBody.className} text-xs leading-snug`} style={{ color: INK }}>
+                          {v}
+                        </span>
+                      </div>
+                    ) : (
+                      <div key={k} className="flex justify-between items-center border-b border-black/10 pb-1 last:border-0 last:pb-0">
+                        <span
+                          className={`${questBody.className} text-[9px] font-bold uppercase tracking-widest opacity-50`}
+                          style={{ color: INK }}
+                        >
+                          {k}
+                        </span>
+                        <span className={`${questBody.className} text-xs font-medium`} style={{ color: INK }}>{v}</span>
                       </div>
                     )
+                  })}
+                </div>
+              )}
+
+              {/* Button fields: pinned bottom-right, first field rightmost */}
+              {buttonFields.length > 0 && (
+                <div className="flex justify-end gap-2 pt-1 flex-row-reverse">
+                  {buttonFields.map(([k, v]) => {
+                    const key = k.toLowerCase()
+
+                    if (key === "instagram") {
+                      const href = v.startsWith("http") ? v : `https://instagram.com/${v.replace(/^@/, "")}`
+                      return (
+                        <a
+                          key={k}
+                          href={href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1.5 border-2 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide"
+                          style={{ borderColor: "#E1306C", color: "#E1306C", background: "#fff0f5" }}
+                        >
+                          <Globe size={11} />
+                          Instagram
+                        </a>
+                      )
+                    }
+
+                    if (key === "location") {
+                      return (
+                        <a
+                          key={k}
+                          href={v}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1.5 border-2 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide"
+                          style={{ borderColor: INK, color: INK, background: "#FFFDF6" }}
+                        >
+                          <MapPin size={11} />
+                          Location
+                        </a>
+                      )
+                    }
+
+                    return null
                   })}
                 </div>
               )}
