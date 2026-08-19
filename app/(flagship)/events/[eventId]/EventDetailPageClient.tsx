@@ -93,7 +93,7 @@ export function EventDetailPageClient({ event }: { event: SpectrumEvent }) {
                 <p className={`${questBody.className} text-[10px] uppercase opacity-60 md:text-xs`} style={{ color: NAVY }}>
                   About
                 </p>
-                <p className={`${questBody.className} text-xs md:text-base`} style={{ color: NAVY }}>
+                <p className={`${questBody.className} text-xs md:text-base whitespace-pre-line`} style={{ color: NAVY }}>
                   {event.description}
                 </p>
               </div>

@@ -185,7 +185,7 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
                 </div>
               </div>
 
-              <p className={`${questBody.className} text-sm leading-relaxed opacity-90`} style={{ color: NAVY }}>
+              <p className={`${questBody.className} text-sm leading-relaxed opacity-90 whitespace-pre-line`} style={{ color: NAVY }}>
                 {(() => {
                   const desc = selectedEvent?.description || ""
                   const roundOneIdx = desc.search(/round\s*1/i)
