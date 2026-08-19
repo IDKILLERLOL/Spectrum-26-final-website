@@ -11,9 +11,9 @@ export const site = {
   shortName: "Spectrum",
   version: "5.0",
   eyebrow: "4 Events. 1 Ultimate Battle.",
-  tagline: "The ultimate tech and gaming showdown.",
+  tagline: "The ultimate college tech and gaming showdown.",
   subTagline: "Code. Compete. Conquer.",
-  legacyLine: "4 Events • One Legacy",
+  legacyLine: "Many Colleges • 4 Events • One Legacy",
   motto: "Think. Code. Compete. Conquer.",
   host: "SVKM's Shri Bhagubhai Mafatlal Polytechnic & College of Engineering",
   hostShort: "SBMP College of Engineering",
@@ -80,6 +80,7 @@ export const events: SpectrumEvent[] = [
     description:
       "Dual Debug is a duo competition consisting of three rounds.\n\nRound 1: The Swap Challenge\nFormat: Duo (Person A & Person B)\nTotal Time: 65 Minutes (30m Coding + 5m Handoff + 30m Coding)\nProblem Set: 6 Problem Statements (3 for Person A, 3 for Person B)\nStructure:\n- Phase 1 — Independent Coding (30 mins): Separate machines, strict silence rule.\n- Phase 2 — The Handoff Break (5 mins): Strategy break to explain logic and progress.\n- Phase 3 — The Swap (30 mins): Swap machines and complete/optimize partner's code.\n\nRound 2: CodoPoly\nFormat: Duo (Custom Board Strategy)\nGameplay:\n- Matches played in groups (4 teams per match)\n- Monopoly-style board mechanics paired with coding tasks, resource management, and problem solving.\n\nRound 3: Snakes & Ladders (Snakes & Treasure)\nFormat: Duo (Life-sized Board or Simulator)\nSetup: 100-step custom board + life-sized dice; each team starts with 1 Key\nGameplay:\n- Dice roll determines task difficulty (1 = Easiest --> 6 = Hardest) to reverse engineer code/outputs.\n- Ladder Spot: Location clue leading to a Golden Key.\n- Snake Spot: Lose 1 Key (Reaching 0 keys triggers Rapid-Fire elimination).\n- Key Utility: Redeemable as Lifelines or Sabotage handicaps against other teams.",
     rules: [
+      "Only College Students Allowed",
       "Each team must have exactly 2 participants.",
       "Use of external resources is strictly prohibited.",
       "The organizers' decision is final in all matters.",
@@ -114,6 +115,7 @@ export const events: SpectrumEvent[] = [
     description:
       "Singularity Strike is a solo competition with three rounds.\n\nRound 1: Quantum Query (Speed Trivia / Quiz)\nFormat: Solo\n- Rapid elimination round testing core CS fundamentals, tech trivia, and syntax knowledge under a strict time constraint.\n\nRound 2: Binary Bingo (Logic Matrix)\nFormat: Solo\n- Strategic task-matrix challenge where participants solve mini-coding problems or output puzzles to claim squares on their personal grid and complete winning lines.\n\nRound 3: The Overdrive Buzzer (Final Showdown)\nFormat: Solo (Head-to-Head Finale)\n- Live individual buzzer battle featuring rapid-fire logic traps, code analysis, and algorithmic sprints with point deductions for wrong answers.",
     rules: [
+      "Only College Students Allowed",
       "Individual participation only, no teams.",
       "Use of external resources is strictly prohibited.",
       "The organizers' decision is final in all matters.",
@@ -148,6 +150,7 @@ export const events: SpectrumEvent[] = [
     description:
       "One-on-one football knockout. Pick your club, beat your rival, lift the cup.",
     rules: [
+      "Only College Students Allowed",
       "Single elimination, 1v1 matches.",
       "Match settings are fixed by organizers.",
       "The organizers' decision is final in all matters.",
@@ -182,6 +185,7 @@ export const events: SpectrumEvent[] = [
     description:
       "Drop into the battleground with your squad. Last team standing takes it all.",
     rules: [
+      "Only College Students Allowed",
       "Squad size fixed at 4 players.",
       "Emulator use is strictly prohibited.",
       "The organizers' decision is final in all matters.",
@@ -201,14 +205,32 @@ export const events: SpectrumEvent[] = [
 
 export const EVENT_ROUNDS: Record<string, Array<{title: string; content: string}>> = {
   "dual-debug": [
-    { title: "Round 1: The Swap Challenge", content: "Format: Duo (Person A & Person B)\\nTotal Time: 65 Minutes (30m Coding + 5m Handoff + 30m Coding)\\nProblem Set: 6 Problem Statements (3 for Person A, 3 for Person B)\\nStructure:\\n- Phase 1 — Independent Coding (30 mins): Separate machines, strict silence rule.\\n- Phase 2 — The Handoff Break (5 mins): Strategy break to explain logic and progress.\\n- Phase 3 — The Swap (30 mins): Swap machines and complete/optimize partner's code." },
-    { title: "Round 2: CodoPoly", content: "Format: Duo (Custom Board Strategy)\\nGameplay:\\n- Matches played in groups (4 teams per match)\\n- Monopoly-style board mechanics paired with coding tasks, resource management, and problem solving." },
-    { title: "Round 3: Snakes & Ladders (Snakes & Treasure)", content: "Format: Duo (Life-sized Board or Simulator)\\nSetup: 100-step custom board + life-sized dice; each team starts with 1 Key\\nGameplay:\\n- Dice roll determines task difficulty (1 = Easiest --> 6 = Hardest) to reverse engineer code/outputs.\\n- Ladder Spot: Location clue leading to a Golden Key.\\n- Snake Spot: Lose 1 Key (Reaching 0 keys triggers Rapid-Fire elimination).\\n- Key Utility: Redeemable as Lifelines or Sabotage handicaps against other teams." }
+    { title: "Round 1: The Swap Challenge", content: `Format: Duo (Person A & Person B)
+Total Time: 65 Minutes (30m Coding + 5m Handoff + 30m Coding)
+Problem Set: 6 Problem Statements (3 for Person A, 3 for Person B)
+Structure:
+- Phase 1 — Independent Coding (30 mins): Separate machines, strict silence rule.
+- Phase 2 — The Handoff Break (5 mins): Strategy break to explain logic and progress.
+- Phase 3 — The Swap (30 mins): Swap machines and complete/optimize partner's code.` },
+    { title: "Round 2: CodoPoly", content: `Format: Duo (Custom Board Strategy)
+Gameplay:
+- Matches played in groups (4 teams per match)
+- Monopoly-style board mechanics paired with coding tasks, resource management, and problem solving.` },
+    { title: "Round 3: Snakes & Ladders (Snakes & Treasure)", content: `Format: Duo (Life-sized Board or Simulator)
+Setup: 100-step custom board + life-sized dice; each team starts with 1 Key
+Gameplay:
+- Dice roll determines task difficulty (1 = Easiest --> 6 = Hardest) to reverse engineer code/outputs.
+- Ladder Spot: Location clue leading to a Golden Key.
+- Snake Spot: Lose 1 Key (Reaching 0 keys triggers Rapid-Fire elimination).
+- Key Utility: Redeemable as Lifelines or Sabotage handicaps against other teams.` }
   ],
   "singularity-strike": [
-    { title: "Round 1: Quantum Query (Speed Trivia / Quiz)", content: "Format: Solo\\n- Rapid elimination round testing core CS fundamentals, tech trivia, and syntax knowledge under a strict time constraint." },
-    { title: "Round 2: Binary Bingo (Logic Matrix)", content: "Format: Solo\\n- Strategic task-matrix challenge where participants solve mini-coding problems or output puzzles to claim squares on their personal grid and complete winning lines." },
-    { title: "Round 3: The Overdrive Buzzer (Final Showdown)", content: "Format: Solo (Head-to-Head Finale)\\n- Live individual buzzer battle featuring rapid-fire logic traps, code analysis, and algorithmic sprints with point deductions for wrong answers." }
+    { title: "Round 1: Quantum Query (Speed Trivia / Quiz)", content: `Format: Solo
+- Rapid elimination round testing core CS fundamentals, tech trivia, and syntax knowledge under a strict time constraint.` },
+    { title: "Round 2: Binary Bingo (Logic Matrix)", content: `Format: Solo
+- Strategic task-matrix challenge where participants solve mini-coding problems or output puzzles to claim squares on their personal grid and complete winning lines.` },
+    { title: "Round 3: The Overdrive Buzzer (Final Showdown)", content: `Format: Solo (Head-to-Head Finale)
+- Live individual buzzer battle featuring rapid-fire logic traps, code analysis, and algorithmic sprints with point deductions for wrong answers.` }
   ]
 };
 
