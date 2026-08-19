@@ -49,9 +49,9 @@ function toSpectrumEvent(id: string, doc: any): SpectrumEvent {
     difficulty: doc.difficulty ?? 1,
     color: doc.color ?? "#f59e0b",
     duration: doc.duration ?? "",
-    description: doc.description ?? "",
-    rules: doc.rules ?? [],
-    prizes: doc.prizes ?? [],
+    description: doc.description || staticEv?.description || "",
+    rules: (Array.isArray(doc.rules) && doc.rules.length > 0) ? doc.rules : (staticEv?.rules ?? []),
+    prizes: (Array.isArray(doc.prizes) && doc.prizes.length > 0) ? doc.prizes : (staticEv?.prizes ?? []),
     rounds: doc.rounds ?? staticEv?.rounds ?? [],
     registrationEnds: endsAt.toLocaleString("en-IN", {
       day: "numeric",

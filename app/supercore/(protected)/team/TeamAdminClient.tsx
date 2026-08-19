@@ -20,6 +20,7 @@ export function TeamAdminClient({ initialMembers }: { initialMembers: TeamMember
   const [name, setName] = useState("")
   const [role, setRole] = useState("")
   const [imageUrl, setImageUrl] = useState("")
+  const [order, setOrder] = useState<number>(0)
   
   const [saving, setSaving] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
@@ -30,6 +31,7 @@ export function TeamAdminClient({ initialMembers }: { initialMembers: TeamMember
     setName("")
     setRole("")
     setImageUrl("")
+    setOrder(0)
     setError(null)
     setAdding(true)
   }
@@ -40,6 +42,7 @@ export function TeamAdminClient({ initialMembers }: { initialMembers: TeamMember
     setName(m.name)
     setRole(m.role)
     setImageUrl(m.imageUrl || "")
+    setOrder(m.order ?? 0)
     setError(null)
   }
 
@@ -49,6 +52,7 @@ export function TeamAdminClient({ initialMembers }: { initialMembers: TeamMember
     setName("")
     setRole("")
     setImageUrl("")
+    setOrder(0)
     setError(null)
   }
 
@@ -64,13 +68,15 @@ export function TeamAdminClient({ initialMembers }: { initialMembers: TeamMember
         const res = await fetch(`/api/admin/team/${editingId}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: name.trim(), role: role.trim(), imageUrl: imageUrl.trim() }),
+          body: JSON.stringify({ name: name.trim(), role: role.trim(), imageUrl: imageUrl.trim(), order }),
         })
         const data = await res.json()
         if (!res.ok) throw new Error(data.error ?? "Failed to update member.")
         
         setMembers((prev) =>
-          prev.map((m) => (m.id === editingId ? { ...m, name: name.trim(), role: role.trim(), imageUrl: imageUrl.trim() } : m))
+          prev
+            .map((m) => (m.id === editingId ? { ...m, name: name.trim(), role: role.trim(), imageUrl: imageUrl.trim(), order } : m))
+            .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
         )
         cancelForm()
       } else {
@@ -78,15 +84,15 @@ export function TeamAdminClient({ initialMembers }: { initialMembers: TeamMember
         const res = await fetch("/api/admin/team", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: name.trim(), role: role.trim(), imageUrl: imageUrl.trim() }),
+          body: JSON.stringify({ name: name.trim(), role: role.trim(), imageUrl: imageUrl.trim(), order }),
         })
         const data = await res.json()
         if (!res.ok) throw new Error(data.error ?? "Failed to add member.")
 
-        setMembers((prev) => [
-          ...prev,
-          { id: data.id, name: name.trim(), role: role.trim(), imageUrl: imageUrl.trim() },
-        ])
+        setMembers((prev) =>
+          [...prev, { id: data.id, name: name.trim(), role: role.trim(), imageUrl: imageUrl.trim(), order }]
+            .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+        )
         cancelForm()
       }
     } catch (err: unknown) {
@@ -174,7 +180,7 @@ export function TeamAdminClient({ initialMembers }: { initialMembers: TeamMember
           <h2 className="text-lg font-bold text-white uppercase" style={{ fontFamily: "'Bangers', cursive" }}>
             {editingId ? "Edit Team Member" : "Add Team Member"}
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="flex flex-col gap-1">
               <label className="text-xs text-neutral-400 uppercase tracking-wider">Full Name *</label>
               <input
@@ -206,6 +212,20 @@ export function TeamAdminClient({ initialMembers }: { initialMembers: TeamMember
                 placeholder="https://example.com/photo.jpg"
                 className="border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-amber-400"
               />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-neutral-400 uppercase tracking-wider">
+                Priority <span className="normal-case text-neutral-500">(lower = first)</span>
+              </label>
+              <input
+                type="number"
+                min={0}
+                value={order}
+                onChange={(e) => setOrder(Number(e.target.value))}
+                placeholder="0"
+                className="border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-amber-400"
+              />
+              <p className="text-[10px] text-neutral-500">0 = highest priority</p>
             </div>
           </div>
 
@@ -258,6 +278,7 @@ export function TeamAdminClient({ initialMembers }: { initialMembers: TeamMember
               <div className="min-w-0">
                 <p className="text-sm font-bold text-white truncate">{member.name}</p>
                 <p className="text-xs text-amber-400 truncate">{member.role}</p>
+                <p className="text-[10px] text-neutral-500 mt-0.5">Priority: {member.order ?? 0}</p>
               </div>
             </div>
 

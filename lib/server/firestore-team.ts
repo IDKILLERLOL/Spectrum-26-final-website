@@ -20,20 +20,27 @@ export async function listTeamMembers(): Promise<FirestoreTeamMember[]> {
     return []
   }
   try {
-    const snap = await getDb().collection(COLLECTION).orderBy("createdAt", "asc").get()
+    const snap = await getDb().collection(COLLECTION).get()
     if (snap.empty) return []
-    return snap.docs.map((doc) => {
-      const data = doc.data()
-      return {
-        id: doc.id,
-        name: data.name || "",
-        role: data.role || "",
-        imageUrl: data.imageUrl || "",
-        order: data.order ?? 0,
-        createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : (typeof data.createdAt === "string" ? data.createdAt : null),
-        updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate().toISOString() : (typeof data.updatedAt === "string" ? data.updatedAt : null),
-      }
-    })
+    return snap.docs
+      .map((doc) => {
+        const data = doc.data()
+        return {
+          id: doc.id,
+          name: data.name || "",
+          role: data.role || "",
+          imageUrl: data.imageUrl || "",
+          order: data.order ?? 0,
+          createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : (typeof data.createdAt === "string" ? data.createdAt : null),
+          updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate().toISOString() : (typeof data.updatedAt === "string" ? data.updatedAt : null),
+        }
+      })
+      .sort((a, b) => {
+        // Primary: order ascending (lower = shown first)
+        if ((a.order ?? 0) !== (b.order ?? 0)) return (a.order ?? 0) - (b.order ?? 0)
+        // Tiebreaker: createdAt ascending
+        return (a.createdAt ?? "").localeCompare(b.createdAt ?? "")
+      })
   } catch (err) {
     console.warn("[listTeamMembers] Firestore error or quota limit reached:", err)
     return []
