@@ -123,7 +123,7 @@ export async function syncToSheet(payload: object): Promise<boolean> {
   }
 
   try {
-    console.log(`[apps-script] Syncing type='${p.type}' to sheet via Apps Script...`)
+    console.log(`[apps-script] Syncing type='${p.type}' to sheet via Apps Script (url=${url.slice(0, 60)}...)`)
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
@@ -136,7 +136,8 @@ export async function syncToSheet(payload: object): Promise<boolean> {
     if (ok) {
       console.log(`[apps-script] Sync succeeded (status=${res.status}).`)
     } else {
-      console.warn(`[apps-script] Sync failed with status ${res.status}.`)
+      const body = await res.text().catch(() => "")
+      console.warn(`[apps-script] Sync failed — status=${res.status}, body=${body.slice(0, 300)}`)
     }
     return ok
   } catch (err) {

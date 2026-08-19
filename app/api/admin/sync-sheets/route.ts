@@ -18,44 +18,59 @@ export async function POST() {
     return timeA - timeB
   })
 
+  // Separate unsynced from already-synced
+  const toSync = registrations.filter((r) => r.sheetsSyncStatus !== "SYNCED")
+
+  if (toSync.length === 0) {
+    return NextResponse.json({ ok: true, total: registrations.length, synced: 0, failed: 0, message: "All registrations already synced." })
+  }
+
   let synced = 0
   let failed = 0
+  const errors: string[] = []
 
-  for (const reg of registrations) {
-    // Only sync new/unsynced records
-    if (reg.sheetsSyncStatus === "SYNCED") {
-      continue
+  for (const reg of toSync) {
+    let ok = false
+    let errorMsg = ""
+    try {
+      ok = await syncToSheet(
+        buildRegistrationRow({
+          type: "registration",
+          id: reg.id,
+          fullName: reg.fullName,
+          email: reg.userEmail,
+          phone: reg.phone || "",
+          collegeName: reg.collegeName || "",
+          year: reg.year || "",
+          eventName: reg.eventName,
+          teamSize: reg.teamSize,
+          paymentRefId: reg.paymentRefId,
+          amountPaid: reg.amountPaid,
+          paymentStatus: reg.paymentStatus,
+          createdAt: typeof reg.createdAt === "string" ? reg.createdAt : (reg.createdAt as any)?.toDate?.()?.toISOString() || new Date().toISOString(),
+          teamName: reg.teamName || "",
+          pictureUrl: reg.pictureUrl || "",
+          teamMembers: reg.teamMembers?.map((m: any) => ({
+            name: m.name,
+            email: m.email || "",
+            phone: m.phone || "",
+            collegeName: m.college || m.collegeName || "",
+            year: m.year || "",
+          })) || []
+        })
+      )
+    } catch (e: any) {
+      errorMsg = e?.message || String(e)
+      console.error(`[sync-sheets] Error syncing reg ${reg.id}:`, errorMsg)
     }
 
-    const ok = await syncToSheet(
-      buildRegistrationRow({
-        type: "registration",
-        id: reg.id,
-        fullName: reg.fullName,
-        email: reg.userEmail,
-        phone: reg.phone || "",
-        collegeName: reg.collegeName || "",
-        year: reg.year || "",
-        eventName: reg.eventName,
-        teamSize: reg.teamSize,
-        paymentRefId: reg.paymentRefId,
-        amountPaid: reg.amountPaid,
-        paymentStatus: reg.paymentStatus,
-        createdAt: typeof reg.createdAt === "string" ? reg.createdAt : (reg.createdAt as any)?.toDate?.()?.toISOString() || new Date().toISOString(),
-        teamName: reg.teamName || "",
-        pictureUrl: reg.pictureUrl || "",
-        teamMembers: reg.teamMembers?.map((m: any) => ({
-          name: m.name,
-          email: m.email || "",
-          phone: m.phone || "",
-          collegeName: m.college || m.collegeName || "",
-          year: m.year || "",
-        })) || []
-      })
-    )
     await setSheetsSyncStatus(reg.id, ok ? "SYNCED" : "FAILED")
-    if (ok) synced++
-    else failed++
+    if (ok) {
+      synced++
+    } else {
+      failed++
+      errors.push(`${reg.id}: ${errorMsg || "syncToSheet returned false"}`)
+    }
   }
 
   await writeAuditLog({
@@ -63,8 +78,17 @@ export async function POST() {
     action: "MANUAL_SHEETS_SYNC",
     targetCollection: "registrations",
     targetId: "*",
-    metadata: { total: registrations.length, synced, failed },
+    metadata: { total: registrations.length, toSync: toSync.length, synced, failed },
   })
 
-  return NextResponse.json({ ok: true, total: registrations.length, synced, failed })
+  return NextResponse.json({
+    ok: synced > 0 || failed === 0,
+    total: registrations.length,
+    synced,
+    failed,
+    errors: errors.length > 0 ? errors : undefined,
+    message: synced === toSync.length
+      ? `All ${synced} registration(s) synced successfully.`
+      : `Synced ${synced} of ${toSync.length}. ${failed} failed.`,
+  })
 }

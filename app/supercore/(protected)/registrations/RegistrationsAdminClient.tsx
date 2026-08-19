@@ -216,12 +216,12 @@ export function RegistrationsAdminClient({
         throw new Error(`Server returned status ${res.status}`)
       }
       const data = await res.json()
-      if (data.ok) {
-        alert(`Successfully synced ${data.synced} of ${data.total} registrations to Google Sheets.`)
-        await reload()
-      } else {
-        alert("Failed to sync registrations: " + (data.message || "Unknown error"))
+      let msg = data.message || `Synced ${data.synced} of ${data.total} registration(s).`
+      if (data.errors && data.errors.length > 0) {
+        msg += "\n\nErrors:\n" + data.errors.join("\n")
       }
+      alert(msg)
+      await reload()
     } catch (err) {
       console.error('[admin] Sync all error:', err)
       alert('Failed to sync registrations. Please try again.')
