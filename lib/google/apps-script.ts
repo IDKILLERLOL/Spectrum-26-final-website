@@ -1,6 +1,7 @@
 import "server-only"
 
 const APPS_SCRIPT_URL =
+  process.env.EMAIL_APPS_SCRIPT_URL ||
   process.env.SHEETS_APPS_SCRIPT_URL ||
   process.env.APPS_SCRIPT_URL ||
   process.env.VITE_GOOGLE_SHEETS_WEBAPP_URL ||
@@ -8,6 +9,7 @@ const APPS_SCRIPT_URL =
 
 // Must match the SECRET_KEY in the Apps Script doPost function
 const APPS_SCRIPT_API_KEY =
+  process.env.EMAIL_APPS_SCRIPT_SECRET ||
   process.env.APPS_SCRIPT_API_KEY ||
   process.env.APPS_SCRIPT_SECRET ||
   "ishaandagoat"
@@ -154,7 +156,7 @@ export async function syncToSheet(payload: object): Promise<boolean> {
  */
 export async function fetchFromSheet(): Promise<any[]> {
   const url = cleanUrl(APPS_SCRIPT_URL)
-  const secret = APPS_SCRIPT_SECRET
+  const secret = APPS_SCRIPT_API_KEY
   const spreadsheetId = await getSpreadsheetId()
 
   if (!url || !spreadsheetId) return []

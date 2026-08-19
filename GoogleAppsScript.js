@@ -3,7 +3,8 @@ function doPost(e) {
     var data = JSON.parse(e.postData.contents);
     
     // Security check: validate API key
-    var SECRET_KEY = "SECRET123"; // You can change this secret key if needed
+    // IMPORTANT: This must exactly match the value of EMAIL_APPS_SCRIPT_SECRET in your Vercel env vars.
+    var SECRET_KEY = "ishaandagoat";
     if (!data.apiKey || data.apiKey !== SECRET_KEY) {
       return ContentService.createTextOutput(JSON.stringify({ status: "error", message: "Unauthorized: Invalid API key" }))
         .setMimeType(ContentService.MimeType.JSON);
@@ -38,19 +39,20 @@ function doPost(e) {
     }
     
     if (data.type === "registration") {
+      var teamOrLeaderName = data.teamName || data.fullName || "";
       sheet.appendRow([
-        data.eventName,
-        data.fullName,
-        "LEADER",
-        data.fullName,
-        data.email,
-        "", // Phone
-        "", // College
-        data.paymentStatus,
-        data.paymentRefId,
-        "", // Screenshot
-        "No", // Checked In
-        data.createdAt
+        data.eventName || "",
+        teamOrLeaderName,
+        data.role || "LEADER",
+        data.fullName || "",
+        data.email || "",
+        data.phone || "",
+        data.collegeName || "",
+        data.paymentStatus || "PENDING",
+        data.paymentRefId || "",
+        data.pictureUrl || "",
+        data.checkedIn || "No",
+        data.createdAt || ""
       ]);
     }
     

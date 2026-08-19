@@ -240,7 +240,7 @@ export async function listRegistrations(filters?: {
         eventName: eventName,
         teamName: regData.teamName || regData.team_name || "",
         teamMembers: teamMembers,
-        teamSize: teamMembers.length || 1,
+        teamSize: regData.teamSize || (teamMembers.length + 1),
         paymentRefId: regData.paymentRefId || regData.upiTransactionRef || "",
         amountPaid: regData.amountPaid || eventFee,
         paymentStatus: regData.feeStatus === "PAID" ? "APPROVED" : (regData.paymentStatus || "PENDING"),
