@@ -21,8 +21,8 @@ export const site = {
   date: EVENT_DATE_DISPLAY,
   dateShort: EVENT_DATE_SHORT,
   dateISO: EVENT_DATE_ISO,
-  prizePool: "₹30,000+",
-  prizePoolNumeric: 30000,
+  prizePool: "₹40,000+",
+  prizePoolNumeric: 40000,
   about:
     "Spectrum 5.0 is the annual tech and gaming extravaganza that brings together coders, gamers, designers and dreamers. Compete, collaborate and conquer in an unforgettable experience.",
   aboutShort: "Where passion meets performance.",
