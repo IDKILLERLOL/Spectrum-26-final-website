@@ -12,7 +12,7 @@ import {
   Coffee, Gift, Megaphone, Zap, Star, Globe, Tag, MapPin,
   HeartPulse, Dumbbell, Gamepad2, GraduationCap, Coins,
   Trophy, Plane, Car, Package, Briefcase, Users, ShieldCheck,
-  Sparkles, CupSoda, Film
+  Sparkles, CupSoda, Film, Instagram
 } from "lucide-react"
 
 export const dynamic = "force-dynamic"
@@ -170,11 +170,17 @@ export default async function SponsorsPage() {
                           href={href}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-1.5 border-2 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide"
-                          style={{ borderColor: "#E1306C", color: "#E1306C", background: "#fff0f5" }}
+                          aria-label="Instagram"
+                          className="group flex h-8 w-8 shrink-0 items-center justify-start overflow-hidden border-2 px-1.5 transition-all duration-300 ease-in-out hover:w-[6.2rem] hover:bg-[#ffeef4]"
+                          style={{ borderColor: "#E1306C", color: "#E1306C", background: "#FFFDF6" }}
                         >
-                          <Globe size={11} />
-                          Instagram
+                          <Instagram size={15} className="shrink-0" />
+                          <span
+                            className={`${questBody.className} text-[10px] font-bold uppercase tracking-wider opacity-0 transition-opacity duration-200 group-hover:opacity-100 ml-1.5 whitespace-nowrap`}
+                            style={{ color: "#E1306C" }}
+                          >
+                            Instagram
+                          </span>
                         </a>
                       )
                     }
@@ -186,11 +192,17 @@ export default async function SponsorsPage() {
                           href={v}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-1.5 border-2 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide"
+                          aria-label="Location"
+                          className="group flex h-8 w-8 shrink-0 items-center justify-start overflow-hidden border-2 px-1.5 transition-all duration-300 ease-in-out hover:w-[5.8rem] hover:bg-neutral-100"
                           style={{ borderColor: INK, color: INK, background: "#FFFDF6" }}
                         >
-                          <MapPin size={11} />
-                          Location
+                          <MapPin size={15} className="shrink-0" />
+                          <span
+                            className={`${questBody.className} text-[10px] font-bold uppercase tracking-wider opacity-0 transition-opacity duration-200 group-hover:opacity-100 ml-1.5 whitespace-nowrap`}
+                            style={{ color: INK }}
+                          >
+                            Location
+                          </span>
                         </a>
                       )
                     }
