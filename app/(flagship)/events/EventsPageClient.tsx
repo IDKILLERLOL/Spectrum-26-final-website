@@ -12,6 +12,7 @@ import { AppButton } from "@/components/flagship/AppButton"
 import { useQuest } from "@/components/flagship/quest-context"
 import { NAVY, INK, PINK, MUSTARD, VERMILION, hoardingShadow, softHoardingShadow } from "@/components/flagship/tokens"
 import { questDisplay, questBody } from "@/components/flagship/fonts"
+import { trackEventCardView, trackEventCardClick } from "@/lib/analytics/track"
 import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, DialogClose, DialogPortal, DialogOverlay } from "@radix-ui/react-dialog"
 import { LiquidGlassModalCard } from "@/components/flagship/LiquidGlassModalCard"
 
