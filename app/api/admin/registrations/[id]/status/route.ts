@@ -48,12 +48,18 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         id,
         fullName: existing.fullName,
         email: existing.userEmail,
+        phone: existing.phone || "",
+        collegeName: existing.collegeName || "",
+        year: existing.year || "",
         eventName: existing.eventName,
         teamSize: existing.teamSize,
         paymentRefId: existing.paymentRefId,
         amountPaid: existing.amountPaid,
         paymentStatus: body.status,
         createdAt: createdAtStr,
+        teamName: existing.teamName || "",
+        pictureUrl: existing.pictureUrl || "",
+        teamMembers: existing.teamMembers || [],
       })
     ).then((ok) => {
       setSheetsSyncStatus(id, ok ? "SYNCED" : "FAILED")
@@ -64,23 +70,53 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   if (body.status !== "PENDING") {
     try {
-      const ok = await sendEmail(
-        paymentStatusEmail({
-          to: existing.userEmail,
-          fullName: existing.fullName,
-          eventName: existing.eventName,
-          status: body.status as "APPROVED" | "REJECTED",
-          phone: existing.phone,
-          collegeName: existing.collegeName,
-          teamName: existing.teamName,
-          teamMembers: existing.teamMembers,
+      const recipients: { email: string; name: string }[] = []
+
+      // 1. Leader
+      if (existing.userEmail) {
+        recipients.push({
+          email: existing.userEmail.trim(),
+          name: existing.fullName || "Participant",
         })
+      }
+
+      // 2. Team Members (non-leaders)
+      if (Array.isArray(existing.teamMembers)) {
+        for (const m of existing.teamMembers) {
+          const memEmail = (m?.email || "").trim()
+          const memName = m?.name || "Team Member"
+          if (
+            memEmail &&
+            !recipients.some((r) => r.email.toLowerCase() === memEmail.toLowerCase())
+          ) {
+            recipients.push({ email: memEmail, name: memName })
+          }
+        }
+      }
+
+      const results = await Promise.allSettled(
+        recipients.map((recipient) =>
+          sendEmail(
+            paymentStatusEmail({
+              to: recipient.email,
+              fullName: recipient.name,
+              eventName: existing.eventName,
+              status: body.status as "APPROVED" | "REJECTED",
+              phone: existing.phone,
+              collegeName: existing.collegeName,
+              teamName: existing.teamName,
+              teamMembers: existing.teamMembers,
+            })
+          )
+        )
       )
-      if (ok) {
+
+      const anySent = results.some((r) => r.status === "fulfilled" && r.value)
+      if (anySent) {
         await setEmailSent(id)
       }
     } catch (err) {
-      console.error("[status route] failed to send email:", err)
+      console.error("[status route] failed to send email(s):", err)
     }
   }
 

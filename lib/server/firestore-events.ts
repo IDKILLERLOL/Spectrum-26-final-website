@@ -50,7 +50,15 @@ function toSpectrumEvent(id: string, doc: any): SpectrumEvent {
     color: doc.color ?? "#f59e0b",
     duration: doc.duration ?? "",
     description: doc.description || staticEv?.description || "",
-    rules: (Array.isArray(doc.rules) && doc.rules.length > 0) ? doc.rules : (staticEv?.rules ?? []),
+    rules: (() => {
+      const COLLEGE_RULE = "Only College Students Allowed"
+      const base = (Array.isArray(doc.rules) && doc.rules.length > 0)
+        ? doc.rules
+        : (staticEv?.rules ?? [])
+      // Remove it from wherever it might already be, then always put it first
+      const rest = base.filter((r: string) => r !== COLLEGE_RULE)
+      return [COLLEGE_RULE, ...rest]
+    })(),
     prizes: (Array.isArray(doc.prizes) && doc.prizes.length > 0) ? doc.prizes : (staticEv?.prizes ?? []),
     rounds: doc.rounds ?? staticEv?.rounds ?? [],
     registrationEnds: endsAt.toLocaleString("en-IN", {

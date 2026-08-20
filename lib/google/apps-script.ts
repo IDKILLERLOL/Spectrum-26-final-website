@@ -101,13 +101,22 @@ export async function syncToSheet(payload: object): Promise<boolean> {
       const parsedDate = new Date(p.createdAt || Date.now())
       const formattedDate = formatDateTime(parsedDate)
       const teamOrName = p.teamName || p.fullName || ""
+      const regId = p.id || p.teamId || ""
 
-      // Leader row
-      const leaderOk = await post({
+      const members = (p.teamMembers || []).map((m: any) => ({
+        name: m.name || (typeof m === "string" ? m : ""),
+        email: m.email || "",
+        phone: m.phone || "",
+        collegeName: m.college || m.collegeName || "",
+        year: m.year || "",
+      }))
+
+      const ok = await post({
         type: "registration",
+        id: regId,
+        teamId: regId,
         eventName: p.eventName || "",
         teamName: teamOrName,
-        role: "LEADER",
         fullName: p.fullName || "",
         email: p.email || "",
         phone: p.phone || "",
@@ -117,30 +126,11 @@ export async function syncToSheet(payload: object): Promise<boolean> {
         pictureUrl: p.pictureUrl || "",
         checkedIn: "No",
         createdAt: formattedDate,
+        teamMembers: members,
       })
 
-      // Member rows — one POST each
-      const members: any[] = p.teamMembers || []
-      for (const m of members) {
-        await post({
-          type: "registration",
-          eventName: p.eventName || "",
-          teamName: teamOrName,
-          role: "MEMBER",
-          fullName: m.name || "",
-          email: m.email || "",
-          phone: m.phone || "",
-          collegeName: m.college || m.collegeName || "",
-          paymentStatus: p.paymentStatus || "PENDING",
-          paymentRefId: p.paymentRefId || "",
-          pictureUrl: p.pictureUrl || "",
-          checkedIn: "No",
-          createdAt: formattedDate,
-        })
-      }
-
-      if (leaderOk) console.log(`[apps-script] Registration synced (${members.length} member(s) also sent).`)
-      return leaderOk
+      if (ok) console.log(`[apps-script] Registration synced (id=${regId}, ${members.length} members).`)
+      return ok
     }
 
     // Non-registration payloads (whitelist, sponsor, etc.)
@@ -225,6 +215,28 @@ export function buildRegistrationRow(input: RegistrationSheetRow) {
     eventName = "BGMI"
   }
   return { ...input, eventName }
+}
+
+export function buildDeleteRegistrationRow(input: { id: string; eventName: string; teamName?: string; email?: string }) {
+  let eventName = input.eventName
+  const lower = (eventName || "").toLowerCase().trim()
+  if (["singularity-strike", "singularity_strike", "code clash", "code_clash", "tech-solo-1"].includes(lower)) {
+    eventName = "Singularity Strike"
+  } else if (["fifa", "fc26", "fc_26", "fc 26", "non-tech-1"].includes(lower)) {
+    eventName = "FC 26"
+  } else if (["dual-debug", "dual_debug", "tech-duo-1"].includes(lower)) {
+    eventName = "Dual Debug"
+  } else if (["bgmi", "non-tech-3"].includes(lower)) {
+    eventName = "BGMI"
+  }
+  return {
+    type: "delete_registration",
+    id: input.id,
+    teamId: input.id,
+    eventName,
+    teamName: input.teamName || "",
+    email: input.email || "",
+  }
 }
 
 interface AuditLogSheetRow {

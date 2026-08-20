@@ -8,11 +8,37 @@ export interface FirestoreTeamMember {
   id: string
   name: string
   role: string
+  group: string
   imageUrl: string
   order?: number
   createdAt?: string | null
   updatedAt?: string | null
 }
+
+export const TEAM_GROUPS = [
+  "Core Team",
+  "Tech Team",
+  "Design Team",
+  "Management",
+  "Marketing",
+  "Logistics",
+  "Media",
+  "Other",
+] as const
+
+export const TEAM_ROLES = [
+  "Chairperson",
+  "Vice Chairperson",
+  "Secretary",
+  "Joint Secretary",
+  "Treasurer",
+  "Lead",
+  "Co-Lead",
+  "Head",
+  "Co-Head",
+  "Member",
+  "Volunteer",
+] as const
 
 export async function listTeamMembers(): Promise<FirestoreTeamMember[]> {
   if (!isAdminConfigured()) {
@@ -29,6 +55,7 @@ export async function listTeamMembers(): Promise<FirestoreTeamMember[]> {
           id: doc.id,
           name: data.name || "",
           role: data.role || "",
+          group: data.group || "",
           imageUrl: data.imageUrl || "",
           order: data.order ?? 0,
           createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : (typeof data.createdAt === "string" ? data.createdAt : null),
@@ -36,9 +63,17 @@ export async function listTeamMembers(): Promise<FirestoreTeamMember[]> {
         }
       })
       .sort((a, b) => {
-        // Primary: order ascending (lower = shown first)
+        // 1. Group — follow TEAM_GROUPS order
+        const groupOrder = (g: string) => { const i = TEAM_GROUPS.indexOf(g as any); return i === -1 ? 999 : i }
+        const gCmp = groupOrder(a.group) - groupOrder(b.group)
+        if (gCmp !== 0) return gCmp
+        // 2. Priority ascending (lower = shown first)
         if ((a.order ?? 0) !== (b.order ?? 0)) return (a.order ?? 0) - (b.order ?? 0)
-        // Tiebreaker: createdAt ascending
+        // 3. Role — follow TEAM_ROLES order
+        const roleOrder = (r: string) => { const i = TEAM_ROLES.indexOf(r as any); return i === -1 ? 999 : i }
+        const rCmp = roleOrder(a.role) - roleOrder(b.role)
+        if (rCmp !== 0) return rCmp
+        // 4. Tiebreaker: createdAt ascending
         return (a.createdAt ?? "").localeCompare(b.createdAt ?? "")
       })
   } catch (err) {
@@ -50,6 +85,7 @@ export async function listTeamMembers(): Promise<FirestoreTeamMember[]> {
 export async function createTeamMember(input: {
   name: string
   role: string
+  group?: string
   imageUrl?: string
   order?: number
 }): Promise<string> {
@@ -61,6 +97,7 @@ export async function createTeamMember(input: {
   const ref = await db.collection(COLLECTION).add({
     name: input.name.trim(),
     role: input.role.trim(),
+    group: input.group?.trim() || "",
     imageUrl: input.imageUrl?.trim() || "",
     order: input.order ?? 0,
     createdAt: now,
@@ -71,7 +108,7 @@ export async function createTeamMember(input: {
 
 export async function updateTeamMember(
   id: string,
-  input: Partial<{ name: string; role: string; imageUrl: string; order: number }>
+  input: Partial<{ name: string; role: string; group: string; imageUrl: string; order: number }>
 ): Promise<void> {
   if (!isAdminConfigured()) {
     throw new Error("Firebase Admin SDK not configured. Check FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY.")
@@ -80,6 +117,7 @@ export async function updateTeamMember(
   const updateData: Record<string, any> = { updatedAt: Timestamp.now() }
   if (input.name !== undefined) updateData.name = input.name.trim()
   if (input.role !== undefined) updateData.role = input.role.trim()
+  if (input.group !== undefined) updateData.group = input.group.trim()
   if (input.imageUrl !== undefined) updateData.imageUrl = input.imageUrl.trim()
   if (input.order !== undefined) updateData.order = input.order
   await db.collection(COLLECTION).doc(id).update(updateData)

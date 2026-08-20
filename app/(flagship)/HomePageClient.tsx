@@ -364,9 +364,10 @@ export function HomePageClient({ events }: { events: SpectrumEvent[] }) {
                 </div>
               </div>
 
-              <p className={`${questBody.className} text-sm leading-relaxed opacity-90`} style={{ color: NAVY }}>
+              <p className={`${questBody.className} text-sm leading-relaxed opacity-90 whitespace-pre-line`} style={{ color: NAVY }}>
                 {(() => {
-                  const desc = selectedEvent?.description || ""
+                  const rawDesc = selectedEvent?.description || ""
+                  const desc = rawDesc.replace(/\\n/g, "\n")
                   const roundOneIdx = desc.search(/round\s*1/i)
                   if (roundOneIdx !== -1) {
                     return desc.slice(0, roundOneIdx).trim()
@@ -380,9 +381,13 @@ export function HomePageClient({ events }: { events: SpectrumEvent[] }) {
                 {(() => {
                   if (!selectedEvent) return null
                   const normalizedId = selectedEvent.id === "tech-duo-1" ? "dual-debug" : (selectedEvent.id === "tech-solo-1" ? "singularity-strike" : selectedEvent.id)
-                  const rounds = EVENT_ROUNDS[normalizedId] || []
-                  return rounds.map((round, idx) => {
+                  const rounds = (selectedEvent as any).rounds && (selectedEvent as any).rounds.length > 0
+                    ? (selectedEvent as any).rounds
+                    : (EVENT_ROUNDS[normalizedId] || [])
+                  return rounds.map((round: { title: string; content: string }, idx: number) => {
                     const isOpen = openAccordion === `round-${idx}`
+                    const cleanTitle = (round.title || "").replace(/\\n/g, " ")
+                    const cleanContent = (round.content || "").replace(/\\n/g, "\n").trim()
                     return (
                       <div key={idx} className="border-2 bg-white" style={{ borderColor: INK }}>
                         <button
@@ -391,12 +396,12 @@ export function HomePageClient({ events }: { events: SpectrumEvent[] }) {
                           className={`${questDisplay.className} w-full flex items-center justify-between p-3 text-xs uppercase tracking-widest text-left font-bold transition-colors hover:bg-neutral-50`}
                           style={{ color: NAVY }}
                         >
-                          <span>{round.title}</span>
+                          <span>{cleanTitle}</span>
                           <span className="text-[10px]">{isOpen ? "▲" : "▼"}</span>
                         </button>
                         {isOpen && (
                           <div className={`${questBody.className} border-t-2 p-3 text-xs leading-relaxed opacity-95 whitespace-pre-line`} style={{ borderColor: INK, color: INK }}>
-                            {round.content}
+                            {cleanContent}
                           </div>
                         )}
                       </div>

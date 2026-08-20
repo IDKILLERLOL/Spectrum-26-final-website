@@ -94,7 +94,7 @@ export function EventDetailPageClient({ event }: { event: SpectrumEvent }) {
                   About
                 </p>
                 <p className={`${questBody.className} text-xs md:text-base whitespace-pre-line`} style={{ color: NAVY }}>
-                  {event.description}
+                  {(event.description || "").replace(/\\n/g, "\n")}
                 </p>
               </div>
             </Card>

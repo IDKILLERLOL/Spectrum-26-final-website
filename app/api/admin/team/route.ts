@@ -14,7 +14,7 @@ export async function POST(request: Request) {
   const session = await getAdminSession()
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-  let body: { name?: string; role?: string; imageUrl?: string; order?: number }
+  let body: { name?: string; role?: string; group?: string; imageUrl?: string; order?: number }
   try {
     body = await request.json()
   } catch {
@@ -29,6 +29,7 @@ export async function POST(request: Request) {
     const id = await createTeamMember({
       name: body.name,
       role: body.role,
+      group: body.group,
       imageUrl: body.imageUrl,
       order: body.order,
     })
