@@ -1,4 +1,4 @@
-import { Mail, Phone, MapPin } from "lucide-react"
+import { Mail, Phone, MapPin, Clock } from "lucide-react"
 import { contact } from "@/content/spectrum"
 import { PageHeader } from "@/components/flagship/PageHeader"
 import { PageContainer } from "@/components/flagship/PageContainer"
@@ -40,6 +40,12 @@ export default function ContactPage() {
                 </a>
               )
             })}
+            <div className="flex flex-col gap-1">
+              <Row icon={<Clock size={18} color={VERMILION} />} label={`Working Hours: ${contact.hours}`} />
+              <p className={`${questBody.className} text-xs font-semibold pl-7 text-neutral-500`}>
+                * {contact.hoursNote}
+              </p>
+            </div>
             <Row icon={<MapPin size={18} color={VERMILION} />} label={contact.location} />
           </div>
         </div>

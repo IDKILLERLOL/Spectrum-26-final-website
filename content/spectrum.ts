@@ -445,6 +445,8 @@ export const venueMapsUrl = "https://maps.google.com/?q=SVKM's+Shri+Bhagubhai+Ma
 export const contact = {
   email: "sbmpspectrum@gmail.com",
   phone: `+91 90046 20948 - Dhairya Gandhi\n+91 90201 95204 - Darsh Bhagat\n+91 86574 78886 - Asiyah Patel`,
+  hours: "10:00 AM – 6:00 PM",
+  hoursNote: "Outside these hours, enquiries will not be entertained.",
   location: "SVKM's Shri Bhagubhai Mafatlal Polytechnic & College of Engineering",
 }
 
