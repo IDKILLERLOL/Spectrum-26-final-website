@@ -163,14 +163,18 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
         <DialogTrigger asChild>
           <span className="hidden" />
         </DialogTrigger>
-        <DialogContent className="fixed inset-0 z-50 flex items-center justify-center" aria-hidden={!selectedEvent}>
+        <DialogContent
+          className="fixed inset-0 z-50 flex items-center justify-center outline-none focus:outline-none"
+          aria-hidden={!selectedEvent}
+          onOpenAutoFocus={(e) => e.preventDefault()}
+        >
           <div className="relative w-full max-w-lg sm:max-w-xl p-6 bg-white border-4 shadow-lg max-h-[85vh] flex flex-col" style={{ borderColor: INK }}>
             <div className="mb-4 flex items-center justify-between shrink-0">
               <DialogTitle className={`${questDisplay.className} text-lg md:text-xl`} style={{ color: NAVY }}>
                 {selectedEvent?.name}
               </DialogTitle>
               <DialogClose
-                className="group flex size-8 items-center justify-center border-2 border-transparent transition-all duration-200 cursor-pointer"
+                className="group flex size-8 items-center justify-center border-2 border-transparent transition-all duration-200 cursor-pointer outline-none focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
                 onMouseEnter={(e) => {
                   e.currentTarget.style.borderColor = INK
                   e.currentTarget.style.boxShadow = `2px 2px 0px ${INK}`

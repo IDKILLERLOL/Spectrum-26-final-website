@@ -261,7 +261,15 @@ function EventAwning({ color }: { color: string }) {
   )
 }
 
-function FeaturedEvents({ events, onEventClick }: { events: SpectrumEvent[]; onEventClick: (ev: SpectrumEvent) => void }) {
+function FeaturedEvents({
+  events,
+  onEventClick,
+  onRegisterClick,
+}: {
+  events: SpectrumEvent[]
+  onEventClick: (ev: SpectrumEvent) => void
+  onRegisterClick: (ev: SpectrumEvent, e: React.MouseEvent) => void
+}) {
   return (
     <section className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 py-12 sm:px-5 md:px-10 lg:gap-7 lg:py-16">
       <h2 className={`${questDisplay.className} text-xl md:text-3xl lg:text-4xl`} style={{ color: NAVY }}>
@@ -297,12 +305,22 @@ function FeaturedEvents({ events, onEventClick }: { events: SpectrumEvent[]; onE
                   {ev.format} • {ev.fee}
                 </p>
               </div>
-              <div
-                className={`${questBody.className} flex items-center justify-center gap-1.5 w-full py-2 text-xs font-bold text-white border-2`}
-                style={{ background: ev.color, borderColor: INK }}
+              <button
+                type="button"
+                onClick={(e) => onRegisterClick(ev, e)}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "#FFFDF6"
+                  e.currentTarget.style.color = ev.color
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = ev.color
+                  e.currentTarget.style.color = "#FFFFFF"
+                }}
+                className={`${questBody.className} flex items-center justify-center gap-1.5 w-full py-2 text-xs font-bold text-white border-2 transition-all duration-150 ease-out hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_#000] cursor-pointer`}
+                style={{ background: ev.color, borderColor: INK, boxShadow: `2px 2px 0px ${INK}` }}
               >
                 Register Now →
-              </div>
+              </button>
             </Card>
           </div>
         ))}
@@ -328,20 +346,24 @@ export function HomePageClient({ events }: { events: SpectrumEvent[] }) {
     <>
       <Marquee />
       <Hero />
-      <FeaturedEvents events={events} onEventClick={setSelectedEvent} />
+      <FeaturedEvents events={events} onEventClick={setSelectedEvent} onRegisterClick={handleRegisterClick} />
 
       <Dialog open={!!selectedEvent} onOpenChange={(open) => { if (!open) setSelectedEvent(null); }}>
         <DialogTrigger asChild>
           <span className="hidden" />
         </DialogTrigger>
-        <DialogContent className="fixed inset-0 z-50 flex items-center justify-center" aria-hidden={!selectedEvent}>
+        <DialogContent
+          className="fixed inset-0 z-50 flex items-center justify-center outline-none focus:outline-none"
+          aria-hidden={!selectedEvent}
+          onOpenAutoFocus={(e) => e.preventDefault()}
+        >
           <div className="relative w-full max-w-lg sm:max-w-xl p-6 bg-white border-4 shadow-lg max-h-[85vh] flex flex-col" style={{ borderColor: INK }}>
             <div className="mb-4 flex items-center justify-between shrink-0">
               <DialogTitle className={`${questDisplay.className} text-lg md:text-xl`} style={{ color: NAVY }}>
                 {selectedEvent?.name}
               </DialogTitle>
               <DialogClose
-                className="group flex size-8 items-center justify-center border-2 border-transparent transition-all duration-200 cursor-pointer"
+                className="group flex size-8 items-center justify-center border-2 border-transparent transition-all duration-200 cursor-pointer outline-none focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
                 onMouseEnter={(e) => {
                   e.currentTarget.style.borderColor = INK
                   e.currentTarget.style.boxShadow = `2px 2px 0px ${INK}`
