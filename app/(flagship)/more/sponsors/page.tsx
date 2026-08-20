@@ -9,25 +9,43 @@ import { isAdminConfigured } from "@/lib/firebase/admin"
 import { getSponsorTagLabel } from "@/lib/sponsor-tags"
 import {
   Utensils, Shirt, ShoppingBag, Laptop, Music, Camera,
-  Coffee, Gift, Megaphone, Zap, Star, Globe, Tag, MapPin
+  Coffee, Gift, Megaphone, Zap, Star, Globe, Tag, MapPin,
+  HeartPulse, Dumbbell, Gamepad2, GraduationCap, Coins,
+  Trophy, Plane, Car, Package, Briefcase, Users, ShieldCheck,
+  Sparkles, CupSoda, Film
 } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 
 // Icon lookup for tag badge rendering (server component)
 const TAG_ICON_MAP: Record<string, React.ReactNode> = {
-  food:         <Utensils size={10} />,
-  clothing:     <Shirt size={10} />,
-  accessories:  <ShoppingBag size={10} />,
-  tech:         <Laptop size={10} />,
-  music:        <Music size={10} />,
-  photography:  <Camera size={10} />,
-  coffee:       <Coffee size={10} />,
-  gifts:        <Gift size={10} />,
-  marketing:    <Megaphone size={10} />,
-  energy:       <Zap size={10} />,
-  premium:      <Star size={10} />,
-  media:        <Globe size={10} />,
+  food:          <Utensils size={10} />,
+  beverage:      <CupSoda size={10} />,
+  coffee:        <Coffee size={10} />,
+  clothing:      <Shirt size={10} />,
+  accessories:   <ShoppingBag size={10} />,
+  beauty:        <Sparkles size={10} />,
+  tech:          <Laptop size={10} />,
+  gaming:        <Gamepad2 size={10} />,
+  health:        <HeartPulse size={10} />,
+  fitness:       <Dumbbell size={10} />,
+  sports:        <Trophy size={10} />,
+  education:     <GraduationCap size={10} />,
+  finance:       <Coins size={10} />,
+  music:         <Music size={10} />,
+  entertainment: <Film size={10} />,
+  photography:   <Camera size={10} />,
+  media:         <Globe size={10} />,
+  marketing:     <Megaphone size={10} />,
+  travel:        <Plane size={10} />,
+  automotive:    <Car size={10} />,
+  logistics:     <Package size={10} />,
+  consulting:    <Briefcase size={10} />,
+  community:     <Users size={10} />,
+  security:      <ShieldCheck size={10} />,
+  gifts:         <Gift size={10} />,
+  energy:        <Zap size={10} />,
+  premium:       <Star size={10} />,
 }
 
 function TagBadge({ tagValue }: { tagValue: string }) {

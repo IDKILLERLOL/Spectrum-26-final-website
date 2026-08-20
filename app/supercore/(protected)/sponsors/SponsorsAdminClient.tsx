@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation"
 import {
   Plus, Trash2, Edit2, Loader2, Utensils, Shirt, ShoppingBag,
   Music, Camera, Laptop, Coffee, Gift, Megaphone, Zap, Star, Globe,
-  X, Tag, MapPin
+  X, Tag, MapPin, HeartPulse, Dumbbell, Gamepad2, GraduationCap,
+  Coins, Trophy, Plane, Car, Package, Briefcase, Users, ShieldCheck,
+  Sparkles, CupSoda, Film
 } from "lucide-react"
 import { SPONSOR_TAGS, getSponsorTagLabel } from "@/lib/sponsor-tags"
 
@@ -20,18 +22,33 @@ export interface SponsorItem {
 
 // Lucide icon map for preset tag values (client-side only)
 const TAG_ICONS: Record<string, React.ReactNode> = {
-  food:         <Utensils size={12} />,
-  clothing:     <Shirt size={12} />,
-  accessories:  <ShoppingBag size={12} />,
-  tech:         <Laptop size={12} />,
-  music:        <Music size={12} />,
-  photography:  <Camera size={12} />,
-  coffee:       <Coffee size={12} />,
-  gifts:        <Gift size={12} />,
-  marketing:    <Megaphone size={12} />,
-  energy:       <Zap size={12} />,
-  premium:      <Star size={12} />,
-  media:        <Globe size={12} />,
+  food:          <Utensils size={12} />,
+  beverage:      <CupSoda size={12} />,
+  coffee:        <Coffee size={12} />,
+  clothing:      <Shirt size={12} />,
+  accessories:   <ShoppingBag size={12} />,
+  beauty:        <Sparkles size={12} />,
+  tech:          <Laptop size={12} />,
+  gaming:        <Gamepad2 size={12} />,
+  health:        <HeartPulse size={12} />,
+  fitness:       <Dumbbell size={12} />,
+  sports:        <Trophy size={12} />,
+  education:     <GraduationCap size={12} />,
+  finance:       <Coins size={12} />,
+  music:         <Music size={12} />,
+  entertainment: <Film size={12} />,
+  photography:   <Camera size={12} />,
+  media:         <Globe size={12} />,
+  marketing:     <Megaphone size={12} />,
+  travel:        <Plane size={12} />,
+  automotive:    <Car size={12} />,
+  logistics:     <Package size={12} />,
+  consulting:    <Briefcase size={12} />,
+  community:     <Users size={12} />,
+  security:      <ShieldCheck size={12} />,
+  gifts:         <Gift size={12} />,
+  energy:        <Zap size={12} />,
+  premium:       <Star size={12} />,
 }
 
 function getTagIcon(value: string): React.ReactNode {
