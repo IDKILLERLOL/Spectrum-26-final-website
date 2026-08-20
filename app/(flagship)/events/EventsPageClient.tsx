@@ -163,20 +163,38 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
           <span className="hidden" />
         </DialogTrigger>
         <DialogPortal>
+          {/* Backdrop with liquid blur effect */}
           <DialogOverlay
-            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm transition-opacity cursor-pointer"
+            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md transition-all duration-200 cursor-pointer"
             onClick={() => setSelectedEvent(null)}
           />
+          {/* Modal Container: clicking outside card closes modal */}
           <DialogContent
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 outline-none focus:outline-none pointer-events-none"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 outline-none focus:outline-none bg-transparent cursor-pointer"
             aria-hidden={!selectedEvent}
             onOpenAutoFocus={(e) => e.preventDefault()}
             onPointerDownOutside={() => setSelectedEvent(null)}
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                setSelectedEvent(null)
+              }
+            }}
           >
+            {/* Modal Card with Liquid Glass Effect */}
             <div
-              className="relative w-full max-w-lg sm:max-w-xl p-6 bg-white border-4 shadow-lg max-h-[85vh] flex flex-col pointer-events-auto"
-              style={{ borderColor: INK, boxShadow: `6px 6px 0px ${INK}` }}
+              className="relative w-full max-w-lg sm:max-w-xl p-6 border-4 max-h-[85vh] flex flex-col cursor-default overflow-hidden backdrop-blur-xl shadow-2xl"
+              style={{
+                borderColor: INK,
+                boxShadow: `8px 8px 0px ${INK}, inset 0 1px 2px rgba(255, 255, 255, 0.9)`,
+                background: "linear-gradient(135deg, rgba(255, 255, 255, 0.94) 0%, rgba(255, 255, 255, 0.82) 50%, rgba(255, 255, 255, 0.90) 100%)",
+              }}
+              onClick={(e) => e.stopPropagation()}
             >
+              {/* Liquid glass specular highlight */}
+              <div
+                className="pointer-events-none absolute -top-20 -left-20 h-44 w-80 rotate-12 rounded-full bg-gradient-to-r from-white/50 via-white/20 to-transparent blur-xl"
+                aria-hidden="true"
+              />
             <div className="mb-4 flex items-center justify-between shrink-0">
               <DialogTitle className={`${questDisplay.className} text-lg md:text-xl`} style={{ color: NAVY }}>
                 {selectedEvent?.name}
