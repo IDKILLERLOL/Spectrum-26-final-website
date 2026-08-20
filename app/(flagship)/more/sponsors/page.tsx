@@ -158,9 +158,9 @@ export default async function SponsorsPage() {
                 )}
               </div>
 
-              {/* Button fields: pinned bottom-right, first field rightmost */}
+              {/* Button fields: pinned bottom-right */}
               {buttonFields.length > 0 && (
-                <div className="mt-auto flex justify-end items-center gap-2 pt-2 flex-row-reverse">
+                <div className="mt-auto flex w-full justify-end items-center gap-2 pt-2">
                   {buttonFields.map(([k, v]) => {
                     const key = k.toLowerCase()
 
