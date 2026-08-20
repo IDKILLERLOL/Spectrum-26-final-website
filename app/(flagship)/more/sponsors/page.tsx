@@ -99,66 +99,68 @@ export default async function SponsorsPage() {
           return (
             <div
               key={s.name}
-              className="flex flex-col gap-2 border-4 p-4"
+              className="flex flex-col justify-between gap-3 border-4 p-4 h-full"
               style={{ borderColor: INK, background: "#FFFDF6", boxShadow: hoardingShadow }}
             >
-              {/* Header: name + tier badge */}
-              <div className="flex items-start justify-between border-b-2 pb-2" style={{ borderColor: INK }}>
-                <span className={questDisplay.className} style={{ color: NAVY, fontSize: "1.2rem" }}>
-                  {s.name}
-                </span>
-                <span
-                  className={`${questBody.className} px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-white shrink-0`}
-                  style={{ background: VERMILION }}
-                >
-                  {s.tier}
-                </span>
+              <div className="flex flex-col gap-2">
+                {/* Header: name + tier badge */}
+                <div className="flex items-start justify-between border-b-2 pb-2" style={{ borderColor: INK }}>
+                  <span className={questDisplay.className} style={{ color: NAVY, fontSize: "1.2rem" }}>
+                    {s.name}
+                  </span>
+                  <span
+                    className={`${questBody.className} px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-white shrink-0`}
+                    style={{ background: VERMILION }}
+                  >
+                    {s.tier}
+                  </span>
+                </div>
+
+                {/* Tags */}
+                {s.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {s.tags.map((tv) => (
+                      <TagBadge key={tv} tagValue={tv} />
+                    ))}
+                  </div>
+                )}
+
+                {/* Regular key:value fields */}
+                {regularFields.length > 0 && (
+                  <div className="flex flex-col gap-1.5 text-xs">
+                    {regularFields.map(([k, v]) => {
+                      const isLong = v.length > 40
+                      return isLong ? (
+                        <div key={k} className="flex flex-col gap-0.5">
+                          <span
+                            className={`${questBody.className} text-[9px] font-bold uppercase tracking-widest opacity-50`}
+                            style={{ color: INK }}
+                          >
+                            {k}
+                          </span>
+                          <span className={`${questBody.className} text-xs leading-snug`} style={{ color: INK }}>
+                            {v}
+                          </span>
+                        </div>
+                      ) : (
+                        <div key={k} className="flex justify-between items-center border-b border-black/10 pb-1 last:border-0 last:pb-0">
+                          <span
+                            className={`${questBody.className} text-[9px] font-bold uppercase tracking-widest opacity-50`}
+                            style={{ color: INK }}
+                          >
+                            {k}
+                          </span>
+                          <span className={`${questBody.className} text-xs font-medium`} style={{ color: INK }}>{v}</span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
-
-              {/* Tags */}
-              {s.tags.length > 0 && (
-                <div className="flex flex-wrap gap-1">
-                  {s.tags.map((tv) => (
-                    <TagBadge key={tv} tagValue={tv} />
-                  ))}
-                </div>
-              )}
-
-              {/* Regular key:value fields */}
-              {regularFields.length > 0 && (
-                <div className="flex flex-col gap-1.5 text-xs">
-                  {regularFields.map(([k, v]) => {
-                    const isLong = v.length > 40
-                    return isLong ? (
-                      <div key={k} className="flex flex-col gap-0.5">
-                        <span
-                          className={`${questBody.className} text-[9px] font-bold uppercase tracking-widest opacity-50`}
-                          style={{ color: INK }}
-                        >
-                          {k}
-                        </span>
-                        <span className={`${questBody.className} text-xs leading-snug`} style={{ color: INK }}>
-                          {v}
-                        </span>
-                      </div>
-                    ) : (
-                      <div key={k} className="flex justify-between items-center border-b border-black/10 pb-1 last:border-0 last:pb-0">
-                        <span
-                          className={`${questBody.className} text-[9px] font-bold uppercase tracking-widest opacity-50`}
-                          style={{ color: INK }}
-                        >
-                          {k}
-                        </span>
-                        <span className={`${questBody.className} text-xs font-medium`} style={{ color: INK }}>{v}</span>
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
 
               {/* Button fields: pinned bottom-right, first field rightmost */}
               {buttonFields.length > 0 && (
-                <div className="flex justify-end gap-2 pt-1 flex-row-reverse">
+                <div className="mt-auto flex justify-end items-center gap-2 pt-2 flex-row-reverse">
                   {buttonFields.map(([k, v]) => {
                     const key = k.toLowerCase()
 
