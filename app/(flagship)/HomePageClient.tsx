@@ -374,172 +374,151 @@ export function HomePageClient({ events }: { events: SpectrumEvent[] }) {
             {/* Modal Card with Liquid Glass Refraction Effect */}
             <LiquidGlassModalCard accentColor={selectedEvent?.color}>
               <div className="mb-4 flex items-center justify-between shrink-0">
-                <DialogTitle className={`${questDisplay.className} text-lg md:text-xl`} style={{ color: NAVY }}>
-                {selectedEvent?.name}
-              </DialogTitle>
-              <DialogClose
-                className="group flex size-8 items-center justify-center border-2 border-transparent transition-all duration-200 cursor-pointer outline-none focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = INK
-                  e.currentTarget.style.boxShadow = `2px 2px 0px ${INK}`
-                  if (selectedEvent?.color) e.currentTarget.style.backgroundColor = selectedEvent.color
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = "transparent"
-                  e.currentTarget.style.boxShadow = "none"
-                  e.currentTarget.style.backgroundColor = "transparent"
-                }}
-                aria-label="Close"
-              >
-                <X size={18} className="transition-colors duration-200 group-hover:text-white" style={{ color: NAVY }} />
-              </DialogClose>
-            </div>
-            <DialogDescription className="space-y-4 text-left overflow-y-auto pr-1 flex-1">
-              <div className="flex items-center gap-3">
-                <span
-                  className={`${questDisplay.className} flex size-10 items-center justify-center border-2 text-[12px] text-white`}
-                  style={{ background: selectedEvent?.color, borderColor: INK }}
+                <DialogTitle className={`${questDisplay.className} text-xl md:text-2xl font-bold tracking-tight`} style={{ color: NAVY }}>
+                  {selectedEvent?.name}
+                </DialogTitle>
+                <DialogClose
+                  className="group flex size-9 items-center justify-center rounded-full border border-black/10 bg-white/60 backdrop-blur-sm transition-all duration-200 cursor-pointer outline-none focus:outline-none hover:bg-black hover:text-white"
+                  aria-label="Close"
                 >
-                  {selectedEvent?.index}
-                </span>
-                <div>
-                  <p className={`${questBody.className} text-sm font-bold`} style={{ color: NAVY }}>
-                    {selectedEvent?.format} • {selectedEvent?.fee}
-                  </p>
-                  {selectedEvent?.prizePool && (
-                    <p className={`${questBody.className} mt-0.5 text-xs font-bold`} style={{ color: PINK }}>
-                      Prize Pool: {selectedEvent?.prizePool}
-                    </p>
-                  )}
-                </div>
+                  <X size={18} className="transition-colors duration-200 group-hover:text-white" style={{ color: NAVY }} />
+                </DialogClose>
               </div>
 
-              <p className={`${questBody.className} text-sm leading-relaxed opacity-90 whitespace-pre-line`} style={{ color: NAVY }}>
-                {(() => {
-                  const rawDesc = selectedEvent?.description || ""
-                  const desc = rawDesc.replace(/\\n/g, "\n")
-                  const roundOneIdx = desc.search(/round\s*1/i)
-                  if (roundOneIdx !== -1) {
-                    return desc.slice(0, roundOneIdx).trim()
-                  }
-                  return desc
-                })()}
-              </p>
-
-              {/* Accordion for Rounds & Prizes */}
-              <div className="mt-4 space-y-2">
-                {(() => {
-                  if (!selectedEvent) return null
-                  const normalizedId = selectedEvent.id === "tech-duo-1" ? "dual-debug" : (selectedEvent.id === "tech-solo-1" ? "singularity-strike" : selectedEvent.id)
-                  const rounds = (selectedEvent as any).rounds && (selectedEvent as any).rounds.length > 0
-                    ? (selectedEvent as any).rounds
-                    : (EVENT_ROUNDS[normalizedId] || [])
-                  return rounds.map((round: { title: string; content: string }, idx: number) => {
-                    const isOpen = openAccordion === `round-${idx}`
-                    const cleanTitle = (round.title || "").replace(/\\n/g, " ")
-                    const cleanContent = (round.content || "").replace(/\\n/g, "\n").trim()
-                    return (
-                      <div key={idx} className="border-2 bg-white" style={{ borderColor: INK }}>
-                        <button
-                          type="button"
-                          onClick={() => setOpenAccordion(isOpen ? null : `round-${idx}`)}
-                          className={`${questDisplay.className} w-full flex items-center justify-between p-3 text-xs uppercase tracking-widest text-left font-bold transition-colors hover:bg-neutral-50`}
-                          style={{ color: NAVY }}
-                        >
-                          <span>{cleanTitle}</span>
-                          <span className="text-[10px]">{isOpen ? "▲" : "▼"}</span>
-                        </button>
-                        {isOpen && (
-                          <div className={`${questBody.className} border-t-2 p-3 text-xs leading-relaxed opacity-95 whitespace-pre-line`} style={{ borderColor: INK, color: INK }}>
-                            {cleanContent}
-                          </div>
-                        )}
-                      </div>
-                    )
-                  })
-                })()}
-
-                {/* Prizes as the last dropdown */}
-                {selectedEvent?.prizes && selectedEvent.prizes.length > 0 && (
-                  <div className="border-2 bg-white" style={{ borderColor: INK }}>
-                    <button
-                      type="button"
-                      onClick={() => setOpenAccordion(openAccordion === "prizes" ? null : "prizes")}
-                      className={`${questDisplay.className} w-full flex items-center justify-between p-3 text-xs uppercase tracking-widest text-left font-bold transition-colors hover:bg-neutral-50`}
-                      style={{ color: NAVY }}
-                    >
-                      <span>Prizes</span>
-                      <span className="text-[10px]">{openAccordion === "prizes" ? "▲" : "▼"}</span>
-                    </button>
-                    {openAccordion === "prizes" && (
-                      <div className={`${questBody.className} border-t-2 p-3 text-xs leading-relaxed opacity-95`} style={{ borderColor: INK, color: INK }}>
-                        <div className="flex flex-col gap-1.5 border-2 p-3 bg-[#FFFDF6]" style={{ borderColor: INK }}>
-                          {selectedEvent.prizes.map((p, idx) => (
-                            <div key={idx} className="flex justify-between items-center text-xs font-bold" style={{ color: NAVY }}>
-                              <span>{p.place}</span>
-                              <span className={questDisplay.className} style={{ color: PINK }}>{p.reward}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
+              <DialogDescription className="space-y-4 text-left overflow-y-auto pr-1.5 flex-1 custom-scrollbar">
+                <div className="flex items-center gap-3">
+                  <span
+                    className={`${questDisplay.className} flex size-10 items-center justify-center rounded-xl border border-white/40 text-[12px] font-bold text-white shadow-sm`}
+                    style={{ background: selectedEvent?.color }}
+                  >
+                    {selectedEvent?.index}
+                  </span>
+                  <div>
+                    <p className={`${questBody.className} text-sm font-bold`} style={{ color: NAVY }}>
+                      {selectedEvent?.format} • {selectedEvent?.fee}
+                    </p>
+                    {selectedEvent?.prizePool && (
+                      <p className={`${questBody.className} mt-0.5 text-xs font-bold`} style={{ color: PINK }}>
+                        Prize Pool: {selectedEvent?.prizePool}
+                      </p>
                     )}
                   </div>
+                </div>
+
+                <p className={`${questBody.className} text-sm leading-relaxed opacity-90 whitespace-pre-line`} style={{ color: NAVY }}>
+                  {(() => {
+                    const rawDesc = selectedEvent?.description || ""
+                    const desc = rawDesc.replace(/\\n/g, "\n")
+                    const roundOneIdx = desc.search(/round\s*1/i)
+                    if (roundOneIdx !== -1) {
+                      return desc.slice(0, roundOneIdx).trim()
+                    }
+                    return desc
+                  })()}
+                </p>
+
+                {/* Accordion for Rounds & Prizes */}
+                <div className="mt-4 space-y-2.5">
+                  {(() => {
+                    if (!selectedEvent) return null
+                    const normalizedId = selectedEvent.id === "tech-duo-1" ? "dual-debug" : (selectedEvent.id === "tech-solo-1" ? "singularity-strike" : selectedEvent.id)
+                    const rounds = (selectedEvent as any).rounds && (selectedEvent as any).rounds.length > 0
+                      ? (selectedEvent as any).rounds
+                      : (EVENT_ROUNDS[normalizedId] || [])
+                    return rounds.map((round: { title: string; content: string }, idx: number) => {
+                      const isOpen = openAccordion === `round-${idx}`
+                      const cleanTitle = (round.title || "").replace(/\\n/g, " ")
+                      const cleanContent = (round.content || "").replace(/\\n/g, "\n").trim()
+                      return (
+                        <div key={idx} className="rounded-xl border border-white/80 bg-white/70 backdrop-blur-md overflow-hidden shadow-sm transition-all hover:bg-white/85">
+                          <button
+                            type="button"
+                            onClick={() => setOpenAccordion(isOpen ? null : `round-${idx}`)}
+                            className={`${questDisplay.className} w-full flex items-center justify-between p-3.5 text-xs uppercase tracking-widest text-left font-bold transition-colors`}
+                            style={{ color: NAVY }}
+                          >
+                            <span>{cleanTitle}</span>
+                            <span className="text-[10px] opacity-70">{isOpen ? "▲" : "▼"}</span>
+                          </button>
+                          {isOpen && (
+                            <div className={`${questBody.className} border-t border-black/5 bg-white/60 p-3.5 text-xs leading-relaxed opacity-95 whitespace-pre-line`} style={{ color: INK }}>
+                              {cleanContent}
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })
+                  })()}
+
+                  {/* Prizes as the last dropdown */}
+                  {selectedEvent?.prizes && selectedEvent.prizes.length > 0 && (
+                    <div className="rounded-xl border border-white/80 bg-white/70 backdrop-blur-md overflow-hidden shadow-sm transition-all hover:bg-white/85">
+                      <button
+                        type="button"
+                        onClick={() => setOpenAccordion(openAccordion === "prizes" ? null : "prizes")}
+                        className={`${questDisplay.className} w-full flex items-center justify-between p-3.5 text-xs uppercase tracking-widest text-left font-bold transition-colors`}
+                        style={{ color: NAVY }}
+                      >
+                        <span>Prizes</span>
+                        <span className="text-[10px] opacity-70">{openAccordion === "prizes" ? "▲" : "▼"}</span>
+                      </button>
+                      {openAccordion === "prizes" && (
+                        <div className={`${questBody.className} border-t border-black/5 p-3.5 text-xs leading-relaxed opacity-95`} style={{ color: INK }}>
+                          <div className="flex flex-col gap-1.5 rounded-lg border border-white/80 p-3 bg-white/80 shadow-inner">
+                            {selectedEvent.prizes.map((p, idx) => (
+                              <div key={idx} className="flex justify-between items-center text-xs font-bold" style={{ color: NAVY }}>
+                                <span>{p.place}</span>
+                                <span className={questDisplay.className} style={{ color: PINK }}>{p.reward}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Rules & Guidelines */}
+                {selectedEvent?.rules && selectedEvent.rules.length > 0 && (
+                  <div className="mt-4 rounded-xl border border-white/60 bg-white/50 backdrop-blur-sm p-4">
+                    <p className={`${questDisplay.className} text-xs uppercase tracking-widest mb-2 font-bold`} style={{ color: VERMILION }}>
+                      Rules & Guidelines
+                    </p>
+                    <ul className="list-disc pl-4 space-y-1.5 text-xs leading-relaxed" style={{ color: NAVY }}>
+                      {selectedEvent.rules.map((rule, idx) => (
+                        <li key={idx} className={questBody.className}>{rule}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </DialogDescription>
+
+              {/* Footer with actions */}
+              <div className="mt-6 flex items-center justify-end gap-3 border-t border-black/10 pt-4 shrink-0">
+                <DialogClose asChild>
+                  <button
+                    type="button"
+                    className={`${questBody.className} rounded-xl border border-black/15 px-5 py-2.5 text-xs font-bold uppercase transition-all duration-150 ease-out bg-white/80 backdrop-blur-sm hover:bg-black hover:text-white shadow-sm`}
+                    style={{ color: NAVY }}
+                  >
+                    Back
+                  </button>
+                </DialogClose>
+                {selectedEvent && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      setSelectedEvent(null)
+                      handleRegisterClick(selectedEvent, e)
+                    }}
+                    className={`${questBody.className} rounded-xl border border-white/40 px-5 py-2.5 text-xs font-bold uppercase text-white flex items-center gap-1.5 transition-all duration-150 ease-out shadow-md hover:scale-[1.02] active:scale-[0.98]`}
+                    style={{ background: selectedEvent.color }}
+                  >
+                    Register Now <ArrowRight size={14} />
+                  </button>
                 )}
               </div>
-
-              {/* Rules & Guidelines */}
-              {selectedEvent?.rules && selectedEvent.rules.length > 0 && (
-                <div className="mt-4">
-                  <p className={`${questDisplay.className} text-xs uppercase tracking-widest mb-2`} style={{ color: VERMILION }}>
-                    Rules & Guidelines
-                  </p>
-                  <ul className="list-disc pl-4 space-y-1 text-xs leading-relaxed" style={{ color: NAVY }}>
-                    {selectedEvent.rules.map((rule, idx) => (
-                      <li key={idx} className={questBody.className}>{rule}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </DialogDescription>
-
-            {/* Footer with actions */}
-            <div className="mt-6 flex items-center justify-end gap-3 border-t-2 pt-4 shrink-0" style={{ borderColor: INK }}>
-              <DialogClose asChild>
-                <button
-                  type="button"
-                  className={`${questBody.className} border-2 px-5 py-2.5 text-xs font-bold uppercase transition-all duration-150 ease-out hover:-translate-x-0.5 hover:-translate-y-0.5 hover:!bg-[#0A192F] hover:!text-[#FFFDF6] hover:shadow-[4px_4px_0px_#000]`}
-                  style={{ borderColor: INK, color: NAVY, background: "#FFFDF6", boxShadow: `2px 2px 0px ${INK}` }}
-                >
-                  Back
-                </button>
-              </DialogClose>
-              {selectedEvent && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    setSelectedEvent(null)
-                    handleRegisterClick(selectedEvent, e)
-                  }}
-                  onMouseEnter={(e) => {
-                    if (selectedEvent?.color) {
-                      e.currentTarget.style.backgroundColor = "#FFFDF6"
-                      e.currentTarget.style.color = selectedEvent.color
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (selectedEvent?.color) {
-                      e.currentTarget.style.backgroundColor = selectedEvent.color
-                      e.currentTarget.style.color = "#FFFFFF"
-                    }
-                  }}
-                  className={`${questBody.className} border-2 px-5 py-2.5 text-xs font-bold uppercase text-white flex items-center gap-1.5 transition-all duration-150 ease-out hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_#000]`}
-                  style={{ background: selectedEvent.color, borderColor: INK, boxShadow: `2px 2px 0px ${INK}` }}
-                >
-                  Register Now <ArrowRight size={14} />
-                </button>
-              )}
-            </div>
-          </LiquidGlassModalCard>
+            </LiquidGlassModalCard>
         </DialogContent>
       </DialogPortal>
     </Dialog>

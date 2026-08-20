@@ -26,22 +26,34 @@ export function LiquidGlassModalCard({
   ...props
 }: LiquidGlassModalCardProps) {
   const cardRef = React.useRef<HTMLDivElement>(null)
+  const [glarePos, setGlarePos] = React.useState({ x: "30%", y: "20%" })
 
   React.useEffect(() => {
     const el = cardRef.current
     if (!el) return
 
     const instance = applyLiquidGlass(el, {
-      scale: -90,
-      chroma: 5,
-      border: 0.06,
-      mapBlur: 12,
-      blur: 4,
-      saturate: 1.4,
+      scale: -112,
+      chroma: 6,
+      border: 0.07,
+      mapBlur: 14,
+      blur: 3,
+      saturate: 1.6,
+      radius: 28,
       ...options,
     })
 
+    const handlePointerMove = (e: PointerEvent) => {
+      const rect = el.getBoundingClientRect()
+      const x = ((e.clientX - rect.left) / rect.width) * 100
+      const y = ((e.clientY - rect.top) / rect.height) * 100
+      setGlarePos({ x: `${x}%`, y: `${y}%` })
+    }
+
+    el.addEventListener("pointermove", handlePointerMove)
+
     return () => {
+      el.removeEventListener("pointermove", handlePointerMove)
       instance.destroy()
     }
   }, [options])
@@ -49,30 +61,35 @@ export function LiquidGlassModalCard({
   return (
     <div
       ref={cardRef}
-      className={`relative w-full max-w-lg sm:max-w-xl p-6 border-4 max-h-[85vh] flex flex-col cursor-default overflow-hidden rounded-sm ${className}`}
+      className={`relative w-full max-w-lg sm:max-w-xl p-6 md:p-8 max-h-[85vh] flex flex-col cursor-default overflow-hidden rounded-[28px] ${className}`}
       style={{
-        borderColor: INK,
-        boxShadow: `8px 8px 0px ${INK}, inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.9), inset 0 0 0 1px rgba(255, 255, 255, 0.4), inset 0 -6px 16px 0 rgba(0, 0, 0, 0.05)`,
-        background: "linear-gradient(140deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0.50) 45%, rgba(255, 255, 255, 0.68) 100%)",
-        backdropFilter: "blur(20px) saturate(180%) contrast(102%)",
-        WebkitBackdropFilter: "blur(20px) saturate(180%) contrast(102%)",
+        borderRadius: "28px",
+        background: "linear-gradient(180deg, rgba(255, 255, 255, 0.52) 0%, rgba(255, 255, 255, 0.22) 50%, rgba(255, 255, 255, 0.38) 100%)",
+        boxShadow: "0 30px 60px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.8), inset 0 -8px 20px rgba(255, 255, 255, 0.08), inset 0 0 0 1px rgba(255, 255, 255, 0.4)",
+        border: "1px solid rgba(255, 255, 255, 0.3)",
         ...style,
       }}
       onClick={(e) => e.stopPropagation()}
       {...props}
     >
-      {/* Specular glass glare reflection sweep */}
+      {/* Interactive liquid glass glare reflection */}
       <div
-        className="pointer-events-none absolute -top-28 -left-28 h-56 w-[120%] rotate-12 bg-gradient-to-b from-white/40 via-white/10 to-transparent blur-md"
+        className="pointer-events-none absolute inset-0 rounded-[28px]"
+        style={{
+          background: `radial-gradient(280px circle at ${glarePos.x} ${glarePos.y}, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.04) 50%, transparent 80%)`,
+        }}
         aria-hidden="true"
       />
+
+      {/* Ambient top specular glow */}
       {accentColor && (
         <div
-          className="pointer-events-none absolute top-0 left-0 right-0 h-1.5 opacity-90 shadow-sm"
+          className="pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 w-48 h-20 rounded-full blur-2xl opacity-60"
           style={{ background: accentColor }}
           aria-hidden="true"
         />
       )}
+
       {children}
     </div>
   )
