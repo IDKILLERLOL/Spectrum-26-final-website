@@ -27,6 +27,7 @@ import {
 } from "@/components/flagship/tokens"
 import { questDisplay, questBody } from "@/components/flagship/fonts"
 import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, DialogClose, DialogPortal, DialogOverlay } from "@radix-ui/react-dialog"
+import { LiquidGlassModalCard } from "@/components/flagship/LiquidGlassModalCard"
 import { Trophy, ArrowRight, X, ChevronDown, Megaphone } from "lucide-react"
 import { useQuest } from "@/components/flagship/quest-context"
 
@@ -370,23 +371,10 @@ export function HomePageClient({ events }: { events: SpectrumEvent[] }) {
               }
             }}
           >
-            {/* Modal Card with Liquid Glass Effect */}
-            <div
-              className="relative w-full max-w-lg sm:max-w-xl p-6 border-4 max-h-[85vh] flex flex-col cursor-default overflow-hidden backdrop-blur-xl shadow-2xl"
-              style={{
-                borderColor: INK,
-                boxShadow: `8px 8px 0px ${INK}, inset 0 1px 2px rgba(255, 255, 255, 0.9)`,
-                background: "linear-gradient(135deg, rgba(255, 255, 255, 0.94) 0%, rgba(255, 255, 255, 0.82) 50%, rgba(255, 255, 255, 0.90) 100%)",
-              }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Liquid glass specular highlight */}
-              <div
-                className="pointer-events-none absolute -top-20 -left-20 h-44 w-80 rotate-12 rounded-full bg-gradient-to-r from-white/50 via-white/20 to-transparent blur-xl"
-                aria-hidden="true"
-              />
-            <div className="mb-4 flex items-center justify-between shrink-0">
-              <DialogTitle className={`${questDisplay.className} text-lg md:text-xl`} style={{ color: NAVY }}>
+            {/* Modal Card with Liquid Glass Refraction Effect */}
+            <LiquidGlassModalCard accentColor={selectedEvent?.color}>
+              <div className="mb-4 flex items-center justify-between shrink-0">
+                <DialogTitle className={`${questDisplay.className} text-lg md:text-xl`} style={{ color: NAVY }}>
                 {selectedEvent?.name}
               </DialogTitle>
               <DialogClose
@@ -551,7 +539,7 @@ export function HomePageClient({ events }: { events: SpectrumEvent[] }) {
                 </button>
               )}
             </div>
-          </div>
+          </LiquidGlassModalCard>
         </DialogContent>
       </DialogPortal>
     </Dialog>
