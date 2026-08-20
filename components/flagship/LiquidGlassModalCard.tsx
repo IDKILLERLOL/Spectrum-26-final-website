@@ -49,24 +49,26 @@ export function LiquidGlassModalCard({
   return (
     <div
       ref={cardRef}
-      className={`relative w-full max-w-lg sm:max-w-xl p-6 border-4 max-h-[85vh] flex flex-col cursor-default overflow-hidden rounded-md shadow-2xl ${className}`}
+      className={`relative w-full max-w-lg sm:max-w-xl p-6 border-4 max-h-[85vh] flex flex-col cursor-default overflow-hidden rounded-sm ${className}`}
       style={{
         borderColor: INK,
-        boxShadow: `8px 8px 0px ${INK}, inset 0 1px 2px rgba(255, 255, 255, 0.95), inset 0 -1px 2px rgba(0, 0, 0, 0.1)`,
-        background: "linear-gradient(135deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.78) 50%, rgba(255, 255, 255, 0.88) 100%)",
+        boxShadow: `8px 8px 0px ${INK}, inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.9), inset 0 0 0 1px rgba(255, 255, 255, 0.4), inset 0 -6px 16px 0 rgba(0, 0, 0, 0.05)`,
+        background: "linear-gradient(140deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0.50) 45%, rgba(255, 255, 255, 0.68) 100%)",
+        backdropFilter: "blur(20px) saturate(180%) contrast(102%)",
+        WebkitBackdropFilter: "blur(20px) saturate(180%) contrast(102%)",
         ...style,
       }}
       onClick={(e) => e.stopPropagation()}
       {...props}
     >
-      {/* Specular glass highlight reflection sweep */}
+      {/* Specular glass glare reflection sweep */}
       <div
-        className="pointer-events-none absolute -top-24 -left-24 h-48 w-96 rotate-12 rounded-full bg-gradient-to-r from-white/60 via-white/20 to-transparent blur-xl"
+        className="pointer-events-none absolute -top-28 -left-28 h-56 w-[120%] rotate-12 bg-gradient-to-b from-white/40 via-white/10 to-transparent blur-md"
         aria-hidden="true"
       />
       {accentColor && (
         <div
-          className="pointer-events-none absolute top-0 left-0 right-0 h-1.5 opacity-80"
+          className="pointer-events-none absolute top-0 left-0 right-0 h-1.5 opacity-90 shadow-sm"
           style={{ background: accentColor }}
           aria-hidden="true"
         />

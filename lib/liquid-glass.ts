@@ -32,15 +32,7 @@ function checkSupport(): boolean {
   const isSafari = /Safari/.test(ua) && !/Chrome|Chromium|Edg/.test(ua)
   const isFirefox = /Firefox/.test(ua)
   if (isSafari || isFirefox) return false
-  if (!CSS.supports("backdrop-filter", "url(#lg)")) return false
-  try {
-    const c = document.createElement("canvas")
-    c.width = c.height = 4
-    c.getContext("2d")?.getImageData(0, 0, 1, 1)
-    return true
-  } catch {
-    return false
-  }
+  return true
 }
 
 function ensureDefs(): SVGDefsElement {
@@ -204,12 +196,19 @@ export function applyLiquidGlass(el: HTMLElement, opts?: LiquidGlassOptions): Li
   }
 
   refresh()
-  el.style.backdropFilter = `url(#${id}) blur(${o.blur}px) saturate(${o.saturate})`
+  requestAnimationFrame(refresh)
+  setTimeout(refresh, 50)
+  setTimeout(refresh, 150)
+
+  try {
+    el.style.backdropFilter = `url(#${id}) blur(${o.blur}px) saturate(${o.saturate})`
+    ;(el.style as any).webkitBackdropFilter = `blur(${o.blur + 10}px) saturate(${o.saturate})`
+  } catch {}
 
   let timer: any = null
   const ro = new ResizeObserver(() => {
     clearTimeout(timer)
-    timer = setTimeout(refresh, 100)
+    timer = setTimeout(refresh, 80)
   })
   ro.observe(el)
 
@@ -219,8 +218,11 @@ export function applyLiquidGlass(el: HTMLElement, opts?: LiquidGlassOptions): Li
     destroy: () => {
       ro.disconnect()
       clearTimeout(timer)
-      parts.filter.remove()
+      try {
+        parts.filter.remove()
+      } catch {}
       el.style.backdropFilter = ""
+      ;(el.style as any).webkitBackdropFilter = ""
     },
   }
 }
