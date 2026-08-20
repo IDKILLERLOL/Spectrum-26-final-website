@@ -12,8 +12,7 @@ import { AppButton } from "@/components/flagship/AppButton"
 import { useQuest } from "@/components/flagship/quest-context"
 import { NAVY, INK, PINK, MUSTARD, VERMILION, hoardingShadow, softHoardingShadow } from "@/components/flagship/tokens"
 import { questDisplay, questBody } from "@/components/flagship/fonts"
-import { trackEventCardView, trackEventCardClick } from "@/lib/analytics/track"
-import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, DialogClose } from "@radix-ui/react-dialog"
+import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, DialogClose, DialogPortal, DialogOverlay } from "@radix-ui/react-dialog"
 
 /** Scalloped canvas awning strip — alternating the event's own accent colour with white. */
 function StallAwning({ color }: { color: string }) {
@@ -163,12 +162,21 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
         <DialogTrigger asChild>
           <span className="hidden" />
         </DialogTrigger>
-        <DialogContent
-          className="fixed inset-0 z-50 flex items-center justify-center outline-none focus:outline-none"
-          aria-hidden={!selectedEvent}
-          onOpenAutoFocus={(e) => e.preventDefault()}
-        >
-          <div className="relative w-full max-w-lg sm:max-w-xl p-6 bg-white border-4 shadow-lg max-h-[85vh] flex flex-col" style={{ borderColor: INK }}>
+        <DialogPortal>
+          <DialogOverlay
+            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm transition-opacity cursor-pointer"
+            onClick={() => setSelectedEvent(null)}
+          />
+          <DialogContent
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 outline-none focus:outline-none pointer-events-none"
+            aria-hidden={!selectedEvent}
+            onOpenAutoFocus={(e) => e.preventDefault()}
+            onPointerDownOutside={() => setSelectedEvent(null)}
+          >
+            <div
+              className="relative w-full max-w-lg sm:max-w-xl p-6 bg-white border-4 shadow-lg max-h-[85vh] flex flex-col pointer-events-auto"
+              style={{ borderColor: INK, boxShadow: `6px 6px 0px ${INK}` }}
+            >
             <div className="mb-4 flex items-center justify-between shrink-0">
               <DialogTitle className={`${questDisplay.className} text-lg md:text-xl`} style={{ color: NAVY }}>
                 {selectedEvent?.name}
@@ -337,7 +345,8 @@ export function EventsPageClient({ events }: { events: SpectrumEvent[] }) {
             </div>
           </div>
         </DialogContent>
-      </Dialog>
+      </DialogPortal>
+    </Dialog>
     </>
   )
 }
