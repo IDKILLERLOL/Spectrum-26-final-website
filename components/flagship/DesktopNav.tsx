@@ -67,7 +67,7 @@ export function DesktopNav() {
                 <Link
                   key={href}
                   href={href}
-                  className="flex items-center gap-2 border-2 px-4 py-2 transition-all duration-150 ease-out hover:-translate-y-1 hover:!bg-black hover:!text-[#F4EBD9] hover:!shadow-[0_0_12px_rgba(244,235,217,0.9)]"
+                  className="flex items-center gap-2 border-2 px-4 py-2 transition-all duration-150 ease-out hover:-translate-y-1"
                   style={{
                     borderColor: INK,
                     background: active ? INK : "transparent",
@@ -85,7 +85,7 @@ export function DesktopNav() {
               <button
                 type="button"
                 onClick={() => setMoreOpen(!moreOpen)}
-                className="flex items-center gap-2 border-2 px-4 py-2 transition-all duration-150 ease-out cursor-pointer focus:outline-none hover:-translate-y-1 hover:!bg-black hover:!text-[#F4EBD9] hover:!shadow-[0_0_12px_rgba(244,235,217,0.9)]"
+                className="flex items-center gap-2 border-2 px-4 py-2 transition-all duration-150 ease-out cursor-pointer focus:outline-none hover:-translate-y-1"
                 style={{
                   borderColor: INK,
                   background: moreOpen ? INK : "transparent",
@@ -114,9 +114,10 @@ export function DesktopNav() {
                         key={item.href}
                         href={item.href}
                         onClick={() => setMoreOpen(false)}
-                        className="px-4 py-2.5 text-xs font-bold uppercase transition-all duration-150 text-[#1A1A1A] hover:!bg-black hover:!text-[#F4EBD9] flex items-center gap-2"
+                        className="px-4 py-2.5 text-xs font-bold uppercase transition-colors hover:bg-neutral-200 flex items-center gap-2"
+                        style={{ color: INK }}
                       >
-                        <item.icon size={14} className="transition-colors" />
+                        <item.icon size={14} />
                         {item.label}
                       </Link>
                     ))}
@@ -130,7 +131,7 @@ export function DesktopNav() {
             <button
               type="button"
               onClick={() => router.push("/register")}
-              className={`${questDisplay.className} border-2 px-5 py-2 text-sm transition-all duration-150 ease-out hover:-translate-y-1 hover:!bg-black hover:!text-[#F4EBD9] hover:!shadow-[0_0_12px_rgba(244,235,217,0.9)]`}
+              className={`${questDisplay.className} border-2 px-5 py-2 text-sm transition-all duration-150 ease-out hover:-translate-y-1`}
               style={{ borderColor: INK, background: VERMILION, color: AGED_PAPER, boxShadow: `3px 3px 0px ${INK}` }}
             >
               Register
@@ -139,7 +140,7 @@ export function DesktopNav() {
               href="https://www.instagram.com/spectrum.sbmp?igsh=MWJ4dTA5ajAzZG5zaQ=="
               target={instagramTarget}
               rel="noopener noreferrer"
-              className="flex size-9 items-center justify-center border-2 transition-all duration-150 ease-out hover:-translate-y-1 hover:!bg-black hover:!text-[#F4EBD9] hover:!shadow-[0_0_12px_rgba(244,235,217,0.9)]"
+              className="flex size-9 items-center justify-center border-2 transition-all duration-150 ease-out hover:-translate-y-1"
               style={{ background: VERMILION, borderColor: INK, color: AGED_PAPER, boxShadow: `3px 3px 0px ${INK}` }}
             >
               <Instagram size={18} />
@@ -241,7 +242,7 @@ export function DesktopNav() {
                 <Link
                   key={href}
                   href={href}
-                  className="flex items-center gap-4 border-2 px-4 py-2.5 transition-all duration-150 ease-out hover:-translate-y-0.5 hover:!bg-black hover:!text-[#F4EBD9] hover:!shadow-[0_0_12px_rgba(244,235,217,0.9)]"
+                  className="flex items-center gap-4 border-2 px-4 py-2.5 transition-all duration-150 ease-out hover:-translate-y-0.5"
                   style={{
                     borderColor: INK,
                     background: active ? INK : AGED_PAPER,
@@ -263,7 +264,7 @@ export function DesktopNav() {
             setIsOpen(false)
             router.push("/register")
           }}
-          className={`${questDisplay.className} w-full border-2 py-3.5 text-center text-base transition-all duration-150 ease-out hover:-translate-y-1 hover:!bg-black hover:!text-[#F4EBD9] hover:!shadow-[0_0_12px_rgba(244,235,217,0.9)] mt-6`}
+          className={`${questDisplay.className} w-full border-2 py-3.5 text-center text-base transition-all duration-150 ease-out hover:-translate-y-1 mt-6`}
           style={{ borderColor: INK, background: VERMILION, color: AGED_PAPER, boxShadow: `4px 4px 0px ${INK}` }}
         >
           Register Now
