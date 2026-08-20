@@ -340,8 +340,21 @@ export function HomePageClient({ events }: { events: SpectrumEvent[] }) {
               <DialogTitle className={`${questDisplay.className} text-lg md:text-xl`} style={{ color: NAVY }}>
                 {selectedEvent?.name}
               </DialogTitle>
-              <DialogClose className="btn-ghost p-1 hover:opacity-75" aria-label="Close">
-                <X size={20} style={{ color: NAVY }} />
+              <DialogClose
+                className="group flex size-8 items-center justify-center border-2 border-transparent transition-all duration-200 cursor-pointer"
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = INK
+                  e.currentTarget.style.boxShadow = `2px 2px 0px ${INK}`
+                  if (selectedEvent?.color) e.currentTarget.style.backgroundColor = selectedEvent.color
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = "transparent"
+                  e.currentTarget.style.boxShadow = "none"
+                  e.currentTarget.style.backgroundColor = "transparent"
+                }}
+                aria-label="Close"
+              >
+                <X size={18} className="transition-colors duration-200 group-hover:text-white" style={{ color: NAVY }} />
               </DialogClose>
             </div>
             <DialogDescription className="space-y-4 text-left overflow-y-auto pr-1 flex-1">
@@ -457,8 +470,8 @@ export function HomePageClient({ events }: { events: SpectrumEvent[] }) {
               <DialogClose asChild>
                 <button
                   type="button"
-                  className={`${questBody.className} border-2 px-5 py-2.5 text-xs font-bold uppercase hover:bg-neutral-50`}
-                  style={{ borderColor: INK, color: NAVY, background: "#FFFDF6" }}
+                  className={`${questBody.className} border-2 px-5 py-2.5 text-xs font-bold uppercase transition-all duration-150 ease-out hover:-translate-x-0.5 hover:-translate-y-0.5 hover:!bg-[#0A192F] hover:!text-[#FFFDF6] hover:shadow-[4px_4px_0px_#000]`}
+                  style={{ borderColor: INK, color: NAVY, background: "#FFFDF6", boxShadow: `2px 2px 0px ${INK}` }}
                 >
                   Back
                 </button>
@@ -470,8 +483,20 @@ export function HomePageClient({ events }: { events: SpectrumEvent[] }) {
                     setSelectedEvent(null)
                     handleRegisterClick(selectedEvent, e)
                   }}
-                  className={`${questBody.className} border-2 px-5 py-2.5 text-xs font-bold uppercase text-white hover:opacity-90 flex items-center gap-1.5`}
-                  style={{ background: selectedEvent.color, borderColor: INK }}
+                  onMouseEnter={(e) => {
+                    if (selectedEvent?.color) {
+                      e.currentTarget.style.backgroundColor = "#FFFDF6"
+                      e.currentTarget.style.color = selectedEvent.color
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (selectedEvent?.color) {
+                      e.currentTarget.style.backgroundColor = selectedEvent.color
+                      e.currentTarget.style.color = "#FFFFFF"
+                    }
+                  }}
+                  className={`${questBody.className} border-2 px-5 py-2.5 text-xs font-bold uppercase text-white flex items-center gap-1.5 transition-all duration-150 ease-out hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_#000]`}
+                  style={{ background: selectedEvent.color, borderColor: INK, boxShadow: `2px 2px 0px ${INK}` }}
                 >
                   Register Now <ArrowRight size={14} />
                 </button>

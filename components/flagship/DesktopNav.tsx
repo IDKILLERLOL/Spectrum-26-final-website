@@ -131,7 +131,7 @@ export function DesktopNav() {
             <button
               type="button"
               onClick={() => router.push("/register")}
-              className={`${questDisplay.className} border-2 px-5 py-2 text-sm transition-transform hover:-translate-y-0.5`}
+              className={`${questDisplay.className} border-2 px-5 py-2 text-sm transition-all duration-150 ease-out hover:-translate-x-0.5 hover:-translate-y-0.5 hover:!bg-[#F5EFE0] hover:!text-[#E84E36] hover:shadow-[5px_5px_0px_#000]`}
               style={{ borderColor: INK, background: VERMILION, color: AGED_PAPER, boxShadow: `3px 3px 0px ${INK}` }}
             >
               Register
@@ -140,7 +140,7 @@ export function DesktopNav() {
               href="https://www.instagram.com/spectrum.sbmp?igsh=MWJ4dTA5ajAzZG5zaQ=="
               target={instagramTarget}
               rel="noopener noreferrer"
-              className="flex size-9 items-center justify-center border-2 transition-transform hover:-translate-y-0.5"
+              className="flex size-9 items-center justify-center border-2 transition-all duration-150 ease-out hover:-translate-x-0.5 hover:-translate-y-0.5 hover:!bg-[#F5EFE0] hover:!text-[#E84E36] hover:shadow-[5px_5px_0px_#000]"
               style={{ background: VERMILION, borderColor: INK, color: AGED_PAPER, boxShadow: `3px 3px 0px ${INK}` }}
             >
               <Instagram size={18} />
@@ -264,7 +264,7 @@ export function DesktopNav() {
             setIsOpen(false)
             router.push("/register")
           }}
-          className={`${questDisplay.className} w-full border-2 py-3.5 text-center text-base transition-transform hover:-translate-y-0.5 mt-6`}
+          className={`${questDisplay.className} w-full border-2 py-3.5 text-center text-base transition-all duration-150 ease-out hover:-translate-x-0.5 hover:-translate-y-0.5 hover:!bg-[#F5EFE0] hover:!text-[#E84E36] hover:shadow-[6px_6px_0px_#000] mt-6`}
           style={{ borderColor: INK, background: VERMILION, color: AGED_PAPER, boxShadow: `4px 4px 0px ${INK}` }}
         >
           Register Now

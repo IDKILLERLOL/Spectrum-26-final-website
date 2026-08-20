@@ -31,21 +31,46 @@ export function AppButton({
   disabled = false,
 }: AppButtonProps) {
   const [pressed, setPressed] = React.useState(false)
+  const [hovered, setHovered] = React.useState(false)
+
+  // Invert colors on hover
+  let bg = variant === "solid" ? VERMILION : MUSTARD
+  let text = variant === "solid" ? AGED_PAPER : INK
+
+  if (hovered && !disabled) {
+    bg = variant === "solid" ? AGED_PAPER : INK
+    text = variant === "solid" ? VERMILION : MUSTARD
+  }
+
+  let transform = "translate(0,0)"
+  let shadow = hoardingShadow
+
+  if (pressed && !disabled) {
+    transform = "translate(3px, 3px)"
+    shadow = `0px 0px 0px ${INK}`
+  } else if (hovered && !disabled) {
+    transform = "translate(-2px, -2px)"
+    shadow = `5px 5px 0px ${INK}`
+  }
 
   const style: React.CSSProperties = {
     borderColor: INK,
-    background: variant === "solid" ? VERMILION : MUSTARD,
-    color: variant === "solid" ? AGED_PAPER : INK,
-    boxShadow: pressed ? "0px 0px 0 " + INK : hoardingShadow,
-    transform: pressed ? "translate(4px, 4px)" : "translate(0,0)",
+    background: bg,
+    color: text,
+    boxShadow: shadow,
+    transform,
   }
 
   const sharedProps = {
-    className: `${questDisplay.className} relative inline-flex items-center justify-center border-2 uppercase tracking-widest transition-transform ${disabled ? "opacity-40" : ""} ${className}`,
+    className: `${questDisplay.className} relative inline-flex items-center justify-center border-2 uppercase tracking-widest transition-all duration-150 ease-out cursor-pointer ${disabled ? "opacity-40 pointer-events-none" : ""} ${className}`,
     style,
+    onMouseEnter: () => !disabled && setHovered(true),
+    onMouseLeave: () => {
+      setHovered(false)
+      setPressed(false)
+    },
     onPointerDown: () => !disabled && setPressed(true),
     onPointerUp: () => setPressed(false),
-    onPointerLeave: () => setPressed(false),
   }
 
   if (href && !disabled) {
