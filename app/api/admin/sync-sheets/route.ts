@@ -22,7 +22,11 @@ export async function POST() {
   const session = await getAdminSession()
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-  const registrations = await listRegistrations()
+  const allRegistrations = await listRegistrations()
+  // ONLY sync PAID / APPROVED registrations to Google Sheets
+  const registrations = allRegistrations.filter(
+    (r) => r.paymentStatus === "APPROVED" || r.paymentStatus === "PAID" || (r as any).feeStatus === "PAID"
+  )
 
   // Sort chronologically by createdAt timestamp (oldest first)
   registrations.sort((a, b) => {
