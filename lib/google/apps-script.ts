@@ -213,19 +213,33 @@ interface RegistrationSheetRow {
   teamMembers?: any[]
 }
 
-export function buildRegistrationRow(input: RegistrationSheetRow) {
-  let eventName = input.eventName
-  const lower = eventName.toLowerCase().trim()
+export function cleanEventName(eventName: string): string {
+  const lower = (eventName || "").toLowerCase().trim()
   if (["singularity-strike", "singularity_strike", "code clash", "code_clash", "tech-solo-1"].includes(lower)) {
-    eventName = "Singularity Strike"
-  } else if (["fifa", "fc26", "fc_26", "fc 26", "non-tech-1"].includes(lower)) {
-    eventName = "FC 26"
+    return "Singularity Strike"
+  } else if (["fifa", "fc26", "fc_26", "fc 26", "ea fc 26", "ea fc", "non-tech-1"].includes(lower)) {
+    return "EA FC 26"
   } else if (["dual-debug", "dual_debug", "tech-duo-1"].includes(lower)) {
-    eventName = "Dual Debug"
+    return "Dual Debug"
   } else if (["bgmi", "non-tech-3"].includes(lower)) {
-    eventName = "BGMI"
+    return "BGMI"
   }
-  return { ...input, eventName }
+  return eventName || ""
+}
+
+export function cleanPhone(raw?: string): string {
+  if (!raw) return ""
+  let s = String(raw).trim()
+  if (s.startsWith("+")) {
+    s = s.substring(1).trim()
+  }
+  return s
+}
+
+export function buildRegistrationRow(input: RegistrationSheetRow) {
+  const eventName = cleanEventName(input.eventName)
+  const phone = cleanPhone(input.phone)
+  return { ...input, eventName, phone }
 }
 
 export function buildDeleteRegistrationRow(input: { id: string; eventName: string; teamName?: string; email?: string }) {

@@ -31,11 +31,56 @@ function doPost(e) {
     var sheet = ss.getSheetByName("All Registrations");
     if (!sheet) {
       sheet = ss.insertSheet("All Registrations");
-      sheet.appendRow([
-        "Event Name", "Team/Leader Name", "Role", "Name", "Email", 
-        "Phone", "College", "Fee Status", "Transaction ID / Ref", 
-        "Payment Screenshot", "Checked In", "Registered At", "Registration ID"
-      ]);
+    }
+
+    var STANDARD_HEADERS = [
+      "Event Name", "Team/Leader Name", "Role", "Name", "Email", 
+      "Phone", "College", "Year", "Fee Status", "Transaction ID / Ref", 
+      "Payment Screenshot", "Checked In", "Registered At", "Registration ID"
+    ];
+
+    // Handle Full Sheet Rebuild / Clean Sync
+    if (data.type === "full_sync") {
+      var rows = data.rows || [];
+      sheet.clear();
+      
+      // Write Header Row
+      sheet.getRange(1, 1, 1, STANDARD_HEADERS.length).setValues([STANDARD_HEADERS]);
+      sheet.getRange(1, 1, 1, STANDARD_HEADERS.length)
+        .setFontWeight("bold")
+        .setBackground("#0B192C")
+        .setFontColor("#FFFFFF");
+      sheet.setFrozenRows(1);
+
+      if (rows.length > 0) {
+        // Sanitize every cell string so +, = etc. never produce formula #ERROR!
+        var sanitizedRows = rows.map(function(r) {
+          var rowArr = [];
+          for (var c = 0; c < STANDARD_HEADERS.length; c++) {
+            var cell = (r && r[c] !== undefined && r[c] !== null) ? r[c] : "";
+            var str = String(cell).trim();
+            // Phone column (c === 5): strip leading +
+            if (c === 5 && str.charAt(0) === "+") {
+              str = str.substring(1).trim();
+            }
+            if (str.charAt(0) === "=" || str.charAt(0) === "+") {
+              str = "'" + str;
+            }
+            rowArr.push(str);
+          }
+          return rowArr;
+        });
+
+        // Set phone column format as plain text
+        sheet.getRange(2, 6, sanitizedRows.length, 1).setNumberFormat("@");
+        sheet.getRange(2, 1, sanitizedRows.length, STANDARD_HEADERS.length).setValues(sanitizedRows);
+      }
+
+      return ContentService.createTextOutput(JSON.stringify({ 
+        status: "success", 
+        action: "full_sync", 
+        totalRows: rows.length 
+      })).setMimeType(ContentService.MimeType.JSON);
     }
 
     // Ensure header row has Registration ID column if missing
@@ -49,8 +94,8 @@ function doPost(e) {
       }
     }
     if (regIdColIdx === -1) {
-      regIdColIdx = 12; // 13th column (0-indexed 12)
-      sheet.getRange(1, 13).setValue("Registration ID");
+      regIdColIdx = 13; // 14th column
+      sheet.getRange(1, 14).setValue("Registration ID");
     }
 
     // Handle Delete Registration

@@ -1,10 +1,20 @@
 import { NextResponse } from "next/server"
 import { getAdminSession } from "@/lib/auth/require-admin"
 import { listRegistrations, setSheetsSyncStatus } from "@/lib/server/firestore-registrations"
-import { syncToSheet, buildRegistrationRow } from "@/lib/google/apps-script"
+import { syncToSheet, cleanEventName, cleanPhone } from "@/lib/google/apps-script"
 import { writeAuditLog } from "@/lib/server/firestore-audit"
 
-/** Manual re-sync: pushes every registration currently in Firestore to the Sheets ledger. */
+function formatDateTime(date: Date): string {
+  const d = date.getDate()
+  const m = date.getMonth() + 1
+  const y = date.getFullYear()
+  const hrs = String(date.getHours()).padStart(2, "0")
+  const mins = String(date.getMinutes()).padStart(2, "0")
+  const secs = String(date.getSeconds()).padStart(2, "0")
+  return `${d}/${m}/${y}, ${hrs}:${mins}:${secs}`
+}
+
+/** Manual re-sync: completely cleans and rebuilds the Google Sheet from Firestore. */
 export async function POST() {
   const session = await getAdminSession()
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
@@ -18,59 +28,75 @@ export async function POST() {
     return timeA - timeB
   })
 
-  // Separate unsynced from already-synced
-  const toSync = registrations.filter((r) => r.sheetsSyncStatus !== "SYNCED")
+  // Build clean 2D array of rows for Google Sheets
+  const rows: string[][] = []
 
-  if (toSync.length === 0) {
-    return NextResponse.json({ ok: true, total: registrations.length, synced: 0, failed: 0, message: "All registrations already synced." })
+  for (const reg of registrations) {
+    const rawDate = typeof reg.createdAt === "string" 
+      ? new Date(reg.createdAt) 
+      : (reg.createdAt as any)?.toDate?.() || new Date()
+    const formattedDate = formatDateTime(rawDate instanceof Date && !isNaN(rawDate.getTime()) ? rawDate : new Date())
+    
+    const eventName = cleanEventName(reg.eventName)
+    const teamOrLeaderName = reg.teamName || reg.fullName || ""
+    const feeStatus = reg.paymentStatus || "PENDING"
+    const txId = reg.paymentRefId || ""
+    const screenshot = reg.pictureUrl || ""
+    const checkedIn = reg.checkedIn ? "Yes" : "No"
+    const regId = reg.id || ""
+
+    // 1. Leader Row
+    rows.push([
+      eventName,
+      teamOrLeaderName,
+      "LEADER",
+      reg.fullName || "",
+      reg.userEmail || "",
+      cleanPhone(reg.phone),
+      reg.collegeName || "",
+      reg.year || "",
+      feeStatus,
+      txId,
+      screenshot,
+      checkedIn,
+      formattedDate,
+      regId,
+    ])
+
+    // 2. Member Rows
+    if (Array.isArray(reg.teamMembers)) {
+      for (const m of reg.teamMembers) {
+        const memName = m.name || (typeof m === "string" ? m : "")
+        if (!memName && !m.email) continue
+        rows.push([
+          eventName,
+          teamOrLeaderName,
+          "MEMBER",
+          memName,
+          m.email || "",
+          cleanPhone(m.phone),
+          m.collegeName || m.college || reg.collegeName || "",
+          m.year || "",
+          feeStatus,
+          txId,
+          screenshot,
+          checkedIn,
+          formattedDate,
+          regId,
+        ])
+      }
+    }
   }
 
-  let synced = 0
-  let failed = 0
-  const errors: string[] = []
+  // Send full_sync batch payload to Google Apps Script
+  const ok = await syncToSheet({
+    type: "full_sync",
+    rows,
+  })
 
-  for (const reg of toSync) {
-    let ok = false
-    let errorMsg = ""
-    try {
-      ok = await syncToSheet(
-        buildRegistrationRow({
-          type: "registration",
-          id: reg.id,
-          fullName: reg.fullName,
-          email: reg.userEmail,
-          phone: reg.phone || "",
-          collegeName: reg.collegeName || "",
-          year: reg.year || "",
-          eventName: reg.eventName,
-          teamSize: reg.teamSize,
-          paymentRefId: reg.paymentRefId,
-          amountPaid: reg.amountPaid,
-          paymentStatus: reg.paymentStatus,
-          createdAt: typeof reg.createdAt === "string" ? reg.createdAt : (reg.createdAt as any)?.toDate?.()?.toISOString() || new Date().toISOString(),
-          teamName: reg.teamName || "",
-          pictureUrl: reg.pictureUrl || "",
-          teamMembers: reg.teamMembers?.map((m: any) => ({
-            name: m.name,
-            email: m.email || "",
-            phone: m.phone || "",
-            collegeName: m.college || m.collegeName || "",
-            year: m.year || "",
-          })) || []
-        })
-      )
-    } catch (e: any) {
-      errorMsg = e?.message || String(e)
-      console.error(`[sync-sheets] Error syncing reg ${reg.id}:`, errorMsg)
-    }
-
-    await setSheetsSyncStatus(reg.id, ok ? "SYNCED" : "FAILED")
-    if (ok) {
-      synced++
-    } else {
-      failed++
-      errors.push(`${reg.id}: ${errorMsg || "syncToSheet returned false"}`)
-    }
+  if (ok) {
+    // Mark all as SYNCED in Firestore
+    await Promise.allSettled(registrations.map((r) => setSheetsSyncStatus(r.id, "SYNCED")))
   }
 
   await writeAuditLog({
@@ -78,17 +104,22 @@ export async function POST() {
     action: "MANUAL_SHEETS_SYNC",
     targetCollection: "registrations",
     targetId: "*",
-    metadata: { total: registrations.length, toSync: toSync.length, synced, failed },
+    metadata: { totalRegistrations: registrations.length, totalRows: rows.length, success: ok },
   })
 
+  if (!ok) {
+    return NextResponse.json({
+      ok: false,
+      total: registrations.length,
+      rows: rows.length,
+      error: "Google Apps Script syncToSheet returned false. Ensure Apps Script is updated and deployed.",
+    }, { status: 500 })
+  }
+
   return NextResponse.json({
-    ok: synced > 0 || failed === 0,
+    ok: true,
     total: registrations.length,
-    synced,
-    failed,
-    errors: errors.length > 0 ? errors : undefined,
-    message: synced === toSync.length
-      ? `All ${synced} registration(s) synced successfully.`
-      : `Synced ${synced} of ${toSync.length}. ${failed} failed.`,
+    rows: rows.length,
+    message: `Successfully rebuilt sheet with ${rows.length} rows across ${registrations.length} registrations.`,
   })
 }
