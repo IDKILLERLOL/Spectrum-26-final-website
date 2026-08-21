@@ -43,8 +43,9 @@ function EventParamSync() {
 function Field({
   label,
   className = "",
+  helperText,
   ...inputProps
-}: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
+}: { label: string; helperText?: string } & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <div className="flex flex-col gap-1">
       <label className={`${questBody.className} text-[10px] font-bold uppercase md:text-xs`} style={{ color: TEAL }}>
@@ -55,6 +56,11 @@ function Field({
         className={`border-b-2 bg-transparent px-2 py-1 text-sm outline-none font-bold placeholder:opacity-50 md:py-1.5 md:text-base ${className}`}
         style={{ borderColor: INK, color: INK }}
       />
+      {helperText && (
+        <p className={`${questBody.className} text-[10px] md:text-xs font-semibold text-neutral-500`}>
+          * {helperText}
+        </p>
+      )}
     </div>
   )
 }
@@ -271,6 +277,7 @@ export default function RegisterInfoStep() {
                     label="Phone Number *"
                     type="tel"
                     placeholder="Enter Phone Number"
+                    helperText="dont put country code (i.e. +91) only numbers allowed"
                     value={values.phone}
                     onChange={(e) => setField("phone", e.target.value)}
                   />
@@ -334,6 +341,8 @@ export default function RegisterInfoStep() {
                         <Field
                           label="Phone *"
                           placeholder="Enter phone"
+                          type="tel"
+                          helperText="dont put country code (i.e. +91) only numbers allowed"
                           value={member.phone}
                           onChange={(e) => {
                             const next = [...localMembers]
