@@ -111,8 +111,16 @@ export async function syncToSheet(payload: object): Promise<boolean> {
         year: m.year || "",
       }))
 
+      const checkedInVal =
+        p.checkedIn === true || p.checkedIn === "Yes" || p.checkedIn === "YES"
+          ? "Yes"
+          : "No"
+
+      const action = p.action || (p.paymentStatus && p.paymentStatus !== "PENDING" ? "edit" : "upsert")
+
       const ok = await post({
         type: "registration",
+        action,
         id: regId,
         teamId: regId,
         eventName: p.eventName || "",
@@ -121,15 +129,16 @@ export async function syncToSheet(payload: object): Promise<boolean> {
         email: p.email || "",
         phone: p.phone || "",
         collegeName: p.collegeName || "",
+        year: p.year || "",
         paymentStatus: p.paymentStatus || "PENDING",
         paymentRefId: p.paymentRefId || "",
         pictureUrl: p.pictureUrl || "",
-        checkedIn: "No",
+        checkedIn: checkedInVal,
         createdAt: formattedDate,
         teamMembers: members,
       })
 
-      if (ok) console.log(`[apps-script] Registration synced (id=${regId}, ${members.length} members).`)
+      if (ok) console.log(`[apps-script] Registration synced (id=${regId}, action=${action}, ${members.length} members).`)
       return ok
     }
 
@@ -185,6 +194,7 @@ export async function fetchFromSheet(): Promise<any[]> {
 
 interface RegistrationSheetRow {
   type: "registration"
+  action?: "edit" | "create" | "upsert"
   id: string
   fullName: string
   email: string
@@ -193,6 +203,7 @@ interface RegistrationSheetRow {
   paymentRefId: string
   amountPaid: number
   paymentStatus: string
+  checkedIn?: boolean | string
   createdAt: string
   teamName?: string
   pictureUrl?: string

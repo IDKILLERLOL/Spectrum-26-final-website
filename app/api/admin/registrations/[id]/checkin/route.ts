@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server"
 import { getAdminSession } from "@/lib/auth/require-admin"
-import { toggleCheckIn, getRegistration } from "@/lib/server/firestore-registrations"
+import { toggleCheckIn, getRegistration, setSheetsSyncStatus } from "@/lib/server/firestore-registrations"
 import { writeAuditLog } from "@/lib/server/firestore-audit"
+import { syncToSheet, buildRegistrationRow } from "@/lib/google/apps-script"
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getAdminSession()
@@ -31,6 +32,40 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     targetId: id,
     metadata: { eventName: existing.eventName, userEmail: existing.userEmail },
   })
+
+  // Sync check-in status edit to Google Sheets
+  try {
+    const createdAtStr = existing.createdAt instanceof Date 
+      ? existing.createdAt.toISOString() 
+      : (existing.createdAt as any)?.toDate?.()?.toISOString() || new Date().toISOString()
+
+    syncToSheet(
+      buildRegistrationRow({
+        type: "registration",
+        action: "edit",
+        id,
+        fullName: existing.fullName,
+        email: existing.userEmail,
+        phone: existing.phone || "",
+        collegeName: existing.collegeName || "",
+        year: existing.year || "",
+        eventName: existing.eventName,
+        teamSize: existing.teamSize,
+        paymentRefId: existing.paymentRefId,
+        amountPaid: existing.amountPaid,
+        paymentStatus: existing.paymentStatus,
+        checkedIn: body.checkedIn,
+        createdAt: createdAtStr,
+        teamName: existing.teamName || "",
+        pictureUrl: existing.pictureUrl || "",
+        teamMembers: existing.teamMembers || [],
+      })
+    ).then((ok) => {
+      setSheetsSyncStatus(id, ok ? "SYNCED" : "FAILED")
+    })
+  } catch (err) {
+    console.error("[checkin route] sheets sync failed:", err)
+  }
 
   return NextResponse.json({ ok: true })
 }

@@ -45,6 +45,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     await syncToSheet(
       buildRegistrationRow({
         type: "registration",
+        action: "edit",
         id,
         fullName: existing.fullName,
         email: existing.userEmail,
@@ -56,6 +57,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         paymentRefId: existing.paymentRefId,
         amountPaid: existing.amountPaid,
         paymentStatus: body.status,
+        checkedIn: existing.checkedIn,
         createdAt: createdAtStr,
         teamName: existing.teamName || "",
         pictureUrl: existing.pictureUrl || "",

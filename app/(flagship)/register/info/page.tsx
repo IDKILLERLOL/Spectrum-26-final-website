@@ -12,7 +12,7 @@ import { INK, TEAL, VERMILION, AGED_PAPER, hoardingShadow, softHoardingShadow } 
 import { questDisplay, questBody } from "@/components/flagship/fonts"
 import { trackFunnelStep } from "@/lib/analytics/track"
 
-const YEARS = ["1st Year", "2nd Year", "3rd Year", "4th Year"]
+const YEARS = ["1st Year", "2nd Year", "3rd Year", "4th Year", "Other"]
 const ticketStyle = { background: AGED_PAPER, borderColor: INK, borderWidth: "4px", boxShadow: hoardingShadow }
 
 function EventParamSync() {

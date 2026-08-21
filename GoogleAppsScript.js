@@ -34,26 +34,166 @@ function doPost(e) {
       sheet.appendRow([
         "Event Name", "Team/Leader Name", "Role", "Name", "Email", 
         "Phone", "College", "Fee Status", "Transaction ID / Ref", 
-        "Payment Screenshot", "Checked In", "Registered At"
+        "Payment Screenshot", "Checked In", "Registered At", "Registration ID"
       ]);
     }
-    
-    if (data.type === "registration") {
+
+    // Ensure header row has Registration ID column if missing
+    var lastCol = Math.max(sheet.getLastColumn(), 12);
+    var headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+    var regIdColIdx = -1;
+    for (var h = 0; h < headers.length; h++) {
+      if (String(headers[h]).toLowerCase().indexOf("registration id") !== -1 || String(headers[h]).toLowerCase() === "id") {
+        regIdColIdx = h;
+        break;
+      }
+    }
+    if (regIdColIdx === -1) {
+      regIdColIdx = 12; // 13th column (0-indexed 12)
+      sheet.getRange(1, 13).setValue("Registration ID");
+    }
+
+    // Handle Delete Registration
+    if (data.type === "delete_registration") {
+      var lastRow = sheet.getLastRow();
+      if (lastRow > 1) {
+        var values = sheet.getRange(2, 1, lastRow - 1, sheet.getLastColumn()).getValues();
+        for (var r = values.length - 1; r >= 0; r--) {
+          var row = values[r];
+          var match = false;
+          if (data.id && row[regIdColIdx] && String(row[regIdColIdx]).trim() === String(data.id).trim()) {
+            match = true;
+          } else if (data.email && String(row[4]).toLowerCase().trim() === String(data.email).toLowerCase().trim() &&
+                     (!data.eventName || String(row[0]).toLowerCase().trim() === String(data.eventName).toLowerCase().trim())) {
+            match = true;
+          }
+          if (match) {
+            sheet.deleteRow(r + 2);
+          }
+        }
+      }
+      return ContentService.createTextOutput(JSON.stringify({ status: "success", action: "deleted" }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // Handle Registration Upsert / Edit / Status Update / Checkin
+    if (data.type === "registration" || data.type === "edit_registration") {
       var teamOrLeaderName = data.teamName || data.fullName || "";
+      var leaderEmail = (data.email || "").toLowerCase().trim();
+      var regId = data.id || data.teamId || "";
+      var eventName = (data.eventName || "").trim();
+      var feeStatus = data.paymentStatus || "PENDING";
+      var txId = data.paymentRefId || "";
+      var screenshot = data.pictureUrl || "";
+      var checkedIn = (data.checkedIn === true || data.checkedIn === "Yes" || data.checkedIn === "YES") ? "Yes" : "No";
+      var regDate = data.createdAt || "";
+
+      var lastRow = sheet.getLastRow();
+      var matchingRowIndices = []; // 1-based row numbers in sheet
+
+      if (lastRow > 1) {
+        var values = sheet.getRange(2, 1, lastRow - 1, sheet.getLastColumn()).getValues();
+        for (var i = 0; i < values.length; i++) {
+          var row = values[i];
+          var rowEvent = String(row[0] || "").toLowerCase().trim();
+          var rowTeam = String(row[1] || "").toLowerCase().trim();
+          var rowEmail = String(row[4] || "").toLowerCase().trim();
+          var rowRegId = row[regIdColIdx] ? String(row[regIdColIdx]).trim() : "";
+
+          // Match by Registration ID or (Event Name + Leader/Member Email) or (Event Name + Team Name)
+          var isMatch = false;
+          if (regId && rowRegId && rowRegId === regId) {
+            isMatch = true;
+          } else if (eventName && rowEvent === eventName.toLowerCase()) {
+            if (leaderEmail && rowEmail === leaderEmail) {
+              isMatch = true;
+            } else if (teamOrLeaderName && rowTeam === teamOrLeaderName.toLowerCase()) {
+              isMatch = true;
+            } else if (Array.isArray(data.teamMembers)) {
+              for (var m = 0; m < data.teamMembers.length; m++) {
+                var memEmail = String(data.teamMembers[m].email || "").toLowerCase().trim();
+                if (memEmail && rowEmail === memEmail) {
+                  isMatch = true;
+                  break;
+                }
+              }
+            }
+          }
+
+          if (isMatch) {
+            matchingRowIndices.push(i + 2); // 1-based row index in sheet
+          }
+        }
+      }
+
+      // If rows already exist for this team/registration, EDIT existing rows in-place (DO NOT add new rows!)
+      if (matchingRowIndices.length > 0) {
+        for (var k = 0; k < matchingRowIndices.length; k++) {
+          var rowNum = matchingRowIndices[k];
+          
+          // Column 8: Fee Status
+          if (feeStatus) sheet.getRange(rowNum, 8).setValue(feeStatus);
+          // Column 9: Transaction ID / Ref
+          if (txId) sheet.getRange(rowNum, 9).setValue(txId);
+          // Column 10: Payment Screenshot
+          if (screenshot) sheet.getRange(rowNum, 10).setValue(screenshot);
+          // Column 11: Checked In
+          if (data.checkedIn !== undefined) sheet.getRange(rowNum, 11).setValue(checkedIn);
+          // Column 13: Registration ID
+          if (regId) sheet.getRange(rowNum, regIdColIdx + 1).setValue(regId);
+        }
+
+        return ContentService.createTextOutput(JSON.stringify({ 
+          status: "success", 
+          action: "edited", 
+          rowsUpdated: matchingRowIndices.length 
+        })).setMimeType(ContentService.MimeType.JSON);
+      }
+
+      // If no matching rows exist, append leader row
       sheet.appendRow([
-        data.eventName || "",
+        eventName,
         teamOrLeaderName,
         data.role || "LEADER",
         data.fullName || "",
         data.email || "",
         data.phone || "",
         data.collegeName || "",
-        data.paymentStatus || "PENDING",
-        data.paymentRefId || "",
-        data.pictureUrl || "",
-        data.checkedIn || "No",
-        data.createdAt || ""
+        feeStatus,
+        txId,
+        screenshot,
+        checkedIn,
+        regDate,
+        regId
       ]);
+
+      // Append Team Member rows if any
+      if (Array.isArray(data.teamMembers)) {
+        for (var m = 0; m < data.teamMembers.length; m++) {
+          var member = data.teamMembers[m];
+          var memName = member.name || (typeof member === "string" ? member : "");
+          if (!memName && !member.email) continue;
+          
+          sheet.appendRow([
+            eventName,
+            teamOrLeaderName,
+            "MEMBER",
+            memName,
+            member.email || "",
+            member.phone || "",
+            member.collegeName || member.college || data.collegeName || "",
+            feeStatus,
+            txId,
+            screenshot,
+            checkedIn,
+            regDate,
+            regId
+          ]);
+        }
+      }
+
+      return ContentService.createTextOutput(JSON.stringify({ status: "success", action: "created" }))
+        .setMimeType(ContentService.MimeType.JSON);
     }
     
     return ContentService.createTextOutput(JSON.stringify({ status: "success" }))
