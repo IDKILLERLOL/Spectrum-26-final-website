@@ -1,18 +1,23 @@
 import "server-only"
 
+const DEFAULT_APPS_SCRIPT_URL =
+  "https://script.google.com/macros/s/AKfycbxtCVXriQbKWhJ1BioBOZPthxQOoPthyC-5HwZNJukI8zk7CXcis5IfbXrJ7SXhluUYiw/exec"
+const DEFAULT_SPREADSHEET_ID = "1uoPRpcJrswDb_ghqOq-NDuHI1POrQOKUHWWxOSM__y0"
+const DEFAULT_API_KEY = "ishaandagoat"
+
 const APPS_SCRIPT_URL =
   process.env.EMAIL_APPS_SCRIPT_URL ||
   process.env.SHEETS_APPS_SCRIPT_URL ||
   process.env.APPS_SCRIPT_URL ||
   process.env.VITE_GOOGLE_SHEETS_WEBAPP_URL ||
-  ""
+  DEFAULT_APPS_SCRIPT_URL
 
 // Must match the SECRET_KEY in the Apps Script doPost function
 const APPS_SCRIPT_API_KEY =
   process.env.EMAIL_APPS_SCRIPT_SECRET ||
   process.env.APPS_SCRIPT_API_KEY ||
   process.env.APPS_SCRIPT_SECRET ||
-  "ishaandagoat"
+  DEFAULT_API_KEY
 
 function cleanUrl(raw: string) {
   return raw.replace(/^["']|["']$/g, "").trim()
@@ -25,12 +30,12 @@ async function getSpreadsheetId(): Promise<string> {
     try {
       const { getSettings } = await import("@/lib/server/firestore-settings")
       const settings = await getSettings()
-      id = settings?.sheetId || ""
+      id = settings?.sheetId || (settings as any)?.sheetsSpreadsheetId || ""
     } catch {
       // ignored
     }
   }
-  return id
+  return id || DEFAULT_SPREADSHEET_ID
 }
 
 function formatDateTime(date: Date): string {
@@ -80,7 +85,7 @@ export async function syncToSheet(payload: object): Promise<boolean> {
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify({ ...body, apiKey, spreadsheetId }),
         redirect: "follow",
-        signal: AbortSignal.timeout(15000),
+        signal: AbortSignal.timeout(30000),
       })
       const ok = res.ok || res.status === 302 || res.status === 200
       if (!ok) {

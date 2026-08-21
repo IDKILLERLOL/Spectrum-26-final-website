@@ -14,6 +14,9 @@ function formatDateTime(date: Date): string {
   return `${d}/${m}/${y}, ${hrs}:${mins}:${secs}`
 }
 
+export const maxDuration = 60
+export const dynamic = "force-dynamic"
+
 /** Manual re-sync: completely cleans and rebuilds the Google Sheet from Firestore. */
 export async function POST() {
   const session = await getAdminSession()
