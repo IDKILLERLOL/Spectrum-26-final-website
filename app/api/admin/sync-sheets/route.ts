@@ -31,8 +31,9 @@ export async function POST() {
     return timeA - timeB
   })
 
-  // Build clean 2D array of rows for Google Sheets
-  const rows: string[][] = []
+  // Build clean rows and teams for Google Sheets
+  const allRows: string[][] = []
+  const teams: any[] = []
 
   for (const reg of registrations) {
     const rawDate = typeof reg.createdAt === "string" 
@@ -48,8 +49,8 @@ export async function POST() {
     const checkedIn = reg.checkedIn ? "Yes" : "No"
     const regId = reg.id || ""
 
-    // 1. Leader Row
-    rows.push([
+    // 1. Leader Row for All Registrations
+    allRows.push([
       eventName,
       teamOrLeaderName,
       "LEADER",
@@ -57,7 +58,6 @@ export async function POST() {
       reg.userEmail || "",
       cleanPhone(reg.phone),
       reg.collegeName || "",
-      reg.year || "",
       feeStatus,
       txId,
       screenshot,
@@ -66,20 +66,39 @@ export async function POST() {
       regId,
     ])
 
+    const leader = {
+      eventName,
+      teamId: regId,
+      teamName: teamOrLeaderName,
+      name: reg.fullName || "",
+      email: reg.userEmail || "",
+      phone: cleanPhone(reg.phone),
+      college: reg.collegeName || "",
+      feeStatus,
+      txId,
+      screenshot,
+      checkedIn,
+      formattedDate,
+    }
+
+    const members: any[] = []
+
     // 2. Member Rows
     if (Array.isArray(reg.teamMembers)) {
       for (const m of reg.teamMembers) {
         const memName = m.name || (typeof m === "string" ? m : "")
         if (!memName && !m.email) continue
-        rows.push([
+        const memPhone = cleanPhone(m.phone)
+        const memCollege = m.collegeName || m.college || reg.collegeName || ""
+
+        allRows.push([
           eventName,
           teamOrLeaderName,
           "MEMBER",
           memName,
           m.email || "",
-          cleanPhone(m.phone),
-          m.collegeName || m.college || reg.collegeName || "",
-          m.year || "",
+          memPhone,
+          memCollege,
           feeStatus,
           txId,
           screenshot,
@@ -87,14 +106,24 @@ export async function POST() {
           formattedDate,
           regId,
         ])
+
+        members.push({
+          name: memName,
+          email: m.email || "",
+          phone: memPhone,
+          college: memCollege,
+        })
       }
     }
+
+    teams.push({ leader, members })
   }
 
   // Send full_sync batch payload to Google Apps Script
   const ok = await syncToSheet({
     type: "full_sync",
-    rows,
+    allRows,
+    teams,
   })
 
   if (ok) {
