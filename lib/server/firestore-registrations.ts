@@ -213,18 +213,36 @@ export async function listRegistrations(filters?: {
         eventFee = eData?.price || 0
       }
 
-      const teamMembers: { name: string }[] = []
-      if (Array.isArray(regData.teamMembers)) {
-        regData.teamMembers.forEach((m: any) => {
-          const memberName = typeof m === "string" ? m : (m?.name || "")
-          if (memberName) teamMembers.push({ name: memberName })
-        })
-      } else if (Array.isArray(regData.members)) {
-        regData.members.forEach((m: any) => {
-          const memberName = typeof m === "string" ? m : (m?.name || "")
-          if (memberName) teamMembers.push({ name: memberName })
-        })
-      }
+      const teamMembers: any[] = []
+      const rawMembers = Array.isArray(regData.teamMembers) ? regData.teamMembers : (Array.isArray(regData.members) ? regData.members : [])
+      rawMembers.forEach((m: any) => {
+        if (typeof m === "string") {
+          try {
+            const p = JSON.parse(m)
+            if (p && typeof p === "object") {
+              teamMembers.push({
+                name: p.name || "",
+                email: p.email || "",
+                phone: p.phone || "",
+                college: p.college || p.collegeName || "",
+                collegeName: p.collegeName || p.college || "",
+                year: p.year || "",
+              })
+              return
+            }
+          } catch {}
+          teamMembers.push({ name: m, email: "", phone: "", college: "", collegeName: "", year: "" })
+        } else if (m && typeof m === "object") {
+          teamMembers.push({
+            name: m.name || "",
+            email: m.email || "",
+            phone: m.phone || "",
+            college: m.college || m.collegeName || "",
+            collegeName: m.collegeName || m.college || "",
+            year: m.year || "",
+          })
+        }
+      })
 
       const rawEmail = regData.userEmail || regData.email || regData.leaderEmail || ""
       const userEmail = fetchedEmail || (!rawEmail.startsWith("guest_") ? rawEmail : "") || regData.leaderId || ""

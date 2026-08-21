@@ -39,7 +39,7 @@ function doPost(e) {
       "Payment Screenshot", "Checked In", "Registered At", "Registration ID"
     ];
 
-    // Handle Full Sheet Rebuild / Clean Sync
+    // Handle Full Sheet Rebuild / Clean Sync (Triggered by the Sync Sheets button)
     if (data.type === "full_sync") {
       var rows = data.rows || [];
       sheet.clear();
@@ -49,7 +49,8 @@ function doPost(e) {
       sheet.getRange(1, 1, 1, STANDARD_HEADERS.length)
         .setFontWeight("bold")
         .setBackground("#0B192C")
-        .setFontColor("#FFFFFF");
+        .setFontColor("#FFFFFF")
+        .setVerticalAlignment("middle");
       sheet.setFrozenRows(1);
 
       if (rows.length > 0) {
@@ -74,6 +75,25 @@ function doPost(e) {
         // Set phone column format as plain text
         sheet.getRange(2, 6, sanitizedRows.length, 1).setNumberFormat("@");
         sheet.getRange(2, 1, sanitizedRows.length, STANDARD_HEADERS.length).setValues(sanitizedRows);
+
+        // Merge contiguous rows for the same team / registration
+        var i = 0;
+        while (i < sanitizedRows.length) {
+          var currentId = sanitizedRows[i][13];
+          var count = 1;
+          while (i + count < sanitizedRows.length && sanitizedRows[i + count][13] === currentId && currentId !== "") {
+            count++;
+          }
+          var startRow = i + 2; // +2 for 1-based index and header row
+          if (count > 1) {
+            var colsToMerge = [1, 2, 9, 10, 11, 12, 13, 14];
+            for (var c = 0; c < colsToMerge.length; c++) {
+              sheet.getRange(startRow, colsToMerge[c], count, 1).mergeVertically();
+            }
+          }
+          sheet.getRange(startRow, 1, count, STANDARD_HEADERS.length).setVerticalAlignment("middle");
+          i += count;
+        }
       }
 
       return ContentService.createTextOutput(JSON.stringify({ 
@@ -121,7 +141,7 @@ function doPost(e) {
         .setMimeType(ContentService.MimeType.JSON);
     }
 
-    // Handle Registration Upsert / Edit / Status Update / Checkin
+    // Handle Individual Registration Edit / Upsert (Mark as Paid, Toggle Check-in, etc.)
     if (data.type === "registration" || data.type === "edit_registration") {
       var teamOrLeaderName = data.teamName || data.fullName || "";
       var leaderEmail = (data.email || "").toLowerCase().trim();
@@ -145,7 +165,7 @@ function doPost(e) {
           var rowEmail = String(row[4] || "").toLowerCase().trim();
           var rowRegId = row[regIdColIdx] ? String(row[regIdColIdx]).trim() : "";
 
-          // Match by Registration ID or (Event Name + Leader/Member Email) or (Event Name + Team Name)
+          // Match by Registration ID or (Event Name + Email) or (Event Name + Team Name)
           var isMatch = false;
           if (regId && rowRegId && rowRegId === regId) {
             isMatch = true;
@@ -166,25 +186,20 @@ function doPost(e) {
           }
 
           if (isMatch) {
-            matchingRowIndices.push(i + 2); // 1-based row index in sheet
+            matchingRowIndices.push(i + 2);
           }
         }
       }
 
-      // If rows already exist for this team/registration, EDIT existing rows in-place (DO NOT add new rows!)
+      // If rows already exist for this team, EDIT existing rows in-place (no duplicate rows created)
       if (matchingRowIndices.length > 0) {
         for (var k = 0; k < matchingRowIndices.length; k++) {
           var rowNum = matchingRowIndices[k];
           
-          // Column 8: Fee Status
-          if (feeStatus) sheet.getRange(rowNum, 8).setValue(feeStatus);
-          // Column 9: Transaction ID / Ref
-          if (txId) sheet.getRange(rowNum, 9).setValue(txId);
-          // Column 10: Payment Screenshot
-          if (screenshot) sheet.getRange(rowNum, 10).setValue(screenshot);
-          // Column 11: Checked In
-          if (data.checkedIn !== undefined) sheet.getRange(rowNum, 11).setValue(checkedIn);
-          // Column 13: Registration ID
+          if (feeStatus) sheet.getRange(rowNum, 9).setValue(feeStatus);
+          if (txId) sheet.getRange(rowNum, 10).setValue(txId);
+          if (screenshot) sheet.getRange(rowNum, 11).setValue(screenshot);
+          if (data.checkedIn !== undefined) sheet.getRange(rowNum, 12).setValue(checkedIn);
           if (regId) sheet.getRange(rowNum, regIdColIdx + 1).setValue(regId);
         }
 
@@ -195,15 +210,23 @@ function doPost(e) {
         })).setMimeType(ContentService.MimeType.JSON);
       }
 
-      // If no matching rows exist, append leader row
-      sheet.appendRow([
+      // If no matching rows exist, append brand new registration
+      var startAppendRow = sheet.getLastRow() + 1;
+      var teamRowsToAppend = [];
+      
+      // Leader row
+      var cleanPhoneStr = String(data.phone || "").trim();
+      if (cleanPhoneStr.charAt(0) === "+") cleanPhoneStr = cleanPhoneStr.substring(1).trim();
+      
+      teamRowsToAppend.push([
         eventName,
         teamOrLeaderName,
         data.role || "LEADER",
         data.fullName || "",
         data.email || "",
-        data.phone || "",
+        cleanPhoneStr,
         data.collegeName || "",
+        data.year || "",
         feeStatus,
         txId,
         screenshot,
@@ -212,21 +235,25 @@ function doPost(e) {
         regId
       ]);
 
-      // Append Team Member rows if any
+      // Member rows
       if (Array.isArray(data.teamMembers)) {
         for (var m = 0; m < data.teamMembers.length; m++) {
           var member = data.teamMembers[m];
           var memName = member.name || (typeof member === "string" ? member : "");
           if (!memName && !member.email) continue;
           
-          sheet.appendRow([
+          var memPhone = String(member.phone || "").trim();
+          if (memPhone.charAt(0) === "+") memPhone = memPhone.substring(1).trim();
+
+          teamRowsToAppend.push([
             eventName,
             teamOrLeaderName,
             "MEMBER",
             memName,
             member.email || "",
-            member.phone || "",
+            memPhone,
             member.collegeName || member.college || data.collegeName || "",
+            member.year || "",
             feeStatus,
             txId,
             screenshot,
@@ -236,6 +263,19 @@ function doPost(e) {
           ]);
         }
       }
+
+      // Write rows
+      sheet.getRange(startAppendRow, 1, teamRowsToAppend.length, STANDARD_HEADERS.length).setValues(teamRowsToAppend);
+      sheet.getRange(startAppendRow, 6, teamRowsToAppend.length, 1).setNumberFormat("@");
+
+      // Merge vertically if multiple rows for this team
+      if (teamRowsToAppend.length > 1) {
+        var colsToMerge = [1, 2, 9, 10, 11, 12, 13, 14];
+        for (var c = 0; c < colsToMerge.length; c++) {
+          sheet.getRange(startAppendRow, colsToMerge[c], teamRowsToAppend.length, 1).mergeVertically();
+        }
+      }
+      sheet.getRange(startAppendRow, 1, teamRowsToAppend.length, STANDARD_HEADERS.length).setVerticalAlignment("middle");
 
       return ContentService.createTextOutput(JSON.stringify({ status: "success", action: "created" }))
         .setMimeType(ContentService.MimeType.JSON);
