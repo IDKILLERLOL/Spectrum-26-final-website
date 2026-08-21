@@ -36,39 +36,38 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     metadata: { eventName: existing.eventName, userEmail: existing.userEmail },
   })
 
-  // Sync to Google Sheets ONLY when marked as PAID / APPROVED
-  if (body.status === "APPROVED") {
-    try {
-      const createdAtStr = existing.createdAt instanceof Date 
-        ? existing.createdAt.toISOString() 
-        : (existing.createdAt as any)?.toDate?.()?.toISOString() || new Date().toISOString()
+  // Sync status updates to Google Sheets so the sheet is always in sync with the DB
+  try {
+    const createdAtStr = existing.createdAt instanceof Date 
+      ? existing.createdAt.toISOString() 
+      : (existing.createdAt as any)?.toDate?.()?.toISOString() || new Date().toISOString()
 
-      await syncToSheet(
-        buildRegistrationRow({
-          type: "registration",
-          id,
-          fullName: existing.fullName,
-          email: existing.userEmail,
-          phone: existing.phone || "",
-          collegeName: existing.collegeName || "",
-          year: existing.year || "",
-          eventName: existing.eventName,
-          teamSize: existing.teamSize,
-          paymentRefId: existing.paymentRefId,
-          amountPaid: existing.amountPaid,
-          paymentStatus: "APPROVED",
-          checkedIn: existing.checkedIn,
-          createdAt: createdAtStr,
-          teamName: existing.teamName || "",
-          pictureUrl: existing.pictureUrl || "",
-          teamMembers: existing.teamMembers || [],
-        })
-      ).then((ok) => {
-        setSheetsSyncStatus(id, ok ? "SYNCED" : "FAILED")
+    await syncToSheet(
+      buildRegistrationRow({
+        type: "registration",
+        action: "edit",
+        id,
+        fullName: existing.fullName,
+        email: existing.userEmail,
+        phone: existing.phone || "",
+        collegeName: existing.collegeName || "",
+        year: existing.year || "",
+        eventName: existing.eventName,
+        teamSize: existing.teamSize,
+        paymentRefId: existing.paymentRefId,
+        amountPaid: existing.amountPaid,
+        paymentStatus: body.status,
+        checkedIn: existing.checkedIn,
+        createdAt: createdAtStr,
+        teamName: existing.teamName || "",
+        pictureUrl: existing.pictureUrl || "",
+        teamMembers: existing.teamMembers || [],
       })
-    } catch (err) {
-      console.error("[status route] sheets sync failed:", err)
-    }
+    ).then((ok) => {
+      setSheetsSyncStatus(id, ok ? "SYNCED" : "FAILED")
+    })
+  } catch (err) {
+    console.error("[status route] sheets sync failed:", err)
   }
 
   if (body.status !== "PENDING") {

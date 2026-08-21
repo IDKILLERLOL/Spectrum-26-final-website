@@ -1,37 +1,68 @@
 function doPost(e) {
+  // Concurrency Lock: Ensure deterministic, serialized executions
+  var lock = LockService.getScriptLock();
+  var hasLock = false;
   try {
-    var data = JSON.parse(e.postData.contents);
-    
+    hasLock = lock.tryLock(30000); // 30 second lock wait
+  } catch (err) {
+    hasLock = false;
+  }
+
+  if (!hasLock) {
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "error",
+      message: "Server busy: Could not acquire script lock within 30s"
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  try {
+    var data = {};
+    try {
+      data = JSON.parse(e.postData.contents);
+    } catch (parseErr) {
+      return ContentService.createTextOutput(JSON.stringify({
+        status: "error",
+        message: "Invalid JSON body: " + parseErr.toString()
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
     // Security check: validate API key
     var SECRET_KEY = "ishaandagoat";
     if (!data.apiKey || data.apiKey !== SECRET_KEY) {
-      return ContentService.createTextOutput(JSON.stringify({ status: "error", message: "Unauthorized: Invalid API key" }))
-        .setMimeType(ContentService.MimeType.JSON);
+      return ContentService.createTextOutput(JSON.stringify({
+        status: "error",
+        message: "Unauthorized: Invalid or missing API key"
+      })).setMimeType(ContentService.MimeType.JSON);
     }
-    
+
     // 1. Handle Email Dispatching
     if (data.type === "email") {
       GmailApp.sendEmail(data.to, data.subject, data.text, {
         htmlBody: data.html,
         name: "SPECTRUM 26"
       });
-      return ContentService.createTextOutput(JSON.stringify({ status: "success" }))
-        .setMimeType(ContentService.MimeType.JSON);
+      return ContentService.createTextOutput(JSON.stringify({
+        status: "success",
+        action: "email"
+      })).setMimeType(ContentService.MimeType.JSON);
     }
-    
-    // 2. Handle Google Sheet Synchronization
+
+    // 2. Handle Google Sheet Operations
     var spreadsheetId = data.spreadsheetId;
     if (!spreadsheetId) {
-      return ContentService.createTextOutput(JSON.stringify({ status: "error", message: "Missing spreadsheetId" }))
-        .setMimeType(ContentService.MimeType.JSON);
+      return ContentService.createTextOutput(JSON.stringify({
+        status: "error",
+        message: "Missing spreadsheetId"
+      })).setMimeType(ContentService.MimeType.JSON);
     }
-    
+
     var ss = SpreadsheetApp.openById(spreadsheetId);
 
+    // Flat, sortable, machine-readable headers (NO MERGED CELLS)
     var ALL_HEADERS = [
-      "Event Name", "Team/Leader Name", "Role", "Name", "Email", 
+      "Team ID", "Event Name", "Team Name", "Role", "Name", "Email", 
       "Phone", "College", "Fee Status", "Transaction ID / Ref", 
-      "Payment Screenshot", "Checked In", "Registered At", "Team ID"
+      "Payment Screenshot", "Checked In", "Registered At"
     ];
 
     var EVENT_HEADERS = [
@@ -40,16 +71,38 @@ function doPost(e) {
       "Payment Screenshot", "Checked In", "Registered At"
     ];
 
-    function getEventSheet(eventName) {
-      if (!eventName) return null;
-      var name = String(eventName).trim();
-      var sheet = ss.getSheetByName(name);
-      if (!sheet) {
-        if (name.toLowerCase().indexOf("fc") !== -1 || name.toLowerCase().indexOf("fifa") !== -1) {
-          sheet = ss.getSheetByName("FC 26") || ss.getSheetByName("FIFA") || ss.getSheetByName("EA FC 26");
-        }
+    // Explicit deterministic mapping for event sheets
+    var EVENT_SHEET_MAP = {
+      "singularity-strike": "Singularity Strike",
+      "singularity_strike": "Singularity Strike",
+      "singularity strike": "Singularity Strike",
+      "code clash": "Singularity Strike",
+      "code_clash": "Singularity Strike",
+      "tech-solo-1": "Singularity Strike",
+      "dual-debug": "Dual Debug",
+      "dual_debug": "Dual Debug",
+      "dual debug": "Dual Debug",
+      "tech-duo-1": "Dual Debug",
+      "fc26": "FC 26",
+      "fc_26": "FC 26",
+      "fc 26": "FC 26",
+      "ea fc 26": "FC 26",
+      "ea fc": "FC 26",
+      "fifa": "FC 26",
+      "non-tech-1": "FC 26",
+      "bgmi": "BGMI",
+      "non-tech-3": "BGMI"
+    };
+
+    var CONFIGURED_EVENT_SHEETS = ["Singularity Strike", "Dual Debug", "FC 26", "BGMI"];
+
+    function resolveEventSheetName(rawEventName) {
+      if (!rawEventName) return null;
+      var key = String(rawEventName).toLowerCase().trim();
+      if (EVENT_SHEET_MAP.hasOwnProperty(key)) {
+        return EVENT_SHEET_MAP[key];
       }
-      return sheet;
+      return null;
     }
 
     function cleanPhone(raw) {
@@ -63,313 +116,299 @@ function doPost(e) {
       if (val === null || val === undefined) return "";
       var str = String(val).trim();
       if (isPhone && str.charAt(0) === "+") str = str.substring(1).trim();
-      if (str.charAt(0) === "=" || str.charAt(0) === "+") return "'" + str;
+      if (str.charAt(0) === "=" || str.charAt(0) === "+" || str.charAt(0) === "@" || str.charAt(0) === "-") {
+        return "'" + str;
+      }
       return str;
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // FULL SYNC: Clean rebuild of "All Registrations" AND all Event Sheets
-    // ─────────────────────────────────────────────────────────────────────────
-    if (data.type === "full_sync") {
-      var allRows = data.allRows || data.rows || [];
-      var teams = data.teams || []; // array of { leader, members: [...] }
-
-      // 1. Rebuild "All Registrations"
-      var allSheet = ss.getSheetByName("All Registrations");
-      if (!allSheet) allSheet = ss.insertSheet("All Registrations");
-      allSheet.clear();
-      allSheet.getRange(1, 1, 1, ALL_HEADERS.length).setValues([ALL_HEADERS]);
-      allSheet.getRange(1, 1, 1, ALL_HEADERS.length)
+    function ensureHeader(sheet, headers) {
+      sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+      sheet.getRange(1, 1, 1, headers.length)
         .setFontWeight("bold")
         .setBackground("#0B192C")
         .setFontColor("#FFFFFF")
         .setVerticalAlignment("middle");
-      allSheet.setFrozenRows(1);
+      sheet.setFrozenRows(1);
+    }
+
+    function buildTeamRows(d) {
+      var teamId = String(d.teamId || d.id || "").trim();
+      var eventName = resolveEventSheetName(d.eventName) || String(d.eventName || "").trim();
+      var teamName = String(d.teamName || d.fullName || "").trim();
+      var feeStatus = String(d.paymentStatus || d.feeStatus || "PENDING").trim();
+      var txId = String(d.paymentRefId || d.upiTransactionRef || "").trim();
+      var screenshot = String(d.pictureUrl || d.photoUrl || d.paymentScreenshot || "").trim();
+      var checkedIn = (d.checkedIn === true || d.checkedIn === "Yes" || d.checkedIn === "YES") ? "Yes" : "No";
+      var regDate = String(d.createdAt || "").trim();
+
+      var allSheetRows = [];
+      var eventSheetRows = [];
+
+      // Leader Row
+      allSheetRows.push([
+        teamId, eventName, teamName, "LEADER", String(d.fullName || d.name || "").trim(),
+        String(d.email || d.userEmail || "").trim(), cleanPhone(d.phone),
+        String(d.collegeName || d.college || "").trim(), feeStatus, txId, screenshot, checkedIn, regDate
+      ]);
+
+      eventSheetRows.push([
+        teamId, teamName, "LEADER", String(d.fullName || d.name || "").trim(),
+        String(d.email || d.userEmail || "").trim(), cleanPhone(d.phone),
+        String(d.collegeName || d.college || "").trim(), feeStatus, txId, screenshot, checkedIn, regDate
+      ]);
+
+      // Member Rows
+      var rawMembers = Array.isArray(d.teamMembers) ? d.teamMembers : [];
+      for (var m = 0; m < rawMembers.length; m++) {
+        var mem = rawMembers[m];
+        if (typeof mem === "string") {
+          try { mem = JSON.parse(mem); } catch(e) { mem = { name: mem }; }
+        }
+        var mName = String(mem.name || "").trim();
+        var mEmail = String(mem.email || "").trim();
+        if (!mName && !mEmail) continue;
+
+        var mPhone = cleanPhone(mem.phone);
+        var mCollege = String(mem.collegeName || mem.college || d.collegeName || d.college || "").trim();
+
+        allSheetRows.push([
+          teamId, eventName, teamName, "MEMBER", mName, mEmail, mPhone, mCollege,
+          feeStatus, txId, screenshot, checkedIn, regDate
+        ]);
+
+        eventSheetRows.push([
+          teamId, teamName, "MEMBER", mName, mEmail, mPhone, mCollege,
+          feeStatus, txId, screenshot, checkedIn, regDate
+        ]);
+      }
+
+      return {
+        teamId: teamId,
+        eventName: eventName,
+        allSheetRows: allSheetRows,
+        eventSheetRows: eventSheetRows
+      };
+    }
+
+    function deleteTeamRowsFromSheet(sheet) {
+      // Helper to remove rows by Team ID (Col 1)
+      return function(targetTeamId) {
+        if (!sheet || !targetTeamId) return 0;
+        var lastRow = sheet.getLastRow();
+        if (lastRow <= 1) return 0;
+        var vals = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+        var removed = 0;
+        for (var r = vals.length - 1; r >= 0; r--) {
+          if (String(vals[r][0] || "").trim() === targetTeamId) {
+            sheet.deleteRow(r + 2);
+            removed++;
+          }
+        }
+        return removed;
+      };
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 1. FULL SYNC: Complete deterministic rebuild of all sheets (NO MERGES)
+    // ─────────────────────────────────────────────────────────────────────────
+    if (data.type === "full_sync") {
+      var allRows = data.allRows || [];
+      var teams = data.teams || [];
+
+      // A. Rebuild Master Sheet: "All Registrations"
+      var allSheet = ss.getSheetByName("All Registrations");
+      if (!allSheet) allSheet = ss.insertSheet("All Registrations");
+      allSheet.clear();
+      ensureHeader(allSheet, ALL_HEADERS);
 
       if (allRows.length > 0) {
         var sanitizedAllRows = allRows.map(function(r) {
           var rowArr = [];
           for (var c = 0; c < ALL_HEADERS.length; c++) {
-            rowArr.push(sanitizeCell(r[c], c === 5));
+            rowArr.push(sanitizeCell(r[c], c === 6)); // Col 7 (idx 6) is Phone
           }
           return rowArr;
         });
 
-        allSheet.getRange(2, 6, sanitizedAllRows.length, 1).setNumberFormat("@");
+        allSheet.getRange(2, 7, sanitizedAllRows.length, 1).setNumberFormat("@");
         allSheet.getRange(2, 1, sanitizedAllRows.length, ALL_HEADERS.length).setValues(sanitizedAllRows);
-
-        // Merge team rows vertically in All Registrations
-        var i = 0;
-        while (i < sanitizedAllRows.length) {
-          var currentId = sanitizedAllRows[i][12]; // Team ID is col 13 (idx 12)
-          var count = 1;
-          while (i + count < sanitizedAllRows.length && sanitizedAllRows[i + count][12] === currentId && currentId !== "") {
-            count++;
-          }
-          var startRow = i + 2;
-          if (count > 1) {
-            var mergeCols = [1, 2, 8, 9, 10, 11, 12, 13];
-            for (var m = 0; m < mergeCols.length; m++) {
-              allSheet.getRange(startRow, mergeCols[m], count, 1).mergeVertically();
-            }
-          }
-          allSheet.getRange(startRow, 1, count, ALL_HEADERS.length).setVerticalAlignment("middle");
-          i += count;
-        }
+        allSheet.getRange(2, 1, sanitizedAllRows.length, ALL_HEADERS.length).setVerticalAlignment("middle");
       }
 
-      // 2. Rebuild Event-Specific Sheets
-      var eventMap = {}; // eventName -> array of rows
+      // B. Group rows by resolved event name
+      var eventMap = {};
+      for (var k = 0; k < CONFIGURED_EVENT_SHEETS.length; k++) {
+        eventMap[CONFIGURED_EVENT_SHEETS[k]] = [];
+      }
+
       for (var t = 0; t < teams.length; t++) {
-        var team = teams[t];
-        var ev = team.leader.eventName;
-        if (!eventMap[ev]) eventMap[ev] = [];
-        
-        // Leader
-        eventMap[ev].push([
-          team.leader.teamId,
-          team.leader.teamName,
-          "LEADER",
-          team.leader.name,
-          team.leader.email,
-          cleanPhone(team.leader.phone),
-          team.leader.college,
-          team.leader.feeStatus,
-          team.leader.txId,
-          team.leader.screenshot,
-          team.leader.checkedIn,
-          team.leader.formattedDate
-        ]);
-
-        // Members
-        if (Array.isArray(team.members)) {
-          for (var mem = 0; mem < team.members.length; mem++) {
-            var m = team.members[mem];
-            eventMap[ev].push([
-              team.leader.teamId,
-              team.leader.teamName,
-              "MEMBER",
-              m.name,
-              m.email,
-              cleanPhone(m.phone),
-              m.college,
-              team.leader.feeStatus,
-              team.leader.txId,
-              team.leader.screenshot,
-              team.leader.checkedIn,
-              team.leader.formattedDate
-            ]);
+        var teamData = buildTeamRows(teams[t]);
+        var resolvedEv = resolveEventSheetName(teamData.eventName);
+        if (resolvedEv && eventMap.hasOwnProperty(resolvedEv)) {
+          for (var er = 0; er < teamData.eventSheetRows.length; er++) {
+            eventMap[resolvedEv].push(teamData.eventSheetRows[er]);
           }
         }
       }
 
-      // Write each event sheet
-      for (var evName in eventMap) {
-        var evSheet = getEventSheet(evName);
-        if (evSheet) {
-          evSheet.clear();
-          evSheet.getRange(1, 1, 1, EVENT_HEADERS.length).setValues([EVENT_HEADERS]);
-          evSheet.getRange(1, 1, 1, EVENT_HEADERS.length)
-            .setFontWeight("bold")
-            .setBackground("#0B192C")
-            .setFontColor("#FFFFFF")
-            .setVerticalAlignment("middle");
-          evSheet.setFrozenRows(1);
+      // C. Rebuild every configured event sheet
+      var syncedCount = 0;
+      for (var evIdx = 0; evIdx < CONFIGURED_EVENT_SHEETS.length; evIdx++) {
+        var sheetName = CONFIGURED_EVENT_SHEETS[evIdx];
+        var evSheet = ss.getSheetByName(sheetName);
+        if (!evSheet) evSheet = ss.insertSheet(sheetName);
+        evSheet.clear();
+        ensureHeader(evSheet, EVENT_HEADERS);
 
-          var evRows = eventMap[evName];
-          if (evRows.length > 0) {
-            var sanitizedEvRows = evRows.map(function(r) {
-              return r.map(function(cell, idx) { return sanitizeCell(cell, idx === 5); });
-            });
+        var evRows = eventMap[sheetName] || [];
+        if (evRows.length > 0) {
+          var sanitizedEvRows = evRows.map(function(r) {
+            return r.map(function(cell, idx) { return sanitizeCell(cell, idx === 5); }); // Col 6 (idx 5) is Phone
+          });
 
-            evSheet.getRange(2, 6, sanitizedEvRows.length, 1).setNumberFormat("@");
-            evSheet.getRange(2, 1, sanitizedEvRows.length, EVENT_HEADERS.length).setValues(sanitizedEvRows);
+          evSheet.getRange(2, 6, sanitizedEvRows.length, 1).setNumberFormat("@");
+          evSheet.getRange(2, 1, sanitizedEvRows.length, EVENT_HEADERS.length).setValues(sanitizedEvRows);
+          evSheet.getRange(2, 1, sanitizedEvRows.length, EVENT_HEADERS.length).setVerticalAlignment("middle");
+        }
+        syncedCount++;
+      }
 
-            // Merge team rows vertically
-            var j = 0;
-            while (j < sanitizedEvRows.length) {
-              var currId = sanitizedEvRows[j][0]; // Team ID is col 1 (idx 0)
-              var cnt = 1;
-              while (j + cnt < sanitizedEvRows.length && sanitizedEvRows[j + cnt][0] === currId && currId !== "") {
-                cnt++;
-              }
-              var sRow = j + 2;
-              if (cnt > 1) {
-                var evMergeCols = [1, 2, 8, 9, 10, 11, 12];
-                for (var em = 0; em < evMergeCols.length; em++) {
-                  evSheet.getRange(sRow, evMergeCols[em], cnt, 1).mergeVertically();
-                }
-              }
-              evSheet.getRange(sRow, 1, cnt, EVENT_HEADERS.length).setVerticalAlignment("middle");
-              j += cnt;
-            }
-          }
+      // D. Clean stale legacy sheets if present (e.g. FIFA)
+      var legacySheets = ["FIFA", "EA FC 26"];
+      for (var ls = 0; ls < legacySheets.length; ls++) {
+        var legacy = ss.getSheetByName(legacySheets[ls]);
+        if (legacy && legacy.getSheetName() !== "FC 26") {
+          try { legacy.clear(); } catch(e) {}
         }
       }
 
-      return ContentService.createTextOutput(JSON.stringify({ 
-        status: "success", 
-        action: "full_sync", 
+      return ContentService.createTextOutput(JSON.stringify({
+        status: "success",
+        action: "full_sync",
+        totalTeams: teams.length,
         totalAllRows: allRows.length,
-        totalTeams: teams.length
+        eventSheetsSynced: syncedCount
       })).setMimeType(ContentService.MimeType.JSON);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // INDIVIDUAL REGISTRATION SYNC (Create / In-Place Edit / Check-in / Paid)
+    // 2. INDIVIDUAL DELETE: Delete all rows matching Team ID
     // ─────────────────────────────────────────────────────────────────────────
-    if (data.type === "registration" || data.type === "edit_registration") {
-      var teamId = data.id || data.teamId || "";
-      var eventName = (data.eventName || "").trim();
-      var teamOrLeaderName = data.teamName || data.fullName || "";
-      var leaderEmail = (data.email || "").toLowerCase().trim();
-      var feeStatus = data.paymentStatus || "PENDING";
-      var txId = data.paymentRefId || "";
-      var screenshot = data.pictureUrl || "";
-      var checkedIn = (data.checkedIn === true || data.checkedIn === "Yes" || data.checkedIn === "YES") ? "Yes" : "No";
-      var regDate = data.createdAt || "";
-
-      // 1. Sync to "All Registrations"
-      var allSheet = ss.getSheetByName("All Registrations");
-      if (allSheet) {
-        var lastRow = allSheet.getLastRow();
-        var allMatchIndices = [];
-
-        if (lastRow > 1) {
-          var allValues = allSheet.getRange(2, 1, lastRow - 1, ALL_HEADERS.length).getValues();
-          for (var i = 0; i < allValues.length; i++) {
-            var row = allValues[i];
-            var rowTeamId = String(row[12] || "").trim();
-            var rowEmail = String(row[4] || "").toLowerCase().trim();
-            var rowEvent = String(row[0] || "").toLowerCase().trim();
-
-            if ((teamId && rowTeamId === teamId) ||
-                (eventName && rowEvent === eventName.toLowerCase() && leaderEmail && rowEmail === leaderEmail)) {
-              allMatchIndices.push(i + 2);
-            }
-          }
-        }
-
-        if (allMatchIndices.length > 0) {
-          // Edit existing rows in-place
-          for (var k = 0; k < allMatchIndices.length; k++) {
-            var rNum = allMatchIndices[k];
-            if (feeStatus) allSheet.getRange(rNum, 8).setValue(feeStatus);
-            if (txId) allSheet.getRange(rNum, 9).setValue(txId);
-            if (screenshot) allSheet.getRange(rNum, 10).setValue(screenshot);
-            if (data.checkedIn !== undefined) allSheet.getRange(rNum, 11).setValue(checkedIn);
-            if (teamId) allSheet.getRange(rNum, 13).setValue(teamId);
-          }
-        } else {
-          // Append new rows
-          var startRow = allSheet.getLastRow() + 1;
-          var newRows = [];
-          
-          newRows.push([
-            eventName, teamOrLeaderName, "LEADER", data.fullName || "", leaderEmail,
-            cleanPhone(data.phone), data.collegeName || "", feeStatus, txId, screenshot, checkedIn, regDate, teamId
-          ]);
-
-          if (Array.isArray(data.teamMembers)) {
-            for (var m = 0; m < data.teamMembers.length; m++) {
-              var mem = data.teamMembers[m];
-              var mName = mem.name || (typeof mem === "string" ? mem : "");
-              if (!mName && !mem.email) continue;
-              newRows.push([
-                eventName, teamOrLeaderName, "MEMBER", mName, mem.email || "",
-                cleanPhone(mem.phone), mem.collegeName || mem.college || data.collegeName || "",
-                feeStatus, txId, screenshot, checkedIn, regDate, teamId
-              ]);
-            }
-          }
-
-          allSheet.getRange(startRow, 1, newRows.length, ALL_HEADERS.length).setValues(newRows);
-          allSheet.getRange(startRow, 6, newRows.length, 1).setNumberFormat("@");
-
-          if (newRows.length > 1) {
-            var mergeCols = [1, 2, 8, 9, 10, 11, 12, 13];
-            for (var mc = 0; mc < mergeCols.length; mc++) {
-              allSheet.getRange(startRow, mergeCols[mc], newRows.length, 1).mergeVertically();
-            }
-          }
-          allSheet.getRange(startRow, 1, newRows.length, ALL_HEADERS.length).setVerticalAlignment("middle");
-        }
+    if (data.type === "delete_registration" || data.action === "delete") {
+      var delTeamId = String(data.teamId || data.id || "").trim();
+      if (!delTeamId) {
+        return ContentService.createTextOutput(JSON.stringify({
+          status: "error",
+          message: "Team ID is required for delete operation"
+        })).setMimeType(ContentService.MimeType.JSON);
       }
 
-      // 2. Sync to Specific Event Sheet
-      var evSheet = getEventSheet(eventName);
-      if (evSheet) {
-        var evLastRow = evSheet.getLastRow();
-        var evMatchIndices = [];
+      var totalRemoved = 0;
 
-        if (evLastRow > 1) {
-          var evValues = evSheet.getRange(2, 1, evLastRow - 1, EVENT_HEADERS.length).getValues();
-          for (var eIdx = 0; eIdx < evValues.length; eIdx++) {
-            var evRow = evValues[eIdx];
-            var evRowTeamId = String(evRow[0] || "").trim();
-            var evRowEmail = String(evRow[4] || "").toLowerCase().trim();
+      // Remove from All Registrations
+      var allSh = ss.getSheetByName("All Registrations");
+      if (allSh) totalRemoved += deleteTeamRowsFromSheet(allSh)(delTeamId);
 
-            if ((teamId && evRowTeamId === teamId) || (leaderEmail && evRowEmail === leaderEmail)) {
-              evMatchIndices.push(eIdx + 2);
-            }
-          }
-        }
-
-        if (evMatchIndices.length > 0) {
-          // Edit existing rows in-place
-          for (var ek = 0; ek < evMatchIndices.length; ek++) {
-            var evRNum = evMatchIndices[ek];
-            if (feeStatus) evSheet.getRange(evRNum, 8).setValue(feeStatus);
-            if (txId) evSheet.getRange(evRNum, 9).setValue(txId);
-            if (screenshot) evSheet.getRange(evRNum, 10).setValue(screenshot);
-            if (data.checkedIn !== undefined) evSheet.getRange(evRNum, 11).setValue(checkedIn);
-            if (teamId) evSheet.getRange(evRNum, 1).setValue(teamId);
-          }
-        } else {
-          // Append new rows
-          var evStartRow = evSheet.getLastRow() + 1;
-          var evNewRows = [];
-
-          evNewRows.push([
-            teamId, teamOrLeaderName, "LEADER", data.fullName || "", leaderEmail,
-            cleanPhone(data.phone), data.collegeName || "", feeStatus, txId, screenshot, checkedIn, regDate
-          ]);
-
-          if (Array.isArray(data.teamMembers)) {
-            for (var em = 0; em < data.teamMembers.length; em++) {
-              var eMem = data.teamMembers[em];
-              var emName = eMem.name || (typeof eMem === "string" ? eMem : "");
-              if (!emName && !eMem.email) continue;
-              evNewRows.push([
-                teamId, teamOrLeaderName, "MEMBER", emName, eMem.email || "",
-                cleanPhone(eMem.phone), eMem.collegeName || eMem.college || data.collegeName || "",
-                feeStatus, txId, screenshot, checkedIn, regDate
-              ]);
-            }
-          }
-
-          evSheet.getRange(evStartRow, 1, evNewRows.length, EVENT_HEADERS.length).setValues(evNewRows);
-          evSheet.getRange(evStartRow, 6, evNewRows.length, 1).setNumberFormat("@");
-
-          if (evNewRows.length > 1) {
-            var evMergeCols = [1, 2, 8, 9, 10, 11, 12];
-            for (var emc = 0; emc < evMergeCols.length; emc++) {
-              evSheet.getRange(evStartRow, evMergeCols[emc], evNewRows.length, 1).mergeVertically();
-            }
-          }
-          evSheet.getRange(evStartRow, 1, evNewRows.length, EVENT_HEADERS.length).setVerticalAlignment("middle");
-        }
+      // Remove from all event sheets
+      for (var es = 0; es < CONFIGURED_EVENT_SHEETS.length; es++) {
+        var evSh = ss.getSheetByName(CONFIGURED_EVENT_SHEETS[es]);
+        if (evSh) totalRemoved += deleteTeamRowsFromSheet(evSh)(delTeamId);
       }
 
-      return ContentService.createTextOutput(JSON.stringify({ status: "success" }))
-        .setMimeType(ContentService.MimeType.JSON);
+      return ContentService.createTextOutput(JSON.stringify({
+        status: "success",
+        action: "delete_registration",
+        teamId: delTeamId,
+        rowsRemoved: totalRemoved
+      })).setMimeType(ContentService.MimeType.JSON);
     }
 
-    return ContentService.createTextOutput(JSON.stringify({ status: "success" }))
-      .setMimeType(ContentService.MimeType.JSON);
+    // ─────────────────────────────────────────────────────────────────────────
+    // 3. INDIVIDUAL CREATE / EDIT: Atomic full-team replacement by Team ID
+    // ─────────────────────────────────────────────────────────────────────────
+    if (data.type === "registration" || data.type === "edit_registration") {
+      var reqTeamId = String(data.teamId || data.id || "").trim();
+      if (!reqTeamId) {
+        return ContentService.createTextOutput(JSON.stringify({
+          status: "error",
+          message: "Team ID is required for registration/edit operation"
+        })).setMimeType(ContentService.MimeType.JSON);
+      }
+
+      var parsedTeam = buildTeamRows(data);
+      var targetEvName = resolveEventSheetName(parsedTeam.eventName);
+      if (!targetEvName) {
+        return ContentService.createTextOutput(JSON.stringify({
+          status: "error",
+          message: "Unknown or unconfigured event: " + parsedTeam.eventName,
+          teamId: reqTeamId
+        })).setMimeType(ContentService.MimeType.JSON);
+      }
+
+      var removedCount = 0;
+
+      // A. Remove existing rows for this Team ID from All Registrations
+      var masterSheet = ss.getSheetByName("All Registrations");
+      if (!masterSheet) {
+        masterSheet = ss.insertSheet("All Registrations");
+        ensureHeader(masterSheet, ALL_HEADERS);
+      }
+      removedCount += deleteTeamRowsFromSheet(masterSheet)(reqTeamId);
+
+      // Append new complete team rows to All Registrations
+      var masterStartRow = masterSheet.getLastRow() + 1;
+      var sanitizedMaster = parsedTeam.allSheetRows.map(function(r) {
+        return r.map(function(cell, idx) { return sanitizeCell(cell, idx === 6); });
+      });
+
+      masterSheet.getRange(masterStartRow, 1, sanitizedMaster.length, ALL_HEADERS.length).setValues(sanitizedMaster);
+      masterSheet.getRange(masterStartRow, 7, sanitizedMaster.length, 1).setNumberFormat("@");
+      masterSheet.getRange(masterStartRow, 1, sanitizedMaster.length, ALL_HEADERS.length).setVerticalAlignment("middle");
+
+      // B. Remove existing rows for this Team ID from ALL event sheets (handles event reassignment)
+      for (var eIndex = 0; eIndex < CONFIGURED_EVENT_SHEETS.length; eIndex++) {
+        var checkSh = ss.getSheetByName(CONFIGURED_EVENT_SHEETS[eIndex]);
+        if (checkSh) removedCount += deleteTeamRowsFromSheet(checkSh)(reqTeamId);
+      }
+
+      // Append new complete team rows to Target Event Sheet
+      var targetSheet = ss.getSheetByName(targetEvName);
+      if (!targetSheet) {
+        targetSheet = ss.insertSheet(targetEvName);
+        ensureHeader(targetSheet, EVENT_HEADERS);
+      }
+
+      var eventStartRow = targetSheet.getLastRow() + 1;
+      var sanitizedEvent = parsedTeam.eventSheetRows.map(function(r) {
+        return r.map(function(cell, idx) { return sanitizeCell(cell, idx === 5); });
+      });
+
+      targetSheet.getRange(eventStartRow, 1, sanitizedEvent.length, EVENT_HEADERS.length).setValues(sanitizedEvent);
+      targetSheet.getRange(eventStartRow, 6, sanitizedEvent.length, 1).setNumberFormat("@");
+      targetSheet.getRange(eventStartRow, 1, sanitizedEvent.length, EVENT_HEADERS.length).setVerticalAlignment("middle");
+
+      return ContentService.createTextOutput(JSON.stringify({
+        status: "success",
+        action: data.type === "edit_registration" || data.action === "edit" ? "edit_registration" : "create_registration",
+        teamId: reqTeamId,
+        rowsWritten: parsedTeam.allSheetRows.length,
+        rowsRemoved: removedCount
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "success",
+      action: "noop"
+    })).setMimeType(ContentService.MimeType.JSON);
+
   } catch (error) {
-    return ContentService.createTextOutput(JSON.stringify({ status: "error", message: error.toString() }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "error",
+      message: error.toString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  } finally {
+    lock.releaseLock();
   }
 }
 

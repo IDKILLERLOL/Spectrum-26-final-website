@@ -223,7 +223,7 @@ export function cleanEventName(eventName: string): string {
   if (["singularity-strike", "singularity_strike", "code clash", "code_clash", "tech-solo-1"].includes(lower)) {
     return "Singularity Strike"
   } else if (["fifa", "fc26", "fc_26", "fc 26", "ea fc 26", "ea fc", "non-tech-1"].includes(lower)) {
-    return "EA FC 26"
+    return "FC 26"
   } else if (["dual-debug", "dual_debug", "tech-duo-1"].includes(lower)) {
     return "Dual Debug"
   } else if (["bgmi", "non-tech-3"].includes(lower)) {

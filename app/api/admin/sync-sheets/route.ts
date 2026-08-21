@@ -22,11 +22,7 @@ export async function POST() {
   const session = await getAdminSession()
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-  const allRegistrations = await listRegistrations()
-  // ONLY sync PAID / APPROVED registrations to Google Sheets
-  const registrations = allRegistrations.filter(
-    (r) => r.paymentStatus === "APPROVED" || r.paymentStatus === "PAID" || (r as any).feeStatus === "PAID"
-  )
+  const registrations = await listRegistrations()
 
   // Sort chronologically by createdAt timestamp (oldest first)
   registrations.sort((a, b) => {
@@ -55,6 +51,7 @@ export async function POST() {
 
     // 1. Leader Row for All Registrations
     allRows.push([
+      regId,
       eventName,
       teamOrLeaderName,
       "LEADER",
@@ -67,23 +64,7 @@ export async function POST() {
       screenshot,
       checkedIn,
       formattedDate,
-      regId,
     ])
-
-    const leader = {
-      eventName,
-      teamId: regId,
-      teamName: teamOrLeaderName,
-      name: reg.fullName || "",
-      email: reg.userEmail || "",
-      phone: cleanPhone(reg.phone),
-      college: reg.collegeName || "",
-      feeStatus,
-      txId,
-      screenshot,
-      checkedIn,
-      formattedDate,
-    }
 
     const members: any[] = []
 
@@ -96,6 +77,7 @@ export async function POST() {
         const memCollege = m.collegeName || m.college || reg.collegeName || ""
 
         allRows.push([
+          regId,
           eventName,
           teamOrLeaderName,
           "MEMBER",
@@ -108,7 +90,6 @@ export async function POST() {
           screenshot,
           checkedIn,
           formattedDate,
-          regId,
         ])
 
         members.push({
@@ -120,7 +101,21 @@ export async function POST() {
       }
     }
 
-    teams.push({ leader, members })
+    teams.push({
+      teamId: regId,
+      eventName,
+      teamName: teamOrLeaderName,
+      fullName: reg.fullName || "",
+      email: reg.userEmail || "",
+      phone: cleanPhone(reg.phone),
+      collegeName: reg.collegeName || "",
+      paymentStatus: feeStatus,
+      paymentRefId: txId,
+      pictureUrl: screenshot,
+      checkedIn,
+      createdAt: formattedDate,
+      teamMembers: members,
+    })
   }
 
   // Send full_sync batch payload to Google Apps Script
