@@ -136,14 +136,14 @@ export async function POST() {
     action: "MANUAL_SHEETS_SYNC",
     targetCollection: "registrations",
     targetId: "*",
-    metadata: { totalRegistrations: registrations.length, totalRows: rows.length, success: ok },
+    metadata: { totalRegistrations: registrations.length, totalRows: allRows.length, success: ok },
   })
 
   if (!ok) {
     return NextResponse.json({
       ok: false,
       total: registrations.length,
-      rows: rows.length,
+      rows: allRows.length,
       error: "Google Apps Script syncToSheet returned false. Ensure Apps Script is updated and deployed.",
     }, { status: 500 })
   }
@@ -151,7 +151,7 @@ export async function POST() {
   return NextResponse.json({
     ok: true,
     total: registrations.length,
-    rows: rows.length,
-    message: `Successfully rebuilt sheet with ${rows.length} rows across ${registrations.length} registrations.`,
+    rows: allRows.length,
+    message: `Successfully rebuilt sheet with ${allRows.length} rows across ${registrations.length} registrations.`,
   })
 }
