@@ -108,13 +108,23 @@ export async function syncToSheet(payload: object): Promise<boolean> {
       const teamOrName = p.teamName || p.fullName || ""
       const regId = p.id || p.teamId || ""
 
-      const members = (p.teamMembers || []).map((m: any) => ({
-        name: m.name || (typeof m === "string" ? m : ""),
-        email: m.email || "",
-        phone: m.phone || "",
-        collegeName: m.college || m.collegeName || "",
-        year: m.year || "",
-      }))
+      const members = (p.teamMembers || []).map((m: any) => {
+        let mObj = m
+        if (typeof m === "string") {
+          try {
+            mObj = JSON.parse(m)
+          } catch {
+            mObj = { name: m }
+          }
+        }
+        return {
+          name: mObj?.name || (typeof mObj === "string" ? mObj : ""),
+          email: mObj?.email || "",
+          phone: cleanPhone(mObj?.phone),
+          collegeName: mObj?.collegeName || mObj?.college || p.collegeName || "",
+          year: mObj?.year || "",
+        }
+      })
 
       const checkedInVal =
         p.checkedIn === true || p.checkedIn === "Yes" || p.checkedIn === "YES"
@@ -128,11 +138,11 @@ export async function syncToSheet(payload: object): Promise<boolean> {
         action,
         id: regId,
         teamId: regId,
-        eventName: p.eventName || "",
+        eventName: cleanEventName(p.eventName || ""),
         teamName: teamOrName,
         fullName: p.fullName || "",
         email: p.email || "",
-        phone: p.phone || "",
+        phone: cleanPhone(p.phone),
         collegeName: p.collegeName || "",
         year: p.year || "",
         paymentStatus: p.paymentStatus || "PENDING",

@@ -640,11 +640,11 @@ export function RegistrationsAdminClient({
                       {reg.checkedIn ? "Checked In" : "Checked Out"}
                     </button>
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-xs text-neutral-400">
+                  <td className="px-4 py-3 whitespace-nowrap text-xs text-neutral-400" suppressHydrationWarning>
                     {reg.createdAt ? (
-                      <div>
-                        <div>{new Date(reg.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</div>
-                        <div className="text-[10px] text-neutral-500">{new Date(reg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                      <div suppressHydrationWarning>
+                        <div suppressHydrationWarning>{new Date(reg.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+                        <div suppressHydrationWarning className="text-[10px] text-neutral-500">{new Date(reg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                       </div>
                     ) : (
                       '-'
@@ -774,11 +774,11 @@ export function RegistrationsAdminClient({
                             </div>
                             <div>
                               <p className="text-xs text-neutral-500 mb-1">Created At</p>
-                              <p className="text-sm font-medium">{formatDateTime(reg.createdAt)}</p>
+                              <p className="text-sm font-medium" suppressHydrationWarning>{formatDateTime(reg.createdAt)}</p>
                             </div>
                             <div>
                               <p className="text-xs text-neutral-500 mb-1">Updated At</p>
-                              <p className="text-sm font-medium">{formatDateTime(reg.updatedAt)}</p>
+                              <p className="text-sm font-medium" suppressHydrationWarning>{formatDateTime(reg.updatedAt)}</p>
                             </div>
                           </div>
                         </div>
@@ -828,7 +828,7 @@ export function RegistrationsAdminClient({
         <div>
           Showing {filtered().length} of {rows.length} registrations
         </div>
-        <div>
+        <div suppressHydrationWarning>
           Last updated: {lastUpdated}
         </div>
       </div>
