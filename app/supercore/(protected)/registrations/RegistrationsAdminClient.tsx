@@ -76,16 +76,21 @@ export function RegistrationsAdminClient({
   // Client-side filter & sort on pre-fetched data
   const filtered = useCallback(() => {
     return rows.filter((r) => {
-      const q = filter.toLowerCase()
+      const q = filter.toLowerCase().trim()
       const matchesSearch = !q || (
         r.reg.id.toLowerCase().includes(q) ||
         r.reg.fullName.toLowerCase().includes(q) ||
         r.reg.userEmail.toLowerCase().includes(q) ||
         r.reg.eventName.toLowerCase().includes(q) ||
+        (r.reg.teamName && r.reg.teamName.toLowerCase().includes(q)) ||
+        (r.reg.paymentRefId && r.reg.paymentRefId.toLowerCase().includes(q)) ||
         r.reg.teamMembers.some((m) => m.name.toLowerCase().includes(q))
       )
 
-      const matchesEvent = selectedEventId === 'all' || r.reg.eventId === selectedEventId
+      const matchesEvent = selectedEventId === 'all' || 
+        r.reg.eventId === selectedEventId || 
+        r.reg.eventName === selectedEventId ||
+        (r.reg.eventName && r.reg.eventName.toLowerCase() === selectedEventId.toLowerCase())
 
       const matchesPayment = selectedPaymentStatus === 'all' || r.reg.paymentStatus === selectedPaymentStatus
 
@@ -95,31 +100,93 @@ export function RegistrationsAdminClient({
       return matchesSearch && matchesEvent && matchesPayment && matchesCheckIn
     }).sort((a, b) => {
       switch (sortBy) {
+        // Date
         case 'date-asc':
           return new Date(a.reg.createdAt || 0).getTime() - new Date(b.reg.createdAt || 0).getTime()
         case 'date-desc':
           return new Date(b.reg.createdAt || 0).getTime() - new Date(a.reg.createdAt || 0).getTime()
-        case 'team-asc':
-          return (a.reg.teamName || '').localeCompare(b.reg.teamName || '')
-        case 'team-desc':
-          return (b.reg.teamName || '').localeCompare(a.reg.teamName || '')
+
+        // Event
+        case 'event-asc':
+          return (a.reg.eventName || '').localeCompare(b.reg.eventName || '')
+        case 'event-desc':
+          return (b.reg.eventName || '').localeCompare(a.reg.eventName || '')
+
+        // Payment / Fee Status
+        case 'payment-asc': {
+          const rank: Record<string, number> = { APPROVED: 1, PAID: 1, PENDING: 2, REJECTED: 3 }
+          const rA = rank[a.reg.paymentStatus] ?? 99
+          const rB = rank[b.reg.paymentStatus] ?? 99
+          if (rA !== rB) return rA - rB
+          return (a.reg.paymentStatus || '').localeCompare(b.reg.paymentStatus || '')
+        }
+        case 'payment-desc': {
+          const rank: Record<string, number> = { REJECTED: 1, PENDING: 2, APPROVED: 3, PAID: 3 }
+          const rA = rank[a.reg.paymentStatus] ?? 99
+          const rB = rank[b.reg.paymentStatus] ?? 99
+          if (rA !== rB) return rA - rB
+          return (b.reg.paymentStatus || '').localeCompare(a.reg.paymentStatus || '')
+        }
+
+        // Check-in Status
+        case 'checkin-asc':
+          return (b.reg.checkedIn ? 1 : 0) - (a.reg.checkedIn ? 1 : 0)
+        case 'checkin-desc':
+          return (a.reg.checkedIn ? 1 : 0) - (b.reg.checkedIn ? 1 : 0)
+
+        // Team Name
+        case 'team-asc': {
+          const nameA = a.reg.teamName || a.reg.fullName || ''
+          const nameB = b.reg.teamName || b.reg.fullName || ''
+          return nameA.localeCompare(nameB)
+        }
+        case 'team-desc': {
+          const nameA = a.reg.teamName || a.reg.fullName || ''
+          const nameB = b.reg.teamName || b.reg.fullName || ''
+          return nameB.localeCompare(nameA)
+        }
+
+        // Leader Name
         case 'leader-asc':
-          {
-            const leaderA = a.reg.teamMembers.find((m) => m.name.toLowerCase() !== '')
-            const leaderB = b.reg.teamMembers.find((m) => m.name.toLowerCase() !== '')
-            return (leaderA?.name || '').localeCompare(leaderB?.name || '')
-          }
+          return (a.reg.fullName || '').localeCompare(b.reg.fullName || '')
         case 'leader-desc':
-          {
-            const leaderA = a.reg.teamMembers.find((m) => m.name.toLowerCase() !== '')
-            const leaderB = b.reg.teamMembers.find((m) => m.name.toLowerCase() !== '')
-            return (leaderB?.name || '').localeCompare(leaderA?.name || '')
-          }
+          return (b.reg.fullName || '').localeCompare(a.reg.fullName || '')
+
+        // Amount Paid
+        case 'amount-desc':
+          return (b.reg.amountPaid || 0) - (a.reg.amountPaid || 0)
+        case 'amount-asc':
+          return (a.reg.amountPaid || 0) - (b.reg.amountPaid || 0)
+
         default:
           return 0
       }
     })
   }, [rows, filter, selectedEventId, selectedPaymentStatus, selectedCheckInStatus, sortBy])
+
+  const toggleSort = (column: string) => {
+    if (sortBy === `${column}-asc`) {
+      setSortBy(`${column}-desc`)
+    } else if (sortBy === `${column}-desc`) {
+      setSortBy(`${column}-asc`)
+    } else {
+      if (column === 'date' || column === 'amount') {
+        setSortBy(`${column}-desc`)
+      } else {
+        setSortBy(`${column}-asc`)
+      }
+    }
+  }
+
+  const renderSortIndicator = (column: string) => {
+    if (sortBy === `${column}-asc`) {
+      return <span className="ml-1 text-amber-400 font-bold">↑</span>
+    }
+    if (sortBy === `${column}-desc`) {
+      return <span className="ml-1 text-amber-400 font-bold">↓</span>
+    }
+    return <span className="ml-1 text-neutral-600 opacity-40 group-hover:opacity-100">⇅</span>
+  }
 
   const reload = useCallback(async () => {
     setLoading(true)
@@ -402,31 +469,101 @@ export function RegistrationsAdminClient({
             onChange={(e) => setSortBy(e.target.value)}
             className="px-3 py-1.5 rounded border border-neutral-700 bg-neutral-900 text-neutral-100 focus:border-amber-400 focus:outline-none"
           >
-            <option value="date-desc">Date (Newest)</option>
-            <option value="date-asc">Date (Oldest)</option>
+            <option value="date-desc">Date (Newest First)</option>
+            <option value="date-asc">Date (Oldest First)</option>
+            <option value="event-asc">Event (A-Z)</option>
+            <option value="event-desc">Event (Z-A)</option>
+            <option value="payment-asc">Payment (Approved First)</option>
+            <option value="payment-desc">Payment (Pending/Rejected First)</option>
+            <option value="checkin-asc">Check-in (Checked-in First)</option>
+            <option value="checkin-desc">Check-in (Not Checked-in First)</option>
             <option value="team-asc">Team Name (A-Z)</option>
             <option value="team-desc">Team Name (Z-A)</option>
             <option value="leader-asc">Leader Name (A-Z)</option>
             <option value="leader-desc">Leader Name (Z-A)</option>
+            <option value="amount-desc">Amount (High to Low)</option>
+            <option value="amount-asc">Amount (Low to High)</option>
           </select>
         </div>
       </div>
 
-
-
       {/* Main table */}
-      <div className="w-full">
+      <div className="w-full overflow-x-auto">
         <table className="w-full text-left text-sm border-collapse">
           <thead>
-            <tr className="text-left text-xs font-medium text-neutral-400">
-              <th className="whitespace-nowrap px-4 py-3">Event</th>
-              <th className="whitespace-nowrap px-4 py-3">Team</th>
-              <th className="whitespace-nowrap px-4 py-3">Leader</th>
+            <tr className="text-left text-xs font-medium text-neutral-400 select-none">
+              <th 
+                onClick={() => toggleSort('event')}
+                className="whitespace-nowrap px-4 py-3 cursor-pointer group hover:text-neutral-200 transition-colors"
+                title="Sort by Event"
+              >
+                <div className="flex items-center gap-1">
+                  <span>Event</span>
+                  {renderSortIndicator('event')}
+                </div>
+              </th>
+              <th 
+                onClick={() => toggleSort('team')}
+                className="whitespace-nowrap px-4 py-3 cursor-pointer group hover:text-neutral-200 transition-colors"
+                title="Sort by Team Name"
+              >
+                <div className="flex items-center gap-1">
+                  <span>Team</span>
+                  {renderSortIndicator('team')}
+                </div>
+              </th>
+              <th 
+                onClick={() => toggleSort('leader')}
+                className="whitespace-nowrap px-4 py-3 cursor-pointer group hover:text-neutral-200 transition-colors"
+                title="Sort by Leader Name"
+              >
+                <div className="flex items-center gap-1">
+                  <span>Leader</span>
+                  {renderSortIndicator('leader')}
+                </div>
+              </th>
               <th className="whitespace-nowrap px-4 py-3">Members</th>
-              <th className="whitespace-nowrap px-4 py-3">Fee Status</th>
-              <th className="whitespace-nowrap px-4 py-3">Amount</th>
+              <th 
+                onClick={() => toggleSort('payment')}
+                className="whitespace-nowrap px-4 py-3 cursor-pointer group hover:text-neutral-200 transition-colors"
+                title="Sort by Payment Status"
+              >
+                <div className="flex items-center gap-1">
+                  <span>Fee Status</span>
+                  {renderSortIndicator('payment')}
+                </div>
+              </th>
+              <th 
+                onClick={() => toggleSort('amount')}
+                className="whitespace-nowrap px-4 py-3 cursor-pointer group hover:text-neutral-200 transition-colors"
+                title="Sort by Amount Paid"
+              >
+                <div className="flex items-center gap-1">
+                  <span>Amount</span>
+                  {renderSortIndicator('amount')}
+                </div>
+              </th>
               <th className="whitespace-nowrap px-4 py-3">UPI Ref</th>
-              <th className="whitespace-nowrap px-4 py-3">Checked In</th>
+              <th 
+                onClick={() => toggleSort('checkin')}
+                className="whitespace-nowrap px-4 py-3 cursor-pointer group hover:text-neutral-200 transition-colors"
+                title="Sort by Check-in Status"
+              >
+                <div className="flex items-center gap-1">
+                  <span>Checked In</span>
+                  {renderSortIndicator('checkin')}
+                </div>
+              </th>
+              <th 
+                onClick={() => toggleSort('date')}
+                className="whitespace-nowrap px-4 py-3 cursor-pointer group hover:text-neutral-200 transition-colors"
+                title="Sort by Date"
+              >
+                <div className="flex items-center gap-1">
+                  <span>Date</span>
+                  {renderSortIndicator('date')}
+                </div>
+              </th>
               <th className="whitespace-nowrap px-4 py-3">Actions</th>
             </tr>
           </thead>
@@ -503,6 +640,16 @@ export function RegistrationsAdminClient({
                       {reg.checkedIn ? "Checked In" : "Checked Out"}
                     </button>
                   </td>
+                  <td className="px-4 py-3 whitespace-nowrap text-xs text-neutral-400">
+                    {reg.createdAt ? (
+                      <div>
+                        <div>{new Date(reg.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+                        <div className="text-[10px] text-neutral-500">{new Date(reg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                      </div>
+                    ) : (
+                      '-'
+                    )}
+                  </td>
                   <td className="px-4 py-3 whitespace-nowrap text-right space-x-2" onClick={(e) => e.stopPropagation()}>
                     <button
                       onClick={() => {
@@ -531,7 +678,7 @@ export function RegistrationsAdminClient({
                 {/* Expandable details row */}
                 {expandedId === reg.id && (
                   <tr className="bg-neutral-900/50">
-                    <td colSpan={9} className="px-4 py-4">
+                    <td colSpan={10} className="px-4 py-4">
                       <div className="space-y-4">
                         <div className="flex items-center justify-between border-b border-neutral-800 pb-3">
                           <h4 className="font-semibold text-sm text-white">
