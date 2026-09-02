@@ -248,17 +248,7 @@ export function buildRegistrationRow(input: RegistrationSheetRow) {
 }
 
 export function buildDeleteRegistrationRow(input: { id: string; eventName: string; teamName?: string; email?: string }) {
-  let eventName = input.eventName
-  const lower = (eventName || "").toLowerCase().trim()
-  if (["singularity-strike", "singularity_strike", "code clash", "code_clash", "tech-solo-1"].includes(lower)) {
-    eventName = "Singularity Strike"
-  } else if (["fifa", "fc26", "fc_26", "fc 26", "non-tech-1"].includes(lower)) {
-    eventName = "FC 26"
-  } else if (["dual-debug", "dual_debug", "tech-duo-1"].includes(lower)) {
-    eventName = "Dual Debug"
-  } else if (["bgmi", "non-tech-3"].includes(lower)) {
-    eventName = "BGMI"
-  }
+  const eventName = cleanEventName(input.eventName)
   return {
     type: "delete_registration",
     id: input.id,

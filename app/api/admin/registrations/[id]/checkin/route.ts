@@ -39,7 +39,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       ? existing.createdAt.toISOString() 
       : (existing.createdAt as any)?.toDate?.()?.toISOString() || new Date().toISOString()
 
-    syncToSheet(
+    const ok = await syncToSheet(
       buildRegistrationRow({
         type: "registration",
         action: "edit",
@@ -60,9 +60,8 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         pictureUrl: existing.pictureUrl || "",
         teamMembers: existing.teamMembers || [],
       })
-    ).then((ok) => {
-      setSheetsSyncStatus(id, ok ? "SYNCED" : "FAILED")
-    })
+    )
+    await setSheetsSyncStatus(id, ok ? "SYNCED" : "FAILED")
   } catch (err) {
     console.error("[checkin route] sheets sync failed:", err)
   }
