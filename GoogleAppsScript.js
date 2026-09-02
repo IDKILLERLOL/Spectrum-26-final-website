@@ -1,3 +1,15 @@
+/**
+ * Spectrum 26 — Google Sheets Sync Apps Script
+ *
+ * Schema — All Registrations (11 cols, no Team ID, no Payment Screenshot):
+ *   Event Name | Team Name | Role | Name | Email | Phone | College | Fee Status | Transaction ID / Ref | Checked In | Registered At
+ *
+ * Schema — Event Sheets (10 cols, no Event Name, no Team ID, no Payment Screenshot):
+ *   Team Name | Role | Name | Email | Phone | College | Fee Status | Transaction ID / Ref | Checked In | Registered At
+ *
+ * Identity key for delete/replace: Team Name (unique, enforced by registration form)
+ */
+
 function doPost(e) {
   // Concurrency Lock: Ensure deterministic, serialized executions
   var lock = LockService.getScriptLock();
@@ -58,18 +70,24 @@ function doPost(e) {
 
     var ss = SpreadsheetApp.openById(spreadsheetId);
 
-    // Flat, sortable, machine-readable headers (NO MERGED CELLS)
+    // Flat, machine-readable headers — NO Team ID, NO Payment Screenshot
+    // All Registrations (11 cols): includes Event Name
     var ALL_HEADERS = [
-      "Team ID", "Event Name", "Team Name", "Role", "Name", "Email", 
-      "Phone", "College", "Fee Status", "Transaction ID / Ref", 
-      "Payment Screenshot", "Checked In", "Registered At"
+      "Event Name", "Team Name", "Role", "Name", "Email",
+      "Phone", "College", "Fee Status", "Transaction ID / Ref",
+      "Checked In", "Registered At"
     ];
+    var ALL_PHONE_COL     = 5; // 0-based index of Phone in ALL_HEADERS
+    var ALL_TEAM_NAME_COL = 1; // 0-based index of Team Name in ALL_HEADERS (delete key)
 
+    // Event Sheets (10 cols): no Event Name column
     var EVENT_HEADERS = [
-      "Team ID", "Team Name", "Role", "Name", "Email", 
-      "Phone", "College", "Fee Status", "Transaction ID / Ref", 
-      "Payment Screenshot", "Checked In", "Registered At"
+      "Team Name", "Role", "Name", "Email", "Phone",
+      "College", "Fee Status", "Transaction ID / Ref",
+      "Checked In", "Registered At"
     ];
+    var EVENT_PHONE_COL     = 4; // 0-based index of Phone in EVENT_HEADERS
+    var EVENT_TEAM_NAME_COL = 0; // 0-based index of Team Name in EVENT_HEADERS (delete key)
 
     // Explicit deterministic mapping for event sheets
     var EVENT_SHEET_MAP = {
@@ -99,8 +117,10 @@ function doPost(e) {
     function resolveEventSheetName(rawEventName) {
       if (!rawEventName) return null;
       var key = String(rawEventName).toLowerCase().trim();
-      if (EVENT_SHEET_MAP.hasOwnProperty(key)) {
-        return EVENT_SHEET_MAP[key];
+      if (EVENT_SHEET_MAP.hasOwnProperty(key)) return EVENT_SHEET_MAP[key];
+      // Fallback: direct match (case-insensitive)
+      for (var i = 0; i < CONFIGURED_EVENT_SHEETS.length; i++) {
+        if (CONFIGURED_EVENT_SHEETS[i].toLowerCase() === key) return CONFIGURED_EVENT_SHEETS[i];
       }
       return null;
     }
@@ -116,7 +136,7 @@ function doPost(e) {
       if (val === null || val === undefined) return "";
       var str = String(val).trim();
       if (isPhone && str.charAt(0) === "+") str = str.substring(1).trim();
-      if (str.charAt(0) === "=" || str.charAt(0) === "+" || str.charAt(0) === "@" || str.charAt(0) === "-") {
+      if (str.charAt(0) === "=" || str.charAt(0) === "@" || str.charAt(0) === "-") {
         return "'" + str;
       }
       return str;
@@ -132,91 +152,98 @@ function doPost(e) {
       sheet.setFrozenRows(1);
     }
 
+    /**
+     * Builds flat row arrays for a registration.
+     *
+     * allSheetRow:   [Event Name, Team Name, Role, Name, Email, Phone, College, Fee Status, Txn ID, Checked In, Reg At]
+     * eventSheetRow: [Team Name, Role, Name, Email, Phone, College, Fee Status, Txn ID, Checked In, Reg At]
+     */
     function buildTeamRows(d) {
-      var teamId = String(d.teamId || d.id || "").trim();
       var eventName = resolveEventSheetName(d.eventName) || String(d.eventName || "").trim();
-      var teamName = String(d.teamName || d.fullName || "").trim();
+      var teamName  = String(d.teamName || d.fullName || "").trim();
       var feeStatus = String(d.paymentStatus || d.feeStatus || "PENDING").trim();
-      var txId = String(d.paymentRefId || d.upiTransactionRef || "").trim();
-      var screenshot = String(d.pictureUrl || d.photoUrl || d.paymentScreenshot || "").trim();
+      var txId      = String(d.paymentRefId || d.upiTransactionRef || "").trim();
       var checkedIn = (d.checkedIn === true || d.checkedIn === "Yes" || d.checkedIn === "YES") ? "Yes" : "No";
-      var regDate = String(d.createdAt || "").trim();
+      var regDate   = String(d.createdAt || "").trim();
 
-      var allSheetRows = [];
+      var leaderName    = String(d.fullName || d.name || "").trim();
+      var leaderEmail   = String(d.email || d.userEmail || "").trim();
+      var leaderPhone   = cleanPhone(d.phone);
+      var leaderCollege = String(d.collegeName || d.college || "").trim();
+
+      var allSheetRows   = [];
       var eventSheetRows = [];
 
-      // Leader Row
+      // Leader row
       allSheetRows.push([
-        teamId, eventName, teamName, "LEADER", String(d.fullName || d.name || "").trim(),
-        String(d.email || d.userEmail || "").trim(), cleanPhone(d.phone),
-        String(d.collegeName || d.college || "").trim(), feeStatus, txId, screenshot, checkedIn, regDate
+        eventName, teamName, "LEADER", leaderName, leaderEmail,
+        leaderPhone, leaderCollege, feeStatus, txId, checkedIn, regDate
       ]);
-
       eventSheetRows.push([
-        teamId, teamName, "LEADER", String(d.fullName || d.name || "").trim(),
-        String(d.email || d.userEmail || "").trim(), cleanPhone(d.phone),
-        String(d.collegeName || d.college || "").trim(), feeStatus, txId, screenshot, checkedIn, regDate
+        teamName, "LEADER", leaderName, leaderEmail,
+        leaderPhone, leaderCollege, feeStatus, txId, checkedIn, regDate
       ]);
 
-      // Member Rows
+      // Member rows
       var rawMembers = Array.isArray(d.teamMembers) ? d.teamMembers : [];
-      for (var m = 0; m < rawMembers.length; m++) {
-        var mem = rawMembers[m];
+      for (var mi = 0; mi < rawMembers.length; mi++) {
+        var mem = rawMembers[mi];
         if (typeof mem === "string") {
-          try { mem = JSON.parse(mem); } catch(e) { mem = { name: mem }; }
+          try { mem = JSON.parse(mem); } catch(ex) { mem = { name: mem }; }
         }
-        var mName = String(mem.name || "").trim();
-        var mEmail = String(mem.email || "").trim();
+        var mName    = String(mem.name || "").trim();
+        var mEmail   = String(mem.email || "").trim();
         if (!mName && !mEmail) continue;
-
-        var mPhone = cleanPhone(mem.phone);
+        var mPhone   = cleanPhone(mem.phone);
         var mCollege = String(mem.collegeName || mem.college || d.collegeName || d.college || "").trim();
 
         allSheetRows.push([
-          teamId, eventName, teamName, "MEMBER", mName, mEmail, mPhone, mCollege,
-          feeStatus, txId, screenshot, checkedIn, regDate
+          eventName, teamName, "MEMBER", mName, mEmail,
+          mPhone, mCollege, feeStatus, txId, checkedIn, regDate
         ]);
-
         eventSheetRows.push([
-          teamId, teamName, "MEMBER", mName, mEmail, mPhone, mCollege,
-          feeStatus, txId, screenshot, checkedIn, regDate
+          teamName, "MEMBER", mName, mEmail,
+          mPhone, mCollege, feeStatus, txId, checkedIn, regDate
         ]);
       }
 
       return {
-        teamId: teamId,
-        eventName: eventName,
-        allSheetRows: allSheetRows,
+        teamName:       teamName,
+        eventName:      eventName,
+        allSheetRows:   allSheetRows,
         eventSheetRows: eventSheetRows
       };
     }
 
-    function deleteTeamRowsFromSheet(sheet) {
-      // Helper to remove rows by Team ID (Col 1)
-      return function(targetTeamId) {
-        if (!sheet || !targetTeamId) return 0;
-        var lastRow = sheet.getLastRow();
-        if (lastRow <= 1) return 0;
-        var vals = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
-        var removed = 0;
-        for (var r = vals.length - 1; r >= 0; r--) {
-          if (String(vals[r][0] || "").trim() === targetTeamId) {
-            sheet.deleteRow(r + 2);
-            removed++;
-          }
+    /**
+     * Deletes all rows from sheet where column teamNameColIdx (0-based) equals targetTeamName.
+     * Iterates backwards to keep row indices stable after deletions.
+     * Returns count of deleted rows.
+     */
+    function deleteTeamRowsByName(sheet, targetTeamName, teamNameColIdx) {
+      if (!sheet || !targetTeamName) return 0;
+      var lastRow = sheet.getLastRow();
+      if (lastRow <= 1) return 0;
+      var numDataRows = lastRow - 1;
+      var vals = sheet.getRange(2, teamNameColIdx + 1, numDataRows, 1).getValues();
+      var removed = 0;
+      for (var r = vals.length - 1; r >= 0; r--) {
+        if (String(vals[r][0] || "").trim() === targetTeamName) {
+          sheet.deleteRow(r + 2); // +2: 1-based + header row offset
+          removed++;
         }
-        return removed;
-      };
+      }
+      return removed;
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // 1. FULL SYNC: Complete deterministic rebuild of all sheets (NO MERGES)
+    // 1. FULL SYNC: Complete deterministic rebuild of all sheets
     // ─────────────────────────────────────────────────────────────────────────
     if (data.type === "full_sync") {
       var allRows = data.allRows || [];
-      var teams = data.teams || [];
+      var teams   = data.teams   || [];
 
-      // A. Rebuild Master Sheet: "All Registrations"
+      // A. Rebuild All Registrations
       var allSheet = ss.getSheetByName("All Registrations");
       if (!allSheet) allSheet = ss.insertSheet("All Registrations");
       allSheet.clear();
@@ -224,26 +251,22 @@ function doPost(e) {
 
       if (allRows.length > 0) {
         var sanitizedAllRows = allRows.map(function(r) {
-          var rowArr = [];
-          for (var c = 0; c < ALL_HEADERS.length; c++) {
-            rowArr.push(sanitizeCell(r[c], c === 6)); // Col 7 (idx 6) is Phone
-          }
-          return rowArr;
+          return r.map(function(cell, idx) {
+            return sanitizeCell(cell, idx === ALL_PHONE_COL);
+          });
         });
-
-        allSheet.getRange(2, 7, sanitizedAllRows.length, 1).setNumberFormat("@");
+        allSheet.getRange(2, ALL_PHONE_COL + 1, sanitizedAllRows.length, 1).setNumberFormat("@");
         allSheet.getRange(2, 1, sanitizedAllRows.length, ALL_HEADERS.length).setValues(sanitizedAllRows);
         allSheet.getRange(2, 1, sanitizedAllRows.length, ALL_HEADERS.length).setVerticalAlignment("middle");
       }
 
-      // B. Group rows by resolved event name
+      // B. Group event-sheet rows by resolved event name
       var eventMap = {};
       for (var k = 0; k < CONFIGURED_EVENT_SHEETS.length; k++) {
         eventMap[CONFIGURED_EVENT_SHEETS[k]] = [];
       }
-
       for (var t = 0; t < teams.length; t++) {
-        var teamData = buildTeamRows(teams[t]);
+        var teamData  = buildTeamRows(teams[t]);
         var resolvedEv = resolveEventSheetName(teamData.eventName);
         if (resolvedEv && eventMap.hasOwnProperty(resolvedEv)) {
           for (var er = 0; er < teamData.eventSheetRows.length; er++) {
@@ -252,11 +275,11 @@ function doPost(e) {
         }
       }
 
-      // C. Rebuild every configured event sheet
+      // C. Rebuild each configured event sheet
       var syncedCount = 0;
       for (var evIdx = 0; evIdx < CONFIGURED_EVENT_SHEETS.length; evIdx++) {
         var sheetName = CONFIGURED_EVENT_SHEETS[evIdx];
-        var evSheet = ss.getSheetByName(sheetName);
+        var evSheet   = ss.getSheetByName(sheetName);
         if (!evSheet) evSheet = ss.insertSheet(sheetName);
         evSheet.clear();
         ensureHeader(evSheet, EVENT_HEADERS);
@@ -264,115 +287,107 @@ function doPost(e) {
         var evRows = eventMap[sheetName] || [];
         if (evRows.length > 0) {
           var sanitizedEvRows = evRows.map(function(r) {
-            return r.map(function(cell, idx) { return sanitizeCell(cell, idx === 5); }); // Col 6 (idx 5) is Phone
+            return r.map(function(cell, idx) { return sanitizeCell(cell, idx === EVENT_PHONE_COL); });
           });
-
-          evSheet.getRange(2, 6, sanitizedEvRows.length, 1).setNumberFormat("@");
+          evSheet.getRange(2, EVENT_PHONE_COL + 1, sanitizedEvRows.length, 1).setNumberFormat("@");
           evSheet.getRange(2, 1, sanitizedEvRows.length, EVENT_HEADERS.length).setValues(sanitizedEvRows);
           evSheet.getRange(2, 1, sanitizedEvRows.length, EVENT_HEADERS.length).setVerticalAlignment("middle");
         }
         syncedCount++;
       }
 
-      // D. Clean stale legacy sheets if present (e.g. FIFA)
+      // D. Clean stale legacy sheet names
       var legacySheets = ["FIFA", "EA FC 26"];
       for (var ls = 0; ls < legacySheets.length; ls++) {
         var legacy = ss.getSheetByName(legacySheets[ls]);
-        if (legacy && legacy.getSheetName() !== "FC 26") {
-          try { legacy.clear(); } catch(e) {}
-        }
+        if (legacy) { try { legacy.clear(); } catch(e) {} }
       }
 
       return ContentService.createTextOutput(JSON.stringify({
-        status: "success",
-        action: "full_sync",
-        totalTeams: teams.length,
-        totalAllRows: allRows.length,
+        status:            "success",
+        action:            "full_sync",
+        totalTeams:        teams.length,
+        totalAllRows:      allRows.length,
         eventSheetsSynced: syncedCount
       })).setMimeType(ContentService.MimeType.JSON);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // 2. INDIVIDUAL DELETE: Delete all rows matching Team ID
+    // 2. DELETE: Remove all rows for a Team Name across all sheets
     // ─────────────────────────────────────────────────────────────────────────
     if (data.type === "delete_registration" || data.action === "delete") {
-      var delTeamId = String(data.teamId || data.id || "").trim();
-      if (!delTeamId) {
+      var delTeamName = String(data.teamName || "").trim();
+      if (!delTeamName) {
         return ContentService.createTextOutput(JSON.stringify({
-          status: "error",
-          message: "Team ID is required for delete operation"
+          status:  "error",
+          message: "teamName is required for delete operation"
         })).setMimeType(ContentService.MimeType.JSON);
       }
 
       var totalRemoved = 0;
 
-      // Remove from All Registrations
       var allSh = ss.getSheetByName("All Registrations");
-      if (allSh) totalRemoved += deleteTeamRowsFromSheet(allSh)(delTeamId);
+      if (allSh) totalRemoved += deleteTeamRowsByName(allSh, delTeamName, ALL_TEAM_NAME_COL);
 
-      // Remove from all event sheets
       for (var es = 0; es < CONFIGURED_EVENT_SHEETS.length; es++) {
         var evSh = ss.getSheetByName(CONFIGURED_EVENT_SHEETS[es]);
-        if (evSh) totalRemoved += deleteTeamRowsFromSheet(evSh)(delTeamId);
+        if (evSh) totalRemoved += deleteTeamRowsByName(evSh, delTeamName, EVENT_TEAM_NAME_COL);
       }
 
       return ContentService.createTextOutput(JSON.stringify({
-        status: "success",
-        action: "delete_registration",
-        teamId: delTeamId,
+        status:      "success",
+        action:      "delete_registration",
+        teamName:    delTeamName,
         rowsRemoved: totalRemoved
       })).setMimeType(ContentService.MimeType.JSON);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // 3. INDIVIDUAL CREATE / EDIT: Atomic full-team replacement by Team ID
+    // 3. CREATE / EDIT: Atomic full-team replacement by Team Name
     // ─────────────────────────────────────────────────────────────────────────
     if (data.type === "registration" || data.type === "edit_registration") {
-      var reqTeamId = String(data.teamId || data.id || "").trim();
-      if (!reqTeamId) {
+      var reqTeamName = String(data.teamName || data.fullName || "").trim();
+      if (!reqTeamName) {
         return ContentService.createTextOutput(JSON.stringify({
-          status: "error",
-          message: "Team ID is required for registration/edit operation"
+          status:  "error",
+          message: "teamName is required for registration/edit operation"
         })).setMimeType(ContentService.MimeType.JSON);
       }
 
-      var parsedTeam = buildTeamRows(data);
+      var parsedTeam   = buildTeamRows(data);
       var targetEvName = resolveEventSheetName(parsedTeam.eventName);
       if (!targetEvName) {
         return ContentService.createTextOutput(JSON.stringify({
-          status: "error",
-          message: "Unknown or unconfigured event: " + parsedTeam.eventName,
-          teamId: reqTeamId
+          status:   "error",
+          message:  "Unknown or unconfigured event: " + parsedTeam.eventName,
+          teamName: reqTeamName
         })).setMimeType(ContentService.MimeType.JSON);
       }
 
       var removedCount = 0;
 
-      // A. Remove existing rows for this Team ID from All Registrations
+      // A. Replace in All Registrations
       var masterSheet = ss.getSheetByName("All Registrations");
       if (!masterSheet) {
         masterSheet = ss.insertSheet("All Registrations");
         ensureHeader(masterSheet, ALL_HEADERS);
       }
-      removedCount += deleteTeamRowsFromSheet(masterSheet)(reqTeamId);
+      removedCount += deleteTeamRowsByName(masterSheet, reqTeamName, ALL_TEAM_NAME_COL);
 
-      // Append new complete team rows to All Registrations
       var masterStartRow = masterSheet.getLastRow() + 1;
       var sanitizedMaster = parsedTeam.allSheetRows.map(function(r) {
-        return r.map(function(cell, idx) { return sanitizeCell(cell, idx === 6); });
+        return r.map(function(cell, idx) { return sanitizeCell(cell, idx === ALL_PHONE_COL); });
       });
-
       masterSheet.getRange(masterStartRow, 1, sanitizedMaster.length, ALL_HEADERS.length).setValues(sanitizedMaster);
-      masterSheet.getRange(masterStartRow, 7, sanitizedMaster.length, 1).setNumberFormat("@");
+      masterSheet.getRange(masterStartRow, ALL_PHONE_COL + 1, sanitizedMaster.length, 1).setNumberFormat("@");
       masterSheet.getRange(masterStartRow, 1, sanitizedMaster.length, ALL_HEADERS.length).setVerticalAlignment("middle");
 
-      // B. Remove existing rows for this Team ID from ALL event sheets (handles event reassignment)
+      // B. Replace in all event sheets (handles event reassignment edge case)
       for (var eIndex = 0; eIndex < CONFIGURED_EVENT_SHEETS.length; eIndex++) {
         var checkSh = ss.getSheetByName(CONFIGURED_EVENT_SHEETS[eIndex]);
-        if (checkSh) removedCount += deleteTeamRowsFromSheet(checkSh)(reqTeamId);
+        if (checkSh) removedCount += deleteTeamRowsByName(checkSh, reqTeamName, EVENT_TEAM_NAME_COL);
       }
 
-      // Append new complete team rows to Target Event Sheet
       var targetSheet = ss.getSheetByName(targetEvName);
       if (!targetSheet) {
         targetSheet = ss.insertSheet(targetEvName);
@@ -381,17 +396,17 @@ function doPost(e) {
 
       var eventStartRow = targetSheet.getLastRow() + 1;
       var sanitizedEvent = parsedTeam.eventSheetRows.map(function(r) {
-        return r.map(function(cell, idx) { return sanitizeCell(cell, idx === 5); });
+        return r.map(function(cell, idx) { return sanitizeCell(cell, idx === EVENT_PHONE_COL); });
       });
-
       targetSheet.getRange(eventStartRow, 1, sanitizedEvent.length, EVENT_HEADERS.length).setValues(sanitizedEvent);
-      targetSheet.getRange(eventStartRow, 6, sanitizedEvent.length, 1).setNumberFormat("@");
+      targetSheet.getRange(eventStartRow, EVENT_PHONE_COL + 1, sanitizedEvent.length, 1).setNumberFormat("@");
       targetSheet.getRange(eventStartRow, 1, sanitizedEvent.length, EVENT_HEADERS.length).setVerticalAlignment("middle");
 
+      var isEdit = (data.type === "edit_registration" || data.action === "edit");
       return ContentService.createTextOutput(JSON.stringify({
-        status: "success",
-        action: data.type === "edit_registration" || data.action === "edit" ? "edit_registration" : "create_registration",
-        teamId: reqTeamId,
+        status:      "success",
+        action:      isEdit ? "edit_registration" : "create_registration",
+        teamName:    reqTeamName,
         rowsWritten: parsedTeam.allSheetRows.length,
         rowsRemoved: removedCount
       })).setMimeType(ContentService.MimeType.JSON);
@@ -404,7 +419,7 @@ function doPost(e) {
 
   } catch (error) {
     return ContentService.createTextOutput(JSON.stringify({
-      status: "error",
+      status:  "error",
       message: error.toString()
     })).setMimeType(ContentService.MimeType.JSON);
   } finally {

@@ -137,6 +137,7 @@ export async function syncToSheet(payload: object): Promise<boolean> {
         type: "registration",
         action,
         id: regId,
+        // teamId kept for back-compat — Apps Script now keys delete/replace on teamName
         teamId: regId,
         eventName: cleanEventName(p.eventName || ""),
         teamName: teamOrName,
@@ -147,13 +148,13 @@ export async function syncToSheet(payload: object): Promise<boolean> {
         year: p.year || "",
         paymentStatus: p.paymentStatus || "PENDING",
         paymentRefId: p.paymentRefId || "",
-        pictureUrl: p.pictureUrl || "",
+        // pictureUrl intentionally omitted — Payment Screenshot removed from sheet schema
         checkedIn: checkedInVal,
         createdAt: formattedDate,
         teamMembers: members,
       })
 
-      if (ok) console.log(`[apps-script] Registration synced (id=${regId}, action=${action}, ${members.length} members).`)
+      if (ok) console.log(`[apps-script] Registration synced (teamName=${teamOrName}, action=${action}, ${members.length} members).`)
       return ok
     }
 
@@ -221,7 +222,7 @@ interface RegistrationSheetRow {
   checkedIn?: boolean | string
   createdAt: string
   teamName?: string
-  pictureUrl?: string
+  // pictureUrl removed — Payment Screenshot no longer in sheet schema
   phone?: string
   collegeName?: string
   year?: string
@@ -261,10 +262,11 @@ export function buildDeleteRegistrationRow(input: { id: string; eventName: strin
   const eventName = cleanEventName(input.eventName)
   return {
     type: "delete_registration",
+    // Apps Script deletes rows by teamName, not by Team ID (Team ID was removed from sheet schema)
+    teamName: input.teamName || "",
     id: input.id,
     teamId: input.id,
     eventName,
-    teamName: input.teamName || "",
     email: input.email || "",
   }
 }

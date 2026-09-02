@@ -45,25 +45,22 @@ export async function POST() {
     const teamOrLeaderName = reg.teamName || reg.fullName || ""
     const feeStatus = reg.paymentStatus || "PENDING"
     const txId = reg.paymentRefId || ""
-    const screenshot = reg.pictureUrl || ""
     const checkedIn = reg.checkedIn ? "Yes" : "No"
     const regId = reg.id || ""
 
-    // 1. Leader Row for All Registrations
+    // 1. Leader Row for All Registrations (11 cols: no Team ID, no Payment Screenshot)
     allRows.push([
-      regId,
-      eventName,
-      teamOrLeaderName,
-      "LEADER",
-      reg.fullName || "",
-      reg.userEmail || "",
-      cleanPhone(reg.phone),
-      reg.collegeName || "",
-      feeStatus,
-      txId,
-      screenshot,
-      checkedIn,
-      formattedDate,
+      eventName,          // col 0: Event Name
+      teamOrLeaderName,   // col 1: Team Name
+      "LEADER",           // col 2: Role
+      reg.fullName || "", // col 3: Name
+      reg.userEmail || "",// col 4: Email
+      cleanPhone(reg.phone), // col 5: Phone
+      reg.collegeName || "", // col 6: College
+      feeStatus,          // col 7: Fee Status
+      txId,               // col 8: Transaction ID / Ref
+      checkedIn,          // col 9: Checked In
+      formattedDate,      // col 10: Registered At
     ])
 
     const members: any[] = []
@@ -77,19 +74,17 @@ export async function POST() {
         const memCollege = m.collegeName || m.college || reg.collegeName || ""
 
         allRows.push([
-          regId,
-          eventName,
-          teamOrLeaderName,
-          "MEMBER",
-          memName,
-          m.email || "",
-          memPhone,
-          memCollege,
-          feeStatus,
-          txId,
-          screenshot,
-          checkedIn,
-          formattedDate,
+          eventName,        // col 0: Event Name
+          teamOrLeaderName, // col 1: Team Name
+          "MEMBER",         // col 2: Role
+          memName,          // col 3: Name
+          m.email || "",    // col 4: Email
+          memPhone,         // col 5: Phone
+          memCollege,       // col 6: College
+          feeStatus,        // col 7: Fee Status
+          txId,             // col 8: Transaction ID / Ref
+          checkedIn,        // col 9: Checked In
+          formattedDate,    // col 10: Registered At
         ])
 
         members.push({
@@ -111,7 +106,7 @@ export async function POST() {
       collegeName: reg.collegeName || "",
       paymentStatus: feeStatus,
       paymentRefId: txId,
-      pictureUrl: screenshot,
+      // pictureUrl intentionally omitted — Payment Screenshot removed from sheet schema
       checkedIn,
       createdAt: formattedDate,
       teamMembers: members,

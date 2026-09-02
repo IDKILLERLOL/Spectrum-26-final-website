@@ -60,7 +60,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         checkedIn: existing.checkedIn,
         createdAt: createdAtStr,
         teamName: existing.teamName || "",
-        pictureUrl: existing.pictureUrl || "",
+        // pictureUrl removed — Payment Screenshot no longer in sheet schema
         teamMembers: existing.teamMembers || [],
       })
     )
