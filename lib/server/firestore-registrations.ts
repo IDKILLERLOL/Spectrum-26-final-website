@@ -114,16 +114,32 @@ export async function getRegistration(id: string): Promise<(FirestoreRegistratio
     }
   }
 
-  // Resolve team members
-  const membersSnap = await db.collection("teamMembers")
-    .where("registrationId", "==", doc.id)
-    .where("status", "==", "ACTIVE")
-    .get()
-
-  const teamMembers: { name: string }[] = []
-  membersSnap.forEach((mDoc) => {
-    teamMembers.push({ name: mDoc.data().name || "" })
-  })
+  // Prefer embedded teamMembers array on the doc (has full name/email/phone/college data).
+  // Fall back to teamMembers subcollection for legacy registrations.
+  let teamMembers: any[] = []
+  const rawEmbedded = Array.isArray(regData.teamMembers) ? regData.teamMembers : []
+  if (rawEmbedded.length > 0) {
+    teamMembers = rawEmbedded.map((m: any) => {
+      if (typeof m === "string") {
+        try {
+          const p = JSON.parse(m)
+          if (p && typeof p === "object") return { name: p.name || "", email: p.email || "", phone: p.phone || "", collegeName: p.college || p.collegeName || "" }
+        } catch {}
+        return { name: m, email: "", phone: "", collegeName: "" }
+      }
+      return { name: m.name || "", email: m.email || "", phone: m.phone || "", collegeName: m.collegeName || m.college || "" }
+    })
+  } else {
+    // Legacy: pull from teamMembers subcollection
+    const membersSnap = await db.collection("teamMembers")
+      .where("registrationId", "==", doc.id)
+      .where("status", "==", "ACTIVE")
+      .get()
+    membersSnap.forEach((mDoc) => {
+      const md = mDoc.data()
+      teamMembers.push({ name: md.name || "", email: md.email || "", phone: md.phone || "", collegeName: md.college || md.collegeName || "" })
+    })
+  }
 
   return {
     id: doc.id,
@@ -134,6 +150,8 @@ export async function getRegistration(id: string): Promise<(FirestoreRegistratio
     year: regData.year || "FY",
     eventId: regData.eventId || "",
     eventName: eventName,
+    // teamName is required for sheet sync delete/replace keyed on team name
+    teamName: regData.teamName || regData.team_name || "",
     teamMembers: teamMembers,
     teamSize: regData.teamSize || (teamMembers.length || 1),
     paymentRefId: regData.upiTransactionRef || regData.paymentRefId || "",
