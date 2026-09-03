@@ -139,6 +139,7 @@ export async function syncToSheet(payload: object): Promise<boolean> {
         id: regId,
         // teamId kept for back-compat — Apps Script now keys delete/replace on teamName
         teamId: regId,
+        memberType: "Leader",
         eventName: cleanEventName(p.eventName || ""),
         teamName: teamOrName,
         fullName: p.fullName || "",
@@ -151,13 +152,14 @@ export async function syncToSheet(payload: object): Promise<boolean> {
         // pictureUrl intentionally omitted — Payment Screenshot removed from sheet schema
         checkedIn: checkedInVal,
         createdAt: formattedDate,
-        teamMembers: members,
+        teamMembers: members.map((m: any) => ({ ...m, memberType: "Member" })),
         substitute: p.substitute && p.substitute.name && p.substitute.name.trim() ? {
           name: p.substitute.name.trim(),
           email: p.substitute.email || "",
           phone: cleanPhone(p.substitute.phone),
           college: p.substitute.college || p.substitute.collegeName || "",
           year: p.substitute.year || "",
+          memberType: "Substitute",
         } : undefined,
       })
 
@@ -219,6 +221,7 @@ interface RegistrationSheetRow {
   type: "registration"
   action?: "edit" | "create" | "upsert"
   id: string
+  memberType?: "Leader" | "Member" | "Substitute"
   fullName: string
   email: string
   eventName: string

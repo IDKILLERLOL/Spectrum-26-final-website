@@ -43,6 +43,7 @@ export async function createRegistration(input: CreateRegistrationInput): Promis
         phone: (sub.phone || "").trim(),
         college: (sub.college || "").trim(),
         year: (sub.year || "").trim(),
+        memberType: "Substitute" as const,
       }
     : null
 
@@ -56,6 +57,7 @@ export async function createRegistration(input: CreateRegistrationInput): Promis
     year: input.year,
     eventId: input.eventId,
     eventName: input.eventName,
+    memberType: "Leader",
     teamName: (input as any).teamName || "",
     teamMembers: input.teamMembers.map((str) => {
       try {
@@ -67,12 +69,13 @@ export async function createRegistration(input: CreateRegistrationInput): Promis
             phone: parsed.phone || "",
             college: parsed.college || "",
             year: parsed.year || "",
+            memberType: "Member",
           }
         }
       } catch {
         // Not a JSON string (e.g. other events)
       }
-      return { name: str }
+      return { name: str, memberType: "Member" }
     }),
     substitute: substituteData,
     substituteName: substituteData?.name || "",
@@ -165,6 +168,7 @@ export async function getRegistration(id: string): Promise<(FirestoreRegistratio
     phone: regData.substitutePhone || "",
     college: regData.substituteCollege || "",
     year: regData.substituteYear || "",
+    memberType: "Substitute" as const,
   } : null)
 
   return {
@@ -176,9 +180,10 @@ export async function getRegistration(id: string): Promise<(FirestoreRegistratio
     year: regData.year || "FY",
     eventId: regData.eventId || "",
     eventName: eventName,
+    memberType: (regData.memberType as any) || "Leader",
     // teamName is required for sheet sync delete/replace keyed on team name
     teamName: regData.teamName || regData.team_name || "",
-    teamMembers: teamMembers,
+    teamMembers: teamMembers.map((m) => ({ ...m, memberType: m.memberType || "Member" })),
     teamSize: regData.teamSize || (teamMembers.length || 1),
     substitute: sub,
     substituteName: regData.substituteName || sub?.name || "",
@@ -277,11 +282,12 @@ export async function listRegistrations(filters?: {
                 college: p.college || p.collegeName || "",
                 collegeName: p.collegeName || p.college || "",
                 year: p.year || "",
+                memberType: p.memberType || "Member",
               })
               return
             }
           } catch {}
-          teamMembers.push({ name: m, email: "", phone: "", college: "", collegeName: "", year: "" })
+          teamMembers.push({ name: m, email: "", phone: "", college: "", collegeName: "", year: "", memberType: "Member" })
         } else if (m && typeof m === "object") {
           teamMembers.push({
             name: m.name || "",
@@ -290,6 +296,7 @@ export async function listRegistrations(filters?: {
             college: m.college || m.collegeName || "",
             collegeName: m.collegeName || m.college || "",
             year: m.year || "",
+            memberType: m.memberType || "Member",
           })
         }
       })
@@ -303,6 +310,7 @@ export async function listRegistrations(filters?: {
         phone: regData.substitutePhone || "",
         college: regData.substituteCollege || "",
         year: regData.substituteYear || "",
+        memberType: "Substitute" as const,
       } : null)
 
       const doc: FirestoreRegistration & { id: string } = {
@@ -314,6 +322,7 @@ export async function listRegistrations(filters?: {
         year: regData.year || "FY",
         eventId: regData.eventId || "",
         eventName: eventName,
+        memberType: (regData.memberType as any) || "Leader",
         teamName: regData.teamName || regData.team_name || "",
         teamMembers: teamMembers,
         teamSize: regData.teamSize || (teamMembers.length + 1 + (sub ? 1 : 0)),

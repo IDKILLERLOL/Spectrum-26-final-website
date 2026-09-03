@@ -52,7 +52,7 @@ export async function POST() {
     allRows.push([
       eventName,          // col 0: Event Name
       teamOrLeaderName,   // col 1: Team Name
-      "LEADER",           // col 2: Role
+      "Leader",           // col 2: Member Type
       reg.fullName || "", // col 3: Name
       reg.userEmail || "",// col 4: Email
       cleanPhone(reg.phone), // col 5: Phone
@@ -76,7 +76,7 @@ export async function POST() {
         allRows.push([
           eventName,        // col 0: Event Name
           teamOrLeaderName, // col 1: Team Name
-          "MEMBER",         // col 2: Role
+          "Member",         // col 2: Member Type
           memName,          // col 3: Name
           m.email || "",    // col 4: Email
           memPhone,         // col 5: Phone
@@ -92,7 +92,41 @@ export async function POST() {
           email: m.email || "",
           phone: memPhone,
           college: memCollege,
+          memberType: "Member",
         })
+      }
+    }
+
+    // 3. Substitute Row (only if provided)
+    const subName = reg.substitute?.name || reg.substituteName
+    let substituteObj: any = undefined
+    if (subName && subName.trim()) {
+      const subEmail = reg.substitute?.email || reg.substituteEmail || ""
+      const subPhone = cleanPhone(reg.substitute?.phone || reg.substitutePhone)
+      const subCollege = reg.substitute?.college || reg.substituteCollege || reg.collegeName || ""
+      const subYear = reg.substitute?.year || reg.substituteYear || ""
+
+      allRows.push([
+        eventName,          // col 0: Event Name
+        teamOrLeaderName,   // col 1: Team Name
+        "Substitute",       // col 2: Member Type
+        subName.trim(),     // col 3: Name
+        subEmail,           // col 4: Email
+        subPhone,           // col 5: Phone
+        subCollege,         // col 6: College
+        feeStatus,          // col 7: Fee Status
+        txId,               // col 8: Transaction ID / Ref
+        checkedIn,          // col 9: Checked In
+        formattedDate,      // col 10: Registered At
+      ])
+
+      substituteObj = {
+        name: subName.trim(),
+        email: subEmail,
+        phone: subPhone,
+        college: subCollege,
+        year: subYear,
+        memberType: "Substitute",
       }
     }
 
@@ -100,6 +134,7 @@ export async function POST() {
       teamId: regId,
       eventName,
       teamName: teamOrLeaderName,
+      memberType: "Leader",
       fullName: reg.fullName || "",
       email: reg.userEmail || "",
       phone: cleanPhone(reg.phone),
@@ -110,6 +145,7 @@ export async function POST() {
       checkedIn,
       createdAt: formattedDate,
       teamMembers: members,
+      substitute: substituteObj,
     })
   }
 

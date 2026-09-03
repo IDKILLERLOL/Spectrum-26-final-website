@@ -21,7 +21,8 @@ interface RegistrationData {
   eventId: string
   eventName: string
   teamName?: string
-  teamMembers: { name: string }[]
+  memberType?: "Leader" | "Member" | "Substitute"
+  teamMembers: { name: string; memberType?: "Leader" | "Member" | "Substitute" }[]
   teamSize: number
   substitute?: {
     name?: string
@@ -29,6 +30,7 @@ interface RegistrationData {
     phone?: string
     college?: string
     year?: string
+    memberType?: "Leader" | "Member" | "Substitute"
   } | null
   substituteName?: string
   substituteEmail?: string
@@ -311,7 +313,7 @@ export function RegistrationsAdminClient({
 
   const handleExportCSV = useCallback(() => {
     const cols = [
-      'RegID', 'Event', 'Team Name', 'Leader Name', 'Leader Email', 
+      'RegID', 'Event', 'Team Name', 'Member Type', 'Leader Name', 'Leader Email', 
       'Members', 'Substitute', 'Fee Status', 'Amount Paid', 'UPI Ref', 
       'Checked In', 'Created At'
     ]
@@ -327,7 +329,8 @@ export function RegistrationsAdminClient({
         `"${reg.id}"`,
         `"${reg.eventName}"`,
         `"${reg.teamName || ''}"`,
-        `"${leader.name}"`,
+        `"${reg.memberType || 'Leader'}"`,
+        `"${leader.name || reg.fullName}"`,
         `"${reg.userEmail}"`,
         `"${membersList}"`,
         `"${subName}"`,
@@ -811,15 +814,23 @@ export function RegistrationsAdminClient({
                         {/* Team members details */}
                         {reg.teamMembers.length > 0 && (
                           <div className="border border-neutral-700 rounded p-3">
-                            <p className="text-xs font-medium mb-2">Team Members ({reg.teamMembers.length})</p>
+                            <p className="text-xs font-medium mb-2 flex items-center justify-between">
+                              <span>Team Members ({reg.teamMembers.length})</span>
+                              <span className="text-[10px] text-neutral-400">Member Type: Member</span>
+                            </p>
                             <div className="space-y-2">
                               {reg.teamMembers.map((member, idx) => (
                                 <div key={idx} className="flex items-center gap-3">
                                   <div className="h-7 w-7 rounded bg-neutral-700 flex items-center justify-center text-xs">
                                     {member.name ? member.name.split(' ').map(n => n[0]).join('').slice(0, 2) : '??'}
                                   </div>
-                                  <div>
-                                    <p className="text-sm font-medium">{member.name}</p>
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2">
+                                      <p className="text-sm font-medium">{member.name}</p>
+                                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-neutral-800 text-neutral-400 border border-neutral-700">
+                                        {member.memberType || "Member"}
+                                      </span>
+                                    </div>
                                     <p className="text-xs text-neutral-500">
                                       {[(member as any).email, (member as any).phone, (member as any).college, (member as any).year].filter(Boolean).join(" | ") || "Team Member"}
                                     </p>
@@ -833,7 +844,12 @@ export function RegistrationsAdminClient({
                         {/* Substitute Player details (for BGMI or when substitute data is recorded) */}
                         {(reg.eventId?.toLowerCase() === "bgmi" || reg.substitute || reg.substituteName) && (
                           <div className="border border-neutral-700 rounded p-3 bg-neutral-900/40">
-                            <p className="text-xs font-medium mb-2 text-amber-400">Substitute Player</p>
+                            <div className="flex items-center justify-between mb-2">
+                              <p className="text-xs font-medium text-amber-400">Substitute Player</p>
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-950/80 text-amber-200 border border-amber-800">
+                                Member Type: Substitute
+                              </span>
+                            </div>
                             <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-xs">
                               <div>
                                 <span className="text-neutral-500 block">Name:</span>

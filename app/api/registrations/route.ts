@@ -91,6 +91,7 @@ export async function POST(request: Request) {
         buildRegistrationRow({
           type: "registration",
           id,
+          memberType: "Leader",
           fullName: input.fullName,
           email: input.email,
           phone: input.phone,
@@ -104,7 +105,7 @@ export async function POST(request: Request) {
           createdAt: new Date().toISOString(),
           teamName: input.teamName || "",
           pictureUrl: input.pictureUrl || "",
-          substitute: hasSubstitute ? input.substitute : undefined,
+          substitute: hasSubstitute ? { ...input.substitute, memberType: "Substitute" } : undefined,
           teamMembers: input.teamMembers.map((str) => {
             try {
               const parsed = JSON.parse(str)
@@ -115,10 +116,11 @@ export async function POST(request: Request) {
                   phone: parsed.phone || "",
                   collegeName: parsed.college || parsed.collegeName || "",
                   year: parsed.year || "",
+                  memberType: "Member",
                 }
               }
             } catch {}
-            return { name: str, email: "", phone: "", collegeName: "", year: "" }
+            return { name: str, email: "", phone: "", collegeName: "", year: "", memberType: "Member" }
           })
         })
       )

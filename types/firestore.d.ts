@@ -9,12 +9,15 @@ export interface SettingsDoc {
 
 export type PaymentStatus = "PENDING" | "APPROVED" | "REJECTED" | string
 
+export type MemberType = "Leader" | "Member" | "Substitute"
+
 export interface SubstituteData {
   name?: string
   email?: string
   phone?: string
   college?: string
   year?: string
+  memberType?: MemberType
 }
 
 export interface FirestoreRegistration {
@@ -29,12 +32,14 @@ export interface FirestoreRegistration {
   year: string
   eventId: string
   eventName: string
+  memberType?: MemberType
   teamMembers: Array<{
     name: string
     email?: string
     phone?: string
     college?: string
     year?: string
+    memberType?: MemberType
   }>
   teamSize: number
   substitute?: SubstituteData | null

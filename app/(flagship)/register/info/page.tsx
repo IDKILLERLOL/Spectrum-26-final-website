@@ -46,6 +46,7 @@ function Field({
   helperText,
   ...inputProps
 }: { label: string; helperText?: string } & React.InputHTMLAttributes<HTMLInputElement>) {
+  const disabled = inputProps.disabled
   return (
     <div className="flex flex-col gap-1">
       <label className={`${questBody.className} text-[10px] font-bold uppercase md:text-xs`} style={{ color: TEAL }}>
@@ -53,8 +54,10 @@ function Field({
       </label>
       <input
         {...inputProps}
-        className={`border-b-2 bg-transparent px-2 py-1 text-sm outline-none font-bold placeholder:opacity-50 md:py-1.5 md:text-base ${className}`}
-        style={{ borderColor: INK, color: INK }}
+        className={`border-b-2 px-2 py-1 text-sm outline-none font-bold placeholder:opacity-50 md:py-1.5 md:text-base ${
+          disabled ? "bg-neutral-200/60 text-neutral-400 cursor-not-allowed select-none" : "bg-transparent"
+        } ${className}`}
+        style={{ borderColor: disabled ? "#9CA3AF" : INK, color: disabled ? "#6B7280" : INK, ...inputProps.style }}
       />
       {helperText && (
         <p className={`${questBody.className} text-[10px] md:text-xs font-semibold text-neutral-500`}>
@@ -76,6 +79,9 @@ export default function RegisterInfoStep() {
   // For BGMI: 3 required squad members + 1 optional substitute.
   const memberCount = isBgmi ? 3 : Math.max(0, (selectedEvent?.capacity ?? 1) - 1)
   const [localMembers, setLocalMembers] = React.useState<Array<{ name: string; email: string; phone: string; college: string; year: string }>>([])
+  const [includeSubstitute, setIncludeSubstitute] = React.useState<boolean>(
+    Boolean(values.substitute?.name?.trim())
+  )
   const [substitute, setSubstitute] = React.useState({
     name: values.substitute?.name || "",
     email: values.substitute?.email || "",
@@ -130,9 +136,13 @@ export default function RegisterInfoStep() {
   // Sync substitute to context
   React.useEffect(() => {
     if (isBgmi) {
-      setField("substitute", substitute)
+      if (includeSubstitute && substitute.name.trim()) {
+        setField("substitute", substitute)
+      } else {
+        setField("substitute", undefined)
+      }
     }
-  }, [substitute, isBgmi, setField])
+  }, [substitute, isBgmi, includeSubstitute, setField])
 
   async function proceedToPayment() {
     // Check duplicate email and team name before moving to payment step
@@ -210,6 +220,11 @@ export default function RegisterInfoStep() {
 
     // BGMI Substitute player checks
     if (isBgmi) {
+      if (!includeSubstitute) {
+        setShowSubstituteModal(true)
+        return
+      }
+
       const isSubstituteBlank =
         !substitute.name.trim() &&
         !substitute.email.trim() &&
@@ -230,7 +245,7 @@ export default function RegisterInfoStep() {
         !substitute.college.trim() ||
         !substitute.year.trim()
       ) {
-        setErrorMsg("Please fill in all details for the Substitute Player (or leave all substitute fields blank).")
+        setErrorMsg("Please fill in all details for the Substitute Player (or untick the substitute checkbox).")
         return
       }
 
@@ -446,52 +461,96 @@ export default function RegisterInfoStep() {
 
               {/* Substitute Player Section for BGMI */}
               {isBgmi && (
-                <div className="border-2 p-4 bg-white/50" style={{ borderColor: INK, boxShadow: softHoardingShadow }}>
-                  <p className={`${questDisplay.className} text-xs uppercase tracking-widest mb-3`} style={{ color: VERMILION }}>
-                    Substitute Player (Optional)
-                  </p>
+                <div
+                  className={`border-2 p-4 bg-white/50 flex flex-col gap-3 transition-opacity ${
+                    !includeSubstitute ? "opacity-75" : "opacity-100"
+                  }`}
+                  style={{ borderColor: INK, boxShadow: softHoardingShadow }}
+                >
+                  <div className="flex items-center justify-between border-b pb-2.5" style={{ borderColor: `${INK}20` }}>
+                    <p className={`${questDisplay.className} text-xs uppercase tracking-widest`} style={{ color: VERMILION }}>
+                      Substitute Player (Optional)
+                    </p>
+                    <label className="flex items-center gap-2 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={includeSubstitute}
+                        onChange={(e) => {
+                          const checked = e.target.checked
+                          setIncludeSubstitute(checked)
+                          if (!checked) {
+                            setSubstitute({ name: "", email: "", phone: "", college: "", year: "" })
+                            setField("substitute", undefined)
+                          }
+                        }}
+                        className="size-4 md:size-4.5 accent-[#C7382F] rounded cursor-pointer"
+                      />
+                      <span className={`${questBody.className} text-xs font-bold`} style={{ color: INK }}>
+                        Include Substitute
+                      </span>
+                    </label>
+                  </div>
+
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <Field
                       label="Full Name (Optional)"
                       placeholder="Enter substitute name (optional)"
-                      value={substitute.name}
+                      value={!includeSubstitute ? "-" : substitute.name}
                       onChange={(e) => setSubstitute((s) => ({ ...s, name: e.target.value }))}
+                      disabled={!includeSubstitute}
                     />
                     <Field
                       label="Email (Optional)"
                       placeholder="Enter substitute email (optional)"
                       type="email"
-                      value={substitute.email}
+                      value={!includeSubstitute ? "-" : substitute.email}
                       onChange={(e) => setSubstitute((s) => ({ ...s, email: e.target.value }))}
+                      disabled={!includeSubstitute}
                     />
                     <Field
                       label="Phone (Optional)"
                       placeholder="Enter substitute phone (optional)"
                       type="tel"
                       helperText="dont put country code (i.e. +91) only numbers allowed"
-                      value={substitute.phone}
+                      value={!includeSubstitute ? "-" : substitute.phone}
                       onChange={(e) => setSubstitute((s) => ({ ...s, phone: e.target.value }))}
+                      disabled={!includeSubstitute}
                     />
                     <Field
                       label="College (Optional)"
                       placeholder="Enter substitute college (optional)"
-                      value={substitute.college}
+                      value={!includeSubstitute ? "-" : substitute.college}
                       onChange={(e) => setSubstitute((s) => ({ ...s, college: e.target.value }))}
+                      disabled={!includeSubstitute}
                     />
                     <div className="flex flex-col gap-1">
                       <label className={`${questBody.className} text-[10px] font-bold uppercase md:text-xs`} style={{ color: TEAL }}>
                         Year (Optional)
                       </label>
                       <select
-                        value={substitute.year}
+                        value={!includeSubstitute ? "-" : substitute.year}
                         onChange={(e) => setSubstitute((s) => ({ ...s, year: e.target.value }))}
-                        className="border-2 p-1.5 text-sm outline-none font-bold bg-white"
-                        style={{ borderColor: INK, color: INK }}
+                        disabled={!includeSubstitute}
+                        className={`border-b-2 px-2 py-1 text-sm outline-none font-bold md:py-1.5 md:text-base ${
+                          !includeSubstitute
+                            ? "bg-neutral-200/60 text-neutral-400 cursor-not-allowed select-none"
+                            : "bg-transparent"
+                        }`}
+                        style={{
+                          borderColor: !includeSubstitute ? "#9CA3AF" : INK,
+                          color: !includeSubstitute ? "#6B7280" : INK,
+                        }}
                       >
-                        <option value="">Select Year (Optional)</option>
-                        {YEARS.map((y) => (
-                          <option key={y} value={y}>{y}</option>
-                        ))}
+                        {!includeSubstitute ? (
+                          <option value="-">-</option>
+                        ) : (
+                          <>
+                            <option value="">Select Year (Optional)</option>
+                            {YEARS.map((y) => (
+                              <option key={y} value={y}>{y}</option>
+                            ))}
+                          </>
+                        )}
                       </select>
                     </div>
                   </div>
@@ -542,6 +601,7 @@ export default function RegisterInfoStep() {
                 type="button"
                 onClick={() => {
                   setShowSubstituteModal(false)
+                  setField("substitute", undefined)
                   proceedToPayment()
                 }}
                 className="flex items-center gap-1.5 border-2 px-4 py-2 text-xs md:text-sm font-bold uppercase transition-transform hover:-translate-y-0.5"

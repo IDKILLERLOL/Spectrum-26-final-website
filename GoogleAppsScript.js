@@ -73,7 +73,7 @@ function doPost(e) {
     // Flat, machine-readable headers — NO Team ID, NO Payment Screenshot
     // All Registrations (11 cols): includes Event Name
     var ALL_HEADERS = [
-      "Event Name", "Team Name", "Role", "Name", "Email",
+      "Event Name", "Team Name", "Member Type", "Name", "Email",
       "Phone", "College", "Fee Status", "Transaction ID / Ref",
       "Checked In", "Registered At"
     ];
@@ -82,7 +82,7 @@ function doPost(e) {
 
     // Event Sheets (10 cols): no Event Name column
     var EVENT_HEADERS = [
-      "Team Name", "Role", "Name", "Email", "Phone",
+      "Team Name", "Member Type", "Name", "Email", "Phone",
       "College", "Fee Status", "Transaction ID / Ref",
       "Checked In", "Registered At"
     ];
@@ -176,11 +176,11 @@ function doPost(e) {
 
       // Leader row
       allSheetRows.push([
-        eventName, teamName, "LEADER", leaderName, leaderEmail,
+        eventName, teamName, "Leader", leaderName, leaderEmail,
         leaderPhone, leaderCollege, feeStatus, txId, checkedIn, regDate
       ]);
       eventSheetRows.push([
-        teamName, "LEADER", leaderName, leaderEmail,
+        teamName, "Leader", leaderName, leaderEmail,
         leaderPhone, leaderCollege, feeStatus, txId, checkedIn, regDate
       ]);
 
@@ -198,11 +198,11 @@ function doPost(e) {
         var mCollege = String(mem.collegeName || mem.college || d.collegeName || d.college || "").trim();
 
         allSheetRows.push([
-          eventName, teamName, "MEMBER", mName, mEmail,
+          eventName, teamName, "Member", mName, mEmail,
           mPhone, mCollege, feeStatus, txId, checkedIn, regDate
         ]);
         eventSheetRows.push([
-          teamName, "MEMBER", mName, mEmail,
+          teamName, "Member", mName, mEmail,
           mPhone, mCollege, feeStatus, txId, checkedIn, regDate
         ]);
       }
@@ -215,11 +215,11 @@ function doPost(e) {
           var subPhone   = cleanPhone(d.substitute.phone);
           var subCollege = String(d.substitute.collegeName || d.substitute.college || "").trim();
           allSheetRows.push([
-            eventName, teamName, "SUBSTITUTE", subName, subEmail,
+            eventName, teamName, "Substitute", subName, subEmail,
             subPhone, subCollege, feeStatus, txId, checkedIn, regDate
           ]);
           eventSheetRows.push([
-            teamName, "SUBSTITUTE", subName, subEmail,
+            teamName, "Substitute", subName, subEmail,
             subPhone, subCollege, feeStatus, txId, checkedIn, regDate
           ]);
         }
