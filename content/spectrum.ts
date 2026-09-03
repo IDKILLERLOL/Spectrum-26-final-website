@@ -177,8 +177,8 @@ export const events: SpectrumEvent[] = [
     format: "Team / Squad",
     fee: "₹300 / team",
     feeNumeric: 300,
-    capacity: 4,
-    teamSize: "4 Participants",
+    capacity: 5,
+    teamSize: "4 - 5 Participants (4 Main + 1 Substitute)",
     difficulty: 4,
     color: "#E8963C",
     duration: "3 Matches",
@@ -186,7 +186,7 @@ export const events: SpectrumEvent[] = [
       "Drop into the battleground with your squad. Last team standing takes it all.",
     rules: [
       "Only college students are allowed to participate, and they must bring a valid proof of identification (college ID).",
-      "Squad size fixed at 4 players.",
+      "Squad size of 4 players + 1 optional substitute.",
       "Emulator use is strictly prohibited.",
       "The organizers' decision is final in all matters.",
       "Any form of misconduct results in disqualification.",
@@ -477,12 +477,22 @@ export const registrationFormDefaults: RegistrationFormValues = {
 
 // ---- Quest Board registration contract (backed by real Firestore writes via
 // ---- POST /api/registrations — see lib/validation/registration.ts) ----
+export interface SubstitutePlayer {
+  name: string
+  email: string
+  phone: string
+  college: string
+  year: string
+}
+
 export interface QuestFormValues {
   fullName: string
   email: string
   phone: string
   eventId: EventId | ""
+  teamName?: string
   teamMembers: string[] // sized to selectedEvent.capacity - 1; [] solo, [x] duo, [x,y,z] squad
+  substitute?: SubstitutePlayer
   collegeName: string // optional at validation layer, kept as string (not string|undefined) for controlled inputs
   year: string
   paymentRefId: string // 12-digit UPI transaction reference
@@ -494,7 +504,15 @@ export const questFormDefaults: QuestFormValues = {
   email: "",
   phone: "",
   eventId: "",
+  teamName: "",
   teamMembers: [],
+  substitute: {
+    name: "",
+    email: "",
+    phone: "",
+    college: "",
+    year: "",
+  },
   collegeName: "",
   year: "",
   paymentRefId: "",

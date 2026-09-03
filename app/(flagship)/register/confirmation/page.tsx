@@ -66,8 +66,15 @@ export default function RegisterConfirmationPage() {
                 <Detail label="Name" value={values.fullName} />
                 <Detail label="Email" value={values.email} />
                 <Detail label="Event" value={selectedEvent?.name ?? "—"} />
+                {values.teamName ? <Detail label="Team Name" value={values.teamName} /> : null}
                 <Detail label="College" value={values.collegeName} />
                 <Detail label="Year" value={values.year} />
+                {selectedEvent?.id?.toLowerCase() === "bgmi" && (
+                  <Detail
+                    label="Substitute Player"
+                    value={values.substitute?.name?.trim() ? values.substitute.name : "-"}
+                  />
+                )}
                 <Detail label="Payment Ref" value={values.paymentRefId} />
               </div>
             )}

@@ -23,6 +23,18 @@ interface RegistrationData {
   teamName?: string
   teamMembers: { name: string }[]
   teamSize: number
+  substitute?: {
+    name?: string
+    email?: string
+    phone?: string
+    college?: string
+    year?: string
+  } | null
+  substituteName?: string
+  substituteEmail?: string
+  substitutePhone?: string
+  substituteCollege?: string
+  substituteYear?: string
   paymentRefId: string
   amountPaid: number
   paymentStatus: "APPROVED" | "PENDING" | "REJECTED" | string
@@ -300,7 +312,7 @@ export function RegistrationsAdminClient({
   const handleExportCSV = useCallback(() => {
     const cols = [
       'RegID', 'Event', 'Team Name', 'Leader Name', 'Leader Email', 
-      'Members', 'Fee Status', 'Amount Paid', 'UPI Ref', 
+      'Members', 'Substitute', 'Fee Status', 'Amount Paid', 'UPI Ref', 
       'Checked In', 'Created At'
     ]
     const lines = [cols.join(',')]
@@ -309,6 +321,7 @@ export function RegistrationsAdminClient({
     for (const { reg } of filteredRows) {
       const leader = reg.teamMembers.find((m) => m.name.toLowerCase() !== '') || { name: '' }
       const membersList = reg.teamMembers.map(m => m.name).join('; ')
+      const subName = reg.substitute?.name || reg.substituteName || '-'
       
       lines.push([
         `"${reg.id}"`,
@@ -317,6 +330,7 @@ export function RegistrationsAdminClient({
         `"${leader.name}"`,
         `"${reg.userEmail}"`,
         `"${membersList}"`,
+        `"${subName}"`,
         `"${reg.paymentStatus}"`,
         `${reg.amountPaid ?? 0}`,
         `"${reg.paymentRefId || ''}"`,
@@ -595,12 +609,23 @@ export function RegistrationsAdminClient({
                   </td>
                   <td className="px-4 py-3 text-sm">
                     {reg.teamMembers.length > 0 ? (
-                      <div className="flex flex-wrap gap-1">
+                      <div className="flex flex-wrap gap-1 items-center">
                         {reg.teamMembers.map((m, idx) => (
                           <span key={idx} className="inline-block bg-neutral-800 text-neutral-200 px-1.5 py-0.5 rounded text-xs">
                             {m.name}
                           </span>
                         ))}
+                        {reg.eventId?.toLowerCase() === "bgmi" && (
+                          <span
+                            className={`inline-block px-1.5 py-0.5 rounded text-xs border ${
+                              reg.substitute?.name || reg.substituteName
+                                ? "bg-amber-950/80 text-amber-200 border-amber-800"
+                                : "bg-neutral-800 text-neutral-400 border-neutral-700"
+                            }`}
+                          >
+                            Sub: {reg.substitute?.name || reg.substituteName || "-"}
+                          </span>
+                        )}
                       </div>
                     ) : (
                       <span className="text-neutral-500 text-xs">Solo / No members</span>
@@ -801,6 +826,35 @@ export function RegistrationsAdminClient({
                                   </div>
                                 </div>
                               ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Substitute Player details (for BGMI or when substitute data is recorded) */}
+                        {(reg.eventId?.toLowerCase() === "bgmi" || reg.substitute || reg.substituteName) && (
+                          <div className="border border-neutral-700 rounded p-3 bg-neutral-900/40">
+                            <p className="text-xs font-medium mb-2 text-amber-400">Substitute Player</p>
+                            <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-xs">
+                              <div>
+                                <span className="text-neutral-500 block">Name:</span>
+                                <span className="font-medium text-neutral-200">{reg.substitute?.name || reg.substituteName || "-"}</span>
+                              </div>
+                              <div>
+                                <span className="text-neutral-500 block">Email:</span>
+                                <span className="font-medium text-neutral-200">{reg.substitute?.email || reg.substituteEmail || "-"}</span>
+                              </div>
+                              <div>
+                                <span className="text-neutral-500 block">Phone:</span>
+                                <span className="font-medium text-neutral-200">{reg.substitute?.phone || reg.substitutePhone || "-"}</span>
+                              </div>
+                              <div>
+                                <span className="text-neutral-500 block">College:</span>
+                                <span className="font-medium text-neutral-200">{reg.substitute?.college || reg.substituteCollege || "-"}</span>
+                              </div>
+                              <div>
+                                <span className="text-neutral-500 block">Year:</span>
+                                <span className="font-medium text-neutral-200">{reg.substitute?.year || reg.substituteYear || "-"}</span>
+                              </div>
                             </div>
                           </div>
                         )}

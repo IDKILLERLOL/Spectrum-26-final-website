@@ -32,7 +32,15 @@ export async function POST(request: Request) {
   if (!event.registrationOpen) {
     return NextResponse.json({ error: "VALIDATION", message: "Registration is closed for this event." }, { status: 400 })
   }
-  if (input.teamMembers.length !== event.capacity - 1) {
+  const isBgmi = input.eventId.toLowerCase() === "bgmi"
+  if (isBgmi) {
+    if (input.teamMembers.length !== 3) {
+      return NextResponse.json(
+        { error: "VALIDATION", message: "BGMI requires exactly 3 team members besides the leader." },
+        { status: 400 }
+      )
+    }
+  } else if (input.teamMembers.length !== event.capacity - 1) {
     return NextResponse.json(
       { error: "VALIDATION", message: `This event needs exactly ${event.capacity - 1} team member(s) besides you.` },
       { status: 400 }
@@ -74,6 +82,9 @@ export async function POST(request: Request) {
       year: input.year,
     })
 
+    const hasSubstitute = Boolean(input.substitute?.name && input.substitute.name.trim().length > 0)
+    const effectiveTeamSize = 1 + input.teamMembers.length + (hasSubstitute ? 1 : 0)
+
     // Await both Sheets sync and Email delivery to prevent Vercel container pauses
     await Promise.all([
       syncToSheet(
@@ -86,12 +97,14 @@ export async function POST(request: Request) {
           collegeName: input.collegeName ?? "",
           year: input.year,
           eventName: event.name,
-          teamSize: 1 + input.teamMembers.length,
+          teamSize: effectiveTeamSize,
           paymentRefId: input.paymentRefId,
           amountPaid: event.feeNumeric,
           paymentStatus: "PENDING",
           createdAt: new Date().toISOString(),
           teamName: input.teamName || "",
+          pictureUrl: input.pictureUrl || "",
+          substitute: hasSubstitute ? input.substitute : undefined,
           teamMembers: input.teamMembers.map((str) => {
             try {
               const parsed = JSON.parse(str)
@@ -120,7 +133,7 @@ export async function POST(request: Request) {
           to: input.email,
           fullName: input.fullName,
           eventName: event.name,
-          teamSize: 1 + input.teamMembers.length,
+          teamSize: effectiveTeamSize,
           amountPaid: event.feeNumeric,
           paymentRefId: input.paymentRefId,
           phone: input.phone,

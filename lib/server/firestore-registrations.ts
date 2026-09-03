@@ -34,6 +34,18 @@ export async function createRegistration(input: CreateRegistrationInput): Promis
   const ref = db.collection(COLLECTION).doc(id)
   const now = Timestamp.now()
 
+  const sub = (input as any).substitute
+  const hasSub = sub && typeof sub === "object" && sub.name && sub.name.trim().length > 0
+  const substituteData = hasSub
+    ? {
+        name: sub.name.trim(),
+        email: (sub.email || "").trim(),
+        phone: (sub.phone || "").trim(),
+        college: (sub.college || "").trim(),
+        year: (sub.year || "").trim(),
+      }
+    : null
+
   const doc: any = {
     teamId: id,
     teamNameNormalized: ((input as any).teamName || "").toLowerCase().trim(),
@@ -62,7 +74,13 @@ export async function createRegistration(input: CreateRegistrationInput): Promis
       }
       return { name: str }
     }),
-    teamSize: 1 + input.teamMembers.length,
+    substitute: substituteData,
+    substituteName: substituteData?.name || "",
+    substituteEmail: substituteData?.email || "",
+    substitutePhone: substituteData?.phone || "",
+    substituteCollege: substituteData?.college || "",
+    substituteYear: substituteData?.year || "",
+    teamSize: 1 + input.teamMembers.length + (hasSub ? 1 : 0),
     paymentRefId: input.paymentRefId,
     pictureUrl: input.pictureUrl || "",
     amountPaid: input.amountPaid,
@@ -141,6 +159,14 @@ export async function getRegistration(id: string): Promise<(FirestoreRegistratio
     })
   }
 
+  const sub = regData.substitute || (regData.substituteName ? {
+    name: regData.substituteName || "",
+    email: regData.substituteEmail || "",
+    phone: regData.substitutePhone || "",
+    college: regData.substituteCollege || "",
+    year: regData.substituteYear || "",
+  } : null)
+
   return {
     id: doc.id,
     userEmail: regData.userEmail || regData.leaderId || "",
@@ -154,6 +180,12 @@ export async function getRegistration(id: string): Promise<(FirestoreRegistratio
     teamName: regData.teamName || regData.team_name || "",
     teamMembers: teamMembers,
     teamSize: regData.teamSize || (teamMembers.length || 1),
+    substitute: sub,
+    substituteName: regData.substituteName || sub?.name || "",
+    substituteEmail: regData.substituteEmail || sub?.email || "",
+    substitutePhone: regData.substitutePhone || sub?.phone || "",
+    substituteCollege: regData.substituteCollege || sub?.college || "",
+    substituteYear: regData.substituteYear || sub?.year || "",
     paymentRefId: regData.upiTransactionRef || regData.paymentRefId || "",
     amountPaid: regData.amountPaid || eventFee,
     paymentStatus: regData.feeStatus === "PAID" ? "APPROVED" : (regData.paymentStatus || "PENDING"),
@@ -265,6 +297,14 @@ export async function listRegistrations(filters?: {
       const rawEmail = regData.userEmail || regData.email || regData.leaderEmail || ""
       const userEmail = fetchedEmail || (!rawEmail.startsWith("guest_") ? rawEmail : "") || regData.leaderId || ""
 
+      const sub = regData.substitute || (regData.substituteName ? {
+        name: regData.substituteName || "",
+        email: regData.substituteEmail || "",
+        phone: regData.substitutePhone || "",
+        college: regData.substituteCollege || "",
+        year: regData.substituteYear || "",
+      } : null)
+
       const doc: FirestoreRegistration & { id: string } = {
         id: regDoc.id,
         userEmail: userEmail,
@@ -276,7 +316,13 @@ export async function listRegistrations(filters?: {
         eventName: eventName,
         teamName: regData.teamName || regData.team_name || "",
         teamMembers: teamMembers,
-        teamSize: regData.teamSize || (teamMembers.length + 1),
+        teamSize: regData.teamSize || (teamMembers.length + 1 + (sub ? 1 : 0)),
+        substitute: sub,
+        substituteName: regData.substituteName || sub?.name || "",
+        substituteEmail: regData.substituteEmail || sub?.email || "",
+        substitutePhone: regData.substitutePhone || sub?.phone || "",
+        substituteCollege: regData.substituteCollege || sub?.college || "",
+        substituteYear: regData.substituteYear || sub?.year || "",
         paymentRefId: regData.paymentRefId || regData.upiTransactionRef || "",
         amountPaid: regData.amountPaid || eventFee,
         paymentStatus: regData.feeStatus === "PAID" ? "APPROVED" : (regData.paymentStatus || "PENDING"),

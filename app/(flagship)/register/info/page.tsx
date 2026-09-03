@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, ArrowRight } from "lucide-react"
 import { PageHeader } from "@/components/flagship/PageHeader"
 import { PageContainer } from "@/components/flagship/PageContainer"
 import { StepProgress } from "@/components/flagship/StepProgress"
@@ -70,9 +70,19 @@ export default function RegisterInfoStep() {
   const { values, setField, selectedEvent } = useQuest()
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null)
   const [checking, setChecking] = React.useState(false)
+  const [showSubstituteModal, setShowSubstituteModal] = React.useState(false)
 
-  const memberCount = Math.max(0, (selectedEvent?.capacity ?? 1) - 1)
+  const isBgmi = selectedEvent?.id?.toLowerCase() === "bgmi"
+  // For BGMI: 3 required squad members + 1 optional substitute.
+  const memberCount = isBgmi ? 3 : Math.max(0, (selectedEvent?.capacity ?? 1) - 1)
   const [localMembers, setLocalMembers] = React.useState<Array<{ name: string; email: string; phone: string; college: string; year: string }>>([])
+  const [substitute, setSubstitute] = React.useState({
+    name: values.substitute?.name || "",
+    email: values.substitute?.email || "",
+    phone: values.substitute?.phone || "",
+    college: values.substitute?.college || "",
+    year: values.substitute?.year || "",
+  })
 
   React.useEffect(() => {
     trackFunnelStep("info")
@@ -81,7 +91,7 @@ export default function RegisterInfoStep() {
   // Initialize and load members
   React.useEffect(() => {
     if (selectedEvent) {
-      const count = Math.max(0, selectedEvent.capacity - 1)
+      const count = isBgmi ? 3 : Math.max(0, selectedEvent.capacity - 1)
       const initial = Array.from({ length: count }, (_, i) => {
         try {
           if (values.teamMembers[i]) {
@@ -103,7 +113,7 @@ export default function RegisterInfoStep() {
       })
       setLocalMembers(initial)
     }
-  }, [selectedEvent])
+  }, [selectedEvent, isBgmi])
 
   // Sync back to context
   React.useEffect(() => {
@@ -115,7 +125,37 @@ export default function RegisterInfoStep() {
         setField("teamMembers", [])
       }
     }
-  }, [localMembers, memberCount])
+  }, [localMembers, memberCount, setField, values.teamMembers.length])
+
+  // Sync substitute to context
+  React.useEffect(() => {
+    if (isBgmi) {
+      setField("substitute", substitute)
+    }
+  }, [substitute, isBgmi, setField])
+
+  async function proceedToPayment() {
+    // Check duplicate email and team name before moving to payment step
+    setChecking(true)
+    try {
+      const emailParam = encodeURIComponent(values.email.trim())
+      const eventParam = values.eventId ? `&eventId=${encodeURIComponent(values.eventId)}` : ""
+      const teamParam = values.teamName ? `&teamName=${encodeURIComponent(values.teamName.trim())}` : ""
+      const res = await fetch(`/api/check-email?email=${emailParam}${eventParam}${teamParam}`)
+      const data = await res.json()
+
+      if (data.registered) {
+        setErrorMsg(data.message || "This email address is already registered in the system.")
+        return
+      }
+    } catch {
+      // Proceed on network error
+    } finally {
+      setChecking(false)
+    }
+
+    router.push("/register/payment")
+  }
 
   async function handleNext(e: React.FormEvent) {
     e.preventDefault()
@@ -168,26 +208,44 @@ export default function RegisterInfoStep() {
       }
     }
 
-    // Check duplicate email and team name before moving to payment step
-    setChecking(true)
-    try {
-      const emailParam = encodeURIComponent(values.email.trim())
-      const eventParam = values.eventId ? `&eventId=${encodeURIComponent(values.eventId)}` : ""
-      const teamParam = values.teamName ? `&teamName=${encodeURIComponent(values.teamName.trim())}` : ""
-      const res = await fetch(`/api/check-email?email=${emailParam}${eventParam}${teamParam}`)
-      const data = await res.json()
+    // BGMI Substitute player checks
+    if (isBgmi) {
+      const isSubstituteBlank =
+        !substitute.name.trim() &&
+        !substitute.email.trim() &&
+        !substitute.phone.trim() &&
+        !substitute.college.trim() &&
+        !substitute.year.trim()
 
-      if (data.registered) {
-        setErrorMsg(data.message || "This email address is already registered in the system.")
+      if (isSubstituteBlank) {
+        setShowSubstituteModal(true)
         return
       }
-    } catch {
-      // Proceed on network error
-    } finally {
-      setChecking(false)
+
+      // If user partially filled substitute, require all fields or clear
+      if (
+        !substitute.name.trim() ||
+        !substitute.email.trim() ||
+        !substitute.phone.trim() ||
+        !substitute.college.trim() ||
+        !substitute.year.trim()
+      ) {
+        setErrorMsg("Please fill in all details for the Substitute Player (or leave all substitute fields blank).")
+        return
+      }
+
+      if (!substitute.email.includes("@")) {
+        setErrorMsg("Please enter a valid email for the Substitute Player.")
+        return
+      }
+
+      if (substitute.phone.trim().length < 7) {
+        setErrorMsg("Please enter a valid phone number for the Substitute Player.")
+        return
+      }
     }
 
-    router.push("/register/payment")
+    await proceedToPayment()
   }
 
   if (!selectedEvent) {
@@ -246,7 +304,7 @@ export default function RegisterInfoStep() {
                   <Field
                     label="Team Name *"
                     placeholder="Enter team / squad name"
-                    value={values.teamName}
+                    value={values.teamName || ""}
                     onChange={(e) => setField("teamName", e.target.value)}
                   />
                 </div>
@@ -386,6 +444,60 @@ export default function RegisterInfoStep() {
                 </div>
               )}
 
+              {/* Substitute Player Section for BGMI */}
+              {isBgmi && (
+                <div className="border-2 p-4 bg-white/50" style={{ borderColor: INK, boxShadow: softHoardingShadow }}>
+                  <p className={`${questDisplay.className} text-xs uppercase tracking-widest mb-3`} style={{ color: VERMILION }}>
+                    Substitute Player (Optional)
+                  </p>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <Field
+                      label="Full Name (Optional)"
+                      placeholder="Enter substitute name (optional)"
+                      value={substitute.name}
+                      onChange={(e) => setSubstitute((s) => ({ ...s, name: e.target.value }))}
+                    />
+                    <Field
+                      label="Email (Optional)"
+                      placeholder="Enter substitute email (optional)"
+                      type="email"
+                      value={substitute.email}
+                      onChange={(e) => setSubstitute((s) => ({ ...s, email: e.target.value }))}
+                    />
+                    <Field
+                      label="Phone (Optional)"
+                      placeholder="Enter substitute phone (optional)"
+                      type="tel"
+                      helperText="dont put country code (i.e. +91) only numbers allowed"
+                      value={substitute.phone}
+                      onChange={(e) => setSubstitute((s) => ({ ...s, phone: e.target.value }))}
+                    />
+                    <Field
+                      label="College (Optional)"
+                      placeholder="Enter substitute college (optional)"
+                      value={substitute.college}
+                      onChange={(e) => setSubstitute((s) => ({ ...s, college: e.target.value }))}
+                    />
+                    <div className="flex flex-col gap-1">
+                      <label className={`${questBody.className} text-[10px] font-bold uppercase md:text-xs`} style={{ color: TEAL }}>
+                        Year (Optional)
+                      </label>
+                      <select
+                        value={substitute.year}
+                        onChange={(e) => setSubstitute((s) => ({ ...s, year: e.target.value }))}
+                        className="border-2 p-1.5 text-sm outline-none font-bold bg-white"
+                        style={{ borderColor: INK, color: INK }}
+                      >
+                        <option value="">Select Year (Optional)</option>
+                        {YEARS.map((y) => (
+                          <option key={y} value={y}>{y}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {errorMsg && (
                 <p className={`${questBody.className} text-xs font-bold`} style={{ color: VERMILION }}>
                   {errorMsg}
@@ -399,6 +511,48 @@ export default function RegisterInfoStep() {
           </div>
         </div>
       </PageContainer>
+
+      {/* Substitute Confirmation Modal */}
+      {showSubstituteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div
+            className="relative w-full max-w-md p-6 border-4 md:p-8"
+            style={ticketStyle}
+          >
+            <div className="border-b-4 pb-3 mb-4 flex justify-between items-center" style={{ borderColor: INK }}>
+              <p className={`${questDisplay.className} text-sm uppercase tracking-widest`} style={{ color: VERMILION }}>
+                Notice
+              </p>
+            </div>
+
+            <p className={`${questBody.className} text-sm md:text-base font-semibold leading-relaxed mb-6`} style={{ color: INK }}>
+              Substitute is optional if you don&apos;t have one continue, else go back.
+            </p>
+
+            <div className="flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setShowSubstituteModal(false)}
+                className="flex items-center gap-1.5 border-2 px-4 py-2 text-xs md:text-sm font-bold uppercase transition-transform hover:-translate-y-0.5"
+                style={{ borderColor: INK, background: AGED_PAPER, color: INK, boxShadow: `2px 2px 0px ${INK}` }}
+              >
+                <ArrowLeft size={16} /> Back
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowSubstituteModal(false)
+                  proceedToPayment()
+                }}
+                className="flex items-center gap-1.5 border-2 px-4 py-2 text-xs md:text-sm font-bold uppercase transition-transform hover:-translate-y-0.5"
+                style={{ borderColor: INK, background: VERMILION, color: AGED_PAPER, boxShadow: `2px 2px 0px ${INK}` }}
+              >
+                Continue <ArrowRight size={16} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }

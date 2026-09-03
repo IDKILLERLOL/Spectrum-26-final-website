@@ -207,6 +207,24 @@ function doPost(e) {
         ]);
       }
 
+      // Substitute row — only post if substitute was provided, otherwise keep Google Sheets blank
+      if (d.substitute && typeof d.substitute === "object") {
+        var subName    = String(d.substitute.name || "").trim();
+        var subEmail   = String(d.substitute.email || "").trim();
+        if (subName || subEmail) {
+          var subPhone   = cleanPhone(d.substitute.phone);
+          var subCollege = String(d.substitute.collegeName || d.substitute.college || "").trim();
+          allSheetRows.push([
+            eventName, teamName, "SUBSTITUTE", subName, subEmail,
+            subPhone, subCollege, feeStatus, txId, checkedIn, regDate
+          ]);
+          eventSheetRows.push([
+            teamName, "SUBSTITUTE", subName, subEmail,
+            subPhone, subCollege, feeStatus, txId, checkedIn, regDate
+          ]);
+        }
+      }
+
       return {
         teamName:       teamName,
         eventName:      eventName,

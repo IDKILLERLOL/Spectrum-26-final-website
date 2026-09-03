@@ -152,9 +152,16 @@ export async function syncToSheet(payload: object): Promise<boolean> {
         checkedIn: checkedInVal,
         createdAt: formattedDate,
         teamMembers: members,
+        substitute: p.substitute && p.substitute.name && p.substitute.name.trim() ? {
+          name: p.substitute.name.trim(),
+          email: p.substitute.email || "",
+          phone: cleanPhone(p.substitute.phone),
+          college: p.substitute.college || p.substitute.collegeName || "",
+          year: p.substitute.year || "",
+        } : undefined,
       })
 
-      if (ok) console.log(`[apps-script] Registration synced (teamName=${teamOrName}, action=${action}, ${members.length} members).`)
+      if (ok) console.log(`[apps-script] Registration synced (teamName=${teamOrName}, action=${action}, ${members.length} members${p.substitute?.name ? " + 1 substitute" : ""}).`)
       return ok
     }
 
@@ -227,6 +234,7 @@ interface RegistrationSheetRow {
   collegeName?: string
   year?: string
   teamMembers?: any[]
+  substitute?: any
 }
 
 export function cleanEventName(eventName: string): string {
