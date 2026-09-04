@@ -17,16 +17,34 @@ function getInitials(name: string): string {
   return clean.slice(0, 2).toUpperCase()
 }
 
+const TEAM_IMAGE_MAP: Record<string, string> = {
+  "asiyah patel": "/team/asiyah-patel.jpeg",
+  "bhumi choksi": "/team/bhumi-chokshi.jpeg",
+  "bhumi chokshi": "/team/bhumi-chokshi.jpeg",
+  "chaitanya jande": "/team/chaitanya-jande.jpeg",
+  "darsh bhagat": "/team/darsh-bhagat.jpeg",
+  "dhairya gandhi": "/team/dhairya-gandhi.jpeg",
+  "ishaan dave": "/team/ishaan-dave.jpeg",
+  "meet parekh": "/team/meet-parekh.jpeg",
+  "shikha mehta": "/team/shikha-mehta.jpeg",
+  "shlok sheth": "/team/shlok-sheth.jpeg",
+  "tatsav dangasiya": "/team/tatsav-dangasiya.jpeg",
+  "tirth chheda": "/team/tirth-chheda.jpeg",
+  "tirth chedda": "/team/tirth-chheda.jpeg",
+}
+
 function MemberCard({ member }: { member: FirestoreTeamMember }) {
+  const imgUrl = member.imageUrl || TEAM_IMAGE_MAP[member.name.toLowerCase().trim()]
+
   return (
     <Card className="flex flex-col items-center gap-3 p-4 text-center">
-      {member.imageUrl ? (
+      {imgUrl ? (
         <div
           className="size-16 overflow-hidden border-2"
           style={{ borderColor: INK }}
         >
           <img
-            src={member.imageUrl}
+            src={imgUrl}
             alt={member.name}
             className="size-full object-cover"
           />
