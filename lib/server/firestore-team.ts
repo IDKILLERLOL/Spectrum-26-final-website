@@ -18,6 +18,9 @@ export interface FirestoreTeamMember {
 }
 
 export const TEAM_GROUPS = [
+  "Faculty",
+  "Faculty Coordinator",
+  "Faculty Coordinators",
   "Core",
   "Core Team",
   "Heads",
@@ -31,6 +34,7 @@ export const TEAM_GROUPS = [
 ] as const
 
 export const TEAM_ROLES = [
+  "Faculty Coordinator",
   "Mentor",
   "President",
   "Vice President",

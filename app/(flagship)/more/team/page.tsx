@@ -8,6 +8,15 @@ import { listTeamMembers, FirestoreTeamMember } from "@/lib/server/firestore-tea
 
 export const dynamic = "force-dynamic"
 
+function getInitials(name: string): string {
+  const clean = name.replace(/^(Ms\.|Mr\.|Dr\.|Prof\.)\s+/i, "").trim()
+  const parts = clean.split(/\s+/)
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+  }
+  return clean.slice(0, 2).toUpperCase()
+}
+
 function MemberCard({ member }: { member: FirestoreTeamMember }) {
   return (
     <Card className="flex flex-col items-center gap-3 p-4 text-center">
@@ -27,12 +36,7 @@ function MemberCard({ member }: { member: FirestoreTeamMember }) {
           className={`${questDisplay.className} flex size-16 shrink-0 items-center justify-center border-2 text-lg text-white`}
           style={{ background: TEAL, borderColor: INK }}
         >
-          {member.name
-            .split(" ")
-            .map((n) => n[0])
-            .join("")
-            .slice(0, 2)
-            .toUpperCase()}
+          {getInitials(member.name)}
         </div>
       )}
       <div>
@@ -56,23 +60,36 @@ function MemberCard({ member }: { member: FirestoreTeamMember }) {
 export default async function TeamPage() {
   const members = await listTeamMembers()
 
+  const facultyMembers = members.filter((m) => {
+    const g = (m.group || "").toLowerCase()
+    const r = (m.role || "").toLowerCase()
+    return g.includes("faculty") || r.includes("faculty")
+  })
   const coreMembers = members.filter((m) => {
+    if (facultyMembers.includes(m)) return false
     const g = (m.group || "").toLowerCase()
     return g === "core" || g === "core team"
   })
   const headMembers = members.filter((m) => {
+    if (facultyMembers.includes(m) || coreMembers.includes(m)) return false
     const g = (m.group || "").toLowerCase()
     return (
       g === "heads" ||
       g === "head" ||
-      (!coreMembers.includes(m) && (m.role || "").toLowerCase().includes("head"))
+      (m.role || "").toLowerCase().includes("head")
     )
   })
   const otherMembers = members.filter(
-    (m) => !coreMembers.includes(m) && !headMembers.includes(m)
+    (m) =>
+      !facultyMembers.includes(m) &&
+      !coreMembers.includes(m) &&
+      !headMembers.includes(m)
   )
 
-  const hasGroups = coreMembers.length > 0 || headMembers.length > 0
+  const hasGroups =
+    facultyMembers.length > 0 ||
+    coreMembers.length > 0 ||
+    headMembers.length > 0
 
   return (
     <>
@@ -103,6 +120,28 @@ export default async function TeamPage() {
           </div>
         ) : hasGroups ? (
           <div className="flex flex-col gap-10">
+            {facultyMembers.length > 0 && (
+              <div>
+                <div
+                  className="flex items-center gap-3 mb-5 border-b-2 pb-2.5"
+                  style={{ borderColor: `${INK}20` }}
+                >
+                  <span className="h-1.5 w-6 bg-[#D97706]" />
+                  <h2
+                    className={`${questDisplay.className} text-xl md:text-2xl uppercase tracking-wider`}
+                    style={{ color: NAVY }}
+                  >
+                    Faculty Coordinator
+                  </h2>
+                </div>
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+                  {facultyMembers.map((member) => (
+                    <MemberCard key={member.id} member={member} />
+                  ))}
+                </div>
+              </div>
+            )}
+
             {coreMembers.length > 0 && (
               <div>
                 <div

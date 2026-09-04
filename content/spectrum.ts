@@ -280,32 +280,36 @@ export interface TeamMember {
 }
 
 export const team: TeamMember[] = [
+  // Faculty Coordinators
+  { id: "pradnya-natekar", name: "Ms. Pradnya Natekar", role: "Faculty Coordinator", group: "Faculty", order: 1 },
+  { id: "rupali-pawar", name: "Ms. Rupali Pawar", role: "Faculty Coordinator", group: "Faculty", order: 2 },
+
   // Core
-  { id: "rudra-rane", name: "Rudra Rane", role: "Mentor", group: "Core", order: 1 },
-  { id: "divit-shah", name: "Divit Shah", role: "Mentor", group: "Core", order: 2 },
-  { id: "kahaan-kapasi", name: "Kahaan Kapasi", role: "Mentor", group: "Core", order: 3 },
-  { id: "dhairya-gandhi", name: "Dhairya Gandhi", role: "President", group: "Core", order: 4 },
-  { id: "darsh-bhagat", name: "Darsh Bhagat", role: "Vice President", group: "Core", order: 5 },
-  { id: "asiyah-patel", name: "Asiyah Patel", role: "Vice President", group: "Core", order: 6 },
+  { id: "rudra-rane", name: "Rudra Rane", role: "Mentor", group: "Core", order: 3 },
+  { id: "divit-shah", name: "Divit Shah", role: "Mentor", group: "Core", order: 4 },
+  { id: "kahaan-kapasi", name: "Kahaan Kapasi", role: "Mentor", group: "Core", order: 5 },
+  { id: "dhairya-gandhi", name: "Dhairya Gandhi", role: "President", group: "Core", order: 6 },
+  { id: "darsh-bhagat", name: "Darsh Bhagat", role: "Vice President", group: "Core", order: 7 },
+  { id: "asiyah-patel", name: "Asiyah Patel", role: "Vice President", group: "Core", order: 8 },
 
   // Heads
-  { id: "pratham-poladia", name: "Pratham Poladia", role: "Tech Head", group: "Heads", order: 7 },
-  { id: "ishaan-doshi", name: "Ishaan Doshi", role: "Tech Head", group: "Heads", order: 8 },
-  { id: "bhumi-choksi", name: "Bhumi Choksi", role: "Creatives Head", group: "Heads", order: 9 },
-  { id: "unnati-thotam", name: "Unnati Thotam", role: "Creatives Head", group: "Heads", order: 10 },
-  { id: "yatharth-kendule", name: "Yatharth Kendule", role: "EA FC 26 Head", group: "Heads", order: 11 },
-  { id: "tatsav-dangasiya", name: "Tatsav Dangasiya", role: "EA FC 26 Head", group: "Heads", order: 12 },
-  { id: "meet-parekh", name: "Meet Parekh", role: "Marketing Head", group: "Heads", order: 13 },
-  { id: "jheel-patel", name: "Jheel Patel", role: "Marketing Head", group: "Heads", order: 14 },
-  { id: "siya-shah", name: "Siya Shah", role: "Registration Head", group: "Heads", order: 15 },
-  { id: "ishaan-dave", name: "Ishaan Dave", role: "BGMI Head", group: "Heads", order: 16 },
-  { id: "keehan-patil", name: "Keehan Patil", role: "BGMI Head", group: "Heads", order: 17 },
-  { id: "chaitanya-jande", name: "Chaitanya Jande", role: "Design Head", group: "Heads", order: 18 },
-  { id: "parth-khambhla", name: "Parth Khambhla", role: "Design Head", group: "Heads", order: 19 },
-  { id: "shlok-sheth", name: "Shlok Sheth", role: "Social Media Head", group: "Heads", order: 20 },
-  { id: "shikha-mehta", name: "Shikha Mehta", role: "Social Media Head", group: "Heads", order: 21 },
-  { id: "aarna-shah", name: "Aarna Shah", role: "Logistics Head", group: "Heads", order: 22 },
-  { id: "tirth-chheda", name: "Tirth Chheda", role: "Logistics Head", group: "Heads", order: 23 },
+  { id: "pratham-poladia", name: "Pratham Poladia", role: "Tech Head", group: "Heads", order: 9 },
+  { id: "ishaan-doshi", name: "Ishaan Doshi", role: "Tech Head", group: "Heads", order: 10 },
+  { id: "bhumi-choksi", name: "Bhumi Choksi", role: "Creatives Head", group: "Heads", order: 11 },
+  { id: "unnati-thotam", name: "Unnati Thotam", role: "Creatives Head", group: "Heads", order: 12 },
+  { id: "yatharth-kendule", name: "Yatharth Kendule", role: "EA FC 26 Head", group: "Heads", order: 13 },
+  { id: "tatsav-dangasiya", name: "Tatsav Dangasiya", role: "EA FC 26 Head", group: "Heads", order: 14 },
+  { id: "meet-parekh", name: "Meet Parekh", role: "Marketing Head", group: "Heads", order: 15 },
+  { id: "jheel-patel", name: "Jheel Patel", role: "Marketing Head", group: "Heads", order: 16 },
+  { id: "siya-shah", name: "Siya Shah", role: "Registration Head", group: "Heads", order: 17 },
+  { id: "ishaan-dave", name: "Ishaan Dave", role: "BGMI Head", group: "Heads", order: 18 },
+  { id: "keehan-patil", name: "Keehan Patil", role: "BGMI Head", group: "Heads", order: 19 },
+  { id: "chaitanya-jande", name: "Chaitanya Jande", role: "Design Head", group: "Heads", order: 20 },
+  { id: "parth-khambhla", name: "Parth Khambhla", role: "Design Head", group: "Heads", order: 21 },
+  { id: "shlok-sheth", name: "Shlok Sheth", role: "Social Media Head", group: "Heads", order: 22 },
+  { id: "shikha-mehta", name: "Shikha Mehta", role: "Social Media Head", group: "Heads", order: 23 },
+  { id: "aarna-shah", name: "Aarna Shah", role: "Logistics Head", group: "Heads", order: 24 },
+  { id: "tirth-chheda", name: "Tirth Chheda", role: "Logistics Head", group: "Heads", order: 25 },
 ]
 
 export interface OrganizerInfo {
