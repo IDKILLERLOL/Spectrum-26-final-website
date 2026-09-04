@@ -232,7 +232,7 @@ interface RegistrationSheetRow {
   checkedIn?: boolean | string
   createdAt: string
   teamName?: string
-  // pictureUrl removed — Payment Screenshot no longer in sheet schema
+  pictureUrl?: string
   phone?: string
   collegeName?: string
   year?: string

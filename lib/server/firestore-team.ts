@@ -2,6 +2,8 @@ import "server-only"
 import { getDb, isAdminConfigured } from "@/lib/firebase/admin"
 import { Timestamp } from "firebase-admin/firestore"
 
+import { team as staticTeamMembers } from "@/content/spectrum"
+
 const COLLECTION = "team"
 
 export interface FirestoreTeamMember {
@@ -16,7 +18,9 @@ export interface FirestoreTeamMember {
 }
 
 export const TEAM_GROUPS = [
+  "Core",
   "Core Team",
+  "Heads",
   "Tech Team",
   "Design Team",
   "Management",
@@ -27,6 +31,9 @@ export const TEAM_GROUPS = [
 ] as const
 
 export const TEAM_ROLES = [
+  "Mentor",
+  "President",
+  "Vice President",
   "Chairperson",
   "Vice Chairperson",
   "Secretary",
@@ -40,15 +47,28 @@ export const TEAM_ROLES = [
   "Volunteer",
 ] as const
 
+function getStaticFallback(): FirestoreTeamMember[] {
+  return staticTeamMembers.map((m, idx) => ({
+    id: m.id || `static-${idx}`,
+    name: m.name,
+    role: m.role,
+    group: m.group || "",
+    imageUrl: m.imageUrl || "",
+    order: m.order ?? idx + 1,
+    createdAt: null,
+    updatedAt: null,
+  }))
+}
+
 export async function listTeamMembers(): Promise<FirestoreTeamMember[]> {
   if (!isAdminConfigured()) {
-    console.warn("[listTeamMembers] Firebase Admin SDK not configured. Returning empty array.")
-    return []
+    console.warn("[listTeamMembers] Firebase Admin SDK not configured. Returning static fallback.")
+    return getStaticFallback()
   }
   try {
     const snap = await getDb().collection(COLLECTION).get()
-    if (snap.empty) return []
-    return snap.docs
+    if (snap.empty) return getStaticFallback()
+    const members = snap.docs
       .map((doc) => {
         const data = doc.data()
         return {
@@ -76,9 +96,10 @@ export async function listTeamMembers(): Promise<FirestoreTeamMember[]> {
         // 4. Tiebreaker: createdAt ascending
         return (a.createdAt ?? "").localeCompare(b.createdAt ?? "")
       })
+    return members.length > 0 ? members : getStaticFallback()
   } catch (err) {
     console.warn("[listTeamMembers] Firestore error or quota limit reached:", err)
-    return []
+    return getStaticFallback()
   }
 }
 

@@ -71,7 +71,7 @@ export async function POST() {
         const memName = m.name || (typeof m === "string" ? m : "")
         if (!memName && !m.email) continue
         const memPhone = cleanPhone(m.phone)
-        const memCollege = m.collegeName || m.college || reg.collegeName || ""
+        const memCollege = (m as any).collegeName || m.college || reg.collegeName || ""
 
         allRows.push([
           eventName,        // col 0: Event Name
