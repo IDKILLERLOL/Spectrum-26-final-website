@@ -296,8 +296,8 @@ export const team: TeamMember[] = [
   { id: "pratham-poladia", name: "Pratham Poladia", role: "Tech Head", group: "Heads", order: 9 },
   { id: "ishaan-doshi", name: "Ishaan Doshi", role: "Tech Head", group: "Heads", order: 10 },
   { id: "bhumi-choksi", name: "Bhumi Choksi", role: "Creatives Head", group: "Heads", order: 11, imageUrl: "/team/bhumi-chokshi.jpeg" },
-  { id: "unnati-thotam", name: "Unnati Thotam", role: "Creatives Head", group: "Heads", order: 12 },
-  { id: "yatharth-kendule", name: "Yatharth Kendule", role: "EA FC 26 Head", group: "Heads", order: 13 },
+  { id: "unnati-thotam", name: "Unnati Thotam", role: "Creatives Head", group: "Heads", order: 12, imageUrl: "/team/unnati-thotam.jpeg" },
+  { id: "yatharth-kendule", name: "Yatharth Kendule", role: "EA FC 26 Head", group: "Heads", order: 13, imageUrl: "/team/yatharth-kendule.jpeg" },
   { id: "tatsav-dangasiya", name: "Tatsav Dangasiya", role: "EA FC 26 Head", group: "Heads", order: 14, imageUrl: "/team/tatsav-dangasiya.jpeg" },
   { id: "meet-parekh", name: "Meet Parekh", role: "Marketing Head", group: "Heads", order: 15, imageUrl: "/team/meet-parekh.jpeg" },
   { id: "jheel-patel", name: "Jheel Patel", role: "Marketing Head", group: "Heads", order: 16 },
@@ -305,10 +305,10 @@ export const team: TeamMember[] = [
   { id: "ishaan-dave", name: "Ishaan Dave", role: "BGMI Head", group: "Heads", order: 18, imageUrl: "/team/ishaan-dave.jpeg" },
   { id: "keehan-patil", name: "Keehan Patil", role: "BGMI Head", group: "Heads", order: 19 },
   { id: "chaitanya-jande", name: "Chaitanya Jande", role: "Design Head", group: "Heads", order: 20, imageUrl: "/team/chaitanya-jande.jpeg" },
-  { id: "parth-khambhla", name: "Parth Khambhla", role: "Design Head", group: "Heads", order: 21 },
+  { id: "parth-khambhla", name: "Parth Khambhla", role: "Design Head", group: "Heads", order: 21, imageUrl: "/team/parth-khambhla.jpeg" },
   { id: "shlok-sheth", name: "Shlok Sheth", role: "Social Media Head", group: "Heads", order: 22, imageUrl: "/team/shlok-sheth.jpeg" },
   { id: "shikha-mehta", name: "Shikha Mehta", role: "Social Media Head", group: "Heads", order: 23, imageUrl: "/team/shikha-mehta.jpeg" },
-  { id: "aarna-shah", name: "Aarna Shah", role: "Logistics Head", group: "Heads", order: 24 },
+  { id: "aarna-shah", name: "Aarna Shah", role: "Logistics Head", group: "Heads", order: 24, imageUrl: "/team/aarna-shah.jpeg" },
   { id: "tirth-chheda", name: "Tirth Chheda", role: "Logistics Head", group: "Heads", order: 25, imageUrl: "/team/tirth-chheda.jpeg" },
 ]
 

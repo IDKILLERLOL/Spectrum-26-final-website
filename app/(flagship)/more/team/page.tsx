@@ -18,6 +18,7 @@ function getInitials(name: string): string {
 }
 
 const TEAM_IMAGE_MAP: Record<string, string> = {
+  "aarna shah": "/team/aarna-shah.jpeg",
   "asiyah patel": "/team/asiyah-patel.jpeg",
   "bhumi choksi": "/team/bhumi-chokshi.jpeg",
   "bhumi chokshi": "/team/bhumi-chokshi.jpeg",
@@ -26,11 +27,14 @@ const TEAM_IMAGE_MAP: Record<string, string> = {
   "dhairya gandhi": "/team/dhairya-gandhi.jpeg",
   "ishaan dave": "/team/ishaan-dave.jpeg",
   "meet parekh": "/team/meet-parekh.jpeg",
+  "parth khambhla": "/team/parth-khambhla.jpeg",
   "shikha mehta": "/team/shikha-mehta.jpeg",
   "shlok sheth": "/team/shlok-sheth.jpeg",
   "tatsav dangasiya": "/team/tatsav-dangasiya.jpeg",
   "tirth chheda": "/team/tirth-chheda.jpeg",
   "tirth chedda": "/team/tirth-chheda.jpeg",
+  "unnati thotam": "/team/unnati-thotam.jpeg",
+  "yatharth kendule": "/team/yatharth-kendule.jpeg",
 }
 
 function MemberCard({ member }: { member: FirestoreTeamMember }) {
