@@ -286,7 +286,7 @@ export const team: TeamMember[] = [
 
   // Core
   { id: "rudra-rane", name: "Rudra Rane", role: "Mentor", group: "Core", order: 3 },
-  { id: "divit-shah", name: "Divit Shah", role: "Mentor", group: "Core", order: 4 },
+  { id: "divit-shah", name: "Divit Shah", role: "Mentor", group: "Core", order: 4, imageUrl: "/team/divit-shah.jpeg" },
   { id: "kahaan-kapasi", name: "Kahaan Kapasi", role: "Mentor", group: "Core", order: 5 },
   { id: "dhairya-gandhi", name: "Dhairya Gandhi", role: "President", group: "Core", order: 6, imageUrl: "/team/dhairya-gandhi.jpeg" },
   { id: "darsh-bhagat", name: "Darsh Bhagat", role: "Vice President", group: "Core", order: 7, imageUrl: "/team/darsh-bhagat.jpeg" },
@@ -300,8 +300,8 @@ export const team: TeamMember[] = [
   { id: "yatharth-kendule", name: "Yatharth Kendule", role: "EA FC 26 Head", group: "Heads", order: 13, imageUrl: "/team/yatharth-kendule.jpeg" },
   { id: "tatsav-dangasiya", name: "Tatsav Dangasiya", role: "EA FC 26 Head", group: "Heads", order: 14, imageUrl: "/team/tatsav-dangasiya.jpeg" },
   { id: "meet-parekh", name: "Meet Parekh", role: "Marketing Head", group: "Heads", order: 15, imageUrl: "/team/meet-parekh.jpeg" },
-  { id: "jheel-patel", name: "Jheel Patel", role: "Marketing Head", group: "Heads", order: 16 },
-  { id: "siya-shah", name: "Siya Shah", role: "Registration Head", group: "Heads", order: 17 },
+  { id: "jheel-patel", name: "Jheel Patel", role: "Marketing Head", group: "Heads", order: 16, imageUrl: "/team/jheel-patel.jpeg" },
+  { id: "siya-shah", name: "Siya Shah", role: "Registration Head", group: "Heads", order: 17, imageUrl: "/team/siya-shah.jpeg" },
   { id: "ishaan-dave", name: "Ishaan Dave", role: "BGMI Head", group: "Heads", order: 18, imageUrl: "/team/ishaan-dave.jpeg" },
   { id: "keehan-patil", name: "Keehan Patil", role: "BGMI Head", group: "Heads", order: 19, imageUrl: "/team/keehan-patil.jpeg" },
   { id: "chaitanya-jande", name: "Chaitanya Jande", role: "Design Head", group: "Heads", order: 20, imageUrl: "/team/chaitanya-jande.jpeg" },
