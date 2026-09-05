@@ -303,7 +303,7 @@ export const team: TeamMember[] = [
   { id: "jheel-patel", name: "Jheel Patel", role: "Marketing Head", group: "Heads", order: 16 },
   { id: "siya-shah", name: "Siya Shah", role: "Registration Head", group: "Heads", order: 17 },
   { id: "ishaan-dave", name: "Ishaan Dave", role: "BGMI Head", group: "Heads", order: 18, imageUrl: "/team/ishaan-dave.jpeg" },
-  { id: "keehan-patil", name: "Keehan Patil", role: "BGMI Head", group: "Heads", order: 19 },
+  { id: "keehan-patil", name: "Keehan Patil", role: "BGMI Head", group: "Heads", order: 19, imageUrl: "/team/keehan-patil.jpeg" },
   { id: "chaitanya-jande", name: "Chaitanya Jande", role: "Design Head", group: "Heads", order: 20, imageUrl: "/team/chaitanya-jande.jpeg" },
   { id: "parth-khambhla", name: "Parth Khambhla", role: "Design Head", group: "Heads", order: 21, imageUrl: "/team/parth-khambhla.jpeg" },
   { id: "shlok-sheth", name: "Shlok Sheth", role: "Social Media Head", group: "Heads", order: 22, imageUrl: "/team/shlok-sheth.jpeg" },

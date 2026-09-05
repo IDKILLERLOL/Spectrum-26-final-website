@@ -26,6 +26,7 @@ const TEAM_IMAGE_MAP: Record<string, string> = {
   "darsh bhagat": "/team/darsh-bhagat.jpeg",
   "dhairya gandhi": "/team/dhairya-gandhi.jpeg",
   "ishaan dave": "/team/ishaan-dave.jpeg",
+  "keehan patil": "/team/keehan-patil.jpeg",
   "meet parekh": "/team/meet-parekh.jpeg",
   "parth khambhla": "/team/parth-khambhla.jpeg",
   "shikha mehta": "/team/shikha-mehta.jpeg",
