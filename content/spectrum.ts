@@ -281,19 +281,19 @@ export interface TeamMember {
 
 export const team: TeamMember[] = [
   // Faculty Coordinators
-  { id: "pradnya-natekar", name: "Ms. Pradnya Natekar", role: "Faculty Coordinator", group: "Faculty", order: 1 },
-  { id: "rupali-pawar", name: "Ms. Rupali Pawar", role: "Faculty Coordinator", group: "Faculty", order: 2 },
+  { id: "pradnya-natekar", name: "Ms. Pradnya Natekar", role: "Faculty Coordinator", group: "Faculty", order: 1, imageUrl: "/team/pradnya-natekar.jpeg" },
+  { id: "rupali-pawar", name: "Ms. Rupali Pawar", role: "Faculty Coordinator", group: "Faculty", order: 2, imageUrl: "/team/rupali-pawar.jpeg" },
 
   // Core
   { id: "rudra-rane", name: "Rudra Rane", role: "Mentor", group: "Core", order: 3 },
   { id: "divit-shah", name: "Divit Shah", role: "Mentor", group: "Core", order: 4, imageUrl: "/team/divit-shah.jpeg" },
   { id: "kahaan-kapasi", name: "Kahaan Kapasi", role: "Mentor", group: "Core", order: 5 },
   { id: "dhairya-gandhi", name: "Dhairya Gandhi", role: "President", group: "Core", order: 6, imageUrl: "/team/dhairya-gandhi.jpeg" },
-  { id: "darsh-bhagat", name: "Darsh Bhagat", role: "Vice President", group: "Core", order: 7, imageUrl: "/team/darsh-bhagat.jpeg" },
-  { id: "asiyah-patel", name: "Asiyah Patel", role: "Vice President", group: "Core", order: 8, imageUrl: "/team/asiyah-patel.jpeg" },
+  { id: "asiyah-patel", name: "Asiyah Patel", role: "President", group: "Core", order: 7, imageUrl: "/team/asiyah-patel.jpeg" },
+  { id: "darsh-bhagat", name: "Darsh Bhagat", role: "Vice President", group: "Core", order: 8, imageUrl: "/team/darsh-bhagat.jpeg" },
 
   // Heads
-  { id: "pratham-poladia", name: "Pratham Poladia", role: "Tech Head", group: "Heads", order: 9 },
+  { id: "pratham-poladia", name: "Pratham Poladia", role: "Tech Head", group: "Heads", order: 9, imageUrl: "/team/pratham-poladia.jpeg" },
   { id: "ishaan-doshi", name: "Ishaan Doshi", role: "Tech Head", group: "Heads", order: 10 },
   { id: "bhumi-choksi", name: "Bhumi Choksi", role: "Creatives Head", group: "Heads", order: 11, imageUrl: "/team/bhumi-chokshi.jpeg" },
   { id: "unnati-thotam", name: "Unnati Thotam", role: "Creatives Head", group: "Heads", order: 12, imageUrl: "/team/unnati-thotam.jpeg" },
@@ -302,10 +302,10 @@ export const team: TeamMember[] = [
   { id: "meet-parekh", name: "Meet Parekh", role: "Marketing Head", group: "Heads", order: 15, imageUrl: "/team/meet-parekh.jpeg" },
   { id: "jheel-patel", name: "Jheel Patel", role: "Marketing Head", group: "Heads", order: 16, imageUrl: "/team/jheel-patel.jpeg" },
   { id: "siya-shah", name: "Siya Shah", role: "Registration Head", group: "Heads", order: 17, imageUrl: "/team/siya-shah.jpeg" },
-  { id: "ishaan-dave", name: "Ishaan Dave", role: "BGMI Head", group: "Heads", order: 18, imageUrl: "/team/ishaan-dave.jpeg" },
-  { id: "keehan-patil", name: "Keehan Patil", role: "BGMI Head", group: "Heads", order: 19, imageUrl: "/team/keehan-patil.jpeg" },
-  { id: "chaitanya-jande", name: "Chaitanya Jande", role: "Design Head", group: "Heads", order: 20, imageUrl: "/team/chaitanya-jande.jpeg" },
-  { id: "parth-khambhla", name: "Parth Khambhla", role: "Design Head", group: "Heads", order: 21, imageUrl: "/team/parth-khambhla.jpeg" },
+  { id: "swara-gholap", name: "Swara Gholap", role: "Registration Head", group: "Heads", order: 18, imageUrl: "/team/swara-gholap.jpeg" },
+  { id: "ishaan-dave", name: "Ishaan Dave", role: "BGMI Head", group: "Heads", order: 19, imageUrl: "/team/ishaan-dave.jpeg" },
+  { id: "keehan-patil", name: "Keehan Patil", role: "BGMI Head", group: "Heads", order: 20, imageUrl: "/team/keehan-patil.jpeg" },
+  { id: "chaitanya-jande", name: "Chaitanya Jande", role: "Design Head", group: "Heads", order: 21, imageUrl: "/team/chaitanya-jande.jpeg" },
   { id: "shlok-sheth", name: "Shlok Sheth", role: "Social Media Head", group: "Heads", order: 22, imageUrl: "/team/shlok-sheth.jpeg" },
   { id: "shikha-mehta", name: "Shikha Mehta", role: "Social Media Head", group: "Heads", order: 23, imageUrl: "/team/shikha-mehta.jpeg" },
   { id: "aarna-shah", name: "Aarna Shah", role: "Logistics Head", group: "Heads", order: 24, imageUrl: "/team/aarna-shah.jpeg" },
