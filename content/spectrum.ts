@@ -87,7 +87,7 @@ export const events: SpectrumEvent[] = [
       "Any form of misconduct results in disqualification.",
     ],
     prizes: [
-      { place: "1st Place", reward: "Trophy + Goodies" },
+      { place: "1st Place", reward: "Cash + Trophy + Goodies" },
       { place: "2nd Place", reward: "Trophy + Goodies" },
       { place: "3rd Place", reward: "Certificate + Goodies" },
     ],
@@ -122,7 +122,7 @@ export const events: SpectrumEvent[] = [
       "Any form of misconduct results in disqualification.",
     ],
     prizes: [
-      { place: "1st Place", reward: "Trophy + Goodies" },
+      { place: "1st Place", reward: "Cash + Trophy + Goodies" },
       { place: "2nd Place", reward: "Trophy + Goodies" },
       { place: "3rd Place", reward: "Certificate + Goodies" },
     ],
@@ -157,7 +157,7 @@ export const events: SpectrumEvent[] = [
       "Any form of misconduct results in disqualification.",
     ],
     prizes: [
-      { place: "1st Place", reward: "Trophy + Goodies" },
+      { place: "1st Place", reward: "Cash + Trophy + Goodies" },
       { place: "2nd Place", reward: "Trophy + Goodies" },
       { place: "3rd Place", reward: "Certificate + Goodies" },
     ],
@@ -192,8 +192,8 @@ export const events: SpectrumEvent[] = [
       "Any form of misconduct results in disqualification.",
     ],
     prizes: [
-      { place: "1st Place", reward: "Trophy + Goodies" },
-      { place: "2nd Place", reward: "Trophy + Goodies" },
+      { place: "1st Place", reward: "Cash + Trophy + Goodies" },
+      { place: "2nd Place", reward: "Cash + Trophy + Goodies" },
       { place: "3rd Place", reward: "Certificate + Goodies" },
     ],
     registrationEnds: "25 Sept 2026, 11:59 PM",
