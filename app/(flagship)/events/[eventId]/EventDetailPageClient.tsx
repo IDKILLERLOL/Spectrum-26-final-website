@@ -14,6 +14,28 @@ import { questBody, questDisplay } from "@/components/flagship/fonts"
 
 type TabId = "details" | "rules" | "prizes"
 
+function renderRuleText(rule: string) {
+  if (!rule) return null
+  if (rule.includes("**")) {
+    const parts = rule.split(/(\*\*.*?\*\*)/g)
+    return (
+      <>
+        {parts.map((part, idx) => {
+          if (part.startsWith("**") && part.endsWith("**")) {
+            return (
+              <strong key={idx} className="font-bold">
+                {part.slice(2, -2)}
+              </strong>
+            )
+          }
+          return part
+        })}
+      </>
+    )
+  }
+  return rule
+}
+
 /** Scalloped canvas awning strip — mela/fair stall roofline, alternating the
  *  event's own accent colour with white. Sits astride the panel's top edge. */
 function StallAwning({ color }: { color: string }) {
@@ -104,11 +126,11 @@ export function EventDetailPageClient({ event }: { event: SpectrumEvent }) {
             <Card className="p-4 md:p-5">
               <ol className="flex flex-col gap-2">
                 {event.rules.map((rule, i) => (
-                  <li key={rule} className={`${questBody.className} flex gap-2 text-xs md:text-base`} style={{ color: NAVY }}>
+                  <li key={`${rule}-${i}`} className={`${questBody.className} flex gap-2 text-xs md:text-base`} style={{ color: NAVY }}>
                     <span className="font-bold" style={{ color: PINK }}>
                       {i + 1}.
                     </span>
-                    {rule}
+                    <span>{renderRuleText(rule)}</span>
                   </li>
                 ))}
               </ol>

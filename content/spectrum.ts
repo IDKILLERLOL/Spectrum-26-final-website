@@ -185,6 +185,7 @@ export const events: SpectrumEvent[] = [
     description:
       "Drop into the battleground with your squad. Last team standing takes it all.",
     rules: [
+      "**This event will be held online.**",
       "Only college students are allowed to participate, and they must bring a valid proof of identification (college ID).",
       "Squad size of 4 players + 1 optional substitute.",
       "Emulator use is strictly prohibited.",

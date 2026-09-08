@@ -30,6 +30,28 @@ import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, D
 import { Trophy, ArrowRight, X, ChevronDown, Megaphone } from "lucide-react"
 import { useQuest } from "@/components/flagship/quest-context"
 
+function renderRuleText(rule: string) {
+  if (!rule) return null
+  if (rule.includes("**")) {
+    const parts = rule.split(/(\*\*.*?\*\*)/g)
+    return (
+      <>
+        {parts.map((part, idx) => {
+          if (part.startsWith("**") && part.endsWith("**")) {
+            return (
+              <strong key={idx} className="font-bold">
+                {part.slice(2, -2)}
+              </strong>
+            )
+          }
+          return part
+        })}
+      </>
+    )
+  }
+  return rule
+}
+
 function HeroBackground() {
   const reduced = useReducedMotion()
   return (
@@ -499,7 +521,7 @@ export function HomePageClient({ events }: { events: SpectrumEvent[] }) {
                     </p>
                     <ul className="list-disc pl-4 space-y-1 text-xs leading-relaxed" style={{ color: NAVY }}>
                       {selectedEvent.rules.map((rule, idx) => (
-                        <li key={idx} className={questBody.className}>{rule}</li>
+                        <li key={idx} className={questBody.className}>{renderRuleText(rule)}</li>
                       ))}
                     </ul>
                   </div>
