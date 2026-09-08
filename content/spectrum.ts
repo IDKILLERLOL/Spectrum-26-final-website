@@ -285,16 +285,16 @@ export const team: TeamMember[] = [
   { id: "rupali-pawar", name: "Ms. Rupali Pawar", role: "Faculty Coordinator", group: "Faculty", order: 2, imageUrl: "/team/rupali-pawar.jpeg" },
 
   // Core
-  { id: "rudra-rane", name: "Rudra Rane", role: "Mentor", group: "Core", order: 3 },
+  { id: "rudra-rane", name: "Rudra Rane", role: "Mentor", group: "Core", order: 3, imageUrl: "/team/rudra-rane.jpeg" },
   { id: "divit-shah", name: "Divit Shah", role: "Mentor", group: "Core", order: 4, imageUrl: "/team/divit-shah.jpeg" },
-  { id: "kahaan-kapasi", name: "Kahaan Kapasi", role: "Mentor", group: "Core", order: 5 },
+  { id: "kahaan-kapasi", name: "Kahaan Kapasi", role: "Mentor", group: "Core", order: 5, imageUrl: "/team/kahaan-kapasi.jpeg" },
   { id: "dhairya-gandhi", name: "Dhairya Gandhi", role: "President", group: "Core", order: 6, imageUrl: "/team/dhairya-gandhi.jpeg" },
   { id: "asiyah-patel", name: "Asiyah Patel", role: "President", group: "Core", order: 7, imageUrl: "/team/asiyah-patel.jpeg" },
   { id: "darsh-bhagat", name: "Darsh Bhagat", role: "Vice President", group: "Core", order: 8, imageUrl: "/team/darsh-bhagat.jpeg" },
 
   // Heads
   { id: "pratham-poladia", name: "Pratham Poladia", role: "Tech Head", group: "Heads", order: 9, imageUrl: "/team/pratham-poladia.jpeg" },
-  { id: "ishaan-doshi", name: "Ishaan Doshi", role: "Tech Head", group: "Heads", order: 10 },
+  { id: "ishaan-doshi", name: "Ishaan Doshi", role: "Tech Head", group: "Heads", order: 10, imageUrl: "/team/ishaan-doshi.jpeg" },
   { id: "bhumi-choksi", name: "Bhumi Choksi", role: "Creatives Head", group: "Heads", order: 11, imageUrl: "/team/bhumi-chokshi.jpeg" },
   { id: "unnati-thotam", name: "Unnati Thotam", role: "Creatives Head", group: "Heads", order: 12, imageUrl: "/team/unnati-thotam.jpeg" },
   { id: "yatharth-kendule", name: "Yatharth Kendule", role: "EA FC 26 Head", group: "Heads", order: 13, imageUrl: "/team/yatharth-kendule.jpeg" },
