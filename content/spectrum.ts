@@ -288,8 +288,8 @@ export const team: TeamMember[] = [
   { id: "rudra-rane", name: "Rudra Rane", role: "Mentor", group: "Core", order: 3, imageUrl: "/team/rudra-rane.jpeg" },
   { id: "divit-shah", name: "Divit Shah", role: "Mentor", group: "Core", order: 4, imageUrl: "/team/divit-shah.jpeg" },
   { id: "kahaan-kapasi", name: "Kahaan Kapasi", role: "Mentor", group: "Core", order: 5, imageUrl: "/team/kahaan-kapasi.jpeg" },
-  { id: "dhairya-gandhi", name: "Dhairya Gandhi", role: "President", group: "Core", order: 6, imageUrl: "/team/dhairya-gandhi.jpeg" },
-  { id: "asiyah-patel", name: "Asiyah Patel", role: "President", group: "Core", order: 7, imageUrl: "/team/asiyah-patel.jpeg" },
+  { id: "asiyah-patel", name: "Asiyah Patel", role: "President", group: "Core", order: 6, imageUrl: "/team/asiyah-patel.jpeg" },
+  { id: "dhairya-gandhi", name: "Dhairya Gandhi", role: "President", group: "Core", order: 7, imageUrl: "/team/dhairya-gandhi.jpeg" },
   { id: "darsh-bhagat", name: "Darsh Bhagat", role: "Vice President", group: "Core", order: 8, imageUrl: "/team/darsh-bhagat.jpeg" },
 
   // Heads
@@ -478,7 +478,7 @@ export const venueMapsUrl = "https://maps.google.com/?q=SVKM's+Shri+Bhagubhai+Ma
 
 export const contact = {
   email: "sbmpspectrum@gmail.com",
-  phone: `+91 90046 20948 - Dhairya Gandhi\n+91 90201 95204 - Darsh Bhagat\n+91 86574 78886 - Asiyah Patel`,
+  phone: `+91 86574 78886 - Asiyah Patel\n+91 90046 20948 - Dhairya Gandhi\n+91 90201 95204 - Darsh Bhagat`,
   hours: "10:00 AM – 6:00 PM",
   hoursNote: "Outside these hours, enquiries will not be entertained.",
   location: "SVKM's Shri Bhagubhai Mafatlal Polytechnic & College of Engineering",
