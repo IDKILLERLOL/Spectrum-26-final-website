@@ -1,7 +1,7 @@
 "use client"
 
 import { initializeApp, getApps, getApp } from "firebase/app"
-import { getAuth, GoogleAuthProvider } from "firebase/auth"
+import { getAuth, GoogleAuthProvider, browserSessionPersistence, setPersistence } from "firebase/auth"
 
 /**
  * Narrow, deliberate exception to "no Firebase client SDK" — used ONLY by the
@@ -44,7 +44,10 @@ export function getClientAuth() {
   }
 
   const app = getApps().length ? getApp() : initializeApp(firebaseConfig)
-  return getAuth(app)
+  const auth = getAuth(app)
+  // Ensure persistence avoids visibilitychange IndexedDB drop during popup
+  setPersistence(auth, browserSessionPersistence).catch(() => {})
+  return auth
 }
 
 export const googleProvider = new GoogleAuthProvider()
