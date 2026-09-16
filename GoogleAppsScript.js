@@ -109,6 +109,7 @@ function doPost(e) {
       "fifa": "FC 26",
       "non-tech-1": "FC 26",
       "bgmi": "BGMI",
+      "bgmi (online)": "BGMI",
       "non-tech-3": "BGMI"
     };
 

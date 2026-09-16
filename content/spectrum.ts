@@ -171,7 +171,7 @@ export const events: SpectrumEvent[] = [
     index: "04",
     order: 4,
     category: "Gaming",
-    name: "BGMI",
+    name: "BGMI (Online)",
     shortName: "BGMI",
     tag: "Squad up. Drop in. Survive.",
     format: "Team / Squad",

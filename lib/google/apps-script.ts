@@ -248,7 +248,7 @@ export function cleanEventName(eventName: string): string {
     return "FC 26"
   } else if (["dual-debug", "dual_debug", "tech-duo-1"].includes(lower)) {
     return "Dual Debug"
-  } else if (["bgmi", "non-tech-3"].includes(lower)) {
+  } else if (["bgmi", "bgmi (online)", "non-tech-3"].includes(lower)) {
     return "BGMI"
   }
   return eventName || ""
