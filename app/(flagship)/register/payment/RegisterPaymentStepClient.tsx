@@ -156,6 +156,18 @@ export function RegisterPaymentStepClient({ upiVpa }: { upiVpa: string }) {
                 />
               </div>
 
+              {/* Invisible Honeypot Field — Trap for automated scripts */}
+              <div style={{ position: "absolute", opacity: 0, pointerEvents: "none", zIndex: -1 }} aria-hidden="true">
+                <input
+                  type="text"
+                  name="website_url_check"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={values.website_url_check || ""}
+                  onChange={(e) => setField("website_url_check", e.target.value)}
+                />
+              </div>
+
               {/* Payment Verification Screenshot Upload */}
               <div className="flex flex-col gap-1.5">
                 <label className={`${questBody.className} text-[10px] font-bold uppercase md:text-xs`} style={{ color: TEAL }}>

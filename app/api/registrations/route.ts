@@ -7,8 +7,21 @@ import { syncToSheet, buildRegistrationRow } from "@/lib/google/apps-script"
 import { sendEmail } from "@/lib/email/send"
 import { registrationReceivedEmail } from "@/lib/email/templates"
 import { getDb } from "@/lib/firebase/admin"
+import { checkRateLimit } from "@/lib/server/rate-limit"
 
 export async function POST(request: Request) {
+  // 1. IP Rate Limiting (max 4 submissions per 3 minutes per IP)
+  const forwarded = request.headers.get("x-forwarded-for")
+  const clientIp = forwarded ? forwarded.split(",")[0].trim() : (request.headers.get("x-real-ip") || "127.0.0.1")
+  const rateCheck = checkRateLimit(clientIp, 4, 3 * 60 * 1000)
+
+  if (!rateCheck.allowed) {
+    return NextResponse.json(
+      { error: "RATE_LIMIT", message: `Too many submissions. Please wait ${rateCheck.retryAfterSec}s before trying again.` },
+      { status: 429, headers: { "Retry-After": String(rateCheck.retryAfterSec) } }
+    )
+  }
+
   let body: unknown
   try {
     body = await request.json()
@@ -24,6 +37,12 @@ export async function POST(request: Request) {
     )
   }
   const input = parsed.data
+
+  // 2. Honeypot check: Bots automatically populate all inputs; humans never see this
+  if (input.website_url_check && input.website_url_check.trim().length > 0) {
+    console.warn(`[Anti-Bot] Honeypot triggered from IP ${clientIp}. Rejecting fake submission.`);
+    return NextResponse.json({ error: "VALIDATION", message: "Invalid submission." }, { status: 400 })
+  }
 
   const event = await getEvent(input.eventId)
   if (!event) {

@@ -532,6 +532,7 @@ export interface QuestFormValues {
   year: string
   paymentRefId: string // 12-digit UPI transaction reference
   pictureUrl?: string
+  website_url_check?: string // Honeypot field
 }
 
 export const questFormDefaults: QuestFormValues = {
@@ -552,4 +553,5 @@ export const questFormDefaults: QuestFormValues = {
   year: "",
   paymentRefId: "",
   pictureUrl: "",
+  website_url_check: "",
 }
