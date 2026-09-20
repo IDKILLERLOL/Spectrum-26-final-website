@@ -114,7 +114,7 @@ export const events: SpectrumEvent[] = [
     color: "#FF6F61",
     duration: "3 Rounds",
     description:
-      "Singularity Strike is a solo competition with three rounds.\n\nRound 1: Quantum Query (Speed Trivia / Quiz)\nFormat: Solo\n- Rapid elimination round testing core CS fundamentals, tech trivia, and syntax knowledge under a strict time constraint.\n\nRound 2: CodeColosseum\nFormat: Solo\n- Live individual buzzer battle featuring rapid-fire logic traps, code analysis, and algorithmic sprints with point deductions for wrong answers.\n\nRound 3: Binary Bingo (Final Countdown)\nFormat: Solo\n- Strategic task-matrix challenge where participants solve mini-coding problems or output puzzles to claim squares on their personal grid and complete winning lines.",
+      "Singularity Strike is a solo competition with three rounds.\n\nRound 1: Quantum Query (Speed Trivia / Quiz)\nFormat: Solo\n- Rapid elimination round testing core CS fundamentals, tech trivia, and syntax knowledge under a strict time constraint.\n\nRound 2: Code Colosseum\nFormat: Solo\n- Hackerrank contest: Solve 3 coding challenges, showcase skills, win.\n\nRound 3: Binary Bingo (Final Countdown)\nFormat: Solo\n- Strategic task-matrix challenge where participants solve mini-coding problems or output puzzles to claim squares on their personal grid and complete winning lines.",
     rules: [
       "Only college students are allowed to participate, and they must bring a valid proof of identification (college ID).",
       "Individual participation only, no teams.",
@@ -214,7 +214,7 @@ export const EVENT_ROUNDS: Record<string, Array<{title: string; content: string}
   ],
   "singularity-strike": [
     { title: "Round 1: Quantum Query (Speed Trivia / Quiz)", content: "Format: Solo\\n- Rapid elimination round testing core CS fundamentals, tech trivia, and syntax knowledge under a strict time constraint." },
-    { title: "Round 2: CodeColosseum", content: "Format: Solo\\n- Live individual buzzer battle featuring rapid-fire logic traps, code analysis, and algorithmic sprints with point deductions for wrong answers." },
+    { title: "Round 2: Code Colosseum", content: "Format: Solo\\n- Hackerrank contest: Solve 3 coding challenges, showcase skills, win." },
     { title: "Round 3: Binary Bingo (Final Countdown)", content: "Format: Solo\\n- Strategic task-matrix challenge where participants solve mini-coding problems or output puzzles to claim squares on their personal grid and complete winning lines." }
   ]
 };
