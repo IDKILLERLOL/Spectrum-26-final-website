@@ -198,6 +198,7 @@ export const events: SpectrumEvent[] = [
       { place: "1st Place", reward: "Cash + Trophy + Goodies" },
       { place: "2nd Place", reward: "Cash + Trophy + Goodies" },
       { place: "3rd Place", reward: "Certificate + Goodies" },
+      { place: "MVP", reward: "Cash" },
     ],
     registrationEnds: "25 Sept 2026, 11:59 PM",
     registrationEndsAt: REGISTRATION_ENDS_ISO,
