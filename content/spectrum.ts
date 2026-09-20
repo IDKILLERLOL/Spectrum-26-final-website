@@ -82,6 +82,7 @@ export const events: SpectrumEvent[] = [
     rules: [
       "Only college students are allowed to participate, and they must bring a valid proof of identification (college ID).",
       "Each team must have exactly 2 participants.",
+      "Participants must have a HackerRank ID.",
       "Use of external resources is strictly prohibited.",
       "The organizers' decision is final in all matters.",
       "Any form of misconduct results in disqualification.",
@@ -117,6 +118,7 @@ export const events: SpectrumEvent[] = [
     rules: [
       "Only college students are allowed to participate, and they must bring a valid proof of identification (college ID).",
       "Individual participation only, no teams.",
+      "Participants must have a HackerRank ID.",
       "Use of external resources is strictly prohibited.",
       "The organizers' decision is final in all matters.",
       "Any form of misconduct results in disqualification.",
