@@ -5,6 +5,11 @@ import type { EmailMessage } from "./send"
 interface RegistrationReceivedInput {
   to: string
   fullName: string
+  recipientName?: string
+  leaderName?: string
+  leaderEmail?: string
+  leaderPhone?: string
+  leaderCollege?: string
   eventName: string
   teamSize: number
   amountPaid: number
@@ -73,24 +78,30 @@ function buildTeamDetailsText(
 }
 
 export function registrationReceivedEmail(input: RegistrationReceivedInput): EmailMessage {
+  const greetingName = input.recipientName || input.fullName
+  const leaderName = input.leaderName || input.fullName
+  const leaderEmail = input.leaderEmail || input.to
+  const leaderPhone = input.leaderPhone || input.phone
+  const leaderCollege = input.leaderCollege || input.collegeName
+
   const teamHtml = buildTeamDetailsHtml(
-    input.fullName,
-    input.to,
-    input.phone,
-    input.collegeName,
+    leaderName,
+    leaderEmail,
+    leaderPhone,
+    leaderCollege,
     input.teamName,
     input.teamMembers
   )
   const teamText = buildTeamDetailsText(
-    input.fullName,
-    input.to,
-    input.phone,
-    input.collegeName,
+    leaderName,
+    leaderEmail,
+    leaderPhone,
+    leaderCollege,
     input.teamName,
     input.teamMembers
   )
 
-  const text = `Hi ${input.fullName},
+  const text = `Hi ${greetingName},
 
 Your payment is under review. Please find your registered team details below:
 ${teamText}
@@ -107,7 +118,7 @@ Team ${site.name}`
 
   const html = `<div style="font-family:sans-serif;max-width:480px;margin:0 auto">
   <h2>Payment Under Review</h2>
-  <p>Hi ${input.fullName},</p>
+  <p>Hi ${greetingName},</p>
   <p>Your payment for <strong>${input.eventName}</strong> is currently under review. We will verify it shortly.</p>
   
   ${teamHtml}
@@ -127,6 +138,11 @@ Team ${site.name}`
 interface PaymentStatusInput {
   to: string
   fullName: string
+  recipientName?: string
+  leaderName?: string
+  leaderEmail?: string
+  leaderPhone?: string
+  leaderCollege?: string
   eventName: string
   status: "APPROVED" | "REJECTED"
   phone?: string
@@ -136,6 +152,12 @@ interface PaymentStatusInput {
 }
 
 export function paymentStatusEmail(input: PaymentStatusInput): EmailMessage {
+  const greetingName = input.recipientName || input.fullName
+  const leaderName = input.leaderName || input.fullName
+  const leaderEmail = input.leaderEmail || input.to
+  const leaderPhone = input.leaderPhone || input.phone
+  const leaderCollege = input.leaderCollege || input.collegeName
+
   const approved = input.status === "APPROVED"
   const headline = approved ? "Your registration is confirmed!" : "Payment verification failed"
   const body = approved
@@ -144,26 +166,26 @@ export function paymentStatusEmail(input: PaymentStatusInput): EmailMessage {
 
   const teamHtml = approved
     ? buildTeamDetailsHtml(
-        input.fullName,
-        input.to,
-        input.phone,
-        input.collegeName,
+        leaderName,
+        leaderEmail,
+        leaderPhone,
+        leaderCollege,
         input.teamName,
         input.teamMembers
       )
     : ""
   const teamText = approved
     ? buildTeamDetailsText(
-        input.fullName,
-        input.to,
-        input.phone,
-        input.collegeName,
+        leaderName,
+        leaderEmail,
+        leaderPhone,
+        leaderCollege,
         input.teamName,
         input.teamMembers
       )
     : ""
 
-  const text = `Hi ${input.fullName},
+  const text = `Hi ${greetingName},
 
 ${headline}
 
@@ -176,7 +198,7 @@ Team ${site.name}`
 
   const html = `<div style="font-family:sans-serif;max-width:480px;margin:0 auto">
   <h2>${headline}</h2>
-  <p>Hi ${input.fullName},</p>
+  <p>Hi ${greetingName},</p>
   <p>${body}</p>
   
   ${teamHtml}

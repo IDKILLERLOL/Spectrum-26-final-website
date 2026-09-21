@@ -100,11 +100,14 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
           sendEmail(
             paymentStatusEmail({
               to: recipient.email,
+              recipientName: recipient.name,
               fullName: recipient.name,
+              leaderName: existing.fullName,
+              leaderEmail: existing.userEmail,
+              leaderPhone: existing.phone,
+              leaderCollege: existing.collegeName,
               eventName: existing.eventName,
               status: body.status as "APPROVED" | "REJECTED",
-              phone: existing.phone,
-              collegeName: existing.collegeName,
               teamName: existing.teamName,
               teamMembers: existing.teamMembers,
             })
