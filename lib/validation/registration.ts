@@ -37,13 +37,14 @@ function isAllowedEmail(val: string): boolean {
 
 // Clean phone digits and verify standard 10-digit mobile number
 function isValidMobile(val: string): boolean {
-  const digits = val.replace(/\D/g, "")
+  let digits = val.replace(/\D/g, "")
+  if (digits.startsWith("91") && digits.length === 12) {
+    digits = digits.slice(2)
+  }
+  // Check for obvious spam repeating digits (e.g. 9999999999, 8888888888) FIRST
+  if (/^(\d)\1{9}$/.test(digits)) return false
   // Standard 10 digit Indian mobile (starts with 6, 7, 8, 9)
   if (/^[6-9]\d{9}$/.test(digits)) return true
-  // With 91 prefix (12 digits)
-  if (/^91[6-9]\d{9}$/.test(digits)) return true
-  // Obvious spam repeating digits
-  if (/^(\d)\1{9}$/.test(digits)) return false
   return false
 }
 
@@ -67,7 +68,13 @@ export const registrationSchema = z.object({
   teamName: z.string().trim().max(50, "Team name cannot exceed 50 characters.").optional().default(""),
   teamMembers: z.array(z.string().trim().min(1, "Team member name can't be empty.")).max(4),
   substitute: substituteSchema,
-  collegeName: z.string().trim().max(100, "College name cannot exceed 100 characters.").optional().default(""),
+  collegeName: z
+    .string()
+    .trim()
+    .min(2, "College name must be at least 2 characters.")
+    .max(100, "College name cannot exceed 100 characters.")
+    .optional()
+    .default(""),
   year: z.string().trim().min(1, "Select your year."),
   paymentRefId: z
     .string()
