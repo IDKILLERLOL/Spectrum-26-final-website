@@ -19,6 +19,7 @@ export interface SelectedEvent {
   feeNumeric: number
   fee: string
   color: string
+  registrationOpen?: boolean
 }
 
 export type SubmitError = "DUPLICATE" | "VALIDATION" | "UNKNOWN"
@@ -63,6 +64,7 @@ export function QuestProvider({ children }: { children: React.ReactNode }) {
           feeNumeric: match.feeNumeric,
           fee: match.fee,
           color: match.color,
+          registrationOpen: match.registrationOpen,
         })
       }
     }
@@ -93,6 +95,7 @@ export function QuestProvider({ children }: { children: React.ReactNode }) {
             feeNumeric: match.feeNumeric,
             fee: match.fee,
             color: match.color,
+            registrationOpen: match.registrationOpen,
           })
         }
         router.push(`/register/info?event=${eventId}`)

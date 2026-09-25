@@ -54,13 +54,22 @@ export function RegisterEventStepClient({ events }: { events: SpectrumEvent[] })
       feeNumeric: ev.feeNumeric,
       fee: ev.fee,
       color: ev.color,
+      registrationOpen: ev.registrationOpen,
     })
+    if (ev.registrationOpen === false) {
+      setErrorMsg(`Registration is closed for ${ev.name}.`)
+    }
   }
 
   async function handleNext() {
     setErrorMsg(null)
     if (!selectedEvent) {
       setErrorMsg("Please select an event to proceed.")
+      return
+    }
+
+    if (selectedEvent.registrationOpen === false) {
+      setErrorMsg(`Registration is closed for ${selectedEvent.name}.`)
       return
     }
 
@@ -126,13 +135,20 @@ export function RegisterEventStepClient({ events }: { events: SpectrumEvent[] })
                         className="flex size-6 shrink-0 items-center justify-center border-[2px]"
                         style={{ borderColor: ev.color, background: selected ? ev.color : "transparent" }}
                       />
-                      <div>
-                        <p className={`${questBody.className} text-sm font-bold md:text-base`} style={{ color: INK }}>
-                          {ev.name}
-                        </p>
-                        <p className={`${questBody.className} text-[11px] opacity-60 md:text-xs`} style={{ color: INK }}>
-                          {ev.format} · {ev.fee}
-                        </p>
+                      <div className="flex items-center justify-between w-full">
+                        <div>
+                          <p className={`${questBody.className} text-sm font-bold md:text-base`} style={{ color: INK }}>
+                            {ev.name}
+                          </p>
+                          <p className={`${questBody.className} text-[11px] opacity-60 md:text-xs`} style={{ color: INK }}>
+                            {ev.format} · {ev.fee}
+                          </p>
+                        </div>
+                        {ev.registrationOpen === false && (
+                          <span className={`${questBody.className} text-[10px] font-bold uppercase px-2 py-0.5 text-white bg-neutral-600 rounded-sm ml-2 shrink-0`}>
+                            Closed
+                          </span>
+                        )}
                       </div>
                     </Card>
                   </button>

@@ -27,7 +27,7 @@ import {
 } from "@/components/flagship/tokens"
 import { questDisplay, questBody } from "@/components/flagship/fonts"
 import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, DialogClose, DialogPortal, DialogOverlay } from "@radix-ui/react-dialog"
-import { Trophy, ArrowRight, X, ChevronDown, Megaphone } from "lucide-react"
+import { Trophy, ArrowRight, X, ChevronDown, Megaphone, Lock } from "lucide-react"
 import { useQuest } from "@/components/flagship/quest-context"
 
 function renderRuleText(rule: string) {
@@ -312,9 +312,15 @@ function FeaturedEvents({
                 >
                   {ev.index}
                 </span>
-                <span className={`${questBody.className} text-[10px] font-bold uppercase px-2 py-0.5 text-white`} style={{ background: VERMILION }}>
-                  Register
-                </span>
+                {ev.registrationOpen === false ? (
+                  <span className={`${questBody.className} text-[10px] font-bold uppercase px-2 py-0.5 text-white`} style={{ background: "#4B5563" }}>
+                    Closed
+                  </span>
+                ) : (
+                  <span className={`${questBody.className} text-[10px] font-bold uppercase px-2 py-0.5 text-white`} style={{ background: VERMILION }}>
+                    Register
+                  </span>
+                )}
               </div>
               <div className="my-3">
                 <p className={`${questBody.className} text-base font-bold`} style={{ color: NAVY }}>
@@ -327,22 +333,34 @@ function FeaturedEvents({
                   {ev.format} • {ev.fee}
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={(e) => onRegisterClick(ev, e)}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = "#FFFDF6"
-                  e.currentTarget.style.color = ev.color
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = ev.color
-                  e.currentTarget.style.color = "#FFFFFF"
-                }}
-                className={`${questBody.className} flex items-center justify-center gap-1.5 w-full py-2 text-xs font-bold text-white border-2 transition-all duration-150 ease-out hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_#000] cursor-pointer`}
-                style={{ background: ev.color, borderColor: INK, boxShadow: `2px 2px 0px ${INK}` }}
-              >
-                Register Now →
-              </button>
+              {ev.registrationOpen === false ? (
+                <button
+                  type="button"
+                  disabled
+                  onClick={(e) => e.stopPropagation()}
+                  className={`${questBody.className} flex items-center justify-center gap-1.5 w-full py-2 text-xs font-bold text-neutral-300 border-2 bg-neutral-600 cursor-not-allowed opacity-80`}
+                  style={{ borderColor: INK, boxShadow: `2px 2px 0px ${INK}` }}
+                >
+                  <Lock size={12} /> Registration Closed
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={(e) => onRegisterClick(ev, e)}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = "#FFFDF6"
+                    e.currentTarget.style.color = ev.color
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = ev.color
+                    e.currentTarget.style.color = "#FFFFFF"
+                  }}
+                  className={`${questBody.className} flex items-center justify-center gap-1.5 w-full py-2 text-xs font-bold text-white border-2 transition-all duration-150 ease-out hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_#000] cursor-pointer`}
+                  style={{ background: ev.color, borderColor: INK, boxShadow: `2px 2px 0px ${INK}` }}
+                >
+                  Register Now →
+                </button>
+              )}
             </Card>
           </div>
         ))}
@@ -540,29 +558,40 @@ export function HomePageClient({ events }: { events: SpectrumEvent[] }) {
                   </button>
                 </DialogClose>
                 {selectedEvent && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      setSelectedEvent(null)
-                      handleRegisterClick(selectedEvent, e)
-                    }}
-                    onMouseEnter={(e) => {
-                      if (selectedEvent?.color) {
-                        e.currentTarget.style.backgroundColor = "#FFFDF6"
-                        e.currentTarget.style.color = selectedEvent.color
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (selectedEvent?.color) {
-                        e.currentTarget.style.backgroundColor = selectedEvent.color
-                        e.currentTarget.style.color = "#FFFFFF"
-                      }
-                    }}
-                    className={`${questBody.className} border-2 px-5 py-2.5 text-xs font-bold uppercase text-white flex items-center gap-1.5 transition-all duration-150 ease-out hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_#000]`}
-                    style={{ background: selectedEvent.color, borderColor: INK, boxShadow: `2px 2px 0px ${INK}` }}
-                  >
-                    Register Now <ArrowRight size={14} />
-                  </button>
+                  selectedEvent.registrationOpen === false ? (
+                    <button
+                      type="button"
+                      disabled
+                      className={`${questBody.className} border-2 px-5 py-2.5 text-xs font-bold uppercase text-neutral-300 bg-neutral-600 flex items-center gap-1.5 cursor-not-allowed opacity-80`}
+                      style={{ borderColor: INK, boxShadow: `2px 2px 0px ${INK}` }}
+                    >
+                      <Lock size={14} /> Registration Closed
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        setSelectedEvent(null)
+                        handleRegisterClick(selectedEvent, e)
+                      }}
+                      onMouseEnter={(e) => {
+                        if (selectedEvent?.color) {
+                          e.currentTarget.style.backgroundColor = "#FFFDF6"
+                          e.currentTarget.style.color = selectedEvent.color
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (selectedEvent?.color) {
+                          e.currentTarget.style.backgroundColor = selectedEvent.color
+                          e.currentTarget.style.color = "#FFFFFF"
+                        }
+                      }}
+                      className={`${questBody.className} border-2 px-5 py-2.5 text-xs font-bold uppercase text-white flex items-center gap-1.5 transition-all duration-150 ease-out hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_#000]`}
+                      style={{ background: selectedEvent.color, borderColor: INK, boxShadow: `2px 2px 0px ${INK}` }}
+                    >
+                      Register Now <ArrowRight size={14} />
+                    </button>
+                  )
                 )}
               </div>
             </div>

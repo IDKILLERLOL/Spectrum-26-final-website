@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Star, Trophy } from "lucide-react"
+import { Star, Trophy, Lock } from "lucide-react"
 import type { SpectrumEvent } from "@/content/spectrum"
 import { Card } from "@/components/flagship/Card"
 import { PageHeader } from "@/components/flagship/PageHeader"
@@ -160,9 +160,15 @@ export function EventDetailPageClient({ event }: { event: SpectrumEvent }) {
             </Card>
           )}
 
-          <AppButton onClick={() => openQuest(event.id)} className="w-full py-3.5 text-sm md:text-base">
-            Register Now
-          </AppButton>
+          {event.registrationOpen === false ? (
+            <AppButton disabled className="w-full py-3.5 text-sm md:text-base opacity-60 cursor-not-allowed">
+              <Lock size={16} className="inline mr-1" /> Registration Closed
+            </AppButton>
+          ) : (
+            <AppButton onClick={() => openQuest(event.id)} className="w-full py-3.5 text-sm md:text-base">
+              Register Now
+            </AppButton>
+          )}
         </div>
       </PageContainer>
     </>

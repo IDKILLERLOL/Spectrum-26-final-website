@@ -171,6 +171,11 @@ export default function RegisterInfoStep() {
     e.preventDefault()
     setErrorMsg(null)
 
+    if (selectedEvent?.registrationOpen === false) {
+      setErrorMsg(`Registration is closed for ${selectedEvent.name}.`)
+      return
+    }
+
     if (!values.fullName.trim() || values.fullName.trim().length < 2) {
       setErrorMsg("Please enter a valid full name.")
       return
@@ -563,8 +568,8 @@ export default function RegisterInfoStep() {
                 </p>
               )}
 
-              <AppButton type="submit" disabled={checking} className="mt-2 w-full py-3.5 text-sm md:py-4 md:text-base">
-                {checking ? "Checking Email…" : "Next"}
+              <AppButton type="submit" disabled={checking || selectedEvent?.registrationOpen === false} className="mt-2 w-full py-3.5 text-sm md:py-4 md:text-base">
+                {selectedEvent?.registrationOpen === false ? "Registration Closed" : checking ? "Checking Email…" : "Next"}
               </AppButton>
             </form>
           </div>
